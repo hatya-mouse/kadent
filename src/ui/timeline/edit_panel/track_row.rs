@@ -48,7 +48,7 @@ impl KnodiqApp {
                 egui::vec2(draggable_width, row_rect.height() - 4.0),
             );
 
-            self.move_and_resize(ui, track_id, &region_id, region_rect, resize_rect);
+            self.region_gestures(ui, track_id, &region_id, region_rect, resize_rect);
 
             // Draw the region box and the name
             let Some(track_meta) = self.project_meta.get_track(track_id) else {
@@ -58,11 +58,19 @@ impl KnodiqApp {
                 continue;
             };
             let painter = ui.painter().with_clip_rect(region_rect);
+
+            // Highlight the stroke if the region is selected
+            let stroke = if self.ui_state.selected_region == Some((*track_id, region_id)) {
+                egui::Stroke::new(2.0, colors::primary_fg(ui.visuals().dark_mode))
+            } else {
+                egui::Stroke::new(1.0, colors::region_stroke(ui.visuals().dark_mode))
+            };
+
             painter.rect(
                 region_rect,
                 4.0,
                 track_meta.color.gamma_multiply(0.8),
-                egui::Stroke::new(1.0, colors::region_stroke(ui.visuals().dark_mode)),
+                stroke,
                 egui::StrokeKind::Inside,
             );
             painter.text(
@@ -99,7 +107,7 @@ impl KnodiqApp {
         }
     }
 
-    fn move_and_resize(
+    fn region_gestures(
         &mut self,
         ui: &mut egui::Ui,
         track_id: &TrackID,
@@ -111,8 +119,16 @@ impl KnodiqApp {
         let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
         let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
 
+        // Region selection by click
+        if move_res.clicked() {
+            self.ui_state.selected_region = Some((*track_id, *region_id));
+        }
+
         // Support resize
         if resize_res.dragged() {
+            // Select the region
+            self.ui_state.selected_region = Some((*track_id, *region_id));
+
             // Calculate the new duration from the drag amount
             let delta_beats =
                 Beats((resize_res.drag_delta().x / self.ui_state.pixels_per_beat) as f64);
@@ -134,6 +150,9 @@ impl KnodiqApp {
         } else {
             // Drag to move
             if move_res.dragged() {
+                // Select the region
+                self.ui_state.selected_region = Some((*track_id, *region_id));
+
                 let delta_beats =
                     Beats((move_res.drag_delta().x / self.ui_state.pixels_per_beat) as f64);
                 if let Some(region) = self
