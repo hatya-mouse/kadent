@@ -52,7 +52,7 @@ impl KnodiqApp {
                     self.errors
                         .push(AudioError::CommandFailed(AudioCommand::Pause));
                 } else {
-                    self.is_playing = true;
+                    self.is_playing = false;
                 }
             }
 

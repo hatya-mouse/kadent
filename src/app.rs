@@ -27,7 +27,12 @@ impl KnodiqApp {
         Self::make_unselectable(&cc.egui_ctx);
 
         // Create a new project and spawn an audio thread
-        let audio_ctx = AudioContext::default();
+        let audio_ctx = AudioContext {
+            channels: 2,
+            sample_rate: 48000,
+            buffer_size: 512,
+            max_voices: 32,
+        };
         let project = Project::new(audio_ctx.clone(), 120.0, Beats(0.0), Beats(8.0));
         let thread_handle = AudioThread::spawn(audio_ctx, project.clone());
 
