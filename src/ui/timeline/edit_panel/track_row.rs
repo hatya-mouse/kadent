@@ -41,28 +41,14 @@ impl KnodiqApp {
                 egui::vec2(w, row_rect.height() - 4.0),
             );
 
-            // Get gestures on the region
-            let response = ui.allocate_rect(region_rect, egui::Sense::drag());
+            // Create a rect on the right side of the region to drag and resize the region
+            let draggable_width = 5.0;
+            let resize_rect = egui::Rect::from_min_size(
+                egui::pos2(x + w - draggable_width, row_rect.min.y + 2.0),
+                egui::vec2(draggable_width, row_rect.height() - 4.0),
+            );
 
-            // Drag to move
-            if response.dragged() {
-                let delta_beats = Beats((response.drag_delta().x / ppb) as f64);
-                if let Some(region) = self
-                    .project_meta
-                    .get_track_mut(track_id)
-                    .and_then(|track| track.regions.get_mut(&region_id))
-                {
-                    region.move_region(Beats((region.start.0 + delta_beats.0).max(0.0)));
-                }
-            } else if response.drag_stopped()
-                && let Some(new_start) = self
-                    .project_meta
-                    .get_track_mut(track_id)
-                    .and_then(|track| track.regions.get_mut(&region_id))
-                    .map(|region| region.start)
-            {
-                self.move_region(track_id, &region_id, new_start);
-            }
+            self.move_and_resize(ui, track_id, &region_id, region_rect, resize_rect);
 
             // Draw the region box and the name
             let Some(track_meta) = self.project_meta.get_track(track_id) else {
@@ -110,6 +96,62 @@ impl KnodiqApp {
             }
 
             ui.close();
+        }
+    }
+
+    fn move_and_resize(
+        &mut self,
+        ui: &mut egui::Ui,
+        track_id: &TrackID,
+        region_id: &RegionID,
+        region_rect: egui::Rect,
+        resize_rect: egui::Rect,
+    ) {
+        // Get gestures on the region
+        let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
+        let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
+
+        // Support resize
+        if resize_res.dragged() {
+            // Calculate the new duration from the drag amount
+            let delta_beats =
+                Beats((resize_res.drag_delta().x / self.ui_state.pixels_per_beat) as f64);
+            if let Some(region) = self
+                .project_meta
+                .get_track_mut(track_id)
+                .and_then(|track| track.regions.get_mut(region_id))
+            {
+                region.set_duration(Beats((region.duration.0 + delta_beats.0).max(0.0)));
+            }
+        } else if resize_res.drag_stopped()
+            && let Some(new_duration) = self
+                .project_meta
+                .get_track_mut(track_id)
+                .and_then(|track| track.regions.get_mut(region_id))
+                .map(|region| region.duration)
+        {
+            self.set_region_duration(track_id, region_id, new_duration);
+        } else {
+            // Drag to move
+            if move_res.dragged() {
+                let delta_beats =
+                    Beats((move_res.drag_delta().x / self.ui_state.pixels_per_beat) as f64);
+                if let Some(region) = self
+                    .project_meta
+                    .get_track_mut(track_id)
+                    .and_then(|track| track.regions.get_mut(region_id))
+                {
+                    region.move_region(Beats((region.start.0 + delta_beats.0).max(0.0)));
+                }
+            } else if move_res.drag_stopped()
+                && let Some(new_start) = self
+                    .project_meta
+                    .get_track_mut(track_id)
+                    .and_then(|track| track.regions.get_mut(region_id))
+                    .map(|region| region.start)
+            {
+                self.move_region(track_id, region_id, new_start);
+            }
         }
     }
 }

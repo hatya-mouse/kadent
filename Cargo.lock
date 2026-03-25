@@ -2140,7 +2140,7 @@ dependencies = [
 [[package]]
 name = "knodiq_engine"
 version = "0.3.10"
-source = "git+https://github.com/hatya-mouse/knodiq_engine#b4fe8fd7c75e9e456c0275c7c2154fe10881ab34"
+source = "git+https://github.com/hatya-mouse/knodiq_engine#3d8214c1dcdd26411229254eecb1067874ef0c1d"
 dependencies = [
  "cpal",
  "ringbuf",

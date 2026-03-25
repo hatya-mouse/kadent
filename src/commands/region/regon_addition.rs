@@ -44,11 +44,12 @@ impl KnodiqApp {
                 start,
                 *duration,
             );
+            let max_duration = audio_region.max_duration;
             let region_id = audio_track.add_region(audio_region);
 
             // Add a region to the project meta
             if let Some(track_meta) = self.project_meta.get_track_mut(track_id) {
-                let region_meta = RegionMeta::new(name, start, *duration);
+                let region_meta = RegionMeta::new(name, start, *duration, Some(max_duration));
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -82,7 +83,8 @@ impl KnodiqApp {
 
             // Add a region to the project meta
             if let Some(track_meta) = self.project_meta.get_track_mut(track_id) {
-                let region_meta = RegionMeta::new(name, start, *duration);
+                // Note region can be resized as you want
+                let region_meta = RegionMeta::new(name, start, *duration, None);
                 track_meta.add_region(region_id, region_meta);
             }
 

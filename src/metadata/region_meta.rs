@@ -4,14 +4,16 @@ pub(crate) struct RegionMeta {
     pub name: String,
     pub start: Beats,
     pub duration: Beats,
+    pub max_duration: Option<Beats>,
 }
 
 impl RegionMeta {
-    pub fn new(name: String, start: Beats, duration: Beats) -> Self {
+    pub fn new(name: String, start: Beats, duration: Beats, max_duration: Option<Beats>) -> Self {
         Self {
             name,
             start,
             duration,
+            max_duration,
         }
     }
 
@@ -22,6 +24,9 @@ impl RegionMeta {
     }
 
     pub fn set_duration(&mut self, new_duration: Beats) {
-        self.duration = new_duration;
+        self.duration = self
+            .max_duration
+            .map(|max| new_duration.min(max))
+            .unwrap_or(new_duration);
     }
 }
