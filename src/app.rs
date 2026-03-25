@@ -1,3 +1,4 @@
+use crate::{metadata::ProjectMeta, ui_state::KnodiqUIState};
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily};
 use knodiq_engine::{
     audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
@@ -15,6 +16,10 @@ pub struct KnodiqApp {
     pub thread_handle: AudioThreadHandle,
     /// Errors to be shown.
     pub errors: Vec<AudioError>,
+    /// The metadata of the project.
+    pub project_meta: ProjectMeta,
+    /// UI states to store the current UI state.
+    pub ui_state: KnodiqUIState,
 }
 
 impl KnodiqApp {
@@ -24,7 +29,7 @@ impl KnodiqApp {
 
         // UI Setup
         Self::setup_fonts(&cc.egui_ctx);
-        Self::make_unselectable(&cc.egui_ctx);
+        Self::base_style(&cc.egui_ctx);
 
         // Create a new project and spawn an audio thread
         let audio_ctx = AudioContext {
@@ -41,6 +46,8 @@ impl KnodiqApp {
             is_playing: false,
             thread_handle,
             errors: Vec::new(),
+            project_meta: ProjectMeta::new("Project".to_string()),
+            ui_state: KnodiqUIState::default(),
         }
     }
 
@@ -76,10 +83,13 @@ impl KnodiqApp {
         ctx.set_fonts(fonts);
     }
 
-    fn make_unselectable(ctx: &egui::Context) {
+    fn base_style(ctx: &egui::Context) {
         ctx.style_mut(|style| {
             // Make labels unselectable by default
             style.interaction.selectable_labels = false;
+
+            // Remove window shadows
+            style.visuals.window_shadow = egui::Shadow::NONE;
         });
     }
 }
