@@ -1,9 +1,11 @@
-mod app;
 pub(crate) mod colors;
+pub(crate) mod commands;
 pub(crate) mod components;
 pub(crate) mod metadata;
-mod ui;
 pub(crate) mod ui_state;
+
+mod app;
+mod ui;
 
 use app::KnodiqApp;
 use eframe::egui::ViewportBuilder;

@@ -19,4 +19,12 @@ impl ProjectMeta {
             name,
         }
     }
+
+    // --- TRACK MANAGEMENT ---
+
+    /// Adds a new track to the project with the given ID.
+    pub fn add_track(&mut self, id: TrackID, track: TrackMeta) {
+        self.tracks.insert(id, track);
+        self.track_order.push(id);
+    }
 }

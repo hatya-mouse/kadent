@@ -1,10 +1,14 @@
-mod add_track_dialog;
+mod track_dialog;
 
-use crate::{app::KnodiqApp, components::icon_button::icon_button};
+use crate::{
+    app::KnodiqApp,
+    components::icon_button::icon_button,
+    ui_state::dialog_state::{AddTrackState, DialogState, TrackType},
+};
 use eframe::egui;
 
 impl KnodiqApp {
-    pub(super) fn track_list(&mut self, ui: &mut egui::Ui) {
+    pub(super) fn track_list_panel(&mut self, ui: &mut egui::Ui) {
         for track_id in &self.project_meta.track_order {
             if let Some(track_meta) = self.project_meta.tracks.get(track_id) {
                 ui.horizontal(|ui| {
@@ -21,11 +25,14 @@ impl KnodiqApp {
 
         if icon_button(
             ui,
-            egui::Image::new(egui::include_image!("../../../assets/icons/plus.svg")),
+            egui::Image::new(egui::include_image!("../../../../assets/icons/plus.svg")),
         )
         .clicked()
         {
-            self.ui_state.show_add_track_dialog = true;
+            self.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
+                selected_track_type: TrackType::AudioTrack,
+                name: String::new(),
+            });
         }
     }
 }
