@@ -1,6 +1,6 @@
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily};
 use knodiq_engine::{
-    audio_thread::{AudioThread, AudioThreadHandle},
+    audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
     data_types::{AudioContext, Beats},
     mixer::Project,
 };
@@ -13,6 +13,8 @@ pub struct KnodiqApp {
     pub is_playing: bool,
     /// A thread handle to communicate with the audio thread.
     pub thread_handle: AudioThreadHandle,
+    /// Errors to be shown.
+    pub errors: Vec<AudioError>,
 }
 
 impl KnodiqApp {
@@ -27,12 +29,13 @@ impl KnodiqApp {
         // Create a new project and spawn an audio thread
         let audio_ctx = AudioContext::default();
         let project = Project::new(audio_ctx.clone(), 120.0, Beats(0.0), Beats(8.0));
-        let thread_handle = AudioThread::spawn(audio_ctx, project);
+        let thread_handle = AudioThread::spawn(audio_ctx, project.clone());
 
         Self {
             project,
             is_playing: false,
             thread_handle,
+            errors: Vec::new(),
         }
     }
 
