@@ -280,7 +280,7 @@ impl KnodiqApp {
     }
 
     fn base_style(ctx: &egui::Context) {
-        ctx.style_mut(|style| {
+        ctx.global_style_mut(|style| {
             // Make labels unselectable by default
             style.interaction.selectable_labels = false;
 

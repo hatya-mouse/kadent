@@ -6,7 +6,7 @@ use crate::{
 use eframe::egui;
 
 impl KnodiqApp {
-    pub(crate) fn track_dialog(&mut self, ctx: &egui::Context) {
+    pub(crate) fn track_dialog(&mut self, ui: &egui::Ui) {
         let DialogState::AddTrack(mut state) =
             std::mem::replace(&mut self.ui_state.dialog_state, DialogState::None)
         else {
@@ -15,7 +15,7 @@ impl KnodiqApp {
 
         let mut close = false;
 
-        let modal = dialog(ctx, "Add Track", |ui| {
+        let modal = dialog(ui, "Add Track", |ui| {
             ui.columns(2, |cols| {
                 cols[0].label("Track Type");
                 for track_type in [TrackType::AudioTrack, TrackType::NoteTrack] {

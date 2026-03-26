@@ -2,19 +2,19 @@ use crate::{colors, fonts::RichTextExt};
 use eframe::egui::{self, CornerRadius, ModalResponse};
 
 pub(crate) fn dialog<T>(
-    ctx: &egui::Context,
+    ui: &egui::Ui,
     title: impl Into<String>,
     content: impl FnOnce(&mut egui::Ui) -> T,
 ) -> ModalResponse<T> {
     egui::Modal::new(egui::Id::new("add_track"))
         .frame(
-            egui::Frame::popup(&ctx.style())
+            egui::Frame::popup(ui.style())
                 .shadow(egui::Shadow::NONE)
                 .inner_margin(0),
         )
-        .show(ctx, |ui| {
+        .show(ui, |ui| {
             // Show the dialog title header
-            let corner_radius = ctx.style().visuals.window_corner_radius;
+            let corner_radius = ui.style().visuals.window_corner_radius;
             egui::Frame::new()
                 .fill(colors::tertiary_bg(ui.visuals().dark_mode))
                 .inner_margin(0)

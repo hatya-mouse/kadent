@@ -84,18 +84,20 @@ impl KnodiqApp {
     }
 
     fn track_row_gestures(&mut self, ui: &mut egui::Ui, track_id: &TrackID, row_rect: egui::Rect) {
-        let area = ui.allocate_rect(row_rect, egui::Sense::click());
-        let track_type = self.project_meta.get_track(track_id).map(|m| m.track_type);
+        let response = ui.allocate_rect(row_rect, egui::Sense::click());
 
-        if area.double_clicked() {
-            let click_pos_beats = area.interact_pointer_pos().map(|pos| {
-                Beats(
-                    ((pos.x - row_rect.min.x) / self.ui_state.timeline_state.pixels_per_beat)
-                        as f64,
-                )
-            });
+        if response.double_clicked() {
+            let start = response
+                .interact_pointer_pos()
+                .map(|pos| {
+                    Beats(
+                        ((pos.x - row_rect.min.x) / self.ui_state.timeline_state.pixels_per_beat)
+                            as f64,
+                    )
+                })
+                .unwrap_or_default();
 
-            let start = click_pos_beats.unwrap_or(Beats(0.0));
+            let track_type = self.project_meta.get_track(track_id).map(|m| m.track_type);
             match track_type {
                 Some(TrackType::AudioTrack) => {
                     self.add_audio_region(track_id, "Region".to_string(), start);

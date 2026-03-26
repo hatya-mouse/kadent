@@ -6,27 +6,27 @@ use crate::{app::KnodiqApp, colors};
 use eframe::{App, egui};
 
 impl App for KnodiqApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::TopBottomPanel::top("toolbar")
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::top("toolbar")
             .frame(
                 egui::Frame::new()
-                    .fill(colors::tertiary_bg(ctx.style().visuals.dark_mode))
+                    .fill(colors::tertiary_bg(ui.visuals().dark_mode))
                     .inner_margin(egui::Margin::symmetric(12, 0)),
             )
-            .exact_height(44.0)
-            .show(ctx, |ui| {
+            .exact_size(44.0)
+            .show_inside(ui, |ui| {
                 self.toolbar(ui);
             });
 
         if self.ui_state.selected_region.is_some() {
-            egui::TopBottomPanel::bottom("piano_roll")
+            egui::Panel::bottom("piano_roll")
                 .frame(
                     egui::Frame::new()
-                        .fill(colors::primary_bg(ctx.style().visuals.dark_mode))
+                        .fill(colors::primary_bg(ui.visuals().dark_mode))
                         .inner_margin(0),
                 )
-                .min_height(300.0)
-                .show(ctx, |ui| {
+                .min_size(300.0)
+                .show_inside(ui, |ui| {
                     self.piano_roll(ui);
                 });
         }
@@ -34,15 +34,15 @@ impl App for KnodiqApp {
         egui::CentralPanel::default()
             .frame(
                 egui::Frame::new()
-                    .fill(colors::primary_bg(ctx.style().visuals.dark_mode))
+                    .fill(colors::primary_bg(ui.visuals().dark_mode))
                     .inner_margin(0),
             )
-            .show(ctx, |ui| {
+            .show_inside(ui, |ui| {
                 self.timeline(ui);
             });
 
         // Show dialogs
-        self.track_dialog(ctx);
+        self.track_dialog(ui);
 
         // Check for project updating
         self.update_project();
