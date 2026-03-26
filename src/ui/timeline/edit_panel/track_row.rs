@@ -124,11 +124,6 @@ impl KnodiqApp {
         let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
         let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
 
-        // Region selection by click
-        if move_res.clicked() {
-            self.ui_state.set_selected_region(*track_id, *region_id);
-        }
-
         // Support resize
         if resize_res.dragged() {
             // Select the region

@@ -150,32 +150,6 @@ impl KnodiqApp {
         note: Note,
         note_rect: egui::Rect,
     ) {
-        // Handle note drag and click gesture
-        let drag_res = ui.allocate_rect(note_rect, egui::Sense::click_and_drag());
-
-        if drag_res.clicked() {
-            // Handle the click to select gesture
-            self.ui_state.piano_roll_state.selected_note = Some(*note_id);
-        } else {
-            // Calculate the beats from the drag amount
-            let delta_beats = Beats(
-                (drag_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
-            );
-            let new_start = note.start + delta_beats;
-            if drag_res.dragged() {
-                if let Some(region) = self
-                    .project
-                    .get_track_mut(track_id)
-                    .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-                    .and_then(|track| track.get_region_mut(region_id))
-                {
-                    region.set_start(note_id, new_start);
-                }
-            } else if drag_res.drag_stopped() {
-                self.set_note_start(track_id, region_id, note_id, new_start);
-            }
-        }
-
         // Check for the delete key input
         if self.ui_state.piano_roll_state.selected_note == Some(*note_id) {
             let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
@@ -186,6 +160,28 @@ impl KnodiqApp {
                 self.remove_note(track_id, region_id, note_id);
                 self.ui_state.piano_roll_state.selected_note = None;
             }
+        }
+
+        // Handle note click gesture
+        let response = ui.allocate_rect(note_rect, egui::Sense::drag());
+
+        // Calculate the beats from the drag amount
+        let delta_beats =
+            Beats((response.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64);
+        let new_start = note.start + delta_beats;
+        if response.dragged() {
+            self.ui_state.piano_roll_state.selected_note = Some(*note_id);
+
+            if let Some(region) = self
+                .project
+                .get_track_mut(track_id)
+                .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
+                .and_then(|track| track.get_region_mut(region_id))
+            {
+                region.set_start(note_id, new_start);
+            }
+        } else if response.drag_stopped() && new_start != note.start {
+            self.set_note_start(track_id, region_id, note_id, new_start);
         }
     }
 }

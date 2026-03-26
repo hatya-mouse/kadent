@@ -1,8 +1,9 @@
 mod playback_control;
 mod toolbar_group;
 
-use crate::app::KnodiqApp;
+use crate::{app::KnodiqApp, fonts::RichTextExt, ui::toolbar::toolbar_group::toolbar_group};
 use eframe::egui;
+use std::sync::atomic::Ordering;
 
 impl KnodiqApp {
     pub(super) fn toolbar(&mut self, ui: &mut egui::Ui) {
@@ -23,6 +24,24 @@ impl KnodiqApp {
 
             // Draw the playback control buttons
             self.playback_control(ui);
+
+            // Show the current playhead beats
+            self.playhead_beats(ui);
+        });
+    }
+
+    fn playhead_beats(&mut self, ui: &mut egui::Ui) {
+        toolbar_group(ui, |ui| {
+            let playhead_samples = self.thread_handle.playhead.load(Ordering::Acquire);
+            let playhead_beats = self.project.tempo_map.samples_to_beats(playhead_samples);
+            ui.add_sized(
+                [200.0, 28.0],
+                egui::Label::new(
+                    egui::RichText::new(format!("{:.3}", playhead_beats.0))
+                        .size(18.0)
+                        .bold(),
+                ),
+            );
         });
     }
 }
