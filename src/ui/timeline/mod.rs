@@ -38,13 +38,14 @@ impl KnodiqApp {
             total_rect.max,
         );
         scrolled_panel(ui, edit_rect, scroll_y, |ui| {
-            egui::ScrollArea::horizontal()
+            let output = egui::ScrollArea::horizontal()
                 .min_scrolled_height(edit_rect.height())
                 .show(ui, |ui| {
                     let min_height = ui.available_height();
                     ui.set_min_height(min_height);
-                    self.track_edit_panel(ui);
+                    self.track_edit_panel(ui, edit_rect);
                 });
+            self.ui_state.timeline_scroll_x = output.state.offset.x;
         });
 
         // Add a divider and make it draggable

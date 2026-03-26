@@ -13,6 +13,9 @@ pub struct KnodiqUIState {
     /// The last playhead x position.
     pub last_playhead_x: f32,
 
+    /// The x scroll amount of the timeline.
+    pub timeline_scroll_x: f32,
+
     /// An ID of the currently selected region.
     pub selected_region: Option<(TrackID, RegionID)>,
 
@@ -34,6 +37,7 @@ impl Default for KnodiqUIState {
         Self {
             last_playhead: 0,
             last_playhead_x: 0.0,
+            timeline_scroll_x: 0.0,
             dialog_state: DialogState::None,
             selected_region: None,
             track_height: 50.0,

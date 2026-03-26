@@ -5,12 +5,12 @@ use eframe::egui;
 use std::sync::atomic::Ordering;
 
 impl KnodiqApp {
-    pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
         egui::Frame::new()
             .fill(colors::tertiary_bg(ui.visuals().dark_mode))
             .show(ui, |ui| {
                 // Draw the playhead
-                self.playhead(ui);
+                self.playhead(ui, edit_rect);
 
                 // Draw each tracks
                 let track_height = self.ui_state.track_height;
@@ -24,26 +24,22 @@ impl KnodiqApp {
                         egui::vec2(available.width(), track_height),
                     );
 
-                    // Alternate coloring
-                    let bg_color = if i % 2 == 0 {
-                        egui::Color32::from_white_alpha(0)
-                    } else {
-                        egui::Color32::from_white_alpha(20)
-                    };
-                    ui.painter().rect_filled(row_rect, 0.0, bg_color);
+                    self.track_row(ui, track_id, row_rect);
 
                     // Draw a separator
-                    ui.painter().line_segment(
-                        [row_rect.left_bottom(), row_rect.right_bottom()],
-                        egui::Stroke::new(1.0, egui::Color32::from_gray(30)),
+                    ui.painter().hline(
+                        egui::Rangef {
+                            min: available.min.x,
+                            max: available.min.x + available.width(),
+                        },
+                        y + track_height,
+                        egui::Stroke::new(1.0, colors::region_stroke(ui.visuals().dark_mode)),
                     );
-
-                    self.track_row(ui, track_id, row_rect);
                 }
             });
     }
 
-    fn playhead(&mut self, ui: &mut egui::Ui) {
+    fn playhead(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
         let playhead_sample = self.thread_handle.playhead.load(Ordering::Acquire);
         let available = ui.available_rect_before_wrap();
 
@@ -55,11 +51,13 @@ impl KnodiqApp {
         }
 
         // Create a new painter to draw on the foreground layer
-        let painter = ui.ctx().layer_painter(egui::LayerId::new(
+        let mut painter = ui.ctx().layer_painter(egui::LayerId::new(
             egui::Order::Middle,
             egui::Id::new("playhead"),
         ));
+        painter.set_clip_rect(edit_rect);
 
+        // let painter = ui.painter_at(edit_rect);
         painter.vline(
             available.min.x + self.ui_state.last_playhead_x,
             egui::Rangef {
