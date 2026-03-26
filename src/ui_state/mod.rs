@@ -25,3 +25,12 @@ pub struct KnodiqUIState {
     /// An ID of the currently selected region.
     pub selected_region: Option<(TrackID, RegionID)>,
 }
+
+impl KnodiqUIState {
+    /// Set the selected region to the given one, deselecting the note.
+    pub fn set_selected_region(&mut self, track_id: TrackID, region_id: RegionID) {
+        self.selected_region = Some((track_id, region_id));
+        // Deselect the note
+        self.piano_roll_state.selected_note = None;
+    }
+}

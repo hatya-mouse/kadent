@@ -10,7 +10,7 @@ impl KnodiqApp {
         row_rect: egui::Rect,
     ) {
         self.draw_regions(ui, track_id, row_rect);
-        self.add_region_menu(ui, track_id, row_rect);
+        self.track_row_gestures(ui, track_id, row_rect);
     }
 
     fn draw_regions(&mut self, ui: &mut egui::Ui, track_id: &TrackID, row_rect: egui::Rect) {
@@ -61,7 +61,7 @@ impl KnodiqApp {
 
             // Highlight the stroke if the region is selected
             let stroke = if self.ui_state.selected_region == Some((*track_id, region_id)) {
-                egui::Stroke::new(2.0, colors::primary_fg(ui.visuals().dark_mode))
+                egui::Stroke::new(2.0, colors::region_selected())
             } else {
                 egui::Stroke::new(1.0, colors::region_stroke())
             };
@@ -83,7 +83,7 @@ impl KnodiqApp {
         }
     }
 
-    fn add_region_menu(&mut self, ui: &mut egui::Ui, track_id: &TrackID, row_rect: egui::Rect) {
+    fn track_row_gestures(&mut self, ui: &mut egui::Ui, track_id: &TrackID, row_rect: egui::Rect) {
         let area = ui.allocate_rect(row_rect, egui::Sense::click());
         let track_type = self.project_meta.get_track(track_id).map(|m| m.track_type);
 
@@ -124,13 +124,13 @@ impl KnodiqApp {
 
         // Region selection by click
         if move_res.clicked() {
-            self.ui_state.selected_region = Some((*track_id, *region_id));
+            self.ui_state.set_selected_region(*track_id, *region_id);
         }
 
         // Support resize
         if resize_res.dragged() {
             // Select the region
-            self.ui_state.selected_region = Some((*track_id, *region_id));
+            self.ui_state.set_selected_region(*track_id, *region_id);
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
@@ -155,7 +155,7 @@ impl KnodiqApp {
             // Drag to move
             if move_res.dragged() {
                 // Select the region
-                self.ui_state.selected_region = Some((*track_id, *region_id));
+                self.ui_state.set_selected_region(*track_id, *region_id);
 
                 let delta_beats = Beats(
                     (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,

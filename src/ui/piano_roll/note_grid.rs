@@ -68,28 +68,57 @@ impl KnodiqApp {
                     egui::vec2(note_width, self.ui_state.piano_roll_state.note_height),
                 );
 
+                // Highlight the selected note
+                let stroke = if self.ui_state.piano_roll_state.selected_note == Some(note_id) {
+                    egui::Stroke::new(2.0, colors::region_selected())
+                } else {
+                    egui::Stroke::new(1.0, colors::region_stroke())
+                };
+
                 // Draw the note
                 painter.rect(
                     note_rect,
                     2.0,
                     track_color,
-                    egui::Stroke::new(1.0, colors::region_stroke()),
+                    stroke,
                     egui::StrokeKind::Inside,
                 );
 
                 // Handle note gestures
-                self.note_gestures(ui, &track_id, &region_id, &note_id, note, note_rect);
+                self.note_controls(ui, &track_id, &region_id, &note_id, note, note_rect);
             }
         });
 
         // Handle pinch gesture
-        self.note_grid_gestures(ui, grid_rect);
+        self.note_grid_gestures(ui, grid_rect, &track_id, &region_id);
     }
 
-    fn note_grid_gestures(&mut self, ui: &mut egui::Ui, grid_rect: egui::Rect) {
-        let response = ui.allocate_rect(grid_rect, egui::Sense::hover());
+    fn note_grid_gestures(
+        &mut self,
+        ui: &mut egui::Ui,
+        grid_rect: egui::Rect,
+        track_id: &TrackID,
+        region_id: &RegionID,
+    ) {
+        let response = ui.allocate_rect(grid_rect, egui::Sense::click());
 
-        if response.hovered() {
+        if response.double_clicked() {
+            // Add a new note when double clicked
+            if let Some(click_pos) = response.interact_pointer_pos() {
+                // Calculate the note start beats and the pitch
+                let start = Beats(
+                    ((click_pos.x - grid_rect.min.x)
+                        / self.ui_state.piano_roll_state.pixels_per_beat)
+                        as f64,
+                );
+                let pitch = click_pos.y / self.ui_state.piano_roll_state.note_height;
+
+                // Add a note at the position
+                let note = Note::new(start, Beats(1.0), pitch, 1.0);
+                self.add_note(track_id, region_id, note);
+            }
+        } else if response.hovered() {
+            // Handle pinch zoom gesture
             let zoom_delta = ui.input(|i| i.zoom_delta());
 
             // Only zoom to adjust note height, and press shift in the meantime to adjust pixels per beat
@@ -109,7 +138,7 @@ impl KnodiqApp {
         }
     }
 
-    fn note_gestures(
+    fn note_controls(
         &mut self,
         ui: &mut egui::Ui,
         track_id: &TrackID,
@@ -135,6 +164,18 @@ impl KnodiqApp {
             }
         } else if response.drag_stopped() {
             self.set_note_start(track_id, region_id, note_id, new_start);
+        }
+
+        // Check for the delete key input
+        if self.ui_state.piano_roll_state.selected_note == Some(*note_id) {
+            let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
+            let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
+
+            if delete || backspace {
+                // Remove the note from the region
+                self.remove_note(track_id, region_id, note_id);
+                self.ui_state.piano_roll_state.selected_note = None;
+            }
         }
     }
 }

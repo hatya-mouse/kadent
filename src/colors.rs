@@ -51,3 +51,7 @@ pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
 pub(crate) fn region_stroke() -> Color32 {
     Color32::from_rgba_unmultiplied(0, 0, 0, 50)
 }
+
+pub(crate) fn region_selected() -> Color32 {
+    Color32::WHITE
+}
