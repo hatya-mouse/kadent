@@ -33,7 +33,7 @@ impl KnodiqApp {
                             max: available.min.x + available.width(),
                         },
                         y + track_height,
-                        egui::Stroke::new(1.0, colors::region_stroke(ui.visuals().dark_mode)),
+                        egui::Stroke::new(1.0, colors::region_stroke()),
                     );
                 }
             });
@@ -47,7 +47,7 @@ impl KnodiqApp {
         if self.ui_state.timeline_state.last_playhead != playhead_sample {
             let playhead_beats = self.project.tempo_map.samples_to_beats(playhead_sample);
             self.ui_state.timeline_state.last_playhead_x =
-                self.ui_state.pixels_per_beat * playhead_beats.0 as f32;
+                self.ui_state.timeline_state.pixels_per_beat * playhead_beats.0 as f32;
             self.ui_state.timeline_state.last_playhead = playhead_sample;
         }
 

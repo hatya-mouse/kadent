@@ -48,10 +48,6 @@ pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
 
 // --- TIMELINE COLORS ---
 
-pub(crate) fn region_stroke(dark_mode: bool) -> Color32 {
-    if dark_mode {
-        Color32::from_white_alpha(20)
-    } else {
-        Color32::from_black_alpha(50)
-    }
+pub(crate) fn region_stroke() -> Color32 {
+    Color32::from_rgba_unmultiplied(0, 0, 0, 50)
 }

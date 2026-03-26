@@ -2107,7 +2107,7 @@ dependencies = [
 [[package]]
 name = "kasl"
 version = "0.1.0"
-source = "git+https://github.com/hatya-mouse/kasl#14a24a91a796ff04a53fb4468f41f6e5ba6faaf1"
+source = "git+https://github.com/hatya-mouse/kasl#cfb8b0882782c3133414a1cf6d82b07bd2d65916"
 dependencies = [
  "cranelift",
  "cranelift-codegen",
@@ -2125,7 +2125,7 @@ dependencies = [
 [[package]]
 name = "kasl_node"
 version = "0.1.0"
-source = "git+https://github.com/hatya-mouse/kasl_node#580d36f8c5e9348f707963a60662aa86b0f9ce72"
+source = "git+https://github.com/hatya-mouse/kasl_node#07516d2ec79b5dce4fddf44619eed2ca885359b9"
 dependencies = [
  "kasl",
  "knodiq_engine",
@@ -2164,7 +2164,7 @@ dependencies = [
 [[package]]
 name = "knodiq_engine"
 version = "0.3.10"
-source = "git+https://github.com/hatya-mouse/knodiq_engine#2419b7c9c71e8ae50d1deb4ccc8ce70726f4525d"
+source = "git+https://github.com/hatya-mouse/knodiq_engine#b6f823f62fe9841b84610ad0186107773023540d"
 dependencies = [
  "cpal",
  "ringbuf",

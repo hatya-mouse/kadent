@@ -6,3 +6,9 @@ pub enum DialogState {
     None,
     AddTrack(AddTrackState),
 }
+
+impl Default for DialogState {
+    fn default() -> Self {
+        Self::None
+    }
+}

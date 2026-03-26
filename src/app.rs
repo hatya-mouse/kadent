@@ -74,41 +74,41 @@ impl KnodiqApp {
         let region_meta =
             RegionMeta::new("Synth Region 1".to_string(), Beats(0.0), Beats(8.0), None);
         // Add some notes to the region
-        note_region.add_note(Note::new(Beats(0.0), Beats(3.9), 58.27, 1.0));
-        note_region.add_note(Note::new(Beats(0.0), Beats(1.9), 1174.65, 1.0));
-        note_region.add_note(Note::new(Beats(2.0), Beats(0.5), 1174.65, 1.0));
-        note_region.add_note(Note::new(Beats(2.5), Beats(0.166), 1046.50, 1.0));
-        note_region.add_note(Note::new(Beats(2.666), Beats(0.166), 1174.65, 1.0));
-        note_region.add_note(Note::new(Beats(2.822), Beats(0.166), 1046.50, 1.0));
-        note_region.add_note(Note::new(Beats(3.0), Beats(0.3), 880.00, 1.0));
-        note_region.add_note(Note::new(Beats(3.5), Beats(2.4), 783.99, 1.0));
+        note_region.add_note(Note::new(Beats(0.0), Beats(3.9), 34.0, 1.0));
+        note_region.add_note(Note::new(Beats(0.0), Beats(1.9), 86.0, 1.0));
+        note_region.add_note(Note::new(Beats(2.0), Beats(0.5), 86.0, 1.0));
+        note_region.add_note(Note::new(Beats(2.5), Beats(0.166), 84.0, 1.0));
+        note_region.add_note(Note::new(Beats(2.666), Beats(0.166), 86.0, 1.0));
+        note_region.add_note(Note::new(Beats(2.822), Beats(0.166), 84.0, 1.0));
+        note_region.add_note(Note::new(Beats(3.0), Beats(0.3), 81.0, 1.0));
+        note_region.add_note(Note::new(Beats(3.5), Beats(2.4), 79.0, 1.0));
 
-        note_region.add_note(Note::new(Beats(4.0), Beats(3.9), 65.40, 1.0));
-        note_region.add_note(Note::new(Beats(6.0), Beats(0.5), 880.00, 1.0));
-        note_region.add_note(Note::new(Beats(6.5), Beats(0.166), 783.99, 1.0));
-        note_region.add_note(Note::new(Beats(6.666), Beats(0.166), 880.00, 1.0));
-        note_region.add_note(Note::new(Beats(6.822), Beats(0.166), 783.99, 1.0));
-        note_region.add_note(Note::new(Beats(7.0), Beats(0.3), 698.45, 1.0));
-        note_region.add_note(Note::new(Beats(7.5), Beats(0.5), 587.32, 1.0));
+        note_region.add_note(Note::new(Beats(4.0), Beats(3.9), 36.0, 1.0));
+        note_region.add_note(Note::new(Beats(6.0), Beats(0.5), 81.0, 1.0));
+        note_region.add_note(Note::new(Beats(6.5), Beats(0.166), 79.0, 1.0));
+        note_region.add_note(Note::new(Beats(6.666), Beats(0.166), 81.0, 1.0));
+        note_region.add_note(Note::new(Beats(6.822), Beats(0.166), 79.0, 1.0));
+        note_region.add_note(Note::new(Beats(7.0), Beats(0.3), 77.0, 1.0));
+        note_region.add_note(Note::new(Beats(7.5), Beats(0.5), 74.0, 1.0));
 
-        note_region.add_note(Note::new(Beats(8.0), Beats(3.9), 73.41, 1.0));
-        note_region.add_note(Note::new(Beats(8.0), Beats(0.5), 523.25, 1.0));
-        note_region.add_note(Note::new(Beats(8.5), Beats(0.5), 587.32, 1.0));
-        note_region.add_note(Note::new(Beats(9.0), Beats(0.5), 698.45, 1.0));
-        note_region.add_note(Note::new(Beats(9.5), Beats(0.5), 523.25, 1.0));
-        note_region.add_note(Note::new(Beats(10.0), Beats(0.5), 587.32, 1.0));
-        note_region.add_note(Note::new(Beats(10.5), Beats(1.4), 880.00, 1.0));
+        note_region.add_note(Note::new(Beats(8.0), Beats(3.9), 38.0, 1.0));
+        note_region.add_note(Note::new(Beats(8.0), Beats(0.5), 72.0, 1.0));
+        note_region.add_note(Note::new(Beats(8.5), Beats(0.5), 74.0, 1.0));
+        note_region.add_note(Note::new(Beats(9.0), Beats(0.5), 77.0, 1.0));
+        note_region.add_note(Note::new(Beats(9.5), Beats(0.5), 72.0, 1.0));
+        note_region.add_note(Note::new(Beats(10.0), Beats(0.5), 74.0, 1.0));
+        note_region.add_note(Note::new(Beats(10.5), Beats(1.4), 81.0, 1.0));
 
-        note_region.add_note(Note::new(Beats(12.0), Beats(1.9), 73.41, 1.0));
-        note_region.add_note(Note::new(Beats(12.0), Beats(0.5), 523.25, 1.0));
-        note_region.add_note(Note::new(Beats(12.5), Beats(0.5), 587.32, 1.0));
-        note_region.add_note(Note::new(Beats(13.0), Beats(0.5), 698.45, 1.0));
-        note_region.add_note(Note::new(Beats(13.5), Beats(0.5), 523.25, 1.0));
-        note_region.add_note(Note::new(Beats(14.0), Beats(1.9), 87.30, 1.0));
-        note_region.add_note(Note::new(Beats(14.0), Beats(0.5), 587.32, 1.0));
-        note_region.add_note(Note::new(Beats(14.5), Beats(0.5), 880.00, 1.0));
-        note_region.add_note(Note::new(Beats(15.0), Beats(0.5), 783.99, 1.0));
-        note_region.add_note(Note::new(Beats(15.5), Beats(0.5), 880.00, 1.0));
+        note_region.add_note(Note::new(Beats(12.0), Beats(1.9), 38.0, 1.0));
+        note_region.add_note(Note::new(Beats(12.0), Beats(0.5), 72.0, 1.0));
+        note_region.add_note(Note::new(Beats(12.5), Beats(0.5), 74.0, 1.0));
+        note_region.add_note(Note::new(Beats(13.0), Beats(0.5), 77.0, 1.0));
+        note_region.add_note(Note::new(Beats(13.5), Beats(0.5), 72.0, 1.0));
+        note_region.add_note(Note::new(Beats(14.0), Beats(1.9), 41.0, 1.0));
+        note_region.add_note(Note::new(Beats(14.0), Beats(0.5), 74.0, 1.0));
+        note_region.add_note(Note::new(Beats(14.5), Beats(0.5), 81.0, 1.0));
+        note_region.add_note(Note::new(Beats(15.0), Beats(0.5), 79.0, 1.0));
+        note_region.add_note(Note::new(Beats(15.5), Beats(0.5), 81.0, 1.0));
 
         // Create a new track
         let mut note_track = NoteTrack::new(audio_ctx.clone());
@@ -152,23 +152,24 @@ impl KnodiqApp {
             loop knodiq.max_voices {
                 if notes[i].is_active {
                     let t = notes[i].age
-                    if notes[i].frequency > 500.0 {
+                    let base_freq = 440.0 * std.float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
+
+                    if base_freq > 500.0 {
                         let vib = std.float.sin(pi2 * vib_rate * t) * vib_depth
-                        let freq = notes[i].frequency * (1.0 + vib)
-                        let mod_sig = std.float.sin(freq * fm_ratio * t * pi2) * fm_depth
-                        let carrier = std.float.sgn(std.float.sin(freq * t * pi2 + mod_sig))
+                        let vib_freq = base_freq * (1.0 + vib)
+                        let mod_sig = std.float.sin(vib_freq * fm_ratio * t * pi2) * fm_depth
+                        let carrier = std.float.sgn(std.float.sin(vib_freq * t * pi2 + mod_sig))
                         out = out + carrier * notes[i].velocity * 0.3
                     } else {
-                        let freq = notes[i].frequency
-                        let mod_sig = std.float.sin(freq * fm_ratio * t * pi2) * fm_depth
-                        let carrier = std.float.sgn(std.float.sin(freq * t * pi2 + mod_sig))
+                        let mod_sig = std.float.sin(base_freq * fm_ratio * t * pi2) * fm_depth
+                        let carrier = std.float.sgn(std.float.sin(base_freq * t * pi2 + mod_sig))
                         out = out + carrier * notes[i].velocity * 0.3
                     }
                 }
                 i = i + 1
             }
 
-            let fm_out = out / convert.intToFloat(knodiq.max_voices)
+            let fm_out = out / convert.int_to_float(knodiq.max_voices)
 
             var comb_out = 0.0
             var c = 0
@@ -215,7 +216,7 @@ impl KnodiqApp {
         }}
 
         struct Voice {{
-            var frequency = 440.0
+            var pitch = 0.0
             var velocity = 0.0
             var age = 0.0
             var is_active = false
