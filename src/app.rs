@@ -155,13 +155,13 @@ impl KnodiqApp {
                     let base_freq = 440.0 * std.float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
 
                     if base_freq > 500.0 {
-                        let vib = std.float.sin(pi2 * vib_rate * t) * vib_depth
+                        let vib = std.float.fast_sin(pi2 * vib_rate * t) * vib_depth
                         let vib_freq = base_freq * (1.0 + vib)
-                        let mod_sig = std.float.sin(vib_freq * fm_ratio * t * pi2) * fm_depth
-                        let carrier = std.float.sgn(std.float.sin(vib_freq * t * pi2 + mod_sig))
+                        let mod_sig = std.float.fast_sin(vib_freq * fm_ratio * t * pi2) * fm_depth
+                        let carrier = std.float.sgn(std.float.fast_sin(vib_freq * t * pi2 + mod_sig))
                         out = out + carrier * notes[i].velocity * 0.3
                     } else {
-                        let mod_sig = std.float.sin(base_freq * fm_ratio * t * pi2) * fm_depth
+                        let mod_sig = std.float.fast_sin(base_freq * fm_ratio * t * pi2) * fm_depth
                         let carrier = std.float.sgn(std.float.sin(base_freq * t * pi2 + mod_sig))
                         out = out + carrier * notes[i].velocity * 0.3
                     }
@@ -174,24 +174,24 @@ impl KnodiqApp {
             var comb_out = 0.0
             var c = 0
             loop 4 {
-                let read_pos = (comb_write_pos[c] + 2048 - comb_delay_time[c]) % 2048
+                let read_pos = (comb_write_pos[c] + 2048 - comb_delay_time[c]) & 2048
                 let delayed = comb_buffer[c][read_pos]
                 let new_val = fm_out + delayed * feedback
                 comb_buffer[c][comb_write_pos[c]] = new_val
                 comb_out = comb_out + delayed
-                comb_write_pos[c] = (comb_write_pos[c] + 1) % 2048
+                comb_write_pos[c] = (comb_write_pos[c] + 1) & 2048
                 c = c + 1
             }
 
             var ap_out = comb_out
             var a = 0
             loop 2 {
-                let read_pos = (all_path_write_pos[a] + 512 - all_path_delay_time[a]) % 512
+                let read_pos = (all_path_write_pos[a] + 512 - all_path_delay_time[a]) & 512
                 let delayed = all_path_buffers[a][read_pos]
                 let new_val = ap_out + delayed * -0.5
                 all_path_buffers[a][all_path_write_pos[a]] = ap_out + delayed * 0.5
                 ap_out = delayed + new_val * 0.5
-                all_path_write_pos[a] = (all_path_write_pos[a] + 1) % 512
+                all_path_write_pos[a] = (all_path_write_pos[a] + 1) & 512
                 a = a + 1
             }
 

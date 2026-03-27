@@ -1,10 +1,4 @@
 pub struct TimelineState {
-    /// The latest playhead samples received from the audio thread.
-    pub last_playhead: usize,
-
-    /// The last playhead x position.
-    pub last_playhead_x: f32,
-
     /// The height of each track in the timeline.
     pub track_height: f32,
 
@@ -21,8 +15,6 @@ pub struct TimelineState {
 impl Default for TimelineState {
     fn default() -> Self {
         Self {
-            last_playhead: 0,
-            last_playhead_x: 0.0,
             track_height: 50.0,
             track_list_width: 200.0,
             timeline_scroll_y: 0.0,

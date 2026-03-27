@@ -124,6 +124,10 @@ impl KnodiqApp {
         let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
         let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
 
+        if resize_res.hovered() {
+            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+        }
+
         // Support resize
         if resize_res.dragged() {
             // Select the region

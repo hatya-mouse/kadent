@@ -1,8 +1,9 @@
 mod track_row;
 
+use std::time::Duration;
+
 use crate::{app::KnodiqApp, colors};
 use eframe::egui;
-use std::sync::atomic::Ordering;
 
 impl KnodiqApp {
     pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
@@ -40,16 +41,10 @@ impl KnodiqApp {
     }
 
     fn playhead(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
-        let playhead_sample = self.thread_handle.playhead.load(Ordering::Acquire);
         let available = ui.available_rect_before_wrap();
 
-        // Calculate if the playhead sample has changed
-        if self.ui_state.timeline_state.last_playhead != playhead_sample {
-            let playhead_beats = self.project.tempo_map.samples_to_beats(playhead_sample);
-            self.ui_state.timeline_state.last_playhead_x =
-                self.ui_state.timeline_state.pixels_per_beat * playhead_beats.0 as f32;
-            self.ui_state.timeline_state.last_playhead = playhead_sample;
-        }
+        let playhead_x =
+            self.ui_state.timeline_state.pixels_per_beat * self.ui_state.playhead_beats.0 as f32;
 
         // Create a new painter to draw on the foreground layer
         let mut painter = ui.ctx().layer_painter(egui::LayerId::new(
@@ -60,7 +55,7 @@ impl KnodiqApp {
 
         // let painter = ui.painter_at(edit_rect);
         painter.vline(
-            available.min.x + self.ui_state.timeline_state.last_playhead_x,
+            available.min.x + playhead_x,
             egui::Rangef {
                 min: available.min.y,
                 max: available.max.y,
@@ -69,7 +64,7 @@ impl KnodiqApp {
         );
 
         if self.is_playing {
-            ui.ctx().request_repaint();
+            ui.ctx().request_repaint_after(Duration::from_millis(16));
         }
     }
 }

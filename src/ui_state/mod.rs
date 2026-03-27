@@ -5,7 +5,7 @@ pub mod timeline_state;
 use crate::ui_state::{
     dialog_state::DialogState, piano_roll_state::PianoRollState, timeline_state::TimelineState,
 };
-use knodiq_engine::{mixer::TrackID, track::RegionID};
+use knodiq_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
 use std::time::Instant;
 
 #[derive(Default)]
@@ -18,6 +18,12 @@ pub struct KnodiqUIState {
 
     /// The current piano roll state.
     pub piano_roll_state: PianoRollState,
+
+    /// The current playhead position, in beats.
+    pub playhead_beats: Beats,
+
+    /// The latest playhead samples received from the audio thread.
+    pub last_playhead: usize,
 
     /// An instant to track the last edited time for project updating.
     pub last_edit_time: Option<Instant>,

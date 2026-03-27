@@ -1,4 +1,5 @@
 pub(crate) mod piano_roll;
+pub(crate) mod playhead_calculation;
 pub(crate) mod timeline;
 pub(crate) mod toolbar;
 
@@ -7,6 +8,8 @@ use eframe::{App, egui};
 
 impl App for KnodiqApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.calculate_playhead();
+
         egui::Panel::top("toolbar")
             .frame(
                 egui::Frame::new()
