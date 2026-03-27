@@ -124,103 +124,69 @@ impl KnodiqApp {
         let graph = note_track.get_graph_mut();
 
         let program = r#"
-        import std
-        import knodiq
-        import convert
+import std
+import knodiq
+import convert
 
-        input notes = [knodiq.Voice(); knodiq.max_voices]
-        output sample = knodiq.zero_sample()
+input notes = [knodiq.Voice(); knodiq.max_voices]
+output sample = knodiq.zero_sample()
 
-        state comb_buffer = [[0.0; 2048]; 4]
-        state comb_write_pos = [0; 4]
-        state all_path_buffers = [[0.0; 512]; 2]
-        state all_path_write_pos = [0; 2]
-        let comb_delay_time = [1617, 1557, 1491, 1422]
-        let all_path_delay_time = [89, 71]
-        let feedback = 0.7
+let pi2 = 6.28318530
+let vib_rate = 6.0
+let vib_depth = 0.003
+let fm_ratio = 3.0
+let fm_depth = 0.3
 
-        let pi2 = 6.28318530
-        let vib_rate = 6.0
-        let vib_depth = 0.003
-        let fm_ratio = 3.0
-        let fm_depth = 0.3
+func main() {
+    var out = 0.0
 
-        func main() {
-            var out = 0.0
+    var i = 0
+    loop knodiq.max_voices {
+        if notes[i].is_active {
+            let t = notes[i].age
+            let base_freq = 440.0 * std.float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
 
-            var i = 0
-            loop knodiq.max_voices {
-                if notes[i].is_active {
-                    let t = notes[i].age
-                    let base_freq = 440.0 * std.float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
-
-                    if base_freq > 500.0 {
-                        let vib = std.float.fast_sin(pi2 * vib_rate * t) * vib_depth
-                        let vib_freq = base_freq * (1.0 + vib)
-                        let mod_sig = std.float.fast_sin(vib_freq * fm_ratio * t * pi2) * fm_depth
-                        let carrier = std.float.sgn(std.float.fast_sin(vib_freq * t * pi2 + mod_sig))
-                        out = out + carrier * notes[i].velocity * 0.3
-                    } else {
-                        let mod_sig = std.float.fast_sin(base_freq * fm_ratio * t * pi2) * fm_depth
-                        let carrier = std.float.sgn(std.float.sin(base_freq * t * pi2 + mod_sig))
-                        out = out + carrier * notes[i].velocity * 0.3
-                    }
-                }
-                i = i + 1
+            if base_freq > 500.0 {
+                let vib = std.float.fast_sin(pi2 * vib_rate * t) * vib_depth
+                let vib_freq = base_freq * (1.0 + vib)
+                let mod_sig = std.float.fast_sin(vib_freq * fm_ratio * t * pi2) * fm_depth
+                let carrier = std.float.sgn(std.float.fast_sin(vib_freq * t * pi2 + mod_sig))
+                out = out + carrier * notes[i].velocity * 0.3
+            } else {
+                let mod_sig = std.float.fast_sin(base_freq * fm_ratio * t * pi2) * fm_depth
+                let carrier = std.float.sgn(std.float.sin(base_freq * t * pi2 + mod_sig))
+                out = out + carrier * notes[i].velocity * 0.3
             }
-
-            let fm_out = out / convert.int_to_float(knodiq.max_voices)
-
-            var comb_out = 0.0
-            var c = 0
-            loop 4 {
-                let read_pos = (comb_write_pos[c] + 2048 - comb_delay_time[c]) & 2048
-                let delayed = comb_buffer[c][read_pos]
-                let new_val = fm_out + delayed * feedback
-                comb_buffer[c][comb_write_pos[c]] = new_val
-                comb_out = comb_out + delayed
-                comb_write_pos[c] = (comb_write_pos[c] + 1) & 2048
-                c = c + 1
-            }
-
-            var ap_out = comb_out
-            var a = 0
-            loop 2 {
-                let read_pos = (all_path_write_pos[a] + 512 - all_path_delay_time[a]) & 512
-                let delayed = all_path_buffers[a][read_pos]
-                let new_val = ap_out + delayed * -0.5
-                all_path_buffers[a][all_path_write_pos[a]] = ap_out + delayed * 0.5
-                ap_out = delayed + new_val * 0.5
-                all_path_write_pos[a] = (all_path_write_pos[a] + 1) & 512
-                a = a + 1
-            }
-
-            let wet = 0.0
-            let final_out = fm_out * (1.0 - wet) + ap_out * wet
-            sample[0] = final_out
-            sample[1] = final_out
         }
+        i = i + 1
+    }
+
+    let fm_out = (out / convert.int_to_float(knodiq.max_voices))
+
+    sample[0] = fm_out
+    sample[1] = fm_out
+}
         "#;
 
         let knodiq_lib = format!(
             r#"
-        let channels = {}
-        let sample_rate = {}
-        let max_voices = {}
-        let buffer_size = {}
+let channels = {}
+let sample_rate = {}
+let max_voices = {}
+let buffer_size = {}
 
-        typealias Sample = [Float; 2]
+typealias Sample = [Float; 2]
 
-        func zero_sample() -> Sample {{
-            return [0.0; channels]
-        }}
+func zero_sample() -> Sample {{
+    return [0.0; channels]
+}}
 
-        struct Voice {{
-            var pitch = 0.0
-            var velocity = 0.0
-            var age = 0.0
-            var is_active = false
-        }}
+struct Voice {{
+    var pitch = 0.0
+    var velocity = 0.0
+    var age = 0.0
+    var is_active = false
+}}
                 "#,
             audio_ctx.channels, audio_ctx.sample_rate, audio_ctx.max_voices, audio_ctx.buffer_size
         );

@@ -7,7 +7,7 @@ edition = "2024"
 dirs = "6.0.0"
 eframe = "0.34.0"
 egui_extras = { version = "0.34.0", features = ["all_loaders"] }
-kasl = { git = "https://github.com/hatya-mouse/kasl" }
+kasl = { git = "https://github.com/Hatya-mouse/kasl" }
 kasl_node = { git = "https://github.com/hatya-mouse/kasl_node" }
 knodiq_engine = { git = "https://github.com/hatya-mouse/knodiq_engine" }
 tempfile = "3.27.0"

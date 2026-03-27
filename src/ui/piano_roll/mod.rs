@@ -1,6 +1,6 @@
 mod note_grid;
 
-use crate::{app::KnodiqApp, ui_state::dialog_state::TrackType};
+use crate::{app::KnodiqApp, colors, ui_state::dialog_state::TrackType};
 use eframe::egui;
 
 impl KnodiqApp {
@@ -27,6 +27,10 @@ impl KnodiqApp {
             egui::pos2(total_rect.min.x, total_rect.min.y),
             total_rect.max,
         );
-        self.note_grid(ui, grid_rect, track_id, region_id);
+        egui::Frame::new()
+            .fill(colors::secondary_bg(ui.visuals().dark_mode))
+            .show(ui, |ui| {
+                self.note_grid(ui, grid_rect, track_id, region_id);
+            });
     }
 }
