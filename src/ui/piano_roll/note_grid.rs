@@ -49,7 +49,7 @@ impl KnodiqApp {
         let notes = region.notes.clone();
 
         // Draw the notes
-        egui::ScrollArea::both().show(ui, |ui| {
+        let scroll_area = egui::ScrollArea::both().show(ui, |ui| {
             // Allocate a painter
             let (response, painter) =
                 ui.allocate_painter(egui::vec2(total_width, total_height), egui::Sense::click());
@@ -87,10 +87,17 @@ impl KnodiqApp {
                 // Handle note gestures
                 self.note_controls(ui, &track_id, &region_id, &note_id, note, note_rect);
             }
-
-            // Handle zoom and track adding gestures
-            self.note_grid_gestures(ui, grid_rect, total_height, &track_id, &region_id);
         });
+
+        // Handle zoom and track adding gestures
+        self.note_grid_gestures(
+            ui,
+            grid_rect,
+            total_height,
+            scroll_area.state.offset,
+            &track_id,
+            &region_id,
+        );
     }
 
     fn note_grid_gestures(
@@ -98,6 +105,7 @@ impl KnodiqApp {
         ui: &mut egui::Ui,
         grid_rect: egui::Rect,
         scroll_height: f32,
+        scroll_amount: egui::Vec2,
         track_id: &TrackID,
         region_id: &RegionID,
     ) {
@@ -107,14 +115,8 @@ impl KnodiqApp {
             // Add a new note when double clicked
             if let Some(click_pos) = response.interact_pointer_pos() {
                 // Calculate the note start beats and the pitch
-                let start = Beats(
-                    ((click_pos.x - grid_rect.min.x)
-                        / self.ui_state.piano_roll_state.pixels_per_beat)
-                        as f64,
-                );
-                let pitch = ((scroll_height - click_pos.y)
-                    / self.ui_state.piano_roll_state.note_height)
-                    .floor();
+                let (start, pitch) =
+                    self.calc_note_position(click_pos, grid_rect, scroll_height, scroll_amount);
 
                 // Add a note at the position
                 let note = Note::new(start, Beats(1.0), pitch, 1.0);
@@ -169,6 +171,7 @@ impl KnodiqApp {
         let delta_beats =
             Beats((response.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64);
         let new_start = note.start + delta_beats;
+
         if response.dragged() {
             self.ui_state.piano_roll_state.selected_note = Some(*note_id);
 

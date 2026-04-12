@@ -1,4 +1,5 @@
 mod note_grid;
+mod utils;
 
 use crate::{app::KnodiqApp, colors, ui_state::dialog_state::TrackType};
 use eframe::egui;
