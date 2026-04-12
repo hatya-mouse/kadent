@@ -1,4 +1,7 @@
-use crate::{app::KnodiqApp, colors};
+use crate::{
+    app::KnodiqApp,
+    colors::{self, region_stroke},
+};
 use eframe::egui;
 use knodiq_engine::{
     data_types::Beats,
@@ -8,6 +11,8 @@ use knodiq_engine::{
         note_track::{Note, NoteID, NoteTrack},
     },
 };
+
+const NOTE_GRID_FACTOR: f32 = 6.0;
 
 impl KnodiqApp {
     pub(super) fn note_grid(
@@ -57,6 +62,9 @@ impl KnodiqApp {
             );
             let offset = response.rect.min;
 
+            // Draw the note grid
+            self.draw_note_grid(ui, &painter, offset, scroll_content_width);
+
             for (note_id, note) in notes {
                 // Calculate the note rect
                 let note_x =
@@ -100,6 +108,40 @@ impl KnodiqApp {
             &track_id,
             &region_id,
         );
+    }
+
+    fn draw_note_grid(
+        &self,
+        ui: &mut egui::Ui,
+        painter: &egui::Painter,
+        offset: egui::Pos2,
+        scroll_content_width: f32,
+    ) {
+        let grid_color_note = region_stroke();
+        let grid_color_octave = ui.visuals().window_stroke().color;
+
+        let note_height = self.ui_state.piano_roll_state.note_height;
+        // Only show per note grid lines if the note height is large enough
+        let show_per_note_grid = note_height >= NOTE_GRID_FACTOR;
+
+        for midi_note in 0u32..=128 {
+            let y = offset.y + (128.0 - midi_note as f32) * note_height;
+            let is_octave_boundary = midi_note % 12 == 0;
+
+            if is_octave_boundary {
+                painter.hline(
+                    offset.x..=(offset.x + scroll_content_width),
+                    y,
+                    egui::Stroke::new(1.0, grid_color_octave),
+                );
+            } else if show_per_note_grid {
+                painter.hline(
+                    offset.x..=(offset.x + scroll_content_width),
+                    y,
+                    egui::Stroke::new(0.5, grid_color_note),
+                );
+            }
+        }
     }
 
     fn note_grid_gestures(
