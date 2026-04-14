@@ -17,10 +17,10 @@ pub(crate) fn write_project(path: &Path, project: &Project) -> std::io::Result<(
     file.write_all(&patch_ver.to_le_bytes())?;
 
     // Write the audio configuration to the file
-    file.write_all(&(project.audio_ctx.channels as u64).to_le_bytes());
-    file.write_all(&(project.audio_ctx.sample_rate as u64).to_le_bytes());
-    file.write_all(&(project.audio_ctx.buffer_size as u64).to_le_bytes());
-    file.write_all(&(project.audio_ctx.max_voices as u64).to_le_bytes());
+    file.write_all(&(project.audio_ctx.channels as u64).to_le_bytes())?;
+    file.write_all(&(project.audio_ctx.sample_rate as u64).to_le_bytes())?;
+    file.write_all(&(project.audio_ctx.buffer_size as u64).to_le_bytes())?;
+    file.write_all(&(project.audio_ctx.max_voices as u64).to_le_bytes())?;
 
     Ok(())
 }

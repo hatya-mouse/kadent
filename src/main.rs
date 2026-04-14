@@ -2,6 +2,7 @@ pub(crate) mod colors;
 pub(crate) mod commands;
 pub(crate) mod components;
 pub(crate) mod metadata;
+pub(crate) mod project_io;
 pub(crate) mod ui_state;
 
 mod app;
