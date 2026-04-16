@@ -1,15 +1,14 @@
 use crate::{
+    kasl_node::KaslNode,
     metadata::{ProjectMeta, RegionMeta, TrackMeta},
     ui_state::{KnodiqUIState, dialog_state::TrackType},
 };
 use eframe::egui;
 use kasl::core::localization::format_error;
-use kasl_node::KaslNode;
 use knodiq_engine::{
     audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
     data_types::{AudioContext, Beats},
     mixer::Project,
-    node::Node,
     track::{
         Track,
         note_track::{Note, NoteRegion, NoteTrack},

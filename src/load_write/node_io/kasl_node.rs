@@ -1,5 +1,7 @@
-use crate::load_write::{AsBytes, FromBytes};
-use kasl_node::KaslNode;
+use crate::{
+    kasl_node::KaslNode,
+    load_write::{AsBytes, FromBytes},
+};
 
 impl AsBytes for KaslNode {
     fn as_bytes(&self, bytes: &mut Vec<u8>) {
