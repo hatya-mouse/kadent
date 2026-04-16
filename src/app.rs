@@ -9,6 +9,7 @@ use knodiq_engine::{
     audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
     data_types::{AudioContext, Beats},
     mixer::Project,
+    node::Node,
     track::{
         Track,
         note_track::{Note, NoteRegion, NoteTrack},
