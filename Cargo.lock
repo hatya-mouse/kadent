@@ -2120,9 +2120,9 @@ dependencies = [
 
 [[package]]
 name = "kasl"
-version = "0.2.17"
+version = "0.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "798d379b152424f5546b8db4250c063315fe2b883c404555a504ee8f900c91ff"
+checksum = "f8de3e607e30212f01b92a591ff9a393086eb641969d9cc5268d9f15be580927"
 dependencies = [
  "kasl-core",
  "kasl-cranelift-backend",
@@ -2131,9 +2131,9 @@ dependencies = [
 
 [[package]]
 name = "kasl-core"
-version = "0.1.14"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e20a310ae43da32d5a621207bc3931343c8f70c094838e8ecb8b23f89c1addd"
+checksum = "6c8b1b808d0de0c7e82152db08a909ee9282156e666cbb568b1db55595aeed74"
 dependencies = [
  "hashbrown 0.16.1",
  "kasl-ir",
@@ -2205,8 +2205,8 @@ dependencies = [
 
 [[package]]
 name = "knodiq_engine"
-version = "0.3.15"
-source = "git+https://github.com/hatya-mouse/knodiq_engine#8e7f6f4a88f87e3975cfab7ba371cfbe752ecef7"
+version = "0.3.16"
+source = "git+https://github.com/hatya-mouse/knodiq_engine#6b300491915f0dea158e4bc7b5b0cffedfc351dc"
 dependencies = [
  "cpal",
  "ringbuf",
@@ -3384,13 +3384,13 @@ dependencies = [
 
 [[package]]
 name = "regalloc2"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "952ddbfc6f9f64d006c3efd8c9851a6ba2f2b944ba94730db255d55006e0ffda"
+checksum = "de2c52737737f8609e94f975dee22854a2d5c125772d4b1cf292120f4d45c186"
 dependencies = [
  "allocator-api2",
  "bumpalo",
- "hashbrown 0.15.5",
+ "hashbrown 0.17.0",
  "log",
  "rustc-hash 2.1.2",
  "smallvec",
@@ -4320,9 +4320,9 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 
 [[package]]
 name = "uuid"
-version = "1.23.0"
+version = "1.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ac8b6f42ead25368cf5b098aeb3dc8a1a2c05a3eee8a9a1a68c640edbfc79d9"
+checksum = "ddd74a9687298c6858e9b88ec8935ec45d22e8fd5e6394fa1bd4e99a87789c76"
 dependencies = [
  "js-sys",
  "serde_core",

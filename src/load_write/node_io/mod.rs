@@ -65,8 +65,9 @@ impl FromBytes for Box<dyn Node> {
                 // Create a new node and set the code
                 Ok(Box::new(KaslNode::from_bytes(&node_bytes)?))
             }
-            _ => Err(std::io::Error::from_raw_os_error(
-                std::io::ErrorKind::InvalidData as i32,
+            _ => Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid node kind",
             )),
         }
     }
