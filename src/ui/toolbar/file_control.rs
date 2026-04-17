@@ -18,7 +18,7 @@ impl KnodiqApp {
             .clicked()
             {
                 let files = rfd::FileDialog::new()
-                    .add_filter("text", &["kasl"])
+                    .add_filter("text", &["knq"])
                     .save_file();
 
                 if let Some(path) = files {
@@ -38,7 +38,7 @@ impl KnodiqApp {
             .clicked()
             {
                 let files = rfd::FileDialog::new()
-                    .add_filter("text", &["kasl"])
+                    .add_filter("text", &["knq"])
                     .pick_file();
 
                 if let Some(path) = files {
