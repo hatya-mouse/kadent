@@ -1,7 +1,7 @@
 mod edit_panel;
 mod track_list;
 
-use crate::{app::EditorUi, components::scrolled_panel::scrolled_panel};
+use crate::{components::scrolled_panel::scrolled_panel, ui::EditorUi};
 use eframe::egui;
 
 impl EditorUi {

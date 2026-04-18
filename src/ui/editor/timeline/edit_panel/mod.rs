@@ -2,7 +2,7 @@ mod track_row;
 
 use std::time::Duration;
 
-use crate::{app::EditorUi, colors};
+use crate::{colors, ui::EditorUi};
 use eframe::egui;
 
 impl EditorUi {

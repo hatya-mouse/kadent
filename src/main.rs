@@ -10,8 +10,8 @@ mod app;
 mod fonts;
 mod ui;
 
+use crate::app::KnodiqApp;
 use eframe::egui::ViewportBuilder;
-use ui::KnodiqApp;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {

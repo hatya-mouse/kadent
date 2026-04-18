@@ -2,7 +2,7 @@ mod file_control;
 mod playback_control;
 mod toolbar_group;
 
-use crate::{app::EditorUi, fonts::RichTextExt, ui::editor::toolbar::toolbar_group::toolbar_group};
+use crate::{fonts::RichTextExt, ui::EditorUi, ui::editor::toolbar::toolbar_group::toolbar_group};
 use eframe::egui;
 
 impl EditorUi {

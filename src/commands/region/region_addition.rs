@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{app::EditorUi, metadata::RegionMeta};
+use crate::{metadata::RegionMeta, ui::EditorUi};
 use knodiq_engine::{
     data_types::Beats,
     mixer::TrackID,

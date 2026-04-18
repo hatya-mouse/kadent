@@ -50,7 +50,9 @@ impl KaslNode {
     /// Reads the source file at `project_dir/file_path` and caches it for compilation.
     pub fn load_code(&mut self, project_dir: &std::path::Path) -> std::io::Result<()> {
         if let Some(rel) = &self.file_path {
-            self.code = Some(std::fs::read_to_string(project_dir.join(rel))?);
+            let code = std::fs::read_to_string(project_dir.join(rel))?;
+            println!("KaslNode::load_code: loaded code from {}", code);
+            self.code = Some(code);
         }
         Ok(())
     }

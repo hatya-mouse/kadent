@@ -1,7 +1,7 @@
 mod note_grid;
 mod utils;
 
-use crate::{app::EditorUi, colors, ui_state::dialog_state::TrackType};
+use crate::{colors, ui::EditorUi, ui_state::dialog_state::TrackType};
 use eframe::egui;
 
 impl EditorUi {

@@ -1,4 +1,4 @@
-use crate::{app::EditorUi, colors, ui_state::dialog_state::TrackType};
+use crate::{colors, ui::EditorUi, ui_state::dialog_state::TrackType};
 use eframe::egui;
 use knodiq_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
 

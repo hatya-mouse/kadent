@@ -1,4 +1,4 @@
-use crate::{app::EditorUi, metadata::TrackMeta, ui_state::dialog_state::TrackType};
+use crate::{metadata::TrackMeta, ui::EditorUi, ui_state::dialog_state::TrackType};
 use eframe::egui;
 use knodiq_engine::track::{Track, audio_track::AudioTrack, note_track::NoteTrack};
 

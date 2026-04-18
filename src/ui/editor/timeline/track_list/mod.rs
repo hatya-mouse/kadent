@@ -1,9 +1,9 @@
 mod track_dialog;
 
 use crate::{
-    app::EditorUi,
     colors,
     components::icon_button::icon_button,
+    ui::EditorUi,
     ui_state::dialog_state::{AddTrackState, DialogState, TrackType},
 };
 use eframe::egui;

@@ -1,8 +1,8 @@
 use crate::{
-    app::EditorUi,
     components::icon_button::icon_button,
     load_write::{load_project_from_dir, save_project_to_dir},
     metadata::ProjectMeta,
+    ui::EditorUi,
     ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;

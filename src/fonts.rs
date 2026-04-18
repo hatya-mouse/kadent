@@ -1,4 +1,4 @@
-use crate::app::EditorUi;
+use crate::app::KnodiqApp;
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, RichText};
 use std::sync::Arc;
 
@@ -18,7 +18,7 @@ impl RichTextExt for RichText {
     }
 }
 
-impl EditorUi {
+impl KnodiqApp {
     pub(crate) fn setup_fonts(ctx: &egui::Context) {
         // Set up the fonts
         let mut fonts = FontDefinitions::default();

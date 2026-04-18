@@ -1,4 +1,4 @@
-use crate::app::EditorUi;
+use crate::ui::EditorUi;
 use knodiq_engine::audio_thread::AudioCommand;
 use std::time::Instant;
 

@@ -1,6 +1,6 @@
 use crate::{
-    app::EditorUi,
     components::dialog::dialog,
+    ui::EditorUi,
     ui_state::dialog_state::{DialogState, TrackType},
 };
 use eframe::egui;

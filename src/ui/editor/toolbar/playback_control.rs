@@ -1,5 +1,5 @@
 use crate::{
-    app::EditorUi, components::icon_button::icon_button,
+    components::icon_button::icon_button, ui::EditorUi,
     ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;

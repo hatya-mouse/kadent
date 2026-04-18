@@ -1,4 +1,4 @@
-use crate::{app::EditorUi, load_write::load_project_from_dir, metadata::ProjectMeta};
+use crate::{load_write::load_project_from_dir, metadata::ProjectMeta, ui::EditorUi};
 use eframe::egui;
 use knodiq_engine::{
     data_types::{AudioContext, Beats},

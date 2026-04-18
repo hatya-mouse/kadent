@@ -1,4 +1,4 @@
-use crate::app::EditorUi;
+use crate::ui::EditorUi;
 use std::sync::atomic::Ordering;
 
 impl EditorUi {

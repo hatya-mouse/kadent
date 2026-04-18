@@ -1,6 +1,6 @@
 use crate::{
-    app::EditorUi,
     colors::{self, region_stroke},
+    ui::EditorUi,
 };
 use eframe::egui;
 use knodiq_engine::{
