@@ -1,4 +1,8 @@
-use crate::{load_write::load_project_from_dir, metadata::ProjectMeta, ui::EditorUi};
+use crate::{
+    load_write::{init_kasl_nodes, load_project_from_dir},
+    metadata::ProjectMeta,
+    ui::EditorUi,
+};
 use eframe::egui;
 use knodiq_engine::{
     data_types::{AudioContext, Beats},
@@ -59,10 +63,12 @@ impl SplashUi {
                 match load_project_from_dir(&project_dir) {
                     Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
                         Ok(project_meta) => {
-                            EditorUi::apply_kasl_search_paths(
+                            init_kasl_nodes(
                                 &mut proj_res.project,
                                 &project_meta.kasl_search_paths,
+                                &project_dir,
                             );
+
                             let audio_ctx = proj_res.project.audio_ctx.clone();
                             return Some(SplashTransition::OpenProject {
                                 project_dir,

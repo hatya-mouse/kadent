@@ -1,9 +1,8 @@
 use crate::{
     components::icon_button::icon_button,
-    load_write::{load_project_from_dir, save_project_to_dir},
+    load_write::{init_kasl_nodes, load_project_from_dir, save_project_to_dir},
     metadata::ProjectMeta,
-    ui::EditorUi,
-    ui::editor::toolbar::toolbar_group::toolbar_group,
+    ui::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
 };
 use eframe::egui;
 use knodiq_engine::audio_thread::{AudioCommand, error::AudioError};
@@ -35,21 +34,22 @@ impl EditorUi {
             )
             .clicked()
             {
-                let files = rfd::FileDialog::new().pick_folder();
+                let proj_path_option = rfd::FileDialog::new().pick_folder();
 
-                if let Some(path) = files {
-                    match load_project_from_dir(&path) {
-                        Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
+                if let Some(proj_path) = proj_path_option {
+                    match load_project_from_dir(&proj_path) {
+                        Ok(proj_res) => match ProjectMeta::from_load_res(&proj_res) {
                             Ok(project_meta) => {
-                                EditorUi::apply_kasl_search_paths(
-                                    &mut proj_res.project,
-                                    &project_meta.kasl_search_paths,
-                                );
-                                EditorUi::load_kasl_files(&mut proj_res.project, &path);
-
-                                self.project_dir = path;
                                 self.project_meta = project_meta;
                                 self.project = proj_res.project;
+
+                                init_kasl_nodes(
+                                    &mut self.project,
+                                    &self.project_meta.kasl_search_paths,
+                                    &proj_path,
+                                );
+
+                                self.project_dir = proj_path;
 
                                 let command = AudioCommand::Seek(self.project.range_start);
                                 if self.thread_handle.command_tx.send(command.clone()).is_err() {

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use eframe::egui;
 use kasl::core::localization::format_error;
 use knodiq_engine::{
@@ -162,10 +164,8 @@ impl EditorUi {
         // Create a new kasl node pointing to the relative path
         let mut kasl_node = KaslNode::new();
         kasl_node.set_search_paths(project_meta.kasl_search_paths.clone());
-        kasl_node.set_file_path(std::path::PathBuf::from("kasl/main.kasl"));
-        kasl_node
-            .load_code(project_dir)
-            .expect("Failed to load KASL code");
+        kasl_node.set_file_path(PathBuf::from("kasl/main.kasl"));
+        kasl_node.set_project_dir(project_dir.to_path_buf());
         match kasl_node.compile() {
             Ok(()) => (),
             Err(err) => {

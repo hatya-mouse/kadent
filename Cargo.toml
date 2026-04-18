@@ -9,5 +9,6 @@ eframe = "0.34.0"
 egui_extras = { version = "0.34.0", features = ["all_loaders"] }
 kasl = { version = "0.2.21", features = ["cranelift"] }
 knodiq_engine = { git = "https://github.com/hatya-mouse/knodiq_engine" }
+notify = "8.2.0"
 rfd = "0.17.2"
 tempfile = "3.27.0"

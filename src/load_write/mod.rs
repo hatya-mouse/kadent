@@ -9,7 +9,7 @@ mod tempo_map_io;
 mod track_io;
 mod traits;
 
-use crate::{load_write::error::LoadError, metadata::ProjectMeta};
+use crate::{kasl_node::KaslNode, load_write::error::LoadError, metadata::ProjectMeta};
 pub(crate) use load_proj_res::LoadProjResult;
 pub(crate) use project_meta_io::{StoredProjMeta, StoredTrackMeta};
 pub(crate) use traits::{AsBytes, FromBytes};
@@ -117,4 +117,21 @@ pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     let result = LoadProjResult::from_bytes(&project_bytes).map_err(LoadError::FileCorrupted)?;
 
     Ok(result)
+}
+
+/// Initialize all KaslNodes in the project with their search paths and project directory.
+/// The project directory is stored so each node can read its source file at compile time.
+pub(crate) fn init_kasl_nodes(
+    project: &mut Project,
+    search_paths: &[String],
+    project_dir: &Path,
+) {
+    for track in project.tracks.values_mut() {
+        for node in track.get_graph_mut().get_node_map_mut().values_mut() {
+            if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
+                kasl_node.set_search_paths(search_paths.to_vec());
+                kasl_node.set_project_dir(project_dir.to_path_buf());
+            }
+        }
+    }
 }

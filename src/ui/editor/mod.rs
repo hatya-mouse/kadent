@@ -4,9 +4,7 @@ mod project_setup;
 pub(crate) mod timeline;
 pub(crate) mod toolbar;
 
-use crate::{
-    colors, kasl_node::KaslNode, metadata::ProjectMeta, ui_state::editor_state::EditorUIState,
-};
+use crate::{colors, metadata::ProjectMeta, ui_state::editor_state::EditorUIState};
 use eframe::egui;
 use knodiq_engine::{
     audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
@@ -112,29 +110,5 @@ impl EditorUi {
             }
         }
         paths
-    }
-
-    /// Apply KASL search paths to all KaslNodes in the project.
-    pub(crate) fn apply_kasl_search_paths(project: &mut Project, paths: &[String]) {
-        for track in project.tracks.values_mut() {
-            for node in track.get_graph_mut().get_node_map_mut().values_mut() {
-                if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
-                    kasl_node.set_search_paths(paths.to_vec());
-                }
-            }
-        }
-    }
-
-    /// Load KASL files for all KaslNodes in the project.
-    pub(crate) fn load_kasl_files(project: &mut Project, project_dir: &std::path::Path) {
-        for track in project.tracks.values_mut() {
-            for node in track.get_graph_mut().get_node_map_mut().values_mut() {
-                if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>()
-                    && let Err(e) = kasl_node.load_code(project_dir)
-                {
-                    eprintln!("Failed to load KASL file: {:?}", e);
-                }
-            }
-        }
     }
 }

@@ -20,7 +20,7 @@ pub struct KaslNode {
     search_paths: Vec<String>,
     /// Relative path to the KASL source file within the project directory.
     file_path: Option<PathBuf>,
-    code: Option<String>,
+    project_dir: Option<PathBuf>,
 
     input_types: Vec<TypeInfo>,
     output_types: Vec<TypeInfo>,
@@ -47,14 +47,8 @@ impl KaslNode {
         self.file_path.as_ref()
     }
 
-    /// Reads the source file at `project_dir/file_path` and caches it for compilation.
-    pub fn load_code(&mut self, project_dir: &std::path::Path) -> std::io::Result<()> {
-        if let Some(rel) = &self.file_path {
-            let code = std::fs::read_to_string(project_dir.join(rel))?;
-            println!("KaslNode::load_code: loaded code from {}", code);
-            self.code = Some(code);
-        }
-        Ok(())
+    pub fn set_project_dir(&mut self, dir: PathBuf) {
+        self.project_dir = Some(dir);
     }
 
     pub fn compile(&mut self) -> Result<(), Vec<ErrorRecord>> {
@@ -78,10 +72,14 @@ impl KaslNode {
         // Add the search paths to the compiler
         compiler.set_search_paths(self.search_paths.iter().map(PathBuf::from).collect());
 
+        // Read source code from disk at compile time so changes are always picked up
+        let code = match (&self.project_dir, &self.file_path) {
+            (Some(dir), Some(rel)) => std::fs::read_to_string(dir.join(rel)).unwrap_or_default(),
+            _ => String::default(),
+        };
+
         // Parse, build and compile the source codes
-        compiler
-            .parse(self.code.as_ref().unwrap_or(&String::default()))
-            .map_err(|e| vec![*e])?;
+        compiler.parse(&code).map_err(|e| vec![*e])?;
         let (blueprint, _) = compiler.build()?;
         let func = compiler.lower_buffer(&blueprint).map_err(|err| vec![err])?;
 
@@ -243,7 +241,7 @@ impl Clone for KaslNode {
             blueprint: None,
             search_paths: self.search_paths.clone(),
             file_path: self.file_path.clone(),
-            code: self.code.clone(),
+            project_dir: self.project_dir.clone(),
             input_types: self.input_types.clone(),
             output_types: self.output_types.clone(),
             states: Vec::new(),
