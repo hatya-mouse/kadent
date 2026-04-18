@@ -1,5 +1,6 @@
 use crate::{
-    app::KnodiqApp, components::icon_button::icon_button, ui::toolbar::toolbar_group::toolbar_group,
+    app::KnodiqApp, components::icon_button::icon_button,
+    ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;
 use knodiq_engine::audio_thread::{AudioCommand, error::AudioError};
@@ -9,7 +10,9 @@ impl KnodiqApp {
         toolbar_group(ui, |ui| {
             if icon_button(
                 ui,
-                egui::Image::new(egui::include_image!("../../../assets/icons/backward.png")),
+                egui::Image::new(egui::include_image!(
+                    "../../../../assets/icons/backward.png"
+                )),
             )
             .clicked()
             {
@@ -21,7 +24,7 @@ impl KnodiqApp {
 
             if icon_button(
                 ui,
-                egui::Image::new(egui::include_image!("../../../assets/icons/play.png")),
+                egui::Image::new(egui::include_image!("../../../../assets/icons/play.png")),
             )
             .clicked()
                 && !self.is_playing
@@ -36,7 +39,7 @@ impl KnodiqApp {
 
             if icon_button(
                 ui,
-                egui::Image::new(egui::include_image!("../../../assets/icons/pause.png")),
+                egui::Image::new(egui::include_image!("../../../../assets/icons/pause.png")),
             )
             .clicked()
                 && self.is_playing
@@ -51,7 +54,7 @@ impl KnodiqApp {
 
             if icon_button(
                 ui,
-                egui::Image::new(egui::include_image!("../../../assets/icons/forward.png")),
+                egui::Image::new(egui::include_image!("../../../../assets/icons/forward.png")),
             )
             .clicked()
             {

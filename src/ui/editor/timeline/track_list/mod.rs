@@ -18,7 +18,10 @@ impl KnodiqApp {
                         ui.horizontal(|ui| {
                             // Draw track color
                             let (rect, _) = ui.allocate_exact_size(
-                                egui::vec2(4.0, self.ui_state.timeline_state.track_height),
+                                egui::vec2(
+                                    4.0,
+                                    self.ui_state.editor_state.timeline_state.track_height,
+                                ),
                                 egui::Sense::hover(),
                             );
                             ui.painter().rect_filled(rect, 0.0, track_meta.color);
@@ -31,14 +34,15 @@ impl KnodiqApp {
 
                 if icon_button(
                     ui,
-                    egui::Image::new(egui::include_image!("../../../../assets/icons/plus.svg")),
+                    egui::Image::new(egui::include_image!("../../../../../assets/icons/plus.svg")),
                 )
                 .clicked()
                 {
-                    self.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
-                        selected_track_type: TrackType::Audio,
-                        name: String::new(),
-                    });
+                    self.ui_state.editor_state.dialog_state =
+                        DialogState::AddTrack(AddTrackState {
+                            selected_track_type: TrackType::Audio,
+                            name: String::new(),
+                        });
                 }
             });
     }

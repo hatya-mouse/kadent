@@ -17,10 +17,32 @@ pub(crate) use traits::{AsBytes, FromBytes};
 use crate::load_write::traits::safe_read;
 use knodiq_engine::mixer::Project;
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{Read, Write},
     path::Path,
 };
+
+/// Saves the project into a directory, creating it if it doesn't exist.
+/// The main project file is written as `project.knq` inside `dir_path`.
+pub(crate) fn save_project_to_dir(
+    dir_path: &Path,
+    project: &Project,
+    project_meta: &ProjectMeta,
+) -> std::io::Result<()> {
+    // Create the project directory
+    fs::create_dir_all(dir_path)?;
+    // Create a kasl/ directory where KASL programs can be saved
+    let kasl_dir_path = dir_path.join("kasl");
+    fs::create_dir_all(kasl_dir_path)?;
+    // Write the project file inside the project directory
+    let file_path = dir_path.join("project.knq");
+    save_project(&file_path, project, project_meta)
+}
+
+/// Loads a project from a project directory, reading `project.knq` inside it.
+pub(crate) fn load_project_from_dir(dir_path: &Path) -> Result<LoadProjResult, LoadError> {
+    load_project(&dir_path.join("project.knq"))
+}
 
 /// Saves the given project to the given path. Returns an error if the file cannot be created or written to.
 pub(crate) fn save_project(
@@ -60,7 +82,7 @@ pub(crate) fn save_project(
     Ok(())
 }
 
-/// Loads a project from the given path. Returns an error if the file is not a Knodiq Project file or if the file is corrupted.
+/// Loads a project file from the given path. Returns an error if the file is not a Knodiq Project file or if the file is corrupted.
 pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     // Load the file from the path
     let mut file = File::open(path).map_err(LoadError::IoError)?;

@@ -14,7 +14,7 @@ impl KnodiqApp {
                 self.playhead(ui, edit_rect);
 
                 // Draw each tracks
-                let track_height = self.ui_state.timeline_state.track_height;
+                let track_height = self.ui_state.editor_state.timeline_state.track_height;
                 let available = ui.available_rect_before_wrap();
 
                 let track_order = self.project_meta.track_order.clone();
@@ -43,8 +43,8 @@ impl KnodiqApp {
     fn playhead(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
         let available = ui.available_rect_before_wrap();
 
-        let playhead_x =
-            self.ui_state.timeline_state.pixels_per_beat * self.ui_state.playhead_beats.0 as f32;
+        let playhead_x = self.ui_state.editor_state.timeline_state.pixels_per_beat
+            * self.ui_state.editor_state.playhead_beats.0 as f32;
 
         // Create a new painter to draw on the foreground layer
         let mut painter = ui.ctx().layer_painter(egui::LayerId::new(

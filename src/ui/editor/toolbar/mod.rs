@@ -2,11 +2,13 @@ mod file_control;
 mod playback_control;
 mod toolbar_group;
 
-use crate::{app::KnodiqApp, fonts::RichTextExt, ui::toolbar::toolbar_group::toolbar_group};
+use crate::{
+    app::KnodiqApp, fonts::RichTextExt, ui::editor::toolbar::toolbar_group::toolbar_group,
+};
 use eframe::egui;
 
 impl KnodiqApp {
-    pub(super) fn toolbar(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui) fn toolbar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
             ui.spacing_mut().button_padding = egui::vec2(0.0, 0.0);
 
@@ -37,9 +39,12 @@ impl KnodiqApp {
             ui.add_sized(
                 [200.0, 28.0],
                 egui::Label::new(
-                    egui::RichText::new(format!("{:.3}", self.ui_state.playhead_beats.0))
-                        .size(18.0)
-                        .bold(),
+                    egui::RichText::new(format!(
+                        "{:.3}",
+                        self.ui_state.editor_state.playhead_beats.0
+                    ))
+                    .size(18.0)
+                    .bold(),
                 ),
             );
         });

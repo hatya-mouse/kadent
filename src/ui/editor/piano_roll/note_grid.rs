@@ -46,11 +46,12 @@ impl KnodiqApp {
 
         // Calculate the total size of the scroll area content
         let scroll_content_width = (region.duration.0 as f32
-            * self.ui_state.piano_roll_state.pixels_per_beat)
+            * self.ui_state.editor_state.piano_roll_state.pixels_per_beat)
             .max(note_grid_rect.width());
         // Calculate the total height of the scroll area content (128 MIDI notes)
-        let scroll_content_height =
-            (128.0 * self.ui_state.piano_roll_state.note_height).max(note_grid_rect.height());
+        let scroll_content_height = (128.0
+            * self.ui_state.editor_state.piano_roll_state.note_height)
+            .max(note_grid_rect.height());
 
         let notes = region.notes.clone();
 
@@ -68,15 +69,20 @@ impl KnodiqApp {
 
             for (note_id, note) in notes {
                 // Calculate the note rect
-                let note_x =
-                    offset.x + note.start.0 as f32 * self.ui_state.piano_roll_state.pixels_per_beat;
-                let note_y =
-                    offset.y + (128.0 - note.pitch) * self.ui_state.piano_roll_state.note_height;
-                let note_width =
-                    note.duration.0 as f32 * self.ui_state.piano_roll_state.pixels_per_beat;
+                let note_x = offset.x
+                    + note.start.0 as f32
+                        * self.ui_state.editor_state.piano_roll_state.pixels_per_beat;
+                let note_y = offset.y
+                    + (128.0 - note.pitch)
+                        * self.ui_state.editor_state.piano_roll_state.note_height;
+                let note_width = note.duration.0 as f32
+                    * self.ui_state.editor_state.piano_roll_state.pixels_per_beat;
                 let note_rect = egui::Rect::from_min_size(
                     egui::pos2(note_x, note_y),
-                    egui::vec2(note_width, self.ui_state.piano_roll_state.note_height),
+                    egui::vec2(
+                        note_width,
+                        self.ui_state.editor_state.piano_roll_state.note_height,
+                    ),
                 );
 
                 // Create a rect on the right side of the note to drag and resize the note
@@ -85,7 +91,7 @@ impl KnodiqApp {
                     egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
                     egui::vec2(
                         draggable_width,
-                        self.ui_state.piano_roll_state.note_height - 4.0,
+                        self.ui_state.editor_state.piano_roll_state.note_height - 4.0,
                     ),
                 );
 
@@ -101,11 +107,12 @@ impl KnodiqApp {
                 );
 
                 // Highlight the selected note
-                let stroke = if self.ui_state.piano_roll_state.selected_note == Some(note_id) {
-                    egui::Stroke::new(2.0, colors::region_selected())
-                } else {
-                    egui::Stroke::new(1.0, colors::region_stroke())
-                };
+                let stroke =
+                    if self.ui_state.editor_state.piano_roll_state.selected_note == Some(note_id) {
+                        egui::Stroke::new(2.0, colors::region_selected())
+                    } else {
+                        egui::Stroke::new(1.0, colors::region_stroke())
+                    };
 
                 // Draw the note
                 painter.rect(
@@ -139,7 +146,7 @@ impl KnodiqApp {
         let grid_color_note = region_stroke();
         let grid_color_octave = ui.visuals().window_stroke().color;
 
-        let note_height = self.ui_state.piano_roll_state.note_height;
+        let note_height = self.ui_state.editor_state.piano_roll_state.note_height;
         // Only show per note grid lines if the note height is large enough
         let show_per_note_grid = note_height >= NOTE_GRID_FACTOR;
 
@@ -199,12 +206,14 @@ impl KnodiqApp {
 
                 if shift {
                     let pixels_per_beat =
-                        self.ui_state.piano_roll_state.pixels_per_beat * zoom_delta;
-                    self.ui_state.piano_roll_state.pixels_per_beat =
+                        self.ui_state.editor_state.piano_roll_state.pixels_per_beat * zoom_delta;
+                    self.ui_state.editor_state.piano_roll_state.pixels_per_beat =
                         pixels_per_beat.clamp(10.0, 500.0);
                 } else {
-                    let note_height = self.ui_state.piano_roll_state.note_height * zoom_delta;
-                    self.ui_state.piano_roll_state.note_height = note_height.clamp(5.0, 30.0);
+                    let note_height =
+                        self.ui_state.editor_state.piano_roll_state.note_height * zoom_delta;
+                    self.ui_state.editor_state.piano_roll_state.note_height =
+                        note_height.clamp(5.0, 30.0);
                 }
             }
         }
@@ -221,14 +230,14 @@ impl KnodiqApp {
         resize_rect: egui::Rect,
     ) {
         // Check for the delete key input
-        if self.ui_state.piano_roll_state.selected_note == Some(*note_id) {
+        if self.ui_state.editor_state.piano_roll_state.selected_note == Some(*note_id) {
             let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
             let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
 
             if delete || backspace {
                 // Remove the note from the region
                 self.remove_note(track_id, region_id, note_id);
-                self.ui_state.piano_roll_state.selected_note = None;
+                self.ui_state.editor_state.piano_roll_state.selected_note = None;
             }
         }
 
@@ -244,11 +253,13 @@ impl KnodiqApp {
         // Handle resize
         if resize_res.dragged() {
             // Select the note
-            self.ui_state.set_selected_note(*note_id);
+            self.ui_state.editor_state.set_selected_note(*note_id);
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
-                (resize_res.drag_delta().x / self.ui_state.piano_roll_state.pixels_per_beat) as f64,
+                (resize_res.drag_delta().x
+                    / self.ui_state.editor_state.piano_roll_state.pixels_per_beat)
+                    as f64,
             );
             if let Some(region) = self
                 .project
@@ -272,11 +283,13 @@ impl KnodiqApp {
         if move_res.dragged() {
             // Calculate the beats from the drag amount
             let delta_beats = Beats(
-                (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
+                (move_res.drag_delta().x
+                    / self.ui_state.editor_state.timeline_state.pixels_per_beat)
+                    as f64,
             );
             let new_start = note.start + delta_beats;
 
-            self.ui_state.set_selected_note(*note_id);
+            self.ui_state.editor_state.set_selected_note(*note_id);
 
             if let Some(region) = self
                 .project
