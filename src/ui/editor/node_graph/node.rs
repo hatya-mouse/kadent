@@ -2,7 +2,7 @@ use crate::{colors, ui::EditorUi};
 use eframe::egui;
 use knodiq_engine::mixer::TrackID;
 
-use super::NodeSnapshot;
+use super::NodeDrawData;
 
 pub const NODE_WIDTH: f32 = 140.0;
 pub const NODE_HEADER_HEIGHT: f32 = 24.0;
@@ -44,22 +44,22 @@ impl EditorUi {
         ui: &mut egui::Ui,
         painter: &egui::Painter,
         track_id: TrackID,
-        snapshot: &NodeSnapshot,
+        draw_data: &NodeDrawData,
         canvas_pos: egui::Pos2,
         pan: egui::Vec2,
         origin: egui::Pos2,
     ) -> bool {
         let screen_pos = canvas_to_screen(canvas_pos, pan, origin);
-        let h = node_height(snapshot.input_names.len(), snapshot.output_names.len());
+        let h = node_height(draw_data.input_names.len(), draw_data.output_names.len());
         let node_rect = egui::Rect::from_min_size(screen_pos, egui::vec2(NODE_WIDTH, h));
 
-        let drag_id = ui.id().with("node_drag").with(snapshot.id);
+        let drag_id = ui.id().with("node_drag").with(draw_data.id);
         let drag_resp = ui.interact(node_rect, drag_id, egui::Sense::drag());
 
-        if drag_resp.dragged() {
+        if drag_resp.dragged() && self.ui_state.node_graph_state.ghost_edge.is_none() {
             let new_pos = canvas_pos + drag_resp.drag_delta();
             if let Some(track_meta) = self.project_meta.get_track_mut(&track_id) {
-                track_meta.node_graph.set_node_pos(snapshot.id, new_pos);
+                track_meta.node_graph.set_node_pos(draw_data.id, new_pos);
             }
         }
 
@@ -67,9 +67,9 @@ impl EditorUi {
         draw_node_body(
             painter,
             node_rect,
-            &snapshot.label,
-            &snapshot.input_names,
-            &snapshot.output_names,
+            &draw_data.label,
+            &draw_data.input_names,
+            &draw_data.output_names,
             dark_mode,
         );
 

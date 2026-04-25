@@ -1,5 +1,6 @@
 mod add_node;
 mod edge;
+mod edge_drag;
 mod node;
 
 use crate::{colors, kasl_node::KaslNode, ui::EditorUi};
@@ -13,7 +14,7 @@ use knodiq_engine::{
     },
 };
 
-pub(super) struct NodeSnapshot {
+pub(super) struct NodeDrawData {
     pub id: NodeID,
     pub label: String,
     pub input_names: Vec<String>,
@@ -29,13 +30,13 @@ impl EditorUi {
             return;
         };
 
-        let Some(snapshots) = self.collect_node_snapshots(track_id) else {
+        let Some(draw_data) = self.collect_node_draw_datas(track_id) else {
             return;
         };
         let edges = self.collect_graph_edges(track_id);
         let (input_id, output_id) = self.graph_terminals(track_id);
 
-        self.ensure_node_positions(track_id, input_id, output_id, &snapshots);
+        self.ensure_node_positions(track_id, input_id, output_id, &draw_data);
 
         let rect = ui.available_rect_before_wrap();
         let (bg_response, painter) =
@@ -48,6 +49,20 @@ impl EditorUi {
             .get_track(&track_id)
             .map(|m| m.node_graph.pan_offset)
             .unwrap_or_default();
+
+        let cursor_pos = ui.input(|i| i.pointer.hover_pos());
+        let primary_pressed = ui.input(|i| i.pointer.primary_pressed());
+        let primary_released = ui.input(|i| i.pointer.primary_released());
+
+        if self.ui_state.node_graph_state.ghost_edge.is_none()
+            && primary_pressed
+            && let Some(cursor) = cursor_pos
+        {
+            self.try_start_edge_drag(&draw_data, &edges, track_id, pan, rect.min, cursor);
+        }
+        self.update_edge_drag(cursor_pos, primary_released);
+
+        let edge_drag_active = self.ui_state.node_graph_state.ghost_edge.is_some();
 
         for edge in &edges {
             self.draw_graph_edge(&painter, track_id, edge, pan, rect.min);
@@ -66,22 +81,23 @@ impl EditorUi {
         }
 
         let mut any_node_dragged = false;
-        for snapshot in &snapshots {
+        for data in &draw_data {
             let Some(pos) = self
                 .project_meta
                 .get_track(&track_id)
-                .and_then(|m| m.node_graph.get_node_pos(snapshot.id))
+                .and_then(|m| m.node_graph.get_node_pos(data.id))
             else {
                 continue;
             };
             let dragged =
-                self.draw_and_interact_node(ui, &painter, track_id, snapshot, pos, pan, rect.min);
+                self.draw_and_interact_node(ui, &painter, track_id, data, pos, pan, rect.min);
             if dragged {
                 any_node_dragged = true;
             }
         }
 
         if !any_node_dragged
+            && !edge_drag_active
             && bg_response.dragged()
             && let Some(track_meta) = self.project_meta.get_track_mut(&track_id)
         {
@@ -117,16 +133,16 @@ impl EditorUi {
         }
     }
 
-    fn collect_node_snapshots(&self, track_id: TrackID) -> Option<Vec<NodeSnapshot>> {
+    fn collect_node_draw_datas(&self, track_id: TrackID) -> Option<Vec<NodeDrawData>> {
         let track = self.project.tracks.get(&track_id)?;
         let graph = track.get_graph();
         let input_id = graph.get_input_id();
         let output_id = graph.get_output_id();
 
-        let snapshots = graph
+        let draw_data = graph
             .get_node_map()
             .iter()
-            .map(|(id, node)| NodeSnapshot {
+            .map(|(id, node)| NodeDrawData {
                 id: *id,
                 label: node_label(node.as_ref(), *id == input_id, *id == output_id),
                 input_names: node.get_input_names(),
@@ -134,7 +150,7 @@ impl EditorUi {
             })
             .collect();
 
-        Some(snapshots)
+        Some(draw_data)
     }
 
     fn collect_graph_edges(&self, track_id: TrackID) -> Vec<(NodeID, usize, NodeID, usize)> {
@@ -161,15 +177,15 @@ impl EditorUi {
         track_id: TrackID,
         input_id: NodeID,
         output_id: NodeID,
-        snapshots: &[NodeSnapshot],
+        draw_data: &[NodeDrawData],
     ) {
         const SPACING_X: f32 = 220.0;
         const START_X: f32 = 50.0;
         const START_Y: f32 = 150.0;
 
-        let mut ordered: Vec<NodeID> = Vec::with_capacity(snapshots.len());
+        let mut ordered: Vec<NodeID> = Vec::with_capacity(draw_data.len());
         ordered.push(input_id);
-        for s in snapshots {
+        for s in draw_data {
             if s.id != input_id && s.id != output_id {
                 ordered.push(s.id);
             }
