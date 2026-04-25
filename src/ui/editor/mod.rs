@@ -9,7 +9,7 @@ mod toolbar;
 use crate::{colors, metadata::ProjectMeta, ui_state::editor_state::EditorUIState};
 use eframe::egui;
 use knodiq_engine::{
-    audio_thread::{AudioThread, AudioThreadHandle, error::AudioError},
+    audio_thread::{AudioError, AudioThread, AudioThreadHandle},
     data_types::AudioContext,
     mixer::Project,
 };
@@ -80,7 +80,7 @@ impl EditorUi {
         self.track_dialog(ui);
         self.update_project();
 
-        while let Ok(err) = self.thread_handle.error_rx.try_recv() {
+        while let Ok(Err(err)) = self.thread_handle.result_rx.try_recv() {
             eprintln!("Audio thread error occurred");
             self.errors.push(err);
         }

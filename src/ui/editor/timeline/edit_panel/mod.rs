@@ -1,13 +1,12 @@
 mod track_row;
 
-use std::time::Duration;
-
 use crate::{colors, ui::EditorUi};
 use eframe::egui;
 use knodiq_engine::{
-    audio_thread::{AudioCommand, error::AudioError},
+    audio_thread::{AudioCommand, AudioError},
     data_types::Beats,
 };
+use std::time::Duration;
 
 impl EditorUi {
     pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
