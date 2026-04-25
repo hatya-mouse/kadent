@@ -10,6 +10,10 @@ pub struct TimelineState {
 
     /// Pixels per beat in the timeline.
     pub pixels_per_beat: f32,
+
+    /// True while the user is dragging on the beat ruler to seek.
+    /// Used to send AudioCommand::Seek only on mouse release, not every frame.
+    pub ruler_seeking: bool,
 }
 
 impl Default for TimelineState {
@@ -19,6 +23,7 @@ impl Default for TimelineState {
             track_list_width: 200.0,
             timeline_scroll_y: 0.0,
             pixels_per_beat: 80.0,
+            ruler_seeking: false,
         }
     }
 }
