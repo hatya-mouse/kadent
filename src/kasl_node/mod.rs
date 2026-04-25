@@ -212,6 +212,7 @@ impl Node for KaslNode {
         }
 
         unsafe {
+            // Execute the JIT-compiled program thus this has to be unsafe.
             run_buffer(
                 self.program.unwrap(),
                 &inputs,

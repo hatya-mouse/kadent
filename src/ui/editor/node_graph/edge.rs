@@ -13,6 +13,16 @@ impl EditorUi {
         pan: egui::Vec2,
         origin: egui::Pos2,
     ) {
+        // If the edge is being dragged, skip drawing it here to avoid visual confusion
+        if self
+            .ui_state
+            .node_graph_state
+            .dragged_edge
+            .is_some_and(|ref dragged_edge| dragged_edge == edge)
+        {
+            return;
+        }
+
         let (from_id, out_idx, to_id, in_idx) = *edge;
 
         let Some(track_meta) = self.project_meta.get_track(&track_id) else {
@@ -29,6 +39,27 @@ impl EditorUi {
         let to_pos = input_port_pos(canvas_to_screen(to_canvas, pan, origin), in_idx);
 
         draw_bezier_edge(painter, from_pos, to_pos);
+    }
+
+    pub(super) fn draw_dragged_edge(
+        &self,
+        painter: &egui::Painter,
+        track_id: TrackID,
+        from: (NodeID, usize),
+        to: egui::Pos2,
+        pan: egui::Vec2,
+        origin: egui::Pos2,
+    ) {
+        let Some(track_meta) = self.project_meta.get_track(&track_id) else {
+            return;
+        };
+        let Some(from_canvas) = track_meta.node_graph.get_node_pos(from.0) else {
+            return;
+        };
+
+        let from_pos = output_port_pos(canvas_to_screen(from_canvas, pan, origin), from.1);
+
+        draw_bezier_edge(painter, from_pos, to);
     }
 }
 

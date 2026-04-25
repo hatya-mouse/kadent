@@ -53,6 +53,18 @@ impl EditorUi {
             self.draw_graph_edge(&painter, track_id, edge, pan, rect.min);
         }
 
+        // Draw the dragged edge is exists
+        if let Some(ghost_edge) = self.ui_state.node_graph_state.ghost_edge {
+            self.draw_dragged_edge(
+                &painter,
+                track_id,
+                ghost_edge.0,
+                ghost_edge.1,
+                pan,
+                rect.min,
+            );
+        }
+
         let mut any_node_dragged = false;
         for snapshot in &snapshots {
             let Some(pos) = self

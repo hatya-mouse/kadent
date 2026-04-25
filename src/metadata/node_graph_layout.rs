@@ -4,7 +4,9 @@ use std::collections::HashMap;
 
 #[derive(Default, Debug)]
 pub(crate) struct NodeGraphLayout {
+    /// The offset of the node graph canvas, in screen space. This is used for panning the view.
     pub pan_offset: egui::Vec2,
+    /// The positions of nodes in canvas space.
     pub node_positions: HashMap<NodeID, egui::Pos2>,
 }
 

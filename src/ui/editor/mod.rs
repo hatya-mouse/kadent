@@ -6,7 +6,7 @@ mod project_setup;
 mod timeline;
 mod toolbar;
 
-use crate::{colors, metadata::ProjectMeta, ui_state::editor_state::EditorUIState};
+use crate::{colors, metadata::ProjectMeta, ui_state::editor_state::EditorUiState};
 use eframe::egui;
 use knodiq_engine::{
     audio_thread::{AudioError, AudioThread, AudioThreadHandle},
@@ -29,7 +29,7 @@ pub struct EditorUi {
     /// The metadata of the project.
     pub project_meta: ProjectMeta,
     /// UI states to store the current UI state.
-    pub ui_state: EditorUIState,
+    pub ui_state: EditorUiState,
 }
 
 impl EditorUi {
@@ -48,7 +48,7 @@ impl EditorUi {
             thread_handle,
             errors: Vec::new(),
             project_meta,
-            ui_state: EditorUIState::default(),
+            ui_state: EditorUiState::default(),
         }
     }
 
