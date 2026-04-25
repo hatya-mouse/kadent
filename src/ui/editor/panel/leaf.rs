@@ -43,24 +43,14 @@ fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
         .inner_margin(egui::Margin::symmetric(8, 4))
         .show(ui, |ui| {
             ui.horizontal(|ui| {
-                if ui
-                    .selectable_label(*view == PanelView::Timeline, "Timeline")
-                    .clicked()
-                {
-                    *view = PanelView::Timeline;
-                }
-                if ui
-                    .selectable_label(*view == PanelView::PianoRoll, "Piano Roll")
-                    .clicked()
-                {
-                    *view = PanelView::PianoRoll;
-                }
-                if ui
-                    .selectable_label(*view == PanelView::NodeGraph, "Node Graph")
-                    .clicked()
-                {
-                    *view = PanelView::NodeGraph;
-                }
+                PanelView::all().iter().for_each(|enum_view| {
+                    if ui
+                        .selectable_label(view == enum_view, enum_view.label())
+                        .clicked()
+                    {
+                        *view = enum_view.clone();
+                    }
+                });
             });
         });
 }

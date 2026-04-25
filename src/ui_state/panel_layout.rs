@@ -14,6 +14,14 @@ impl PanelView {
             PanelView::NodeGraph => "Node Graph",
         }
     }
+
+    pub fn all() -> &'static [Self] {
+        &[
+            PanelView::Timeline,
+            PanelView::PianoRoll,
+            PanelView::NodeGraph,
+        ]
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
