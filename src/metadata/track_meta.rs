@@ -99,4 +99,8 @@ impl TrackMeta {
     pub fn get_region_mut(&mut self, id: &RegionID) -> Option<&mut RegionMeta> {
         self.regions.get_mut(id)
     }
+
+    pub fn remove_region(&mut self, id: &RegionID) {
+        self.regions.remove(id);
+    }
 }
