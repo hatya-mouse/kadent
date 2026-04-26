@@ -1,4 +1,4 @@
-use eframe::egui::Color32;
+use eframe::egui::{Color32, Stroke};
 
 // --- FOREGROUND ---
 
@@ -55,18 +55,18 @@ pub(crate) fn toolbar_button_active() -> Color32 {
     Color32::from_rgba_unmultiplied(150, 150, 150, 100)
 }
 
-// --- BORDER (soft, semi-transparent — for content elements) ---
+// --- BORDER ---
 
 /// Soft border used on regions, notes, node bodies, and grid lines.
 pub(crate) fn border(dark_mode: bool) -> Color32 {
     if dark_mode {
-        Color32::from_rgba_unmultiplied(255, 255, 255, 50)
+        Color32::from_rgba_unmultiplied(255, 255, 255, 30)
     } else {
-        Color32::from_rgba_unmultiplied(0, 0, 0, 50)
+        Color32::from_rgba_unmultiplied(0, 0, 0, 30)
     }
 }
 
-// --- SEPARATOR (solid — for UI chrome dividers) ---
+// --- SEPARATOR ---
 
 /// Solid divider between panel sections (ruler border, panel splitters).
 pub(crate) fn separator() -> Color32 {

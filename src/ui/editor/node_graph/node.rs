@@ -1,4 +1,4 @@
-use crate::{metadata::ProjectMeta, ui::EditorUi, ui_state::editor_state::EditorUiState};
+use crate::{colors, metadata::ProjectMeta, ui::EditorUi, ui_state::editor_state::EditorUiState};
 use eframe::egui::{self, Sense};
 use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
@@ -45,14 +45,17 @@ impl EditorUi {
 
         let painter = ui.painter();
 
+        // Draw the background of the node
         painter.rect(
             node_rect,
             egui::CornerRadius::same(6),
-            egui::Color32::from_rgb(45, 45, 55),
-            egui::Stroke::new(1.5, egui::Color32::from_rgb(100, 100, 130)),
-            egui::StrokeKind::Middle,
+            colors::secondary_bg(ui.visuals().dark_mode),
+            egui::Stroke::new(1.0, colors::border(ui.visuals().dark_mode)),
+            egui::StrokeKind::Outside,
         );
-        painter.rect(
+
+        // Draw the header
+        painter.rect_filled(
             header_rect,
             egui::CornerRadius {
                 nw: 6,
@@ -60,16 +63,18 @@ impl EditorUi {
                 sw: 0,
                 se: 0,
             },
-            egui::Color32::from_rgb(70, 70, 100),
-            egui::Stroke::NONE,
-            egui::StrokeKind::Middle,
+            colors::tertiary_bg(ui.visuals().dark_mode),
+        );
+        painter.line_segment(
+            [header_rect.left_bottom(), header_rect.right_bottom()],
+            egui::Stroke::new(1.0, colors::border(ui.visuals().dark_mode)),
         );
         painter.text(
             header_rect.center(),
             egui::Align2::CENTER_CENTER,
             display_name.as_str(),
             egui::FontId::proportional(13.0),
-            egui::Color32::WHITE,
+            colors::primary_fg(ui.visuals().dark_mode),
         );
 
         let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
