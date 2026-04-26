@@ -4,7 +4,7 @@ use crate::{
     ui::EditorUi,
     ui_state::panel_layout::{PanelView, SplitDir},
 };
-use eframe::egui::{self, CursorIcon, Rect, UiBuilder, response};
+use eframe::egui::{self, CursorIcon, Rect, UiBuilder};
 
 const EDGE_SIZE: f32 = 10.0;
 const MIN_NEW_PANEL: f32 = 80.0;
@@ -102,16 +102,19 @@ fn check_single_edge(ui: &mut egui::Ui, rect: Rect, edge: Edge) -> Option<SplitA
         ui.data_mut(|d| d.insert_temp(accum_key, new_accum));
 
         // Draw edge highlight
-        ui.painter().rect_filled(strip, 0.0, colors::panel_drag_highlight());
+        ui.painter()
+            .rect_filled(strip, 0.0, colors::panel_drag_highlight());
 
         // Draw preview of the new panel
         let preview_size = new_accum.clamp(0.0, panel_extent(edge, rect) - MIN_NEW_PANEL);
         if preview_size > 0.0 {
             let preview = new_panel_rect(rect, edge, preview_size);
-            ui.painter().rect_filled(preview, 0.0, colors::panel_hover_highlight());
+            ui.painter()
+                .rect_filled(preview, 0.0, colors::panel_hover_highlight());
         }
     } else if resp.hovered() {
-        ui.painter().rect_filled(strip, 0.0, colors::panel_hover_highlight());
+        ui.painter()
+            .rect_filled(strip, 0.0, colors::panel_hover_highlight());
     }
 
     if resp.drag_stopped() {

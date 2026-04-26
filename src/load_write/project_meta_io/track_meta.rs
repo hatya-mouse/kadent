@@ -1,6 +1,6 @@
 use crate::load_write::{
     AsBytes, FromBytes,
-    project_meta_io::{StoredNodeGraphLayout, StoredRegionMeta},
+    project_meta_io::{StoredGraphMeta, StoredRegionMeta},
     traits::safe_read,
 };
 use eframe::egui;
@@ -14,7 +14,7 @@ pub struct StoredTrackMeta {
     pub name: String,
     pub color: egui::Color32,
     pub region_metas: HashMap<RegionID, StoredRegionMeta>,
-    pub node_graph: StoredNodeGraphLayout,
+    pub node_graph: StoredGraphMeta,
 }
 
 impl StoredTrackMeta {
@@ -31,7 +31,7 @@ impl StoredTrackMeta {
             name: track_meta.name.clone(),
             color: track_meta.color,
             region_metas,
-            node_graph: StoredNodeGraphLayout::from_layout(&track_meta.node_graph),
+            node_graph: StoredGraphMeta::from_graph_meta(&track_meta.graph),
         }
     }
 }
@@ -138,10 +138,10 @@ impl FromBytes for StoredTrackMeta {
     }
 }
 
-fn read_node_graph_layout(cursor: &mut Cursor<&[u8]>) -> std::io::Result<StoredNodeGraphLayout> {
+fn read_node_graph_layout(cursor: &mut Cursor<&[u8]>) -> std::io::Result<StoredGraphMeta> {
     let mut len_bytes = [0u8; 8];
     cursor.read_exact(&mut len_bytes)?;
     let len = u64::from_le_bytes(len_bytes) as usize;
     let layout_bytes = safe_read(cursor, len)?;
-    StoredNodeGraphLayout::from_bytes(&layout_bytes)
+    StoredGraphMeta::from_bytes(&layout_bytes)
 }

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{
     kasl_node::KaslNode,
-    metadata::{ProjectMeta, RegionMeta, TrackMeta},
+    metadata::{GraphMeta, NodeMeta, NodeType, ProjectMeta, RegionMeta, TrackMeta},
     ui::EditorUi,
     ui_state::dialog_state::TrackType,
 };
@@ -72,6 +72,7 @@ impl EditorUi {
             egui::Color32::from_rgb(42, 180, 255),
             TrackType::Note,
         );
+        track_meta.graph = GraphMeta::from_graph(note_track.get_graph());
         let region_id = note_track.add_region(note_region);
         track_meta.add_region(region_id, region_meta);
 
@@ -181,6 +182,14 @@ impl EditorUi {
 
         // Add the node to the graph
         let node_id = graph.add_node(Box::new(kasl_node));
+        track_meta.graph.set_node_meta(
+            node_id,
+            NodeMeta::new(
+                NodeType::Kasl,
+                "KASL Node".to_string(),
+                egui::pos2(0.0, 0.0),
+            ),
+        );
         // Connect the node
         let graph_input_id = graph.get_input_id();
         let graph_output_id = graph.get_output_id();

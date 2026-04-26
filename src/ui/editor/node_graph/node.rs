@@ -1,151 +1,104 @@
-use crate::{colors, ui::EditorUi};
-use eframe::egui;
-use knodiq_engine::mixer::TrackID;
+use crate::{metadata::ProjectMeta, ui::EditorUi, ui_state::editor_state::EditorUiState};
+use eframe::egui::{self, Sense};
+use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-use super::NodeDrawData;
-
-pub const NODE_WIDTH: f32 = 140.0;
-pub const NODE_HEADER_HEIGHT: f32 = 24.0;
-pub const PORT_ROW_HEIGHT: f32 = 18.0;
-pub const PORT_RADIUS: f32 = 5.0;
-
-pub fn node_height(input_count: usize, output_count: usize) -> f32 {
-    NODE_HEADER_HEIGHT + PORT_ROW_HEIGHT * input_count.max(output_count).max(1) as f32
-}
-
-pub fn canvas_to_screen(canvas_pos: egui::Pos2, pan: egui::Vec2, origin: egui::Pos2) -> egui::Pos2 {
-    origin + canvas_pos.to_vec2() + pan
-}
-
-pub fn input_port_pos(node_top_left: egui::Pos2, index: usize) -> egui::Pos2 {
-    egui::pos2(
-        node_top_left.x,
-        node_top_left.y
-            + NODE_HEADER_HEIGHT
-            + PORT_ROW_HEIGHT * index as f32
-            + PORT_ROW_HEIGHT * 0.5,
-    )
-}
-
-pub fn output_port_pos(node_top_left: egui::Pos2, index: usize) -> egui::Pos2 {
-    egui::pos2(
-        node_top_left.x + NODE_WIDTH,
-        node_top_left.y
-            + NODE_HEADER_HEIGHT
-            + PORT_ROW_HEIGHT * index as f32
-            + PORT_ROW_HEIGHT * 0.5,
-    )
-}
+const NODE_WIDTH: f32 = 180.0;
+const HEADER_HEIGHT: f32 = 28.0;
+const PORT_ROW_HEIGHT: f32 = 22.0;
+const PORT_RADIUS: f32 = 5.0;
+const PADDING: f32 = 8.0;
 
 impl EditorUi {
-    /// Draws the node and handles drag interaction. Returns true if the node was dragged this frame.
-    pub(super) fn draw_and_interact_node(
-        &mut self,
-        ui: &mut egui::Ui,
-        painter: &egui::Painter,
-        track_id: TrackID,
-        draw_data: &NodeDrawData,
-        canvas_pos: egui::Pos2,
-        pan: egui::Vec2,
-        origin: egui::Pos2,
-    ) -> bool {
-        let screen_pos = canvas_to_screen(canvas_pos, pan, origin);
-        let h = node_height(draw_data.input_names.len(), draw_data.output_names.len());
-        let node_rect = egui::Rect::from_min_size(screen_pos, egui::vec2(NODE_WIDTH, h));
+    pub(super) fn draw_node(&mut self, ui: &mut egui::Ui, node_id: &NodeID) {
+        let Some(track_id) = self.ui_state.selected_track else {
+            return;
+        };
 
-        let drag_id = ui.id().with("node_drag").with(draw_data.id);
-        let drag_resp = ui.interact(node_rect, drag_id, egui::Sense::drag());
+        let (input_len, output_len, pos, display_name) = {
+            let Some(node) = self
+                .project
+                .get_track(&track_id)
+                .and_then(|t| t.get_graph().get_node(node_id))
+            else {
+                return;
+            };
+            let Some(meta) = self
+                .project_meta
+                .get_track(&track_id)
+                .and_then(|t| t.graph.get_node_meta(node_id))
+            else {
+                return;
+            };
+            (
+                node.get_input_len(),
+                node.get_output_len(),
+                meta.pos,
+                meta.display_name.clone(),
+            )
+        };
 
-        if drag_resp.dragged() && self.ui_state.node_graph_state.ghost_edge.is_none() {
-            let new_pos = canvas_pos + drag_resp.drag_delta();
-            if let Some(track_meta) = self.project_meta.get_track_mut(&track_id) {
-                track_meta.node_graph.set_node_pos(draw_data.id, new_pos);
-            }
+        let row_count = input_len.max(output_len).max(1);
+        let node_height = HEADER_HEIGHT + PORT_ROW_HEIGHT * row_count as f32 + PADDING;
+        let node_rect = egui::Rect::from_min_size(pos, egui::vec2(NODE_WIDTH, node_height));
+        let header_rect =
+            egui::Rect::from_min_size(node_rect.min, egui::vec2(NODE_WIDTH, HEADER_HEIGHT));
+
+        let painter = ui.painter();
+
+        painter.rect(
+            node_rect,
+            egui::CornerRadius::same(6),
+            egui::Color32::from_rgb(45, 45, 55),
+            egui::Stroke::new(1.5, egui::Color32::from_rgb(100, 100, 130)),
+            egui::StrokeKind::Middle,
+        );
+        painter.rect(
+            header_rect,
+            egui::CornerRadius {
+                nw: 6,
+                ne: 6,
+                sw: 0,
+                se: 0,
+            },
+            egui::Color32::from_rgb(70, 70, 100),
+            egui::Stroke::NONE,
+            egui::StrokeKind::Middle,
+        );
+        painter.text(
+            header_rect.center(),
+            egui::Align2::CENTER_CENTER,
+            display_name.as_str(),
+            egui::FontId::proportional(13.0),
+            egui::Color32::WHITE,
+        );
+
+        let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
+        Self::apply_node_gesture(
+            response,
+            node_id,
+            &track_id,
+            &mut self.project_meta,
+            &mut self.ui_state,
+        );
+    }
+
+    fn apply_node_gesture(
+        response: egui::Response,
+        node_id: &NodeID,
+        track_id: &TrackID,
+        project_meta: &mut ProjectMeta,
+        ui_state: &mut EditorUiState,
+    ) {
+        if response.clicked() || response.dragged() {
+            ui_state.set_selected_node(*node_id);
         }
 
-        let dark_mode = ui.visuals().dark_mode;
-        draw_node_body(
-            painter,
-            node_rect,
-            &draw_data.label,
-            &draw_data.input_names,
-            &draw_data.output_names,
-            dark_mode,
-        );
-
-        drag_resp.dragged()
-    }
-}
-
-fn draw_node_body(
-    painter: &egui::Painter,
-    node_rect: egui::Rect,
-    label: &str,
-    input_names: &[String],
-    output_names: &[String],
-    dark_mode: bool,
-) {
-    painter.rect(
-        node_rect,
-        4.0,
-        colors::tertiary_bg(dark_mode),
-        egui::Stroke::new(1.0, colors::border(dark_mode)),
-        egui::StrokeKind::Inside,
-    );
-
-    let separator_y = node_rect.min.y + NODE_HEADER_HEIGHT;
-    painter.hline(
-        node_rect.min.x..=node_rect.max.x,
-        separator_y,
-        egui::Stroke::new(1.0, colors::border(dark_mode)),
-    );
-
-    painter.text(
-        egui::pos2(
-            node_rect.center().x,
-            node_rect.min.y + NODE_HEADER_HEIGHT * 0.5,
-        ),
-        egui::Align2::CENTER_CENTER,
-        label,
-        egui::FontId::proportional(12.0),
-        colors::primary_fg(dark_mode),
-    );
-
-    draw_ports(painter, node_rect.min, input_names, output_names, dark_mode);
-}
-
-fn draw_ports(
-    painter: &egui::Painter,
-    node_top_left: egui::Pos2,
-    input_names: &[String],
-    output_names: &[String],
-    dark_mode: bool,
-) {
-    let fg = colors::primary_fg(dark_mode);
-    let input_color = colors::node_port_input();
-    let output_color = colors::node_port_output();
-
-    for (i, name) in input_names.iter().enumerate() {
-        let pos = input_port_pos(node_top_left, i);
-        painter.circle_filled(pos, PORT_RADIUS, input_color);
-        painter.text(
-            egui::pos2(pos.x + PORT_RADIUS + 4.0, pos.y),
-            egui::Align2::LEFT_CENTER,
-            name,
-            egui::FontId::proportional(10.0),
-            fg,
-        );
-    }
-
-    for (i, name) in output_names.iter().enumerate() {
-        let pos = output_port_pos(node_top_left, i);
-        painter.circle_filled(pos, PORT_RADIUS, output_color);
-        painter.text(
-            egui::pos2(pos.x - PORT_RADIUS - 4.0, pos.y),
-            egui::Align2::RIGHT_CENTER,
-            name,
-            egui::FontId::proportional(10.0),
-            fg,
-        );
+        if response.dragged()
+            && let Some(meta) = project_meta
+                .get_track_mut(track_id)
+                .and_then(|t| t.graph.get_node_meta_mut(node_id))
+        {
+            meta.pos += response.drag_delta();
+        }
     }
 }

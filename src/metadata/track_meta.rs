@@ -1,6 +1,6 @@
 use crate::{
     load_write::StoredTrackMeta,
-    metadata::{NodeGraphLayout, RegionMeta},
+    metadata::{GraphMeta, RegionMeta},
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
@@ -13,7 +13,7 @@ pub(crate) struct TrackMeta {
     pub color: egui::Color32,
     pub track_type: TrackType,
     pub regions: HashMap<RegionID, RegionMeta>,
-    pub node_graph: NodeGraphLayout,
+    pub graph: GraphMeta,
 }
 
 impl TrackMeta {
@@ -23,7 +23,7 @@ impl TrackMeta {
             color,
             track_type,
             regions: HashMap::new(),
-            node_graph: NodeGraphLayout::default(),
+            graph: GraphMeta::default(),
         }
     }
 
@@ -33,17 +33,19 @@ impl TrackMeta {
             // Get the audio regions from the track
             let mut regions = HashMap::new();
             for (region_id, audio_region) in audio_track.get_all_regions() {
-                if let Some(stored_region_meta) = track_meta.region_metas.get(region_id) {
-                    regions.insert(
-                        *region_id,
-                        RegionMeta::new(
-                            stored_region_meta.name.clone(),
-                            audio_region.start,
-                            audio_region.duration,
-                            None,
-                        ),
-                    );
-                }
+                let Some(stored_region_meta) = track_meta.region_metas.get(region_id) else {
+                    continue;
+                };
+
+                regions.insert(
+                    *region_id,
+                    RegionMeta::new(
+                        stored_region_meta.name.clone(),
+                        audio_region.start,
+                        audio_region.duration,
+                        None,
+                    ),
+                );
             }
 
             Self {
@@ -51,23 +53,25 @@ impl TrackMeta {
                 color: track_meta.color,
                 track_type: TrackType::Audio,
                 regions,
-                node_graph: track_meta.node_graph.to_layout(),
+                graph: track_meta.node_graph.to_graph_meta(),
             }
         } else if let Some(note_track) = track.as_any().downcast_ref::<NoteTrack>() {
             // Get the note regions from the track
             let mut regions = HashMap::new();
             for (region_id, audio_region) in note_track.get_all_regions() {
-                if let Some(stored_region_meta) = track_meta.region_metas.get(region_id) {
-                    regions.insert(
-                        *region_id,
-                        RegionMeta::new(
-                            stored_region_meta.name.clone(),
-                            audio_region.start,
-                            audio_region.duration,
-                            None,
-                        ),
-                    );
-                }
+                let Some(stored_region_meta) = track_meta.region_metas.get(region_id) else {
+                    continue;
+                };
+
+                regions.insert(
+                    *region_id,
+                    RegionMeta::new(
+                        stored_region_meta.name.clone(),
+                        audio_region.start,
+                        audio_region.duration,
+                        None,
+                    ),
+                );
             }
 
             Self {
@@ -75,7 +79,7 @@ impl TrackMeta {
                 color: track_meta.color,
                 track_type: TrackType::Note,
                 regions,
-                node_graph: track_meta.node_graph.to_layout(),
+                graph: track_meta.node_graph.to_graph_meta(),
             }
         } else {
             unreachable!("There must be no tracks other than AudioTrack and NoteTrack");

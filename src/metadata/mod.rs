@@ -1,8 +1,10 @@
-mod node_graph_layout;
+mod graph_meta;
+mod node_meta;
 mod region_meta;
 mod track_meta;
 
-pub(crate) use node_graph_layout::NodeGraphLayout;
+pub(crate) use graph_meta::GraphMeta;
+pub(crate) use node_meta::{NodeMeta, NodeType};
 pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::TrackMeta;
 
