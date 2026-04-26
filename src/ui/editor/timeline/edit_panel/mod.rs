@@ -20,6 +20,23 @@ impl EditorUi {
                 let track_height = self.ui_state.timeline_state.track_height;
                 let available = ui.available_rect_before_wrap();
 
+                // Delete selected region when the pointer is over the edit panel.
+                // Checked here because ui.ui_contains_pointer() is unreliable inside
+                // region_gestures (min_rect hasn't expanded yet when the check runs).
+                if let Some((track_id, region_id)) = self.ui_state.selected_region {
+                    let hovered = ui
+                        .input(|i| i.pointer.hover_pos())
+                        .is_some_and(|p| available.contains(p));
+                    if hovered {
+                        let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
+                        let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
+                        if delete || backspace {
+                            self.remove_region(&track_id, &region_id);
+                            self.ui_state.selected_region = None;
+                        }
+                    }
+                }
+
                 let track_order = self.project_meta.track_order.clone();
                 for (i, track_id) in track_order.iter().enumerate() {
                     let y = available.min.y + i as f32 * track_height;

@@ -81,15 +81,25 @@ pub(crate) fn separator_hovered() -> Color32 {
 // --- PANEL INTERACTIONS ---
 
 pub(crate) fn panel_drag_highlight() -> Color32 {
-    Color32::from_rgba_premultiplied(100, 150, 255, 60)
+    Color32::from_rgba_unmultiplied(100, 150, 255, 60)
 }
 
 pub(crate) fn panel_hover_highlight() -> Color32 {
-    Color32::from_rgba_premultiplied(100, 150, 255, 40)
+    Color32::from_rgba_unmultiplied(100, 150, 255, 40)
 }
 
 pub(crate) fn panel_collapse_overlay() -> Color32 {
-    Color32::from_rgba_premultiplied(200, 60, 60, 80)
+    Color32::from_rgba_unmultiplied(200, 60, 60, 80)
+}
+
+// --- PANEL HIGHLIGHTING --
+
+pub(crate) fn unfocused_panel_overlay(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_rgba_unmultiplied(0, 0, 0, 20)
+    } else {
+        Color32::from_rgba_unmultiplied(255, 255, 255, 20)
+    }
 }
 
 // --- RULER ---

@@ -120,19 +120,6 @@ impl EditorUi {
         region_rect: egui::Rect,
         resize_rect: egui::Rect,
     ) {
-        // Delete key handling for the selected region
-        if self.ui_state.selected_region == Some((*track_id, *region_id))
-            && ui.ui_contains_pointer()
-        {
-            let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
-            let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
-            if delete || backspace {
-                self.remove_region(track_id, region_id);
-                self.ui_state.selected_region = None;
-                return;
-            }
-        }
-
         // Get gestures on the region
         let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
         let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());

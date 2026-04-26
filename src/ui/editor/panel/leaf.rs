@@ -47,6 +47,21 @@ pub(super) fn render_leaf(
         check_edge_drag(ui, rect)
     });
 
+    if ui.rect_contains_pointer(rect) {
+        ui.painter().rect_stroke(
+            rect,
+            0.0,
+            egui::Stroke::new(2.0, colors::border(ui.visuals().dark_mode)),
+            egui::StrokeKind::Inside,
+        );
+    } else {
+        ui.painter().rect_filled(
+            rect,
+            0.0,
+            colors::unfocused_panel_overlay(ui.visuals().dark_mode),
+        );
+    }
+
     result.inner
 }
 
