@@ -141,7 +141,8 @@ impl EditorUi {
         output_count: usize,
     ) {
         for current_row in 0..output_count {
-            let (port_center, port_resp) = edge_drag_hitbox(ui, node_rect, current_row);
+            let (port_center, port_resp) =
+                edge_drag_hitbox(ui, node_rect, current_row, node_rect.max.x);
 
             // Change the cursor to a crosshair when hovering the output port
             if port_resp.hovered() {
@@ -164,11 +165,6 @@ impl EditorUi {
             {
                 ghost.1 = pos;
             }
-
-            // If the drag has stopped, clear the ghost edge
-            if port_resp.drag_stopped() {
-                self.ui_state.node_graph_state.ghost_edge = None;
-            }
         }
     }
 
@@ -181,7 +177,8 @@ impl EditorUi {
         input_count: usize,
     ) {
         for current_row in 0..input_count {
-            let (port_center, port_resp) = edge_drag_hitbox(ui, node_rect, current_row);
+            let (port_center, port_resp) =
+                edge_drag_hitbox(ui, node_rect, current_row, node_rect.min.x);
 
             // Change the cursor to a crosshair when hovering the input port
             if port_resp.hovered() {
@@ -216,12 +213,6 @@ impl EditorUi {
             {
                 ghost.1 = pos;
             }
-
-            // If the drag has stopped, clear the ghost edge
-            if port_resp.drag_stopped() {
-                self.ui_state.node_graph_state.ghost_edge = None;
-                self.ui_state.node_graph_state.dragged_edge = None;
-            }
         }
     }
 }
@@ -230,9 +221,10 @@ fn edge_drag_hitbox(
     ui: &mut egui::Ui,
     node_rect: egui::Rect,
     current_row: usize,
+    port_x: f32,
 ) -> (egui::Pos2, egui::Response) {
     let y = calc_port_y(node_rect, current_row);
-    let port_center = egui::pos2(node_rect.min.x, y);
+    let port_center = egui::pos2(port_x, y);
     let hit = PORT_RADIUS * 2.5;
     let port_rect = egui::Rect::from_center_size(port_center, egui::vec2(hit, hit));
     (

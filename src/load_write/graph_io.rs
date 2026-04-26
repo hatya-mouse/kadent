@@ -78,7 +78,7 @@ impl FromBytes for Graph {
             let to_id = NodeID(u64::from_le_bytes(buf) as usize);
             cursor.read_exact(&mut buf)?;
             let in_idx = u64::from_le_bytes(buf) as usize;
-            graph.add_edge(from_id, out_idx, to_id, in_idx);
+            graph.add_edge((from_id, out_idx, to_id, in_idx));
         }
 
         restore_next_node_id(&mut graph);
