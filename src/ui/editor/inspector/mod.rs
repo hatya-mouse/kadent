@@ -54,11 +54,14 @@ fn inspector_section(ui: &mut egui::Ui, title: String, add_contents: impl FnOnce
                 egui::vec2(width, HEADER_HEIGHT),
                 egui::Layout::centered_and_justified(egui::Direction::TopDown),
                 |ui| {
-                    ui.label(
-                        egui::RichText::new(title)
-                            .size(theme::large_font_size())
-                            .color(theme::primary_fg(ui.visuals().dark_mode))
-                            .bold(),
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(title)
+                                .size(theme::large_font_size())
+                                .color(theme::primary_fg(ui.visuals().dark_mode))
+                                .bold(),
+                        )
+                        .selectable(false),
                     );
                 },
             );

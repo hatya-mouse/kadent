@@ -29,6 +29,7 @@ impl EditorUi {
             });
 
             if self.debug_mode {
+                ui.separator();
                 inspector_item(ui, "Track ID", |ui| {
                     ui.label(
                         egui::RichText::new(format!("{}", track_id.0))
