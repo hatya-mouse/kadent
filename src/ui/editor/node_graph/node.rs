@@ -60,7 +60,7 @@ impl EditorUi {
 
         // Draw the node background
         let node_stroke = if self.ui_state.selected_node == Some(*node_id) {
-            egui::Stroke::new(2.0, theme::region_selected())
+            egui::Stroke::new(2.0, theme::region_selected(dark_mode))
         } else {
             egui::Stroke::new(1.0, theme::border(dark_mode))
         };

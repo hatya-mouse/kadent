@@ -1,4 +1,11 @@
-use crate::ui::{EditorUi, editor::inspector::inspector_section};
+use crate::{
+    components::{color_picker::color_picker, text_input::text_input},
+    theme,
+    ui::{
+        EditorUi,
+        editor::inspector::{inspector_item, inspector_section},
+    },
+};
 use eframe::egui;
 use knodiq_engine::mixer::TrackID;
 
@@ -9,13 +16,21 @@ impl EditorUi {
         };
 
         inspector_section(ui, "Track".to_string(), |ui| {
-            ui.horizontal(|ui| {
-                ui.label("Name");
-                ui.text_edit_singleline(&mut track_meta.name);
+            inspector_item(ui, "Name", |ui| {
+                text_input(ui, &mut track_meta.name);
+            });
+
+            inspector_item(ui, "Color", |ui| {
+                color_picker(ui, &mut track_meta.color);
             });
 
             if self.debug_mode {
-                ui.label(format!("Track ID: {}", track_id.0));
+                inspector_item(ui, "Track ID", |ui| {
+                    ui.label(
+                        egui::RichText::new(format!("{}", track_id.0))
+                            .size(theme::normal_font_size()),
+                    );
+                });
             }
         });
     }

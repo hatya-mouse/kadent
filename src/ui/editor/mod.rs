@@ -52,7 +52,7 @@ impl EditorUi {
             errors: Vec::new(),
             project_meta,
             ui_state: EditorUiState::default(),
-            debug_mode: false,
+            debug_mode: true,
         }
     }
 

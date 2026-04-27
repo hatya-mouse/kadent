@@ -92,12 +92,6 @@ pub(crate) fn panel_collapse_overlay() -> Color32 {
     Color32::from_rgba_unmultiplied(200, 60, 60, 80)
 }
 
-// --- PANEL HIGHLIGHTING --
-
-pub(crate) fn unfocused_panel_overlay() -> Color32 {
-    Color32::from_rgba_unmultiplied(0, 0, 0, 30)
-}
-
 // --- RULER ---
 
 pub(crate) fn ruler_tick(dark_mode: bool) -> Color32 {
@@ -128,8 +122,12 @@ pub(crate) fn node_edge(dark_mode: bool) -> Color32 {
 
 // --- TIMELINE / REGIONS ---
 
-pub(crate) fn region_selected() -> Color32 {
-    Color32::WHITE
+pub(crate) fn region_selected(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::WHITE
+    } else {
+        Color32::from_rgb(210, 210, 210)
+    }
 }
 
 pub(crate) fn region_text() -> Color32 {

@@ -54,9 +54,6 @@ pub(super) fn render_leaf(
             egui::Stroke::new(2.0, theme::border(ui.visuals().dark_mode)),
             egui::StrokeKind::Inside,
         );
-    } else {
-        ui.painter()
-            .rect_filled(rect, 0.0, theme::unfocused_panel_overlay());
     }
 
     result.inner

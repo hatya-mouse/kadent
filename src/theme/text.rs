@@ -1,10 +1,6 @@
 // --- FONT SIZE ---
 
 pub(crate) fn normal_font_size() -> f32 {
-    12.0
-}
-
-pub(crate) fn medium_font_size() -> f32 {
     14.0
 }
 

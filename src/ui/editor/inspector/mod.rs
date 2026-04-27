@@ -23,15 +23,28 @@ impl EditorUi {
                 if let Some(track_id) = self.ui_state.selected_track {
                     self.track_inspector(ui, &track_id);
                 }
-                if let Some(node_id) = self.ui_state.selected_note {}
-                if let Some((track_id, region_id)) = self.ui_state.selected_region {}
-                if let Some(note_id) = self.ui_state.selected_note {}
+                if let Some((track_id, region_id)) = self.ui_state.selected_region {
+                    self.region_inspector(ui, &track_id, &region_id);
+                }
+                if let Some(note_id) = self.ui_state.selected_note {
+                    let Some((track_id, region_id)) = self.ui_state.selected_region else {
+                        return;
+                    };
+                    self.note_inspector(ui, &track_id, &region_id, &note_id);
+                }
+                if let Some(node_id) = self.ui_state.selected_node {
+                    let Some(track_id) = self.ui_state.selected_track else {
+                        return;
+                    };
+                    self.node_inspector(ui, &track_id, &node_id);
+                }
             });
     }
 }
 
 fn inspector_section(ui: &mut egui::Ui, title: String, add_contents: impl FnOnce(&mut egui::Ui)) {
     let width = ui.available_width();
+    ui.add_space(16.0);
 
     // Header
     let header_response = egui::Frame::new()
@@ -72,7 +85,23 @@ fn inspector_section(ui: &mut egui::Ui, title: String, add_contents: impl FnOnce
     egui::Frame::new()
         .inner_margin(egui::vec2(12.0, 8.0))
         .show(ui, |ui| {
-            ui.style_mut().spacing.item_spacing.y = 4.0;
+            ui.style_mut().spacing.item_spacing.y = 8.0;
             add_contents(ui);
         });
+}
+
+fn inspector_item(
+    ui: &mut egui::Ui,
+    label: impl Into<String>,
+    add_contents: impl FnOnce(&mut egui::Ui),
+) {
+    ui.style_mut().spacing.interact_size.y = 24.0;
+    ui.horizontal(|ui| {
+        let text = egui::RichText::new(label)
+            .size(theme::normal_font_size())
+            .color(theme::primary_fg(ui.visuals().dark_mode));
+
+        ui.add(egui::Label::new(text).selectable(false));
+        add_contents(ui);
+    });
 }

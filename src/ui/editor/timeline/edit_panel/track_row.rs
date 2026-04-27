@@ -61,7 +61,7 @@ impl EditorUi {
 
             // Highlight the stroke if the region is selected
             let stroke = if self.ui_state.selected_region == Some((*track_id, region_id)) {
-                egui::Stroke::new(2.0, theme::region_selected())
+                egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
             } else {
                 egui::Stroke::new(1.0, theme::border(ui.visuals().dark_mode))
             };

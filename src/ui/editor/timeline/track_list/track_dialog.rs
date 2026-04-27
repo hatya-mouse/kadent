@@ -1,5 +1,5 @@
 use crate::{
-    components::dialog::dialog,
+    components::{dialog::dialog, text_input::text_input},
     theme,
     ui::EditorUi,
     ui_state::dialog_state::{DialogState, TrackType},
@@ -30,7 +30,7 @@ impl EditorUi {
                 }
 
                 cols[1].label("Track Name");
-                cols[1].text_edit_singleline(&mut state.name);
+                text_input(&mut cols[1], &mut state.name);
 
                 let name_empty = state.name.trim().is_empty();
                 cols[1]
