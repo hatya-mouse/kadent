@@ -24,8 +24,8 @@ impl EditorUi {
                 color_picker(ui, &mut track_meta.color);
             });
 
-            inspector_item(ui, "Delete Track", |ui| {
-                if ui.button("Compile KASL").clicked() {
+            inspector_item(ui, "Delete", |ui| {
+                if ui.button("Delete Track").clicked() {
                     self.remove_track(track_id);
                 }
             });
