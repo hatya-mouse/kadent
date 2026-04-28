@@ -4,7 +4,10 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use knodiq_engine::track::{Track, audio_track::AudioTrack, note_track::NoteTrack};
+use knodiq_engine::{
+    mixer::TrackID,
+    track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
+};
 
 impl EditorUi {
     /// Adds a new track to the project and the project metadata.
@@ -24,6 +27,17 @@ impl EditorUi {
             track_meta.graph = GraphMeta::from_graph(track.get_graph());
         }
         self.project_meta.add_track(track_id, track_meta);
+
+        // Update the project on the audio thread
+        self.modified_project();
+    }
+
+    /// Removes a track from the project and the project metadata.
+    pub(crate) fn remove_track(&mut self, track_id: &TrackID) {
+        // Remove the track from the project
+        self.project.remove_track(track_id);
+        // Remove the track metadata
+        self.project_meta.remove_track(track_id);
 
         // Update the project on the audio thread
         self.modified_project();

@@ -52,6 +52,12 @@ impl ProjectMeta {
         self.track_order.push(id);
     }
 
+    /// Removes a track from the project with the given ID.
+    pub fn remove_track(&mut self, id: &TrackID) {
+        self.tracks.remove(id);
+        self.track_order.retain(|&track_id| track_id != *id);
+    }
+
     /// Returns a reference to the track with the given ID.
     pub fn get_track(&self, id: &TrackID) -> Option<&TrackMeta> {
         self.tracks.get(id)
