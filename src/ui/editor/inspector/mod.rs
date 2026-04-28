@@ -44,7 +44,7 @@ impl EditorUi {
 
 fn inspector_section(ui: &mut egui::Ui, title: String, add_contents: impl FnOnce(&mut egui::Ui)) {
     let width = ui.available_width();
-    ui.add_space(16.0);
+    ui.add_space(8.0);
 
     // Header
     let header_response = egui::Frame::new()
@@ -91,6 +91,9 @@ fn inspector_section(ui: &mut egui::Ui, title: String, add_contents: impl FnOnce
             ui.style_mut().spacing.item_spacing.y = 8.0;
             add_contents(ui);
         });
+
+    // Add space at the bottom
+    ui.add_space(8.0);
 }
 
 fn inspector_item(

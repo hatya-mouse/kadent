@@ -19,10 +19,9 @@ impl KnodiqApp {
 
     pub(crate) fn base_style(ctx: &egui::Context) {
         ctx.global_style_mut(|style| {
-            // Make labels unselectable by default
             style.interaction.selectable_labels = false;
-            // Remove window shadows
             style.visuals.window_shadow = egui::Shadow::NONE;
+            style.visuals.popup_shadow = egui::Shadow::NONE;
         });
     }
 }

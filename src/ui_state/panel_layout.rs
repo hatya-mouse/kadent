@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum PanelView {
     #[default]
@@ -7,16 +9,18 @@ pub enum PanelView {
     Inspector,
 }
 
-impl PanelView {
-    pub fn label(&self) -> &'static str {
+impl Display for PanelView {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PanelView::Timeline => "Timeline",
-            PanelView::PianoRoll => "Piano Roll",
-            PanelView::NodeGraph => "Node Graph",
-            PanelView::Inspector => "Inspector",
+            PanelView::Timeline => write!(f, "Timeline"),
+            PanelView::PianoRoll => write!(f, "Piano Roll"),
+            PanelView::NodeGraph => write!(f, "Node Graph"),
+            PanelView::Inspector => write!(f, "Inspector"),
         }
     }
+}
 
+impl PanelView {
     pub fn all() -> &'static [Self] {
         &[
             PanelView::Timeline,

@@ -65,16 +65,14 @@ fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
         .inner_margin(egui::Margin::symmetric(8, 4))
         .show(ui, |ui| {
             ui.set_min_width(ui.available_width());
-            ui.horizontal(|ui| {
-                PanelView::all().iter().for_each(|enum_view| {
-                    if ui
-                        .selectable_label(view == enum_view, enum_view.label())
-                        .clicked()
-                    {
-                        *view = enum_view.clone();
-                    }
-                });
-            });
+
+            egui::ComboBox::from_id_salt("panel_selection_combo_box")
+                .selected_text(view.to_string())
+                .show_ui(ui, |ui| {
+                    PanelView::all().iter().for_each(|enum_view| {
+                        ui.selectable_value(view, enum_view.clone(), enum_view.to_string());
+                    });
+                })
         });
 
     let stroke = ui.visuals().widgets.noninteractive.bg_stroke;
