@@ -1,4 +1,8 @@
-use crate::{metadata::TrackMeta, ui::EditorUi, ui_state::dialog_state::TrackType};
+use crate::{
+    metadata::{GraphMeta, TrackMeta},
+    ui::EditorUi,
+    ui_state::dialog_state::TrackType,
+};
 use eframe::egui;
 use knodiq_engine::track::{Track, audio_track::AudioTrack, note_track::NoteTrack};
 
@@ -13,8 +17,12 @@ impl EditorUi {
         // Add a track to the project
         let track_id = self.project.add_track(track);
 
-        // Register the metadata
-        let track_meta = TrackMeta::new(name, color, track_type);
+        // Register the metadata, initializing the graph meta from the engine track's graph
+        // so the input/output nodes created by the track constructor are visible in the UI.
+        let mut track_meta = TrackMeta::new(name, color, track_type);
+        if let Some(track) = self.project.get_track(&track_id) {
+            track_meta.graph = GraphMeta::from_graph(track.get_graph());
+        }
         self.project_meta.add_track(track_id, track_meta);
 
         // Update the project on the audio thread

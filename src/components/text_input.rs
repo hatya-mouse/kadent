@@ -16,7 +16,8 @@ pub(crate) fn text_input(ui: &mut egui::Ui, value: &mut String) -> egui::Respons
             .font(egui::FontId::new(
                 theme::normal_font_size(),
                 egui::FontFamily::Proportional,
-            )),
+            ))
+            .text_color(theme::primary_fg(dark)),
     )
 }
 
@@ -43,7 +44,8 @@ where
             .font(egui::FontId::new(
                 theme::normal_font_size(),
                 egui::FontFamily::Proportional,
-            )),
+            ))
+            .text_color(theme::primary_fg(dark)),
     );
 
     if response.changed() {

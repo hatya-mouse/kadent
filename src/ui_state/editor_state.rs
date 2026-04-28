@@ -44,12 +44,22 @@ pub struct EditorUiState {
 }
 
 impl EditorUiState {
-    /// Set the selected region to the given one, deselecting the note.
+    /// Set the selected track to the given one, deselecting the note and the node.
+    pub fn set_selected_track(&mut self, track_id: TrackID) {
+        self.selected_track = Some(track_id);
+        self.selected_region = None;
+
+        self.selected_note = None;
+        self.selected_node = None;
+    }
+
+    /// Set the selected region to the given one, deselecting the note and the node.
     pub fn set_selected_region(&mut self, track_id: TrackID, region_id: RegionID) {
         self.selected_track = Some(track_id);
         self.selected_region = Some((track_id, region_id));
-        // Deselect the note
+
         self.selected_note = None;
+        self.selected_node = None;
     }
 
     /// Set the selected note to the given one.

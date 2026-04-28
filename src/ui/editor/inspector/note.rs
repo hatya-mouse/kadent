@@ -8,10 +8,7 @@ use crate::{
 use eframe::egui;
 use knodiq_engine::{
     mixer::TrackID,
-    track::{
-        RegionID,
-        note_track::{NoteID, NoteTrack},
-    },
+    track::{RegionID, note_track::NoteID},
 };
 
 impl EditorUi {
@@ -22,19 +19,19 @@ impl EditorUi {
         region_id: &RegionID,
         note_id: &NoteID,
     ) {
-        let Some(track) = self
-            .project
-            .get_track_mut(track_id)
-            .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-        else {
-            return;
-        };
-        let Some(region) = track.get_region_mut(region_id) else {
-            return;
-        };
-        let Some(note) = region.get_note_mut(note_id) else {
-            return;
-        };
+        // let Some(track) = self
+        //     .project
+        //     .get_track_mut(track_id)
+        //     .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
+        // else {
+        //     return;
+        // };
+        // let Some(region) = track.get_region_mut(region_id) else {
+        //     return;
+        // };
+        // let Some(note) = region.get_note_mut(note_id) else {
+        //     return;
+        // };
 
         inspector_section(ui, "Note".to_string(), |ui| {
             if self.debug_mode {

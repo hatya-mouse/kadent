@@ -89,9 +89,7 @@ impl EditorUi {
                 // Handle note gestures
                 self.note_controls(
                     ui,
-                    &track_id,
-                    &region_id,
-                    &note_id,
+                    (&track_id, &region_id, &note_id),
                     &note,
                     note_rect,
                     resize_rect,
@@ -210,21 +208,19 @@ impl EditorUi {
     fn note_controls(
         &mut self,
         ui: &mut egui::Ui,
-        track_id: &TrackID,
-        region_id: &RegionID,
-        note_id: &NoteID,
+        note_id: (&TrackID, &RegionID, &NoteID),
         note: &Note,
         note_rect: egui::Rect,
         resize_rect: egui::Rect,
     ) {
         // Check for the delete key input
-        if self.ui_state.selected_note == Some(*note_id) && ui.ui_contains_pointer() {
+        if self.ui_state.selected_note == Some(*note_id.2) && ui.ui_contains_pointer() {
             let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
             let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
 
             if delete || backspace {
                 // Remove the note from the region
-                self.remove_note(track_id, region_id, note_id);
+                self.remove_note(note_id.0, note_id.1, note_id.2);
                 self.ui_state.selected_note = None;
             }
         }
@@ -241,7 +237,7 @@ impl EditorUi {
         // Handle resize
         if resize_res.dragged() {
             // Select the note
-            self.ui_state.set_selected_note(*note_id);
+            self.ui_state.set_selected_note(*note_id.2);
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
@@ -249,21 +245,21 @@ impl EditorUi {
             );
             if let Some(region) = self
                 .project
-                .get_track_mut(track_id)
+                .get_track_mut(note_id.0)
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-                .and_then(|track| track.get_region_mut(region_id))
+                .and_then(|track| track.get_region_mut(note_id.1))
             {
-                region.set_duration(note_id, Beats((note.duration.0 + delta_beats.0).max(0.0)));
+                region.set_duration(note_id.2, Beats((note.duration.0 + delta_beats.0).max(0.0)));
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
                 .project
-                .get_track(track_id)
+                .get_track(note_id.0)
                 .and_then(|track| track.as_any().downcast_ref::<NoteTrack>())
-                .and_then(|track| track.get_region(region_id))
-                .and_then(|region| region.get_duration(note_id))
+                .and_then(|track| track.get_region(note_id.1))
+                .and_then(|region| region.get_duration(note_id.2))
         {
-            self.set_note_duration(track_id, region_id, note_id, new_duration);
+            self.set_note_duration(note_id.0, note_id.1, note_id.2, new_duration);
         }
 
         if move_res.dragged() {
@@ -274,27 +270,27 @@ impl EditorUi {
             let new_start = note.start + delta_beats;
             let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
 
-            self.ui_state.set_selected_note(*note_id);
+            self.ui_state.set_selected_note(*note_id.2);
 
             if let Some(region) = self
                 .project
-                .get_track_mut(track_id)
+                .get_track_mut(note_id.0)
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-                .and_then(|track| track.get_region_mut(region_id))
+                .and_then(|track| track.get_region_mut(note_id.1))
             {
-                region.set_start(note_id, new_start);
-                region.set_pitch(note_id, new_pitch);
+                region.set_start(note_id.2, new_start);
+                region.set_pitch(note_id.2, new_pitch);
             }
         } else if move_res.drag_stopped() {
             let committed = self
                 .project
-                .get_track(track_id)
+                .get_track(note_id.0)
                 .and_then(|t| t.as_any().downcast_ref::<NoteTrack>())
-                .and_then(|t| t.get_region(region_id))
-                .and_then(|r| Some((r.get_start(note_id)?, r.get_pitch(note_id)?)));
+                .and_then(|t| t.get_region(note_id.1))
+                .and_then(|r| Some((r.get_start(note_id.2)?, r.get_pitch(note_id.2)?)));
             if let Some((new_start, new_pitch)) = committed {
-                self.set_note_start(track_id, region_id, note_id, new_start);
-                self.set_note_pitch(track_id, region_id, note_id, new_pitch.round());
+                self.set_note_start(note_id.0, note_id.1, note_id.2, new_start);
+                self.set_note_pitch(note_id.0, note_id.1, note_id.2, new_pitch.round());
             }
         }
     }
