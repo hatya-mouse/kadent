@@ -5,7 +5,7 @@ use crate::{
     ui::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
 };
 use eframe::egui;
-use knodiq_engine::audio_thread::{AudioCommand, AudioError};
+use knodiq_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn file_control(&mut self, ui: &mut egui::Ui) {
@@ -52,7 +52,12 @@ impl EditorUi {
                                 self.project_dir = proj_path;
 
                                 let command = AudioCommand::Seek(self.project.range_start);
-                                if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                                if self
+                                    .thread_handle
+                                    .audio_command_tx
+                                    .send(command.clone())
+                                    .is_err()
+                                {
                                     self.errors.push(AudioError::CommandFailed(command));
                                 }
 

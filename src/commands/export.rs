@@ -1,7 +1,7 @@
 use crate::ui::EditorUi;
 use knodiq_engine::{
-    audio_thread::{AudioCommand, AudioResult},
     data_types::AudioContext,
+    thread::{AudioCommand, AudioResult},
 };
 use std::path::Path;
 
@@ -10,8 +10,8 @@ impl EditorUi {
         // Request generation the f32 samples for the entire project
         let project = self.project.clone();
         self.thread_handle
-            .command_tx
-            .send(AudioCommand::ExportAudio(project))
+            .audio_command_tx
+            .send(AudioCommand::ExportAudio(Box::new(project)))
             .unwrap();
 
         // Wait for the audio thread to generate the samples and send them back

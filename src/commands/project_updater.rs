@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use knodiq_engine::audio_thread::AudioCommand;
+use knodiq_engine::thread::AudioCommand;
 use std::time::Instant;
 
 impl EditorUi {
@@ -19,8 +19,8 @@ impl EditorUi {
             // Clone the project and send it to the audio thread
             let project = self.project.clone();
             self.thread_handle
-                .command_tx
-                .send(AudioCommand::UpdateProject(project))
+                .audio_command_tx
+                .send(AudioCommand::UpdateProject(Box::new(project)))
                 .unwrap();
         }
     }

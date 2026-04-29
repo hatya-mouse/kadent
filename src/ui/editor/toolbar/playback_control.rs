@@ -3,7 +3,7 @@ use crate::{
     ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;
-use knodiq_engine::audio_thread::{AudioCommand, AudioError};
+use knodiq_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn playback_control(&mut self, ui: &mut egui::Ui) {
@@ -17,7 +17,12 @@ impl EditorUi {
             .clicked()
             {
                 let command = AudioCommand::Seek(self.project.range_start);
-                if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                if self
+                    .thread_handle
+                    .audio_command_tx
+                    .send(command.clone())
+                    .is_err()
+                {
                     self.errors.push(AudioError::CommandFailed(command));
                 }
             }
@@ -30,7 +35,12 @@ impl EditorUi {
                 && !self.is_playing
             {
                 let command = AudioCommand::Play;
-                if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                if self
+                    .thread_handle
+                    .audio_command_tx
+                    .send(command.clone())
+                    .is_err()
+                {
                     self.errors.push(AudioError::CommandFailed(command));
                 } else {
                     self.is_playing = true;
@@ -45,7 +55,12 @@ impl EditorUi {
                 && self.is_playing
             {
                 let command = AudioCommand::Pause;
-                if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                if self
+                    .thread_handle
+                    .audio_command_tx
+                    .send(command.clone())
+                    .is_err()
+                {
                     self.errors.push(AudioError::CommandFailed(command));
                 } else {
                     self.is_playing = false;
@@ -60,7 +75,12 @@ impl EditorUi {
             {
                 let command =
                     AudioCommand::Seek(self.project.range_start + self.project.range_duration);
-                if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                if self
+                    .thread_handle
+                    .audio_command_tx
+                    .send(command.clone())
+                    .is_err()
+                {
                     self.errors.push(AudioError::CommandFailed(command));
                 }
             }

@@ -3,8 +3,8 @@ mod track_row;
 use crate::{theme, ui::EditorUi};
 use eframe::egui;
 use knodiq_engine::{
-    audio_thread::{AudioCommand, AudioError},
     data_types::Beats,
+    thread::{AudioCommand, AudioError},
 };
 use std::time::Duration;
 
@@ -119,7 +119,12 @@ impl EditorUi {
                     let beat = Beats(((pos.x - available.min.x) / ppb).max(0.0) as f64);
                     self.ui_state.playhead_beats = beat;
                     let command = AudioCommand::Seek(beat);
-                    if self.thread_handle.command_tx.send(command.clone()).is_err() {
+                    if self
+                        .thread_handle
+                        .audio_command_tx
+                        .send(command.clone())
+                        .is_err()
+                    {
                         self.errors.push(AudioError::CommandFailed(command));
                     }
                 }

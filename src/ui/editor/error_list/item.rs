@@ -1,6 +1,6 @@
 use crate::theme;
 use eframe::egui;
-use knodiq_engine::{audio_thread::AudioError, graph::error::GraphError};
+use knodiq_engine::{graph::error::GraphError, thread::AudioError};
 
 pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
     let message = error_message(error);

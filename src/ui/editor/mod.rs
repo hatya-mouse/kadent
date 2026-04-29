@@ -11,9 +11,9 @@ mod toolbar;
 use crate::{metadata::ProjectMeta, theme, ui_state::editor_state::EditorUiState};
 use eframe::egui;
 use knodiq_engine::{
-    audio_thread::{AudioError, AudioThread, AudioThreadHandle},
     data_types::AudioContext,
     mixer::Project,
+    thread::{AudioError, AudioThread, AudioThreadHandle},
 };
 use std::path::PathBuf;
 
