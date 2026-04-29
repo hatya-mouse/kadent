@@ -61,7 +61,13 @@ impl EditorUi {
             let offset = response.rect.min;
 
             // Draw the note grid
-            self.draw_note_grid(ui, &painter, offset, scroll_content_width);
+            self.draw_note_grid(
+                ui,
+                &painter,
+                offset,
+                scroll_content_width,
+                scroll_content_height,
+            );
 
             for (note_id, note) in notes {
                 // Calculate the note rect
@@ -130,6 +136,7 @@ impl EditorUi {
         painter: &egui::Painter,
         offset: egui::Pos2,
         scroll_content_width: f32,
+        scroll_content_height: f32,
     ) {
         let grid_color_note = theme::border(ui.visuals().dark_mode);
         let grid_color_octave = ui.visuals().window_stroke().color;
@@ -154,6 +161,65 @@ impl EditorUi {
                     y,
                     egui::Stroke::new(0.5, grid_color_note),
                 );
+            }
+        }
+
+        self.note_grid_ruler(
+            painter,
+            scroll_content_width,
+            scroll_content_height,
+            offset,
+            grid_color_note,
+        );
+    }
+
+    fn note_grid_ruler(
+        &self,
+        painter: &egui::Painter,
+        scroll_content_width: f32,
+        scroll_content_height: f32,
+        offset: egui::Pos2,
+        grid_color_note: egui::Color32,
+    ) {
+        // Vertical beat grid lines, interval adapts to zoom level
+        let ppb = self.ui_state.piano_roll_state.pixels_per_beat;
+        let raw_interval = (30.0_f32 / ppb).ceil() as i32;
+        let beats_per_line = if raw_interval <= 1 {
+            1
+        } else if raw_interval <= 2 {
+            2
+        } else if raw_interval <= 4 {
+            4
+        } else if raw_interval <= 8 {
+            8
+        } else if raw_interval <= 16 {
+            16
+        } else {
+            ((raw_interval + 31) / 32) * 32
+        };
+
+        let total_beats = (scroll_content_width / ppb).ceil() as i32;
+        let y_range = egui::Rangef::new(offset.y, offset.y + scroll_content_height);
+
+        // Major beat lines
+        let mut beat = 0;
+        while beat <= total_beats {
+            let x = offset.x + beat as f32 * ppb;
+            painter.vline(x, y_range, egui::Stroke::new(1.0, grid_color_note));
+            beat += beats_per_line;
+        }
+
+        // Minor beat lines between major lines when zoomed in enough
+        if ppb >= 30.0 && beats_per_line > 1 {
+            for sub_beat in 0..=total_beats {
+                if sub_beat % beats_per_line != 0 {
+                    let x = offset.x + sub_beat as f32 * ppb;
+                    painter.vline(
+                        x,
+                        y_range,
+                        egui::Stroke::new(0.5, grid_color_note.gamma_multiply(0.5)),
+                    );
+                }
             }
         }
     }
