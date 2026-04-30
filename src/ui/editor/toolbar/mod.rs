@@ -1,6 +1,8 @@
 mod file_control;
+mod midi_control;
 mod playback_control;
 mod toolbar_group;
+mod vu_meter;
 
 use crate::{
     fonts::RichTextExt, theme, ui::EditorUi, ui::editor::toolbar::toolbar_group::toolbar_group,
@@ -28,7 +30,11 @@ impl EditorUi {
             // Show the current playhead beats
             self.playhead_beats(ui);
 
+            self.midi_control(ui);
+
             self.file_control(ui);
+
+            self.vu_meter(ui);
         });
     }
 

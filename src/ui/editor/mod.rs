@@ -34,6 +34,8 @@ pub struct EditorUi {
     pub ui_state: EditorUiState,
     /// Whether the editor is in the debug mode.
     debug_mode: bool,
+    /// The name of the currently connected MIDI input port.
+    pub selected_midi_port: Option<String>,
 }
 
 impl EditorUi {
@@ -54,6 +56,7 @@ impl EditorUi {
             project_meta,
             ui_state: EditorUiState::default(),
             debug_mode: true,
+            selected_midi_port: None,
         }
     }
 

@@ -29,6 +29,9 @@ pub struct EditorUiState {
     /// The latest playhead samples received from the audio thread.
     pub last_playhead: usize,
 
+    /// The last VU meter value received from the audio thread.
+    pub last_vu_value: Vec<f32>,
+
     /// An instant to track the last edited time for project updating.
     pub last_edit_time: Option<Instant>,
 
