@@ -1,9 +1,15 @@
-use crate::theme;
+use crate::{theme, ui_state::toolbar_state::PeakHold};
 use eframe::egui;
 
 const METER_GAP: f32 = 2.0;
 
-pub(crate) fn vu_meter(ui: &mut egui::Ui, channels: &[f32], size: egui::Vec2, corner_radius: u8) {
+pub(crate) fn vu_meter(
+    ui: &mut egui::Ui,
+    channels: &[f32],
+    peak_holds: &[PeakHold],
+    size: egui::Vec2,
+    corner_radius: u8,
+) {
     let (rect, _) = ui.allocate_exact_size(size, egui::Sense::empty());
     let row_height = size.y / channels.len() as f32;
     let height_with_gap = row_height - METER_GAP;
@@ -59,5 +65,18 @@ pub(crate) fn vu_meter(ui: &mut egui::Ui, channels: &[f32], size: egui::Vec2, co
             egui::CornerRadius::ZERO
         };
         ui.painter().rect_filled(row_rect, row_radius, fill_color);
+
+        // Draw the peak hold indicator
+        let peak_local_x = (size.x - corner_radius as f32) * peak_holds[row].value.clamp(0.0, 1.0);
+        if peak_local_x > corner_radius as f32 {
+            let peak_x = rect.min.x + peak_local_x;
+            ui.painter().line_segment(
+                [
+                    egui::pos2(peak_x, row_rect.top()),
+                    egui::pos2(peak_x, row_rect.bottom()),
+                ],
+                egui::Stroke::new(1.0, theme::peak_hold(ui.visuals().dark_mode)),
+            );
+        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::ui_state::{
     dialog_state::DialogState, node_graph_state::NodeGraphState, panel_layout::PanelNode,
-    piano_roll_state::PianoRollState, timeline_state::TimelineState,
+    piano_roll_state::PianoRollState, timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
 use knodiq_engine::{
     data_types::Beats,
@@ -15,6 +15,8 @@ pub struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
 
+    /// The current toolbar state.
+    pub toolbar_state: ToolbarState,
     /// The current dialog state.
     pub dialog_state: DialogState,
     /// The current timeline state.
@@ -28,9 +30,6 @@ pub struct EditorUiState {
     pub playhead_beats: Beats,
     /// The latest playhead samples received from the audio thread.
     pub last_playhead: usize,
-
-    /// The last VU meter value received from the audio thread.
-    pub last_vu_value: Vec<f32>,
 
     /// An instant to track the last edited time for project updating.
     pub last_edit_time: Option<Instant>,

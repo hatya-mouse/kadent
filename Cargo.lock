@@ -2289,7 +2289,7 @@ dependencies = [
 [[package]]
 name = "knodiq_engine"
 version = "0.3.19"
-source = "git+https://github.com/hatya-mouse/knodiq_engine#d9065f692a0d8fd934aaf267cafa0ea291f7c64f"
+source = "git+https://github.com/hatya-mouse/knodiq_engine#bf30112d894e228acc6c1b9750b7822d86c304a5"
 dependencies = [
  "cpal",
  "midir",
@@ -3055,9 +3055,9 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "orbclient"
-version = "0.3.53"
+version = "0.3.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12c6933ddbbd16539a7672e697bb8d41ac3a4e99ac43eeb40c07236bd7fcb2dd"
+checksum = "a570f6bca41d29acb2139229a7c873ec99bc9a313bd10804081d89bfac8ff329"
 dependencies = [
  "libc",
  "libredox",

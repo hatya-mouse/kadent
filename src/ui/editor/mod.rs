@@ -1,9 +1,9 @@
 mod error_list;
+mod frame_process;
 mod inspector;
 mod node_graph;
 mod panel;
 mod piano_roll;
-mod playhead_calculation;
 mod project_setup;
 mod timeline;
 mod toolbar;
@@ -62,6 +62,7 @@ impl EditorUi {
 
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.calculate_playhead();
+        self.process_vu_value();
 
         egui::Panel::top("toolbar")
             .frame(

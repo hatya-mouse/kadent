@@ -138,3 +138,13 @@ pub(crate) fn region_text() -> Color32 {
 pub(crate) fn default_track_color() -> Color32 {
     Color32::from_rgb(100, 150, 220)
 }
+
+// --- PEAK HOLD ---
+
+pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_rgb(255, 30, 0)
+    } else {
+        Color32::from_rgb(200, 15, 0)
+    }
+}
