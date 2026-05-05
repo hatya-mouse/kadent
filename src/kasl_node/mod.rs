@@ -3,7 +3,7 @@ mod error;
 pub use error::KaslNodeError;
 
 use kasl::{
-    core::{KaslCompiler, ast::scope_manager::IOBlueprint, run_buffer},
+    core::{KaslCompiler, ast_nodes::scope_manager::IOBlueprint, run_buffer},
     cranelift_backend::CraneliftBackend,
     ir::Optimizer,
 };
