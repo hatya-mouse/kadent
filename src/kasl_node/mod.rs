@@ -1,4 +1,5 @@
 mod error;
+use std::io::Write;
 
 pub use error::KaslNodeError;
 
@@ -12,7 +13,7 @@ use knodiq_engine::{
     graph::error::NodeError,
     node::Node,
 };
-use std::path::PathBuf;
+use std::{fs::File, path::PathBuf};
 
 #[derive(Default)]
 pub struct KaslNode {
@@ -91,6 +92,15 @@ impl KaslNode {
         // Optimize the compiled function
         let mut optimizer = Optimizer::default();
         let func = optimizer.optimize(func);
+
+        // DEBUG IR DUMPING
+        // let mut f = File::create("ir_dump").unwrap();
+        // write!(
+        //     f,
+        //     "BEFORE OPTIMIZATION -->\n{}\n\nAFTER OPTIMIZATION -->\n{}",
+        //     before_func, func
+        // )
+        // .unwrap();
 
         // Compile the program to executable binary
         let mut backend = CraneliftBackend::default();
