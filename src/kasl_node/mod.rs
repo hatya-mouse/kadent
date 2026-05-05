@@ -5,6 +5,7 @@ pub use error::KaslNodeError;
 use kasl::{
     core::{KaslCompiler, ast::scope_manager::IOBlueprint, run_buffer},
     cranelift_backend::CraneliftBackend,
+    ir::Optimizer,
 };
 use knodiq_engine::{
     data_types::{AudioContext, TypeInfo},
@@ -86,6 +87,10 @@ impl KaslNode {
         let func = compiler
             .lower_buffer(&blueprint)
             .map_err(|e| KaslNodeError::Compile(vec![e]))?;
+
+        // Optimize the compiled function
+        let mut optimizer = Optimizer::default();
+        let func = optimizer.optimize(func);
 
         // Compile the program to executable binary
         let mut backend = CraneliftBackend::default();
