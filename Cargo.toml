@@ -1,0 +1,17 @@
+[package]
+name = "kreniq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "6.0.0"
+eframe = "0.34.0"
+egui_extras = { version = "0.34.0", features = ["all_loaders"] }
+hound = "3.5.1"
+kasl = { version = "0.2.29", features = ["cranelift"] }
+kreniq_engine = { git = "https://github.com/hatya-mouse/kreniq_engine" }
+midir = "0.11.0"
+notify = "8.2.0"
+rfd = "0.17.2"
+ringbuf = "0.4.8"
+tempfile = "3.27.0"
