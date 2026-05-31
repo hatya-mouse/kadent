@@ -16,8 +16,12 @@ pub(super) fn render_split(
     editor: &mut EditorUi,
 ) -> Option<bool> {
     let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
-    super::render_node(ui, first, first_rect, editor);
-    super::render_node(ui, second, second_rect, editor);
+    if panel_size(dir, first_rect) >= 1.0 {
+        super::render_node(ui, first, first_rect, editor);
+    }
+    if panel_size(dir, second_rect) >= 1.0 {
+        super::render_node(ui, second, second_rect, editor);
+    }
     render_divider(ui, div_rect, dir, ratio, rect)
 }
 

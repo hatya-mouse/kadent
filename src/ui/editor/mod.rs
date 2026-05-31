@@ -1,3 +1,4 @@
+mod code_editor;
 mod error_list;
 mod frame_process;
 mod inspector;
@@ -45,7 +46,7 @@ impl EditorUi {
         project: Project,
         project_meta: ProjectMeta,
     ) -> Self {
-        let thread_handle = AudioThread::spawn(audio_ctx, project.clone()).unwrap();
+        let thread_handle = AudioThread::spawn(audio_ctx, project.clone());
 
         Self {
             project_dir,

@@ -1,3 +1,4 @@
+pub mod code_editor_state;
 pub mod dialog_state;
 pub mod editor_state;
 pub mod node_graph_state;
