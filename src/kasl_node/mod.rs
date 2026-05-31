@@ -3,11 +3,11 @@ mod error;
 pub use error::KaslNodeError;
 
 use kasl::{
-    core::{KaslCompiler, ast_nodes::scope_manager::IOBlueprint, run_buffer},
+    core::{ast_nodes::scope_manager::IOBlueprint, run_buffer, KaslCompiler},
     cranelift_backend::CraneliftBackend,
     ir::Optimizer,
 };
-use kreniq_engine::{
+use krenic_engine::{
     data_types::{AudioContext, TypeInfo},
     graph::error::NodeError,
     node::Node,

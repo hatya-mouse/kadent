@@ -1,9 +1,9 @@
 use crate::ui::EditorUi;
-use kreniq_engine::{
+use krenic_engine::{
     mixer::TrackID,
     track::{
-        RegionID,
         note_track::{Note, NoteTrack},
+        RegionID,
     },
 };
 

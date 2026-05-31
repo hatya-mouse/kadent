@@ -1,5 +1,5 @@
 use eframe::egui;
-use kreniq_engine::graph::node_id::NodeID;
+use krenic_engine::graph::node_id::NodeID;
 
 pub struct NodeGraphState {
     /// Currently being dragged edge, with the source and the mouse position.

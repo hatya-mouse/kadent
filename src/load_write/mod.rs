@@ -17,7 +17,7 @@ pub(crate) use project_meta_io::{StoredProjMeta, StoredTrackMeta};
 pub(crate) use traits::{AsBytes, FromBytes};
 
 use crate::load_write::traits::safe_read;
-use kreniq_engine::mixer::Project;
+use krenic_engine::mixer::Project;
 use std::{
     fs::{self, File},
     io::{Read, Write},
@@ -55,10 +55,10 @@ pub(crate) fn save_project(
     let mut file = File::create(path)?;
 
     // Write the project data to the file
-    // First write "KNODIQ" to check if the file is a Kreniq Project file
-    file.write_all("KNODIQ".as_bytes())?;
+    // First write "KRENIC" to check if the file is a Krenic Project file
+    file.write_all("KRENIC".as_bytes())?;
 
-    // Then write the version of Kreniq
+    // Then write the version of Krenic
     let major_ver: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
     let minor_ver: u32 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
     let patch_ver: u32 = env!("CARGO_PKG_VERSION_PATCH").parse().unwrap();
@@ -84,21 +84,21 @@ pub(crate) fn save_project(
     Ok(())
 }
 
-/// Loads a project file from the given path. Returns an error if the file is not a Kreniq Project file or if the file is corrupted.
+/// Loads a project file from the given path. Returns an error if the file is not a Krenic Project file or if the file is corrupted.
 pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     // Load the file from the path
     let mut file = File::open(path).map_err(LoadError::IoError)?;
 
-    // Read the first 6 bytes to check if it's a Kreniq Project file
+    // Read the first 6 bytes to check if it's a Krenic Project file
     let mut header_bytes = [0u8; 6];
     file.read_exact(&mut header_bytes)
         .map_err(LoadError::IoError)?;
 
-    if &header_bytes != b"KNODIQ" {
+    if &header_bytes != b"KRENIC" {
         return Err(LoadError::NotAProjectFile);
     }
 
-    // Read the next 12 bytes to get the version of Kreniq that created the project
+    // Read the next 12 bytes to get the version of Krenic that created the project
     let mut major_bytes = [0u8; 4];
     let mut minor_bytes = [0u8; 4];
     let mut patch_bytes = [0u8; 4];

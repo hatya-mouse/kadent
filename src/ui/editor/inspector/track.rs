@@ -2,12 +2,12 @@ use crate::{
     components::{color_picker::color_picker, text_input::text_input},
     theme,
     ui::{
-        EditorUi,
         editor::inspector::{inspector_item, inspector_section},
+        EditorUi,
     },
 };
 use eframe::egui;
-use kreniq_engine::mixer::TrackID;
+use krenic_engine::mixer::TrackID;
 
 impl EditorUi {
     pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {

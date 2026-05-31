@@ -1,6 +1,6 @@
 use crate::{theme, ui::EditorUi};
 use eframe::egui;
-use kreniq_engine::{
+use krenic_engine::{
     data_types::Beats,
     mixer::TrackID,
     track::{

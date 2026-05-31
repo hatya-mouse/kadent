@@ -1,7 +1,7 @@
 use eframe::egui;
-use kreniq_engine::node::{
-    Node,
+use krenic_engine::node::{
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
+    Node,
 };
 
 use crate::kasl_node::KaslNode;

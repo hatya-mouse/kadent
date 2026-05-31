@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use crate::{metadata::RegionMeta, ui::EditorUi};
-use kreniq_engine::{
+use krenic_engine::{
     data_types::Beats,
     mixer::TrackID,
     track::{
-        RegionID,
         audio_track::{AudioRegion, AudioTrack},
         note_track::{NoteRegion, NoteTrack},
+        RegionID,
     },
 };
 

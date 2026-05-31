@@ -1,14 +1,14 @@
 use crate::{
     theme,
     ui::{
-        EditorUi,
         editor::inspector::{inspector_item, inspector_section},
+        EditorUi,
     },
 };
 use eframe::egui;
-use kreniq_engine::{
+use krenic_engine::{
     mixer::TrackID,
-    track::{RegionID, note_track::NoteID},
+    track::{note_track::NoteID, RegionID},
 };
 
 impl EditorUi {

@@ -3,12 +3,12 @@ use crate::{
     kasl_node::KaslNode,
     theme,
     ui::{
-        EditorUi,
         editor::inspector::{inspector_item, inspector_section},
+        EditorUi,
     },
 };
 use eframe::egui;
-use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use krenic_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(super) fn node_inspector(

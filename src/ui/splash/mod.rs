@@ -4,7 +4,7 @@ use crate::{
     ui::EditorUi,
 };
 use eframe::egui;
-use kreniq_engine::{
+use krenic_engine::{
     data_types::{AudioContext, Beats},
     mixer::Project,
 };
@@ -31,7 +31,7 @@ impl SplashUi {
     pub fn ui(&mut self, ui: &mut egui::Ui) -> Option<SplashTransition> {
         ui.vertical_centered(|ui| {
             ui.add_space(ui.available_height() / 3.0);
-            ui.heading("Kreniq");
+            ui.heading("Krenic");
             ui.add_space(16.0);
 
             if ui.button("New Project").clicked()

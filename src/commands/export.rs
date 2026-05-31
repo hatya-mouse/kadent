@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use kreniq_engine::{
+use krenic_engine::{
     data_types::AudioContext,
     thread::{AudioCommand, AudioResult},
 };

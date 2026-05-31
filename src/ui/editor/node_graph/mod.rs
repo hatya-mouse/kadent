@@ -22,7 +22,7 @@ use crate::ui::{
     },
 };
 use eframe::egui;
-use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use krenic_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(in crate::ui) fn node_graph(&mut self, ui: &mut egui::Ui) {

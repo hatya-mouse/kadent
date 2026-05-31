@@ -1,4 +1,4 @@
-use kreniq_engine::data_types::Beats;
+use krenic_engine::data_types::Beats;
 
 #[derive(Debug)]
 pub(crate) struct RegionMeta {

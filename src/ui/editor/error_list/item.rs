@@ -1,6 +1,6 @@
 use crate::theme;
 use eframe::egui;
-use kreniq_engine::{graph::error::GraphError, thread::AudioError};
+use krenic_engine::{graph::error::GraphError, thread::AudioError};
 
 pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
     let message = error_message(error);

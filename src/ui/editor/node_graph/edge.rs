@@ -5,7 +5,7 @@ use crate::{
     ui::editor::node_graph::{EDGE_WIDTH, NODE_PADDING},
 };
 use eframe::egui;
-use kreniq_engine::graph::node_id::NodeID;
+use krenic_engine::graph::node_id::NodeID;
 
 /// Draws all edges in the graph as straight lines, skipping `dragged_edge` if set.
 pub(super) fn draw_edges(

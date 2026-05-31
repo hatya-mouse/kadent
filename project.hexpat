@@ -1,5 +1,5 @@
 #pragma endian little
-#pragma description "Kreniq project file (.knq)"
+#pragma description "Krenic project file (.knq)"
 
 // ─── Primitives ──────────────────────────────────────────────────────────────
 
@@ -199,8 +199,8 @@ struct StoredProjMeta {
 
 // ─── File Root ───────────────────────────────────────────────────────────────
 
-struct KreniqFile {
-    char         magic[6];          // "KNODIQ"
+struct KrenicFile {
+    char         magic[6];          // "KRENIC"
     u32          version_major;
     u32          version_minor;
     u32          version_patch;
@@ -209,4 +209,4 @@ struct KreniqFile {
     Project      project;
 };
 
-KreniqFile file @ 0x00;
+KrenicFile file @ 0x00;

@@ -1,11 +1,11 @@
 use crate::{ui::EditorUi, ui_state::dialog_state::TrackType};
 use eframe::egui;
-use kreniq_engine::thread::{AudioCommand, MidiCommand};
+use krenic_engine::thread::{AudioCommand, MidiCommand};
 use midir::MidiInput;
 
 impl EditorUi {
     pub(super) fn midi_control(&mut self, ui: &mut egui::Ui) {
-        let Ok(midi_in) = MidiInput::new("kreniq") else {
+        let Ok(midi_in) = MidiInput::new("krenic") else {
             return;
         };
 

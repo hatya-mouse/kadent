@@ -1,5 +1,5 @@
 use crate::load_write::{AsBytes, FromBytes};
-use kreniq_engine::data_types::AudioContext;
+use krenic_engine::data_types::AudioContext;
 use std::io::{Cursor, Read};
 
 impl AsBytes for AudioContext {

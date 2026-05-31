@@ -11,7 +11,7 @@ mod toolbar;
 
 use crate::{metadata::ProjectMeta, theme, ui_state::editor_state::EditorUiState};
 use eframe::egui;
-use kreniq_engine::{
+use krenic_engine::{
     data_types::AudioContext,
     mixer::Project,
     thread::{AudioError, AudioThread, AudioThreadHandle},
@@ -101,7 +101,7 @@ impl EditorUi {
 
     pub(crate) fn system_kasl_search_paths() -> Vec<String> {
         let mut paths = Vec::new();
-        if let Some(app_data) = dirs::data_dir().map(|d| d.join("kreniq"))
+        if let Some(app_data) = dirs::data_dir().map(|d| d.join("krenic"))
             && let Some(s) = app_data.to_str()
         {
             paths.push(s.to_string());

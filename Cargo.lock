@@ -2258,9 +2258,9 @@ dependencies = [
 
 [[package]]
 name = "kasl-ir"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a8b242d29978ccb2e003e63411afd7c41e78915d5b882259b16b861b4c4969c"
+checksum = "d563b10a7a1d30d71c0de4315a70cc7769465fc4ba85ceb00a1915ec07365344"
 
 [[package]]
 name = "khronos-egl"
@@ -2300,7 +2300,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kreniq"
+name = "krenic"
 version = "0.1.0"
 dependencies = [
  "dirs",
@@ -2308,7 +2308,7 @@ dependencies = [
  "egui_extras",
  "hound",
  "kasl",
- "kreniq_engine",
+ "krenic_engine",
  "midir",
  "notify",
  "rfd",
@@ -2317,9 +2317,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "kreniq_engine"
+name = "krenic_engine"
 version = "0.3.19"
-source = "git+https://github.com/hatya-mouse/kreniq_engine#f1917c9098b800b3ac299627cfe359c13d09ea81"
+source = "git+https://github.com/hatya-mouse/krenic_engine#616abbc8ba12fd72838f9622717f3a60a162faaf"
 dependencies = [
  "cpal",
  "midir",

@@ -4,7 +4,7 @@ use crate::{
     ui::EditorUi,
 };
 use eframe::egui;
-use kreniq_engine::mixer::TrackID;
+use krenic_engine::mixer::TrackID;
 
 impl EditorUi {
     pub(crate) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {

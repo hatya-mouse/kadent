@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use kreniq_engine::{mixer::TrackID, track::RegionID};
+use krenic_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(crate) fn remove_region(&mut self, track_id: &TrackID, region_id: &RegionID) {
