@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use knodiq_engine::{mixer::TrackID, track::RegionID};
+use kreniq_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(super) fn region_inspector(

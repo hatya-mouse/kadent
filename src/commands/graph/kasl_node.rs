@@ -1,4 +1,4 @@
-use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 use crate::{kasl_node::KaslNode, ui::EditorUi};
 

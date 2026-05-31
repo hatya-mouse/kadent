@@ -7,7 +7,7 @@ use kasl::{
     cranelift_backend::CraneliftBackend,
     ir::Optimizer,
 };
-use knodiq_engine::{
+use kreniq_engine::{
     data_types::{AudioContext, TypeInfo},
     graph::error::NodeError,
     node::Node,

@@ -1,5 +1,5 @@
 use eframe::egui;
-use knodiq_engine::node::{
+use kreniq_engine::node::{
     Node,
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
 };

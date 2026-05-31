@@ -1,5 +1,5 @@
 use crate::load_write::{FromBytes, project_meta_io::StoredProjMeta, traits::safe_read};
-use knodiq_engine::mixer::Project;
+use kreniq_engine::mixer::Project;
 use std::io::{Cursor, Read};
 
 pub(crate) struct LoadProjResult {

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{metadata::RegionMeta, ui::EditorUi};
-use knodiq_engine::{
+use kreniq_engine::{
     data_types::Beats,
     mixer::TrackID,
     track::{

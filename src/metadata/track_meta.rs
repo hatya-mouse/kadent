@@ -4,7 +4,7 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use knodiq_engine::track::{RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack};
+use kreniq_engine::track::{RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack};
 use std::collections::HashMap;
 
 #[derive(Debug)]

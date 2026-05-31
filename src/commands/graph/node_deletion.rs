@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(crate) fn remove_node(&mut self, track_id: &TrackID, node_id: &NodeID) {

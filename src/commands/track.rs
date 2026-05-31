@@ -4,7 +4,7 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use knodiq_engine::{
+use kreniq_engine::{
     mixer::TrackID,
     track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
 };

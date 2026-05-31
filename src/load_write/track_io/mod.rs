@@ -2,7 +2,7 @@ mod audio_track;
 mod note_track;
 
 use crate::load_write::{AsBytes, FromBytes, safe_read};
-use knodiq_engine::{
+use kreniq_engine::{
     graph::Graph,
     track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
 };

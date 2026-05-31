@@ -1,6 +1,6 @@
 use crate::ui::EditorUi;
 use eframe::egui;
-use knodiq_engine::data_types::Beats;
+use kreniq_engine::data_types::Beats;
 
 impl EditorUi {
     pub(in crate::ui::editor::piano_roll) fn calc_note_position(

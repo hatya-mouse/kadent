@@ -4,17 +4,17 @@ use crate::{
 };
 use eframe::{self, egui};
 
-pub enum KnodiqApp {
+pub enum KreniqApp {
     Splash(Box<SplashUi>),
     Editor(Box<EditorUi>),
 }
 
-impl KnodiqApp {
+impl KreniqApp {
     pub fn new(cc: &eframe::CreationContext) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         Self::setup_fonts(&cc.egui_ctx);
         Self::base_style(&cc.egui_ctx);
-        KnodiqApp::Splash(Box::new(SplashUi))
+        KreniqApp::Splash(Box::new(SplashUi))
     }
 
     pub(crate) fn base_style(ctx: &egui::Context) {
@@ -26,10 +26,10 @@ impl KnodiqApp {
     }
 }
 
-impl eframe::App for KnodiqApp {
+impl eframe::App for KreniqApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
         // Compute any splash→editor transition before mutating self.
-        let transition = if let KnodiqApp::Splash(splash) = self {
+        let transition = if let KreniqApp::Splash(splash) = self {
             egui::CentralPanel::default()
                 .frame(
                     egui::Frame::new()
@@ -38,7 +38,7 @@ impl eframe::App for KnodiqApp {
                 )
                 .show_inside(ui, |ui| splash.ui(ui))
                 .inner
-        } else if let KnodiqApp::Editor(app) = self {
+        } else if let KreniqApp::Editor(app) = self {
             app.editor_ui(ui, frame);
             None
         } else {
@@ -60,7 +60,7 @@ impl eframe::App for KnodiqApp {
                     project_meta,
                 } => (project_dir, audio_ctx, project, project_meta),
             };
-            *self = KnodiqApp::Editor(Box::new(EditorUi::new(
+            *self = KreniqApp::Editor(Box::new(EditorUi::new(
                 project_dir,
                 audio_ctx,
                 project,

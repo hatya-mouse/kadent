@@ -5,7 +5,7 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use knodiq_engine::{
+use kreniq_engine::{
     data_types::{AudioContext, Beats},
     mixer::Project,
     track::{
@@ -80,10 +80,10 @@ impl EditorUi {
         import std
         import math/float
         import convert
-        import knodiq
+        import kreniq
 
-        input notes = [knodiq.Voice(); knodiq.max_voices]
-        output sample = knodiq.zero_sample()
+        input notes = [kreniq.Voice(); kreniq.max_voices]
+        output sample = kreniq.zero_sample()
 
         let pi2 = 6.28318530
         let vib_rate = 6.0
@@ -95,7 +95,7 @@ impl EditorUi {
             var out = 0.0
 
             var i = 0
-            loop knodiq.max_voices {
+            loop kreniq.max_voices {
                 if notes[i].is_active {
                     let t = notes[i].age
                     let base_freq = 440.0 * float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
@@ -115,14 +115,14 @@ impl EditorUi {
                 i = i + 1
             }
 
-            let fm_out = (out / convert.int_to_float(knodiq.max_voices))
+            let fm_out = (out / convert.int_to_float(kreniq.max_voices))
 
             sample[0] = fm_out
             sample[1] = fm_out
         }
                 "#;
 
-        let knodiq_lib = format!(
+        let kreniq_lib = format!(
             r#"
         let channels = {}
         let sample_rate = {}
@@ -145,13 +145,13 @@ impl EditorUi {
             audio_ctx.channels, audio_ctx.sample_rate, audio_ctx.max_voices, audio_ctx.buffer_size
         );
 
-        // Write the knodiq standard library to the app data directory
+        // Write the kreniq standard library to the app data directory
         let app_data = dirs::data_dir()
             .expect("Could not get data dir")
-            .join("knodiq");
+            .join("kreniq");
         std::fs::create_dir_all(&app_data).unwrap();
-        let kasl_path = app_data.join("knodiq.kasl");
-        std::fs::write(&kasl_path, knodiq_lib).expect("Failed to write knodiq.kasl");
+        let kasl_path = app_data.join("kreniq.kasl");
+        std::fs::write(&kasl_path, kreniq_lib).expect("Failed to write kreniq.kasl");
 
         // Write the main KASL program into the project's kasl/ directory
         let kasl_dir = project_dir.join("kasl");

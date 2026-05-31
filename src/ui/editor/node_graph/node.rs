@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use eframe::egui::{self, Sense};
-use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(super) fn draw_node(

@@ -4,7 +4,7 @@ use crate::{
     kasl_node::KaslNode,
     load_write::{AsBytes, FromBytes, safe_read},
 };
-use knodiq_engine::node::{
+use kreniq_engine::node::{
     Node,
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
 };

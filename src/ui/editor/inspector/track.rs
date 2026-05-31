@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use knodiq_engine::mixer::TrackID;
+use kreniq_engine::mixer::TrackID;
 
 impl EditorUi {
     pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {

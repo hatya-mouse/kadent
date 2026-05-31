@@ -1,5 +1,5 @@
 use crate::kasl_node::KaslNode;
-use knodiq_engine::mixer::Project;
+use kreniq_engine::mixer::Project;
 use std::path::Path;
 
 /// Initialize all KaslNodes in the project with their search paths and project directory,

@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use knodiq_engine::{graph::node_id::NodeID, mixer::TrackID};
+use kreniq_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(super) fn node_inspector(

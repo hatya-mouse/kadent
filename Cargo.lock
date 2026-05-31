@@ -2280,7 +2280,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
-name = "knodiq"
+name = "kreniq"
 version = "0.1.0"
 dependencies = [
  "dirs",
@@ -2288,7 +2288,7 @@ dependencies = [
  "egui_extras",
  "hound",
  "kasl",
- "knodiq_engine",
+ "kreniq_engine",
  "midir",
  "notify",
  "rfd",
@@ -2297,9 +2297,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "knodiq_engine"
+name = "kreniq_engine"
 version = "0.3.19"
-source = "git+https://github.com/hatya-mouse/knodiq_engine#8153fc3d7780bb1b1e21c90a50e6e773be85f9e9"
+source = "git+https://github.com/hatya-mouse/kreniq_engine#8153fc3d7780bb1b1e21c90a50e6e773be85f9e9"
 dependencies = [
  "cpal",
  "midir",

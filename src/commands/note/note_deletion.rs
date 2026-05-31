@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use knodiq_engine::{
+use kreniq_engine::{
     mixer::TrackID,
     track::{
         RegionID,

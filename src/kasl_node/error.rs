@@ -1,5 +1,5 @@
 use kasl::core::error::ErrorRecord;
-use knodiq_engine::graph::error::NodeError;
+use kreniq_engine::graph::error::NodeError;
 use std::fmt::Display;
 
 #[derive(Debug)]

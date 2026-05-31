@@ -3,7 +3,7 @@ use crate::ui_state::{
     node_graph_state::NodeGraphState, panel_layout::PanelNode, piano_roll_state::PianoRollState,
     timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
-use knodiq_engine::{
+use kreniq_engine::{
     data_types::Beats,
     graph::node_id::NodeID,
     mixer::TrackID,

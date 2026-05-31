@@ -1,7 +1,7 @@
 mod tempo_event;
 
 use crate::load_write::{AsBytes, FromBytes, safe_read};
-use knodiq_engine::mixer::{TempoEvent, TempoMap};
+use kreniq_engine::mixer::{TempoEvent, TempoMap};
 use std::io::{Cursor, Read};
 
 impl AsBytes for TempoMap {

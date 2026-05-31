@@ -1,5 +1,5 @@
 use crate::load_write::{AsBytes, FromBytes, safe_read};
-use knodiq_engine::{
+use kreniq_engine::{
     data_types::Beats,
     track::note_track::{Note, NoteID, NoteRegion},
 };

@@ -3,7 +3,7 @@ use crate::{
     ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;
-use knodiq_engine::thread::{AudioCommand, AudioError};
+use kreniq_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn playback_control(&mut self, ui: &mut egui::Ui) {

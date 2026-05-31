@@ -10,7 +10,7 @@ mod app;
 mod fonts;
 mod ui;
 
-use crate::app::KnodiqApp;
+use crate::app::KreniqApp;
 use eframe::egui::ViewportBuilder;
 
 fn main() -> eframe::Result<()> {
@@ -20,8 +20,8 @@ fn main() -> eframe::Result<()> {
     };
 
     eframe::run_native(
-        "Knodiq",
+        "Kreniq",
         options,
-        Box::new(|cc| Ok(Box::new(KnodiqApp::new(cc)))),
+        Box::new(|cc| Ok(Box::new(KreniqApp::new(cc)))),
     )
 }

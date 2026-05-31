@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use knodiq_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
+use kreniq_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(crate) fn move_region(

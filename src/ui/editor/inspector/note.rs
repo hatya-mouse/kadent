@@ -6,7 +6,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use knodiq_engine::{
+use kreniq_engine::{
     mixer::TrackID,
     track::{RegionID, note_track::NoteID},
 };

@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use knodiq_engine::thread::AudioCommand;
+use kreniq_engine::thread::AudioCommand;
 use std::time::Instant;
 
 impl EditorUi {

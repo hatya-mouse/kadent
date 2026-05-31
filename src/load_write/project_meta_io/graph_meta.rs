@@ -2,7 +2,7 @@ use crate::{
     load_write::{AsBytes, FromBytes, project_meta_io::StoredNodeMeta},
     metadata::GraphMeta,
 };
-use knodiq_engine::graph::node_id::NodeID;
+use kreniq_engine::graph::node_id::NodeID;
 use std::{
     collections::HashMap,
     io::{Cursor, Read},
