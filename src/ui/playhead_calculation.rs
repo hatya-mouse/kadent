@@ -1,7 +1,7 @@
-use crate::app::KrenicApp;
+use crate::app::KadentApp;
 use std::sync::atomic::Ordering;
 
-impl KrenicApp {
+impl KadentApp {
     pub(super) fn calculate_playhead(&mut self) {
         let playhead_sample = self.thread_handle.playhead.load(Ordering::Acquire);
 

@@ -5,12 +5,12 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use krenic_engine::{
+use kadent_engine::{
     data_types::{AudioContext, Beats},
     mixer::Project,
     track::{
-        note_track::{Note, NoteRegion, NoteTrack},
         Track,
+        note_track::{Note, NoteRegion, NoteTrack},
     },
 };
 
@@ -80,10 +80,10 @@ impl EditorUi {
         import std
         import math/float
         import convert
-        import krenic
+        import kadent
 
-        input notes = [krenic.Voice(); krenic.max_voices]
-        output sample = krenic.zero_sample()
+        input notes = [kadent.Voice(); kadent.max_voices]
+        output sample = kadent.zero_sample()
 
         let pi2 = 6.28318530
         let vib_rate = 6.0
@@ -95,7 +95,7 @@ impl EditorUi {
             var out = 0.0
 
             var i = 0
-            loop krenic.max_voices {
+            loop kadent.max_voices {
                 if notes[i].is_active {
                     let t = notes[i].age
                     let base_freq = 440.0 * float.pow(2.0, (notes[i].pitch - 69.0) / 12.0)
@@ -115,14 +115,14 @@ impl EditorUi {
                 i = i + 1
             }
 
-            let fm_out = (out / convert.int_to_float(krenic.max_voices))
+            let fm_out = (out / convert.int_to_float(kadent.max_voices))
 
             sample[0] = fm_out
             sample[1] = fm_out
         }
                 "#;
 
-        let krenic_lib = format!(
+        let kadent_lib = format!(
             r#"
         let channels = {}
         let sample_rate = {}
@@ -145,13 +145,13 @@ impl EditorUi {
             audio_ctx.channels, audio_ctx.sample_rate, audio_ctx.max_voices, audio_ctx.buffer_size
         );
 
-        // Write the krenic standard library to the app data directory
+        // Write the kadent standard library to the app data directory
         let app_data = dirs::data_dir()
             .expect("Could not get data dir")
-            .join("krenic");
+            .join("kadent");
         std::fs::create_dir_all(&app_data).unwrap();
-        let kasl_path = app_data.join("krenic.kasl");
-        std::fs::write(&kasl_path, krenic_lib).expect("Failed to write krenic.kasl");
+        let kasl_path = app_data.join("kadent.kasl");
+        std::fs::write(&kasl_path, kadent_lib).expect("Failed to write kadent.kasl");
 
         // Write the main KASL program into the project's kasl/ directory
         let kasl_dir = project_dir.join("kasl");

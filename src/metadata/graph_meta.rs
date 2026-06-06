@@ -1,5 +1,5 @@
 use crate::metadata::NodeMeta;
-use krenic_engine::graph::{node_id::NodeID, Graph};
+use kadent_engine::graph::{Graph, node_id::NodeID};
 use std::collections::HashMap;
 
 #[derive(Default, Debug)]

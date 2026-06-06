@@ -1,5 +1,5 @@
 use crate::ui::EditorUi;
-use krenic_engine::thread::AudioCommand;
+use kadent_engine::thread::AudioCommand;
 use std::time::Instant;
 
 impl EditorUi {

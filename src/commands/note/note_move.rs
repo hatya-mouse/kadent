@@ -1,10 +1,10 @@
 use crate::ui::EditorUi;
-use krenic_engine::{
+use kadent_engine::{
     data_types::Beats,
     mixer::TrackID,
     track::{
-        note_track::{NoteID, NoteTrack},
         RegionID,
+        note_track::{NoteID, NoteTrack},
     },
 };
 

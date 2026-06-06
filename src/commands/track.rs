@@ -4,9 +4,9 @@ use crate::{
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;
-use krenic_engine::{
+use kadent_engine::{
     mixer::TrackID,
-    track::{audio_track::AudioTrack, note_track::NoteTrack, Track},
+    track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
 };
 
 impl EditorUi {

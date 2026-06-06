@@ -2,15 +2,15 @@ mod error;
 
 pub use error::KaslNodeError;
 
-use kasl::{
-    core::{ast_nodes::scope_manager::IOBlueprint, run_buffer, KaslCompiler},
-    cranelift_backend::CraneliftBackend,
-    ir::Optimizer,
-};
-use krenic_engine::{
+use kadent_engine::{
     data_types::{AudioContext, TypeInfo},
     graph::error::NodeError,
     node::Node,
+};
+use kasl::{
+    core::{KaslCompiler, ast_nodes::scope_manager::IOBlueprint, run_buffer},
+    cranelift_backend::CraneliftBackend,
+    ir::Optimizer,
 };
 use std::path::PathBuf;
 

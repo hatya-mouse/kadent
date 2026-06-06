@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub(crate) enum LoadError {
-    /// The file is not a Krenic Project file
+    /// The file is not a Kadent Project file
     NotAProjectFile,
     /// The file is possibly corrupted or incomplete
     FileCorrupted(std::io::Error),

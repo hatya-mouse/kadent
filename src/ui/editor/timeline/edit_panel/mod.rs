@@ -2,7 +2,7 @@ mod track_row;
 
 use crate::{theme, ui::EditorUi};
 use eframe::egui;
-use krenic_engine::{
+use kadent_engine::{
     data_types::Beats,
     thread::{AudioCommand, AudioError},
 };

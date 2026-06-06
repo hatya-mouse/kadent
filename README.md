@@ -1,6 +1,6 @@
-# Krenic
+# Kadent
 
-Krenic is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using KASL (Krenic Audio Shading Language).
+Kadent is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using KASL (Kadent Audio Shading Language).
 
 # 🎯 Features
 

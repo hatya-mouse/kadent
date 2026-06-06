@@ -2,12 +2,12 @@ use crate::{
     components::text_input::text_input,
     theme,
     ui::{
-        editor::inspector::{inspector_item, inspector_section},
         EditorUi,
+        editor::inspector::{inspector_item, inspector_section},
     },
 };
 use eframe::egui;
-use krenic_engine::{mixer::TrackID, track::RegionID};
+use kadent_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(super) fn region_inspector(

@@ -2,10 +2,10 @@ use crate::{
     components::icon_button::toolbar_icon_button,
     load_write::{init_kasl_nodes, load_project_from_dir, save_project_to_dir},
     metadata::ProjectMeta,
-    ui::{editor::toolbar::toolbar_group::toolbar_group, EditorUi},
+    ui::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
 };
 use eframe::egui;
-use krenic_engine::thread::{AudioCommand, AudioError};
+use kadent_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn file_control(&mut self, ui: &mut egui::Ui) {

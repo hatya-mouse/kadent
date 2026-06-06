@@ -1,9 +1,9 @@
 use crate::{
-    components::icon_button::toolbar_icon_button,
-    ui::editor::toolbar::toolbar_group::toolbar_group, ui::EditorUi,
+    components::icon_button::toolbar_icon_button, ui::EditorUi,
+    ui::editor::toolbar::toolbar_group::toolbar_group,
 };
 use eframe::egui;
-use krenic_engine::thread::{AudioCommand, AudioError};
+use kadent_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn playback_control(&mut self, ui: &mut egui::Ui) {

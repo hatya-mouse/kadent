@@ -3,11 +3,11 @@ use crate::ui_state::{
     node_graph_state::NodeGraphState, panel_layout::PanelNode, piano_roll_state::PianoRollState,
     timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
-use krenic_engine::{
+use kadent_engine::{
     data_types::Beats,
     graph::node_id::NodeID,
     mixer::TrackID,
-    track::{note_track::NoteID, RegionID},
+    track::{RegionID, note_track::NoteID},
 };
 use std::time::Instant;
 

@@ -1,10 +1,10 @@
 mod edit_panel;
 mod track_list;
 
-use crate::{app::KrenicApp, components::scrolled_panel::scrolled_panel};
+use crate::{app::KadentApp, components::scrolled_panel::scrolled_panel};
 use eframe::egui;
 
-impl KrenicApp {
+impl KadentApp {
     pub(super) fn timeline(&mut self, ui: &mut egui::Ui) {
         let total_rect = ui.available_rect_before_wrap();
         let track_list_width = self.ui_state.timeline_state.track_list_width;

@@ -1,6 +1,6 @@
 use crate::{theme, ui::EditorUi, ui_state::dialog_state::TrackType};
 use eframe::egui;
-use krenic_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
+use kadent_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(super) fn track_row(
