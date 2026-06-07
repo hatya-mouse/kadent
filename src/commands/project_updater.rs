@@ -18,10 +18,13 @@ impl EditorUi {
 
             // Clone the project and send it to the audio thread
             let project = self.project.clone();
-            self.thread_handle
+            if let Err(err) = self
+                .thread_handle
                 .audio_command_tx
                 .send(AudioCommand::UpdateProject(Box::new(project)))
-                .unwrap();
+            {
+                println!("Failed to send project update command: {err}");
+            }
         }
     }
 }

@@ -39,7 +39,7 @@ impl SplashUi {
             {
                 let audio_ctx = AudioContext {
                     channels: 2,
-                    sample_rate: 44100,
+                    sample_rate: 48000,
                     buffer_size: 512,
                     max_voices: 32,
                 };
