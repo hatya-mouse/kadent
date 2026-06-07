@@ -1,6 +1,6 @@
 use crate::{
-    metadata::{GraphMeta, TrackMeta},
-    ui::EditorUi,
+    core::metadata::{GraphMeta, TrackMeta},
+    ui::workspaces::EditorUi,
     ui_state::dialog_state::TrackType,
 };
 use eframe::egui;

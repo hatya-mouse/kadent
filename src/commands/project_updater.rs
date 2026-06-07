@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::workspaces::EditorUi;
 use kadent_engine::thread::AudioCommand;
 use std::time::Instant;
 

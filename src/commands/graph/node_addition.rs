@@ -1,7 +1,7 @@
 use crate::{
-    kasl_node::KaslNode,
-    metadata::{NodeMeta, NodeType},
-    ui::EditorUi,
+    core::kasl_node::KaslNode,
+    core::metadata::{NodeMeta, NodeType},
+    ui::workspaces::EditorUi,
 };
 use eframe::egui;
 use kadent_engine::mixer::TrackID;

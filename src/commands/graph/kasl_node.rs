@@ -1,6 +1,6 @@
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-use crate::{kasl_node::KaslNode, ui::EditorUi};
+use crate::{core::kasl_node::KaslNode, ui::workspaces::EditorUi};
 
 impl EditorUi {
     pub(crate) fn compile_kasl_node(&mut self, track_id: &TrackID, node_id: &NodeID) {

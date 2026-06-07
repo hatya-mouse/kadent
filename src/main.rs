@@ -1,14 +1,11 @@
-pub(crate) mod commands;
-pub(crate) mod components;
-pub(crate) mod kasl_node;
-pub(crate) mod load_write;
-pub(crate) mod metadata;
-pub(crate) mod theme;
-pub(crate) mod ui_state;
+mod commands;
+mod core;
+mod storage;
+mod ui;
+mod ui_state;
 
 mod app;
 mod fonts;
-mod ui;
 
 use crate::app::KadentApp;
 use eframe::egui::ViewportBuilder;

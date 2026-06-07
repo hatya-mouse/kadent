@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::workspaces::EditorUi;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {

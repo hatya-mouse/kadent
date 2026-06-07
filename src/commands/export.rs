@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::workspaces::EditorUi;
 use kadent_engine::{
     data_types::AudioContext,
     thread::{AudioCommand, AudioResult},

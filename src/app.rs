@@ -1,6 +1,6 @@
-use crate::{
+use crate::ui::{
     theme,
-    ui::{EditorUi, SplashTransition, SplashUi},
+    workspaces::{EditorUi, SplashTransition, SplashUi},
 };
 use eframe::{self, egui};
 

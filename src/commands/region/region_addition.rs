@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{metadata::RegionMeta, ui::EditorUi};
+use crate::{core::metadata::RegionMeta, ui::workspaces::EditorUi};
 use kadent_engine::{
     data_types::Beats,
     mixer::TrackID,
