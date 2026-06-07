@@ -1,7 +1,6 @@
 use crate::ui_state::{
-    code_editor_state::CodeEditorState, dialog_state::DialogState,
-    node_graph_state::NodeGraphState, panel_layout::PanelNode, piano_roll_state::PianoRollState,
-    timeline_state::TimelineState, toolbar_state::ToolbarState,
+    dialog_state::DialogState, node_graph_state::NodeGraphState, panel_layout::PanelNode,
+    piano_roll_state::PianoRollState, timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
 use kadent_engine::{
     data_types::Beats,
@@ -16,8 +15,6 @@ pub struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
 
-    /// The current code editor state.
-    pub code_editor_state: CodeEditorState,
     /// The current toolbar state.
     pub toolbar_state: ToolbarState,
     /// The current dialog state.

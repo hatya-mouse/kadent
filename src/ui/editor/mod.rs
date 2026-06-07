@@ -1,4 +1,3 @@
-mod code_editor;
 mod error_list;
 mod frame_process;
 mod inspector;
