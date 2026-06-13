@@ -1,9 +1,10 @@
 mod project_list;
+pub(crate) mod state;
 
 use crate::{
     core::{metadata::ProjectMeta, project_setup::setup_project},
     storage::project::{init_kasl_nodes, load_project_from_dir},
-    ui::workspaces::EditorUi,
+    ui::workspaces::{EditorUi, splash::state::SplashUiState},
 };
 use eframe::egui;
 use kadent_engine::{
@@ -12,7 +13,10 @@ use kadent_engine::{
 };
 use std::path::PathBuf;
 
-pub struct SplashUi;
+pub struct SplashUi {
+    /// The current splash UI state.
+    splash_state: SplashUiState,
+}
 
 pub enum SplashTransition {
     NewProject {
@@ -62,31 +66,42 @@ impl SplashUi {
             if ui.button("Open Project").clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
             {
-                match load_project_from_dir(&project_dir) {
-                    Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
-                        Ok(project_meta) => {
-                            init_kasl_nodes(
-                                &mut proj_res.project,
-                                &project_meta.kasl_search_paths,
-                                &project_dir,
-                            );
-
-                            let audio_ctx = proj_res.project.audio_ctx.clone();
-                            return Some(SplashTransition::OpenProject {
-                                project_dir,
-                                audio_ctx,
-                                project: proj_res.project,
-                                project_meta,
-                            });
-                        }
-                        Err(e) => eprintln!("Failed to extract project metadata: {:?}", e),
-                    },
-                    Err(e) => eprintln!("Failed to load project: {:?}", e),
-                }
+                return self.open_project(project_dir);
             }
 
             None
         })
         .inner
+    }
+
+    /// Opens the project at the given directory, returning the transition data if successful.
+    fn open_project(&mut self, project_dir: PathBuf) -> Option<SplashTransition> {
+        match load_project_from_dir(&project_dir) {
+            Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
+                Ok(project_meta) => {
+                    init_kasl_nodes(
+                        &mut proj_res.project,
+                        &project_meta.kasl_search_paths,
+                        &project_dir,
+                    );
+
+                    let audio_ctx = proj_res.project.audio_ctx.clone();
+                    Some(SplashTransition::OpenProject {
+                        project_dir,
+                        audio_ctx,
+                        project: proj_res.project,
+                        project_meta,
+                    })
+                }
+                Err(e) => {
+                    eprintln!("Failed to extract project metadata: {:?}", e);
+                    None
+                }
+            },
+            Err(e) => {
+                eprintln!("Failed to load project: {:?}", e);
+                None
+            }
+        }
     }
 }

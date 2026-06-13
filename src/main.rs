@@ -1,10 +1,11 @@
+mod app;
 mod commands;
+mod consts;
 mod core;
+mod fonts;
 mod storage;
 mod ui;
-
-mod app;
-mod fonts;
+mod utils;
 
 use crate::app::KadentApp;
 use eframe::egui::ViewportBuilder;
