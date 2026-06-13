@@ -18,7 +18,7 @@ impl SplashUi {
             if ui.button("New Project").clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().save_file()
             {
-                self.create_new_project(project_dir);
+                return Some(self.create_new_project(project_dir));
             }
             if ui.button("Open Project").clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_folder()

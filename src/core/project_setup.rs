@@ -1,6 +1,9 @@
-use crate::core::{
-    kasl_node::KaslNode,
-    metadata::{GraphMeta, NodeMeta, NodeType, ProjectMeta, RegionMeta, TrackMeta, TrackType},
+use crate::{
+    consts::KADENT_DATA_DIR_NAME,
+    core::{
+        kasl_node::KaslNode,
+        metadata::{GraphMeta, NodeMeta, NodeType, ProjectMeta, RegionMeta, TrackMeta, TrackType},
+    },
 };
 use eframe::egui;
 use kadent_engine::{
@@ -142,11 +145,11 @@ pub(crate) fn setup_project(
     );
 
     // Write the kadent standard library to the app data directory
-    let app_data = dirs::data_dir()
+    let app_data_path = dirs::data_dir()
         .expect("Could not get data dir")
-        .join("kadent");
-    std::fs::create_dir_all(&app_data).unwrap();
-    let kasl_path = app_data.join("kadent.kasl");
+        .join(KADENT_DATA_DIR_NAME);
+    std::fs::create_dir_all(&app_data_path).unwrap();
+    let kasl_path = app_data_path.join("kadent.kasl");
     std::fs::write(&kasl_path, kadent_lib).expect("Failed to write kadent.kasl");
 
     // Write the main KASL program into the project's kasl/ directory
