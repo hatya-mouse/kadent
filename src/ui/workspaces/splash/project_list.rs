@@ -30,6 +30,14 @@ impl SplashUi {
                     egui::Sense::click(),
                 );
 
+                if response.hovered() {
+                    ui.painter().rect_filled(
+                        response.rect.expand(4.0),
+                        egui::CornerRadius::same(8),
+                        egui::Color32::from_white_alpha(10),
+                    );
+                }
+
                 if response.clicked() {
                     selected_path = Some(project.path.clone());
                 }
