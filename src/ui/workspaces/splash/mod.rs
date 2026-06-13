@@ -3,6 +3,7 @@ mod splash_controls;
 pub(crate) mod state;
 
 use crate::{
+    consts::RECENT_PROJCETS_MAX_NUM,
     core::metadata::ProjectMeta,
     storage::{
         app_state::save_recent_projects,
@@ -89,8 +90,21 @@ impl SplashUi {
             .map(|proj| proj.path.clone())
             .collect();
 
-        // Add the project at the start and save it
-        project_paths.insert(0, project_path.to_path_buf());
+        // Add the project at the first
+        // If the same project already exists, remove the existing one and add new one at the first
+        let project_path_buf = project_path.to_path_buf();
+        if let Some(existing_index) = project_paths
+            .iter()
+            .position(|path_buf| path_buf == &project_path_buf)
+        {
+            project_paths.remove(existing_index);
+        }
+        project_paths.insert(0, project_path_buf);
+        // Limit the number of recent projcets
+        project_paths.truncate(RECENT_PROJCETS_MAX_NUM);
+        project_paths.shrink_to_fit();
+
+        // Save the paths to the disk
         save_recent_projects(&project_paths);
     }
 }
