@@ -38,11 +38,7 @@ impl SplashUi {
             let controls_transition = self.splash_controls(&mut columns[0]);
             let list_transition = self.project_list(&mut columns[1]);
 
-            if let Some(controls_transition) = controls_transition {
-                transition = Some(controls_transition);
-            } else if let Some(list_transition) = list_transition {
-                transition = Some(list_transition);
-            }
+            transition = controls_transition.or(list_transition);
         });
 
         transition
