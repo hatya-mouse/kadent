@@ -18,7 +18,7 @@ impl KadentApp {
     }
 
     pub(crate) fn base_style(ctx: &egui::Context) {
-        ctx.global_style_mut(|style| {
+        ctx.all_styles_mut(|style| {
             style.interaction.selectable_labels = false;
             style.visuals.window_shadow = egui::Shadow::NONE;
             style.visuals.popup_shadow = egui::Shadow::NONE;
