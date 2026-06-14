@@ -1,5 +1,6 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
+    fonts::RichTextExt,
     storage::project::create_new_project,
     ui::{
         components::{
@@ -53,21 +54,26 @@ impl SplashUi {
                         .project_dir
                         .as_ref()
                         .is_some_and(|path| path.is_dir());
-                text_button_enabled(can_create, ui, "create_project", "Create Project")
-                    .clicked()
-                    .then(|| {
-                        if let Some(project_dir) = dialog_state.project_dir.clone() {
-                            should_close = true;
-                            let project_path = project_dir
-                                .join(&dialog_state.project_name)
-                                .with_added_extension(PROJECT_FILE_EXTENSION);
-                            self.add_and_store_recent_projects(&project_path);
-                            create_new_project(&dialog_state.project_name, project_dir).ok()
-                        } else {
-                            None
-                        }
-                    })
-                    .flatten()
+                text_button_enabled(
+                    can_create,
+                    ui,
+                    "create_project",
+                    egui::RichText::new("Create Project").bold(),
+                )
+                .clicked()
+                .then(|| {
+                    if let Some(project_dir) = dialog_state.project_dir.clone() {
+                        should_close = true;
+                        let project_path = project_dir
+                            .join(&dialog_state.project_name)
+                            .with_added_extension(PROJECT_FILE_EXTENSION);
+                        self.add_and_store_recent_projects(&project_path);
+                        create_new_project(&dialog_state.project_name, project_dir).ok()
+                    } else {
+                        None
+                    }
+                })
+                .flatten()
             })
         });
 

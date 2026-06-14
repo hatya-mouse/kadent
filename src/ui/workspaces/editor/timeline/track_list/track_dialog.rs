@@ -1,5 +1,6 @@
 use crate::{
     core::metadata::TrackType,
+    fonts::RichTextExt,
     ui::{
         components::{
             dialog::dialog,
@@ -44,16 +45,21 @@ impl EditorUi {
                     }
 
                     let can_create = !state.name.trim().is_empty();
-                    text_button_enabled(can_create, ui, "create_track", "Create Track")
-                        .clicked()
-                        .then(|| {
-                            self.add_track(
-                                state.selected_track_type,
-                                state.name.clone(),
-                                theme::default_track_color(),
-                            );
-                            should_close = true;
-                        });
+                    text_button_enabled(
+                        can_create,
+                        ui,
+                        "create_track",
+                        egui::RichText::new("Create Track").bold(),
+                    )
+                    .clicked()
+                    .then(|| {
+                        self.add_track(
+                            state.selected_track_type,
+                            state.name.clone(),
+                            theme::default_track_color(),
+                        );
+                        should_close = true;
+                    });
                 });
             });
         });

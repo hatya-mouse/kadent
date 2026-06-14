@@ -25,23 +25,17 @@ pub(crate) fn dialog<R>(
                     se: 0,
                 })
                 .show(ui, |ui| {
-                    egui::Frame::new()
-                        .inner_margin(egui::Margin {
-                            left: 8,
-                            right: 8,
-                            top: 4,
-                            bottom: 2,
-                        })
-                        .show(ui, |ui| {
-                            ui.label(
-                                egui::RichText::new(title)
-                                    .size(theme::large_font_size())
-                                    .color(theme::primary_fg(ui.visuals().dark_mode))
-                                    .bold(),
-                            );
-                        });
-
-                    ui.add(egui::Separator::default().spacing(0.0));
+                    ui.vertical_centered(|ui| {
+                        ui.add_space(4.0);
+                        ui.label(
+                            egui::RichText::new(title)
+                                .size(theme::large_font_size())
+                                .color(theme::primary_fg(ui.visuals().dark_mode))
+                                .bold(),
+                        );
+                        ui.add_space(1.0);
+                        ui.add(egui::Separator::default().spacing(0.0));
+                    });
                 });
 
             // Show the content
