@@ -4,7 +4,7 @@ use crate::{
 };
 use eframe::egui;
 
-const CONTENT_MARGIN: i8 = 8;
+const CONTENT_MARGIN: i8 = 12;
 
 impl SplashUi {
     pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
@@ -21,7 +21,7 @@ impl SplashUi {
 
                 for project in recent_projects.iter() {
                     let frame_response = egui::Frame::new()
-                        .inner_margin(egui::Margin::symmetric(6, 4))
+                        .inner_margin(egui::Margin::symmetric(10, 8))
                         .show(ui, |ui| {
                             ui.set_min_width(item_width);
                             ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 4.0);
