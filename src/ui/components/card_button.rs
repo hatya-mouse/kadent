@@ -11,7 +11,9 @@ pub(crate) fn card_button_enabled<R>(
 ) -> egui::Response {
     let frame_response = ui
         .scope(|ui| {
-            ui.set_enabled(enabled);
+            if !enabled {
+                ui.disable();
+            }
 
             if let Some(size) = desired_size {
                 ui.set_min_size(size);
