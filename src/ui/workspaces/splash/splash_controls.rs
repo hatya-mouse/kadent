@@ -25,12 +25,12 @@ impl SplashUi {
 
             ui.add_space(full_height / 2.0 - CONTENT_HEIGHT / 2.0);
 
-            ui.add(
-                egui::Image::new(egui::include_image!(
-                    "../../../../assets/logo/kadent_logo_white_on_black_plate.png"
-                ))
-                .max_height(60.0),
-            );
+            let logo_image = egui::Image::new(if ui.visuals().dark_mode {
+                egui::include_image!("../../../../assets/logo/kadent_logo_black_on_white.png")
+            } else {
+                egui::include_image!("../../../../assets/logo/kadent_logo_white_on_black.png")
+            });
+            ui.add(logo_image.max_height(60.0));
             ui.add_space(12.0);
 
             ui.add_sized(

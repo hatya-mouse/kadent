@@ -29,7 +29,10 @@ impl SplashUi {
                             // Top: Show filename
                             ui.add(
                                 egui::Label::new(
-                                    egui::RichText::new(&project.name).bold().size(14.0),
+                                    egui::RichText::new(&project.name)
+                                        .bold()
+                                        .strong()
+                                        .size(14.0),
                                 )
                                 .selectable(false),
                             );
