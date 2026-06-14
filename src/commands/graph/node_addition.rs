@@ -1,6 +1,9 @@
 use crate::{
-    core::kasl_node::KaslNode,
-    core::metadata::{NodeMeta, NodeType},
+    core::{
+        kasl_node::KaslNode,
+        metadata::{NodeMeta, NodeType},
+    },
+    storage::project::get_project_dir,
     ui::workspaces::EditorUi,
 };
 use eframe::egui;
@@ -9,8 +12,9 @@ use kadent_engine::mixer::TrackID;
 impl EditorUi {
     pub(crate) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         let mut kasl_node = KaslNode::new();
+        let project_dir = get_project_dir(&self.project_path);
         kasl_node.set_search_paths(self.project_meta.kasl_search_paths.clone());
-        kasl_node.set_project_dir(self.project_dir.clone());
+        kasl_node.set_project_dir(project_dir);
 
         // Add the node to the project
         let Some(node_id) = self

@@ -16,7 +16,7 @@ impl EditorUi {
             return;
         };
 
-        let mut close = false;
+        let mut should_close = false;
 
         let modal = dialog(ui, "Add Track", |ui| {
             ui.columns(2, |cols| {
@@ -34,9 +34,9 @@ impl EditorUi {
                 cols[1].label("Track Name");
                 text_input(&mut cols[1], &mut state.name);
 
-                let name_empty = state.name.trim().is_empty();
+                let is_name_empty = state.name.trim().is_empty();
                 cols[1]
-                    .add_enabled(!name_empty, egui::Button::new("Create"))
+                    .add_enabled(!is_name_empty, egui::Button::new("Create"))
                     .clicked()
                     .then(|| {
                         self.add_track(
@@ -44,19 +44,17 @@ impl EditorUi {
                             state.name.clone(),
                             theme::default_track_color(),
                         );
-                        close = true;
+                        should_close = true;
                     });
             });
 
             if ui.button("Cancel").clicked() {
-                close = true;
+                should_close = true;
             }
         });
 
-        if close || modal.should_close() {
+        if should_close || modal.should_close() {
             self.ui_state.dialog_state = DialogState::None;
-        } else {
-            self.ui_state.dialog_state = DialogState::AddTrack(state);
         }
     }
 }

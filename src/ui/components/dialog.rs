@@ -1,11 +1,11 @@
 use crate::{fonts::RichTextExt, ui::theme};
 use eframe::egui::{self, CornerRadius, ModalResponse};
 
-pub(crate) fn dialog<T>(
+pub(crate) fn dialog<R>(
     ui: &egui::Ui,
     title: impl Into<String>,
-    content: impl FnOnce(&mut egui::Ui) -> T,
-) -> ModalResponse<T> {
+    content: impl FnOnce(&mut egui::Ui) -> R,
+) -> ModalResponse<R> {
     egui::Modal::new(egui::Id::new("add_track"))
         .frame(
             egui::Frame::popup(ui.style())

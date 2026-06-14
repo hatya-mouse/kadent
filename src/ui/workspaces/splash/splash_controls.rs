@@ -1,17 +1,11 @@
 use crate::{
-    core::{metadata::ProjectMeta, project_setup::setup_project},
     fonts::RichTextExt,
     ui::{
         components::card_button::card_button,
-        workspaces::{EditorTransition, EditorUi, SplashUi},
+        workspaces::{EditorTransition, SplashUi, splash::state::NewProjectDialogState},
     },
 };
 use eframe::egui;
-use kadent_engine::{
-    data_types::{AudioContext, Beats},
-    mixer::Project,
-};
-use std::path::PathBuf;
 
 const BUTTON_WIDTH: f32 = 300.0;
 const BUTTON_HEIGHT: f32 = 42.0;
@@ -70,10 +64,8 @@ impl SplashUi {
                     });
                 });
 
-            if new_project.clicked()
-                && let Some(project_dir) = rfd::FileDialog::new().save_file()
-            {
-                return Some(self.create_new_project(project_dir));
+            if new_project.clicked() {
+                self.splash_state.new_project_state = Some(NewProjectDialogState::default());
             }
 
             if open_project.clicked()
@@ -85,26 +77,5 @@ impl SplashUi {
             None
         })
         .inner
-    }
-
-    fn create_new_project(&self, project_dir: PathBuf) -> EditorTransition {
-        let audio_ctx = AudioContext {
-            channels: 2,
-            sample_rate: 48000,
-            buffer_size: 512,
-            max_voices: 32,
-        };
-        let mut project = Project::new(audio_ctx.clone(), 120.0, Beats(0.0), Beats(8.0));
-        let mut project_meta = ProjectMeta {
-            kasl_search_paths: EditorUi::system_kasl_search_paths(),
-            ..Default::default()
-        };
-        setup_project(&project_dir, &mut project, &mut project_meta, &audio_ctx);
-        EditorTransition {
-            project_dir,
-            audio_ctx,
-            project,
-            project_meta,
-        }
     }
 }

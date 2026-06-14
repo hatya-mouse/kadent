@@ -47,7 +47,7 @@ impl eframe::App for KadentApp {
 
         if let Some(transition) = transition {
             *self = KadentApp::Editor(Box::new(EditorUi::new(
-                transition.project_dir,
+                transition.project_path,
                 transition.audio_ctx,
                 transition.project,
                 transition.project_meta,

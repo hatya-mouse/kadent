@@ -1,6 +1,6 @@
 use crate::{
     core::metadata::ProjectMeta,
-    storage::project::{init_kasl_nodes, load_project_from_dir, save_project_to_dir},
+    storage::project::{get_project_dir, init_kasl_nodes, load_project, save_project},
     ui::{
         components::icon_button::toolbar_icon_button,
         workspaces::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
@@ -21,7 +21,7 @@ impl EditorUi {
                 let files = rfd::FileDialog::new().save_file();
 
                 if let Some(path) = files {
-                    match save_project_to_dir(&path, &self.project, &self.project_meta) {
+                    match save_project(&path, &self.project, &self.project_meta) {
                         Ok(()) => (),
                         Err(e) => {
                             eprintln!("Failed to save project: {:?}", e);
@@ -36,44 +36,8 @@ impl EditorUi {
             )
             .clicked()
             {
-                let proj_path_option = rfd::FileDialog::new().pick_folder();
-
-                if let Some(proj_path) = proj_path_option {
-                    match load_project_from_dir(&proj_path) {
-                        Ok(proj_res) => match ProjectMeta::from_load_res(&proj_res) {
-                            Ok(project_meta) => {
-                                self.project_meta = project_meta;
-                                self.project = proj_res.project;
-
-                                init_kasl_nodes(
-                                    &mut self.project,
-                                    &self.project_meta.kasl_search_paths,
-                                    &proj_path,
-                                );
-
-                                self.project_dir = proj_path;
-
-                                let command = AudioCommand::Seek(self.project.range_start);
-                                if self
-                                    .thread_handle
-                                    .audio_command_tx
-                                    .send(command.clone())
-                                    .is_err()
-                                {
-                                    self.errors.push(AudioError::CommandFailed(command));
-                                }
-
-                                self.modified_project();
-                            }
-                            Err(e) => {
-                                eprintln!("Failed to extract project metadata: {:?}", e);
-                            }
-                        },
-                        Err(e) => {
-                            eprintln!("Failed to load project: {:?}", e);
-                        }
-                    }
-                }
+                let proj_path_option = rfd::FileDialog::new().pick_file();
+                self.handle_load_project(proj_path_option);
             }
 
             if toolbar_icon_button(
@@ -93,5 +57,44 @@ impl EditorUi {
                 }
             }
         });
+    }
+
+    fn handle_load_project(&mut self, proj_path_option: Option<std::path::PathBuf>) {
+        if let Some(proj_path) = proj_path_option {
+            match load_project(&proj_path) {
+                Ok(proj_res) => match ProjectMeta::from_load_res(&proj_res) {
+                    Ok(project_meta) => {
+                        self.project_meta = project_meta;
+                        self.project = proj_res.project;
+                        self.project_path = proj_path;
+                        let project_dir = get_project_dir(&self.project_path);
+
+                        init_kasl_nodes(
+                            &mut self.project,
+                            &self.project_meta.kasl_search_paths,
+                            &project_dir,
+                        );
+
+                        let command = AudioCommand::Seek(self.project.range_start);
+                        if self
+                            .thread_handle
+                            .audio_command_tx
+                            .send(command.clone())
+                            .is_err()
+                        {
+                            self.errors.push(AudioError::CommandFailed(command));
+                        }
+
+                        self.modified_project();
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to extract project metadata: {:?}", e);
+                    }
+                },
+                Err(e) => {
+                    eprintln!("Failed to load project: {:?}", e);
+                }
+            }
+        }
     }
 }

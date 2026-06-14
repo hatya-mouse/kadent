@@ -1,3 +1,4 @@
+mod new_project_dialog;
 mod project_list;
 mod splash_controls;
 pub(crate) mod state;
@@ -7,7 +8,7 @@ use crate::{
     core::metadata::ProjectMeta,
     storage::{
         app_state::save_recent_projects,
-        project::{init_kasl_nodes, load_project_from_dir},
+        project::{init_kasl_nodes, load_project},
     },
     ui::{theme, workspaces::splash::state::SplashUiState},
     utils::version_string,
@@ -37,7 +38,7 @@ impl Default for SplashUi {
 
 /// A struct that contains the data passed to the editor UI.
 pub struct EditorTransition {
-    pub project_dir: PathBuf,
+    pub project_path: PathBuf,
     pub audio_ctx: AudioContext,
     pub project: Project,
     pub project_meta: ProjectMeta,
@@ -96,27 +97,31 @@ impl SplashUi {
             }
         });
 
+        if let Some(t) = self.new_project_dialog(ui) {
+            transition = Some(t);
+        }
+
         transition
     }
 
-    /// Opens the project at the given directory, returning the transition data if successful.
-    fn open_project(&self, project_dir: PathBuf) -> Option<EditorTransition> {
+    /// Opens the project file at the given path, returning the transition data if successful.
+    fn open_project(&self, project_path: PathBuf) -> Option<EditorTransition> {
         // Store the project to recent projects
-        self.add_and_store_recent_projects(&project_dir);
+        self.add_and_store_recent_projects(&project_path);
 
         // Load the project and pass the data to the editor UI
-        match load_project_from_dir(&project_dir) {
+        match load_project(&project_path) {
             Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
                 Ok(project_meta) => {
                     init_kasl_nodes(
                         &mut proj_res.project,
                         &project_meta.kasl_search_paths,
-                        &project_dir,
+                        &project_path,
                     );
 
                     let audio_ctx = proj_res.project.audio_ctx.clone();
                     Some(EditorTransition {
-                        project_dir,
+                        project_path,
                         audio_ctx,
                         project: proj_res.project,
                         project_meta,

@@ -20,8 +20,8 @@ use kadent_engine::{
 use std::{path::PathBuf, time::Duration};
 
 pub struct EditorUi {
-    /// The directory where the project is saved.
-    pub project_dir: PathBuf,
+    /// The path to the project file.
+    pub project_path: PathBuf,
     /// A master source of the project.
     pub project: Project,
     /// Whether the audio is playing.
@@ -42,7 +42,7 @@ pub struct EditorUi {
 
 impl EditorUi {
     pub fn new(
-        project_dir: PathBuf,
+        project_path: PathBuf,
         audio_ctx: AudioContext,
         project: Project,
         project_meta: ProjectMeta,
@@ -50,7 +50,7 @@ impl EditorUi {
         let thread_handle = AudioThread::spawn(audio_ctx, project.clone());
 
         Self {
-            project_dir,
+            project_path,
             project,
             is_playing: false,
             thread_handle,
