@@ -1,7 +1,11 @@
 use crate::{
     core::metadata::TrackType,
     ui::{
-        components::{dialog::dialog, text_input::text_input},
+        components::{
+            dialog::dialog,
+            text_button::{text_button, text_button_enabled},
+            text_input::text_input,
+        },
         theme,
         workspaces::{EditorUi, editor::state::DialogState},
     },
@@ -34,27 +38,30 @@ impl EditorUi {
                 cols[1].label("Track Name");
                 text_input(&mut cols[1], &mut state.name);
 
-                let is_name_empty = state.name.trim().is_empty();
-                cols[1]
-                    .add_enabled(!is_name_empty, egui::Button::new("Create"))
-                    .clicked()
-                    .then(|| {
-                        self.add_track(
-                            state.selected_track_type,
-                            state.name.clone(),
-                            theme::default_track_color(),
-                        );
+                cols[1].horizontal(|ui| {
+                    if text_button(ui, "cancel_track_creation", "Cancel").clicked() {
                         should_close = true;
-                    });
-            });
+                    }
 
-            if ui.button("Cancel").clicked() {
-                should_close = true;
-            }
+                    let can_create = !state.name.trim().is_empty();
+                    text_button_enabled(can_create, ui, "create_track", "Create Track")
+                        .clicked()
+                        .then(|| {
+                            self.add_track(
+                                state.selected_track_type,
+                                state.name.clone(),
+                                theme::default_track_color(),
+                            );
+                            should_close = true;
+                        });
+                });
+            });
         });
 
         if should_close || modal.should_close() {
             self.ui_state.dialog_state = DialogState::None;
+        } else {
+            self.ui_state.dialog_state = DialogState::AddTrack(state);
         }
     }
 }

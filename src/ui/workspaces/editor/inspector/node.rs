@@ -1,7 +1,10 @@
 use crate::{
     core::kasl_node::KaslNode,
     ui::{
-        components::text_input::{text_input, text_input_with_callback},
+        components::{
+            text_button::text_button,
+            text_input::{text_input, text_input_with_callback},
+        },
         theme,
         workspaces::{
             EditorUi,
@@ -71,7 +74,7 @@ impl EditorUi {
             });
 
             inspector_item(ui, "Compile", |ui| {
-                if ui.button("Compile KASL").clicked() {
+                if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
                     self.compile_kasl_node(track_id, node_id);
                 }
             });

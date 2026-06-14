@@ -1,4 +1,8 @@
-use crate::ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi};
+use crate::ui::{
+    components::{icon_button::small_icon_button, text_button::text_button},
+    theme,
+    workspaces::EditorUi,
+};
 use eframe::egui;
 use std::fmt::Display;
 
@@ -41,7 +45,7 @@ impl EditorUi {
                         )),
                     );
                     egui::Popup::menu(&btn).show(|ui| {
-                        if ui.button(AddibleNodes::Kasl.to_string()).clicked() {
+                        if text_button(ui, "kasl_node", AddibleNodes::Kasl.to_string()).clicked() {
                             node_to_add = Some(AddibleNodes::Kasl);
                         }
                     });

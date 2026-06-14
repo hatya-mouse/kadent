@@ -1,5 +1,5 @@
 use crate::ui::{
-    components::{color_picker::color_picker, text_input::text_input},
+    components::{color_picker::color_picker, text_button::text_button, text_input::text_input},
     theme,
     workspaces::{
         EditorUi,
@@ -25,7 +25,7 @@ impl EditorUi {
             });
 
             inspector_item(ui, "Delete", |ui| {
-                if ui.button("Delete Track").clicked() {
+                if text_button(ui, "delete_track", "Delete Track").clicked() {
                     self.remove_track(track_id);
                 }
             });

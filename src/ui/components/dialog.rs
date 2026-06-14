@@ -45,6 +45,6 @@ pub(crate) fn dialog<R>(
                 });
 
             // Show the content
-            content(ui)
+            egui::Frame::new().inner_margin(6).show(ui, content).inner
         })
 }
