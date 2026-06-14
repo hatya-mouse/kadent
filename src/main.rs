@@ -7,7 +7,7 @@ mod storage;
 mod ui;
 mod utils;
 
-use crate::app::KadentApp;
+use crate::{app::KadentApp, consts::APP_NAME};
 use eframe::egui::ViewportBuilder;
 
 fn main() -> eframe::Result<()> {
@@ -17,7 +17,7 @@ fn main() -> eframe::Result<()> {
     };
 
     eframe::run_native(
-        "Kadent",
+        APP_NAME,
         options,
         Box::new(|cc| Ok(Box::new(KadentApp::new(cc)))),
     )

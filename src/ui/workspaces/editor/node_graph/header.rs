@@ -65,7 +65,7 @@ impl EditorUi {
                 rect.left_bottom() - egui::vec2(0.0, 0.5),
                 rect.right_bottom() - egui::vec2(0.0, 0.5),
             ],
-            egui::Stroke::new(0.5, theme::border(ui.visuals().dark_mode)),
+            egui::Stroke::new(0.5, theme::border_color(ui.visuals().dark_mode)),
         );
 
         // Jump to a random node's position

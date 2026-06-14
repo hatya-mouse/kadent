@@ -2,6 +2,8 @@
 
 /// The name of the Kadent data directory.
 pub(crate) const KADENT_DATA_DIR_NAME: &str = "Kadent";
+/// The name of the application.
+pub(crate) const APP_NAME: &str = "Kadent";
 
 /// A relative path to recent projects data file. Relative to `dirs::data_dir()`.
 pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";

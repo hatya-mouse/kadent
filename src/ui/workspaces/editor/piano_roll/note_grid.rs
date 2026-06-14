@@ -105,7 +105,7 @@ impl EditorUi {
                 let stroke = if self.ui_state.selected_note == Some(note_id) {
                     egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
                 } else {
-                    egui::Stroke::new(1.0, theme::border(ui.visuals().dark_mode))
+                    theme::border(ui.visuals().dark_mode)
                 };
 
                 // Draw the note
@@ -138,7 +138,7 @@ impl EditorUi {
         scroll_content_width: f32,
         scroll_content_height: f32,
     ) {
-        let grid_color_note = theme::border(ui.visuals().dark_mode);
+        let grid_color_note = theme::border_color(ui.visuals().dark_mode);
         let grid_color_octave = ui.visuals().window_stroke().color;
 
         let note_height = self.ui_state.piano_roll_state.note_height;

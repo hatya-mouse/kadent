@@ -6,17 +6,13 @@ pub(crate) fn color_picker(ui: &mut egui::Ui, color: &mut egui::Color32) -> egui
 
     let dark = ui.visuals().dark_mode;
     ui.painter().rect_filled(rect, 4.0, *color);
-    ui.painter().rect_stroke(
-        rect,
-        4.0,
-        egui::Stroke::new(1.0, theme::border(dark)),
-        egui::StrokeKind::Outside,
-    );
+    ui.painter()
+        .rect_stroke(rect, 4.0, theme::border(dark), egui::StrokeKind::Outside);
 
     let frame = egui::Frame::popup(ui.style())
         .shadow(egui::Shadow::NONE)
         .fill(theme::primary_bg(dark))
-        .stroke(egui::Stroke::new(1.0, theme::border(dark)));
+        .stroke(theme::border(dark));
     egui::Popup::from_toggle_button_response(&response)
         .gap(4.0)
         .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)

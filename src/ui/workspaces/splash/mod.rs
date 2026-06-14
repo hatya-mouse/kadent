@@ -9,17 +9,28 @@ use crate::{
         app_state::save_recent_projects,
         project::{init_kasl_nodes, load_project_from_dir},
     },
-    ui::workspaces::splash::state::SplashUiState,
+    ui::{theme, workspaces::splash::state::SplashUiState},
+    utils::version_string,
 };
 use eframe::egui;
 use kadent_engine::{data_types::AudioContext, mixer::Project};
 use std::path::{Path, PathBuf};
 
 /// The splash screen of Kadent.
-#[derive(Default)]
 pub struct SplashUi {
     /// The current splash UI state.
     splash_state: SplashUiState,
+    /// The version text displayed in the splash screen.
+    version_string: String,
+}
+
+impl Default for SplashUi {
+    fn default() -> Self {
+        Self {
+            version_string: version_string(),
+            splash_state: SplashUiState::default(),
+        }
+    }
 }
 
 /// A struct that contains the data passed to the editor UI.
@@ -34,11 +45,47 @@ impl SplashUi {
     pub fn ui(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
         let mut transition = None;
 
-        ui.columns(2, |columns| {
-            let controls_transition = self.splash_controls(&mut columns[0]);
-            let list_transition = self.project_list(&mut columns[1]);
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            let full_width = ui.available_width();
+            ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 0.0);
 
-            transition = controls_transition.or(list_transition);
+            ui.allocate_ui_with_layout(
+                egui::vec2(full_width * 0.4, ui.available_height()),
+                egui::Layout::top_down(egui::Align::LEFT),
+                |ui| {
+                    if let Some(t) = self.splash_controls(ui) {
+                        transition = Some(t);
+                    }
+                },
+            );
+
+            let separator_x = ui.cursor().min.x;
+
+            ui.allocate_ui_with_layout(
+                egui::vec2(full_width * 0.6, ui.available_height()),
+                egui::Layout::top_down(egui::Align::LEFT),
+                |ui| {
+                    // ui.painter().rect(
+                    //     ui.cursor(),
+                    //     0,
+                    //     theme::button_bg(ui.visuals().dark_mode),
+                    //     egui::Stroke::NONE,
+                    //     egui::StrokeKind::Middle,
+                    // );
+                    if let Some(t) = self.project_list(ui) {
+                        transition = Some(t);
+                    }
+                },
+            );
+
+            let rect = ui.min_rect();
+            ui.painter().line_segment(
+                [
+                    egui::pos2(separator_x, rect.min.y),
+                    egui::pos2(separator_x, rect.max.y),
+                ],
+                theme::border(ui.visuals().dark_mode),
+            );
         });
 
         transition

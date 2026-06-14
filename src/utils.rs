@@ -19,3 +19,9 @@ macro_rules! spawn_background_init {
         data
     }};
 }
+
+/// Generates a version number string.
+pub(crate) fn version_string() -> String {
+    let version = env!("CARGO_PKG_VERSION");
+    format!("Version: {version}")
+}

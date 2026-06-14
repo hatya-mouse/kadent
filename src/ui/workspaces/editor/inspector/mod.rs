@@ -104,14 +104,14 @@ fn inspector_section(
             header_rect.left_top() + egui::vec2(0.0, 0.5),
             header_rect.right_top() + egui::vec2(0.0, 0.5),
         ],
-        egui::Stroke::new(1.0, theme::border(ui.visuals().dark_mode)),
+        theme::border(ui.visuals().dark_mode),
     );
     painter.line_segment(
         [
             header_rect.left_bottom() - egui::vec2(0.0, 0.5),
             header_rect.right_bottom() - egui::vec2(0.0, 0.5),
         ],
-        egui::Stroke::new(1.0, theme::border(ui.visuals().dark_mode)),
+        theme::border(ui.visuals().dark_mode),
     );
 
     // Contents

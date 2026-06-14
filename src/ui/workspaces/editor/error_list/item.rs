@@ -21,7 +21,7 @@ pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
             );
         });
 
-    let stroke = egui::Stroke::new(0.5, theme::border(ui.visuals().dark_mode));
+    let stroke = egui::Stroke::new(0.5, theme::border_color(ui.visuals().dark_mode));
     let rect = ui.min_rect();
     ui.painter()
         .line_segment([rect.left_bottom(), rect.right_bottom()], stroke);

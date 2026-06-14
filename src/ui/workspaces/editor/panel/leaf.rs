@@ -53,7 +53,7 @@ pub(super) fn render_leaf(
         ui.painter().rect_stroke(
             rect,
             0.0,
-            egui::Stroke::new(2.0, theme::border(ui.visuals().dark_mode)),
+            egui::Stroke::new(2.0, theme::border_color(ui.visuals().dark_mode)),
             egui::StrokeKind::Inside,
         );
     }

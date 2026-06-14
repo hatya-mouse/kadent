@@ -1,4 +1,4 @@
-use eframe::egui::Color32;
+use eframe::egui::{Color32, Stroke};
 
 // --- FOREGROUND ---
 
@@ -58,12 +58,17 @@ pub(crate) fn icon_button_active() -> Color32 {
 // --- BORDER ---
 
 /// Soft border used on regions, notes, node bodies, and grid lines.
-pub(crate) fn border(dark_mode: bool) -> Color32 {
+pub(crate) fn border_color(dark_mode: bool) -> Color32 {
     if dark_mode {
         Color32::from_rgba_unmultiplied(255, 255, 255, 30)
     } else {
         Color32::from_rgba_unmultiplied(0, 0, 0, 30)
     }
+}
+
+/// Soft border stroke used on regions, notes, node bodies, and grid lines.
+pub(crate) fn border(dark_mode: bool) -> Stroke {
+    Stroke::new(1.0, border_color(dark_mode))
 }
 
 // --- SEPARATOR ---

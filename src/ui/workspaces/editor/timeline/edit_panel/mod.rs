@@ -53,7 +53,7 @@ impl EditorUi {
                             max: available.min.x + available.width(),
                         },
                         y + track_height,
-                        egui::Stroke::new(1.0, theme::border(ui.visuals().dark_mode)),
+                        theme::border(ui.visuals().dark_mode),
                     );
                 }
             });

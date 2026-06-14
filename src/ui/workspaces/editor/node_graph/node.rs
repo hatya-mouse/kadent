@@ -62,7 +62,7 @@ impl EditorUi {
         let node_stroke = if self.ui_state.selected_node == Some(*node_id) {
             egui::Stroke::new(2.0, theme::region_selected(dark_mode))
         } else {
-            egui::Stroke::new(1.0, theme::border(dark_mode))
+            theme::border(dark_mode)
         };
         painter.rect(
             node_rect,
@@ -85,7 +85,7 @@ impl EditorUi {
         );
         painter.line_segment(
             [header_rect.left_bottom(), header_rect.right_bottom()],
-            egui::Stroke::new(1.0, theme::border(dark_mode)),
+            theme::border(dark_mode),
         );
 
         // Draw the node name in the header

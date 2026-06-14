@@ -1,5 +1,6 @@
 use crate::{
     core::{metadata::ProjectMeta, project_setup::setup_project},
+    fonts::RichTextExt,
     ui::workspaces::{EditorTransition, EditorUi, SplashUi},
 };
 use eframe::egui;
@@ -9,23 +10,50 @@ use kadent_engine::{
 };
 use std::path::PathBuf;
 
+const BUTTON_HEIGHT: f32 = 30.0;
+const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 32.0 + BUTTON_HEIGHT * 2.0;
+
 impl SplashUi {
     pub(super) fn splash_controls(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
         ui.vertical_centered(|ui| {
-            ui.add_space(ui.available_height() / 3.0);
-            ui.heading("Kadent");
-            ui.add_space(16.0);
-            if ui.button("New Project").clicked()
-                && let Some(project_dir) = rfd::FileDialog::new().save_file()
-            {
-                return Some(self.create_new_project(project_dir));
-            }
-            if ui.button("Open Project").clicked()
-                && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
-            {
-                return self.open_project(project_dir);
-            }
-            None
+            let full_width = ui.available_width();
+            let full_height = ui.available_height();
+
+            ui.add_space(full_height / 2.0 - CONTENT_HEIGHT / 2.0);
+
+            ui.add(
+                egui::Image::new(egui::include_image!(
+                    "../../../../assets/logo/kadent_logo_white_on_black_plate.png"
+                ))
+                .max_height(60.0),
+            );
+            ui.add_space(12.0);
+
+            ui.add_sized(
+                egui::vec2(full_width, 16.0),
+                egui::Label::new(egui::RichText::new(&self.version_string).bold().weak()),
+            );
+            ui.add_space(32.0);
+
+            ui.horizontal(|ui| {
+                let new_project = ui.button("New Project");
+                let open_project = ui.button("Open Project");
+
+                if new_project.clicked()
+                    && let Some(project_dir) = rfd::FileDialog::new().save_file()
+                {
+                    return Some(self.create_new_project(project_dir));
+                }
+
+                if open_project.clicked()
+                    && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
+                {
+                    return self.open_project(project_dir);
+                }
+
+                None
+            })
+            .inner
         })
         .inner
     }

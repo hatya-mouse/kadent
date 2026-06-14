@@ -3,7 +3,7 @@ use eframe::egui;
 
 pub(crate) fn text_input(ui: &mut egui::Ui, value: &mut String) -> egui::Response {
     let dark = ui.visuals().dark_mode;
-    let stroke = egui::Stroke::new(1.0, theme::border(dark));
+    let stroke = theme::border(dark);
 
     ui.visuals_mut().extreme_bg_color = theme::tertiary_bg(dark);
     ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
@@ -30,7 +30,7 @@ where
     F: FnOnce(String),
 {
     let dark = ui.visuals().dark_mode;
-    let stroke = egui::Stroke::new(1.0, theme::border(dark));
+    let stroke = theme::border(dark);
 
     ui.visuals_mut().extreme_bg_color = theme::tertiary_bg(dark);
     ui.visuals_mut().widgets.inactive.bg_stroke = stroke;
