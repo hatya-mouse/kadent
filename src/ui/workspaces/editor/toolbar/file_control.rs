@@ -18,14 +18,10 @@ impl EditorUi {
             )
             .clicked()
             {
-                let files = rfd::FileDialog::new().save_file();
-
-                if let Some(path) = files {
-                    match save_project(&path, &self.project, &self.project_meta) {
-                        Ok(()) => (),
-                        Err(e) => {
-                            eprintln!("Failed to save project: {:?}", e);
-                        }
+                match save_project(&self.project_path, &self.project, &self.project_meta) {
+                    Ok(()) => (),
+                    Err(e) => {
+                        eprintln!("Failed to save project: {:?}", e);
                     }
                 }
             }

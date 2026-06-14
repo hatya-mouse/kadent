@@ -8,7 +8,7 @@ use crate::{
     core::metadata::ProjectMeta,
     storage::{
         app_state::save_recent_projects,
-        project::{init_kasl_nodes, load_project},
+        project::{get_project_dir, init_kasl_nodes, load_project},
     },
     ui::{theme, workspaces::splash::state::SplashUiState},
     utils::version_string,
@@ -113,10 +113,11 @@ impl SplashUi {
         match load_project(&project_path) {
             Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
                 Ok(project_meta) => {
+                    let project_dir = get_project_dir(&project_path);
                     init_kasl_nodes(
                         &mut proj_res.project,
                         &project_meta.kasl_search_paths,
-                        &project_path,
+                        &project_dir,
                     );
 
                     let audio_ctx = proj_res.project.audio_ctx.clone();

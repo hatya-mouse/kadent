@@ -17,20 +17,6 @@ impl EditorUi {
         region_id: &RegionID,
         note_id: &NoteID,
     ) {
-        // let Some(track) = self
-        //     .project
-        //     .get_track_mut(track_id)
-        //     .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-        // else {
-        //     return;
-        // };
-        // let Some(region) = track.get_region_mut(region_id) else {
-        //     return;
-        // };
-        // let Some(note) = region.get_note_mut(note_id) else {
-        //     return;
-        // };
-
         inspector_section(
             ui,
             ("note_section", track_id, region_id, note_id),

@@ -69,7 +69,7 @@ impl SplashUi {
             }
 
             if open_project.clicked()
-                && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
+                && let Some(project_dir) = rfd::FileDialog::new().pick_file()
             {
                 return self.open_project(project_dir);
             }

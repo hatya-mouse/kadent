@@ -16,16 +16,16 @@ impl SplashUi {
             ui.label("Project Name");
             text_input(ui, &mut dialog_state.project_name);
 
-            ui.label("Project Path");
+            ui.label("Project Folder");
             ui.label(
                 dialog_state
                     .project_dir
                     .as_ref()
-                    .map_or("No directory selected".to_string(), |path| {
+                    .map_or("No folder selected".to_string(), |path| {
                         path.to_string_lossy().to_string()
                     }),
             );
-            ui.button("Select Parent Directory").clicked().then(|| {
+            ui.button("Select Folder").clicked().then(|| {
                 if let Some(project_dir) = rfd::FileDialog::new().pick_folder() {
                     dialog_state.project_dir = Some(project_dir);
                 }
