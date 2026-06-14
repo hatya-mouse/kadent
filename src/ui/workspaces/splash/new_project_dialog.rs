@@ -22,12 +22,15 @@ impl SplashUi {
 
             ui.label("Project Folder");
             ui.label(
-                dialog_state
-                    .project_dir
-                    .as_ref()
-                    .map_or("No folder selected".to_string(), |path| {
-                        path.to_string_lossy().to_string()
-                    }),
+                egui::RichText::new(
+                    dialog_state
+                        .project_dir
+                        .as_ref()
+                        .map_or("No folder selected".to_string(), |path| {
+                            path.to_string_lossy().to_string()
+                        }),
+                )
+                .strong(),
             );
             text_button(ui, "select_folder", "Select Folder")
                 .clicked()
