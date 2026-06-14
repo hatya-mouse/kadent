@@ -2,13 +2,14 @@ use crate::{
     fonts::RichTextExt,
     ui::{
         components::card_button::card_button,
+        theme,
         workspaces::{EditorTransition, SplashUi, splash::state::NewProjectDialogState},
     },
 };
 use eframe::egui;
 
 const BUTTON_WIDTH: f32 = 300.0;
-const BUTTON_HEIGHT: f32 = 42.0;
+const BUTTON_HEIGHT: f32 = 44.0;
 const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 2.0;
 
 impl SplashUi {
@@ -42,7 +43,7 @@ impl SplashUi {
                             egui::RichText::new("New Project")
                                 .strong()
                                 .bold()
-                                .size(14.0),
+                                .size(theme::large_font_size()),
                         );
                         ui.label(egui::RichText::new("Create a fresh .kdp project.").weak());
                     });
@@ -56,7 +57,7 @@ impl SplashUi {
                             egui::RichText::new("Open Project")
                                 .strong()
                                 .bold()
-                                .size(14.0),
+                                .size(theme::large_font_size()),
                         );
                         ui.label(
                             egui::RichText::new("Open an existing project from the disk.").weak(),
