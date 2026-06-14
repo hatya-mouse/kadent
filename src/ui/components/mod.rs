@@ -1,3 +1,4 @@
+pub(crate) mod card_button;
 pub(crate) mod color_picker;
 pub(crate) mod dialog;
 pub(crate) mod icon_button;

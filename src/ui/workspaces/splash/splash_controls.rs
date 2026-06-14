@@ -1,7 +1,10 @@
 use crate::{
     core::{metadata::ProjectMeta, project_setup::setup_project},
     fonts::RichTextExt,
-    ui::workspaces::{EditorTransition, EditorUi, SplashUi},
+    ui::{
+        components::card_button::card_button,
+        workspaces::{EditorTransition, EditorUi, SplashUi},
+    },
 };
 use eframe::egui;
 use kadent_engine::{
@@ -10,8 +13,9 @@ use kadent_engine::{
 };
 use std::path::PathBuf;
 
-const BUTTON_HEIGHT: f32 = 30.0;
-const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 32.0 + BUTTON_HEIGHT * 2.0;
+const BUTTON_WIDTH: f32 = 300.0;
+const BUTTON_HEIGHT: f32 = 42.0;
+const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 2.0;
 
 impl SplashUi {
     pub(super) fn splash_controls(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
@@ -33,27 +37,52 @@ impl SplashUi {
                 egui::vec2(full_width, 16.0),
                 egui::Label::new(egui::RichText::new(&self.version_string).bold().weak()),
             );
-            ui.add_space(32.0);
+            ui.add_space(24.0);
 
-            ui.horizontal(|ui| {
-                let new_project = ui.button("New Project");
-                let open_project = ui.button("Open Project");
+            let button_size = egui::vec2(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-                if new_project.clicked()
-                    && let Some(project_dir) = rfd::FileDialog::new().save_file()
-                {
-                    return Some(self.create_new_project(project_dir));
-                }
+            let new_project =
+                card_button(ui, ui.id().with("New Project"), Some(button_size), |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            egui::RichText::new("New Project")
+                                .strong()
+                                .bold()
+                                .size(14.0),
+                        );
+                        ui.label(egui::RichText::new("Create a fresh .kdp project.").weak());
+                    });
+                });
+            ui.add_space(12.0);
 
-                if open_project.clicked()
-                    && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
-                {
-                    return self.open_project(project_dir);
-                }
+            let open_project =
+                card_button(ui, ui.id().with("Open Project"), Some(button_size), |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            egui::RichText::new("Open Project")
+                                .strong()
+                                .bold()
+                                .size(14.0),
+                        );
+                        ui.label(
+                            egui::RichText::new("Open an existing project from the disk.").weak(),
+                        );
+                    });
+                });
 
-                None
-            })
-            .inner
+            if new_project.clicked()
+                && let Some(project_dir) = rfd::FileDialog::new().save_file()
+            {
+                return Some(self.create_new_project(project_dir));
+            }
+
+            if open_project.clicked()
+                && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
+            {
+                return self.open_project(project_dir);
+            }
+
+            None
         })
         .inner
     }

@@ -14,8 +14,7 @@ impl SplashUi {
             .content_margin(egui::Margin::same(CONTENT_MARGIN))
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                let item_width = ui.available_width() - CONTENT_MARGIN as f32 * 2.0;
-
+                let item_width = (ui.available_width() - CONTENT_MARGIN as f32 * 2.0).max(0.0);
                 let Ok(recent_projects) = self.splash_state.recent_projects.lock() else {
                     return;
                 };

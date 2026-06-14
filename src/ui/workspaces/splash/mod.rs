@@ -16,6 +16,8 @@ use eframe::egui;
 use kadent_engine::{data_types::AudioContext, mixer::Project};
 use std::path::{Path, PathBuf};
 
+const PROJECT_LIST_THRESHOLD: f32 = 240.0;
+
 /// The splash screen of Kadent.
 pub struct SplashUi {
     /// The current splash UI state.
@@ -47,10 +49,21 @@ impl SplashUi {
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             let full_width = ui.available_width();
+            let full_height = ui.available_height();
             ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 0.0);
 
+            let base_control_width = (full_width * 0.4).max(400.0).min(full_width);
+            let project_list_width = full_width - base_control_width;
+            let show_project_list = full_width - base_control_width >= PROJECT_LIST_THRESHOLD;
+            let splash_control_width = if show_project_list {
+                base_control_width
+            } else {
+                full_width
+            };
+
+            // If the remaining width is smaller than that threshold, collapse the project list and show only the splash controls
             ui.allocate_ui_with_layout(
-                egui::vec2(full_width * 0.4, ui.available_height()),
+                egui::vec2(splash_control_width, full_height),
                 egui::Layout::top_down(egui::Align::LEFT),
                 |ui| {
                     if let Some(t) = self.splash_controls(ui) {
@@ -59,33 +72,28 @@ impl SplashUi {
                 },
             );
 
-            let separator_x = ui.cursor().min.x;
+            if show_project_list {
+                let separator_x = ui.cursor().min.x;
 
-            ui.allocate_ui_with_layout(
-                egui::vec2(full_width * 0.6, ui.available_height()),
-                egui::Layout::top_down(egui::Align::LEFT),
-                |ui| {
-                    // ui.painter().rect(
-                    //     ui.cursor(),
-                    //     0,
-                    //     theme::button_bg(ui.visuals().dark_mode),
-                    //     egui::Stroke::NONE,
-                    //     egui::StrokeKind::Middle,
-                    // );
-                    if let Some(t) = self.project_list(ui) {
-                        transition = Some(t);
-                    }
-                },
-            );
+                ui.allocate_ui_with_layout(
+                    egui::vec2(project_list_width, full_height),
+                    egui::Layout::top_down(egui::Align::LEFT),
+                    |ui| {
+                        if let Some(t) = self.project_list(ui) {
+                            transition = Some(t);
+                        }
+                    },
+                );
 
-            let rect = ui.min_rect();
-            ui.painter().line_segment(
-                [
-                    egui::pos2(separator_x, rect.min.y),
-                    egui::pos2(separator_x, rect.max.y),
-                ],
-                theme::border(ui.visuals().dark_mode),
-            );
+                let rect = ui.min_rect();
+                ui.painter().line_segment(
+                    [
+                        egui::pos2(separator_x, rect.min.y),
+                        egui::pos2(separator_x, rect.max.y),
+                    ],
+                    theme::border(ui.visuals().dark_mode),
+                );
+            }
         });
 
         transition
