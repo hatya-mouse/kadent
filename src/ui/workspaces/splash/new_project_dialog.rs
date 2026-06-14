@@ -1,4 +1,5 @@
 use crate::{
+    consts::PROJECT_FILE_EXTENSION,
     storage::project::create_new_project,
     ui::{
         components::{
@@ -13,7 +14,7 @@ use eframe::egui;
 
 impl SplashUi {
     pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
-        let dialog_state = self.splash_state.new_project_state.as_mut()?;
+        let mut dialog_state = self.splash_state.new_project_state.take()?;
 
         let mut should_close = false;
         let modal = dialog(ui, "Create Project", |ui| {
@@ -57,6 +58,10 @@ impl SplashUi {
                     .then(|| {
                         if let Some(project_dir) = dialog_state.project_dir.clone() {
                             should_close = true;
+                            let project_path = project_dir
+                                .join(&dialog_state.project_name)
+                                .with_added_extension(PROJECT_FILE_EXTENSION);
+                            self.add_and_store_recent_projects(&project_path);
                             create_new_project(&dialog_state.project_name, project_dir).ok()
                         } else {
                             None
@@ -68,6 +73,8 @@ impl SplashUi {
 
         if should_close || modal.should_close() {
             self.splash_state.new_project_state = None;
+        } else {
+            self.splash_state.new_project_state = Some(dialog_state);
         }
 
         modal.inner.inner
