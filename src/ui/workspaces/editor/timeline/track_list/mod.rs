@@ -18,8 +18,8 @@ impl EditorUi {
         egui::Frame::new()
             .fill(theme::primary_bg(ui.visuals().dark_mode))
             .show(ui, |ui| {
-                for track_id in &self.project_meta.track_order {
-                    if let Some(track_meta) = self.project_meta.tracks.get(track_id) {
+                for track_id in &self.proj_ctx.project_meta.track_order {
+                    if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(track_id) {
                         let bg_color = if Some(track_id) == self.ui_state.selected_track.as_ref() {
                             theme::primary_bg(ui.visuals().dark_mode)
                         } else {

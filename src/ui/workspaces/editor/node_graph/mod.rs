@@ -57,12 +57,14 @@ impl EditorUi {
 
         // Collect what we need up front to avoid holding borrows during drawing
         let node_ids: Vec<NodeID> = self
+            .proj_ctx
             .project_meta
             .get_track(&track_id)
             .map(|t| t.graph.nodes.keys().cloned().collect())
             .unwrap_or_default();
 
         let edges = self
+            .proj_ctx
             .project
             .get_track(&track_id)
             .map(|t| t.get_graph().get_edges().clone())
@@ -73,7 +75,7 @@ impl EditorUi {
         let dragged_edge = self.ui_state.node_graph_state.dragged_edge;
 
         // Draw edges behind nodes
-        if let Some(track_meta) = self.project_meta.get_track(&track_id) {
+        if let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id) {
             let painter = ui.painter();
             draw_edges(
                 ui,
@@ -116,8 +118,12 @@ impl EditorUi {
         }
 
         if let Some(mouse_pos) = ui.input(|i| i.pointer.hover_pos())
-            && let Some(track_meta) = self.project_meta.get_track(track_id)
-            && let Some(graph) = self.project.get_track(track_id).map(|t| t.get_graph())
+            && let Some(track_meta) = self.proj_ctx.project_meta.get_track(track_id)
+            && let Some(graph) = self
+                .proj_ctx
+                .project
+                .get_track(track_id)
+                .map(|t| t.get_graph())
         {
             let mut has_connected_to_input = false;
 

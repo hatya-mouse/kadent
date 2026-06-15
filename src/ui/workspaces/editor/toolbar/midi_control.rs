@@ -16,6 +16,7 @@ impl EditorUi {
             .collect();
 
         let label = self
+            .ui_state
             .selected_midi_port
             .as_deref()
             .unwrap_or("No MIDI input");
@@ -25,11 +26,11 @@ impl EditorUi {
             .width(180.0)
             .show_ui(ui, |ui| {
                 if ui
-                    .selectable_label(self.selected_midi_port.is_none(), "No MIDI input")
+                    .selectable_label(self.ui_state.selected_midi_port.is_none(), "No MIDI input")
                     .clicked()
-                    && self.selected_midi_port.is_some()
+                    && self.ui_state.selected_midi_port.is_some()
                 {
-                    self.selected_midi_port = None;
+                    self.ui_state.selected_midi_port = None;
                     let _ = self
                         .thread_handle
                         .midi_command_tx
@@ -41,7 +42,8 @@ impl EditorUi {
                 }
 
                 for (i, name) in port_names.iter().enumerate() {
-                    let is_selected = self.selected_midi_port.as_deref() == Some(name.as_str());
+                    let is_selected =
+                        self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
                     if ui.selectable_label(is_selected, name).clicked()
                         && !is_selected
                         && let Some(port) = ports.get(i)
@@ -50,14 +52,17 @@ impl EditorUi {
                             .thread_handle
                             .midi_command_tx
                             .send(MidiCommand::SetMidiPort(port.clone()));
-                        self.selected_midi_port = Some(name.clone());
+                        self.ui_state.selected_midi_port = Some(name.clone());
 
-                        if let Some(&track_id) = self.project_meta.track_order.iter().find(|id| {
-                            self.project_meta
-                                .tracks
-                                .get(id)
-                                .is_some_and(|t| t.track_type == TrackType::Note)
-                        }) {
+                        if let Some(&track_id) =
+                            self.proj_ctx.project_meta.track_order.iter().find(|id| {
+                                self.proj_ctx
+                                    .project_meta
+                                    .tracks
+                                    .get(id)
+                                    .is_some_and(|t| t.track_type == TrackType::Note)
+                            })
+                        {
                             let _ = self
                                 .thread_handle
                                 .audio_command_tx

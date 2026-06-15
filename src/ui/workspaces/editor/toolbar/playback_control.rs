@@ -16,7 +16,7 @@ impl EditorUi {
             )
             .clicked()
             {
-                let command = AudioCommand::Seek(self.project.range_start);
+                let command = AudioCommand::Seek(self.proj_ctx.project.range_start);
                 if self
                     .thread_handle
                     .audio_command_tx
@@ -32,7 +32,7 @@ impl EditorUi {
                 egui::Image::new(egui::include_image!("../../../../../assets/icons/play.png")),
             )
             .clicked()
-                && !self.is_playing
+                && !self.ui_state.is_playing
             {
                 let command = AudioCommand::Play;
                 if self
@@ -43,7 +43,7 @@ impl EditorUi {
                 {
                     self.errors.push(AudioError::CommandFailed(command));
                 } else {
-                    self.is_playing = true;
+                    self.ui_state.is_playing = true;
                 }
             }
 
@@ -54,7 +54,7 @@ impl EditorUi {
                 )),
             )
             .clicked()
-                && self.is_playing
+                && self.ui_state.is_playing
             {
                 let command = AudioCommand::Pause;
                 if self
@@ -65,7 +65,7 @@ impl EditorUi {
                 {
                     self.errors.push(AudioError::CommandFailed(command));
                 } else {
-                    self.is_playing = false;
+                    self.ui_state.is_playing = false;
                 }
             }
 
@@ -77,8 +77,9 @@ impl EditorUi {
             )
             .clicked()
             {
-                let command =
-                    AudioCommand::Seek(self.project.range_start + self.project.range_duration);
+                let command = AudioCommand::Seek(
+                    self.proj_ctx.project.range_start + self.proj_ctx.project.range_duration,
+                );
                 if self
                     .thread_handle
                     .audio_command_tx

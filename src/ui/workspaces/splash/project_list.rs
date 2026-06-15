@@ -1,13 +1,13 @@
 use crate::{
-    fonts::RichTextExt,
-    ui::workspaces::{EditorTransition, SplashUi},
+    core::project_ctx::EditorContext, fonts::RichTextExt, storage::project::open_project_to_ctx,
+    ui::workspaces::SplashUi,
 };
 use eframe::egui;
 
 const CONTENT_MARGIN: i8 = 12;
 
 impl SplashUi {
-    pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
+    pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
         let mut selected_path = None;
 
         egui::ScrollArea::vertical()
@@ -71,7 +71,7 @@ impl SplashUi {
 
         // Open the project is any is selected
         if let Some(path) = selected_path {
-            self.open_project(path)
+            open_project_to_ctx(path)
         } else {
             None
         }

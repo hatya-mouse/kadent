@@ -17,7 +17,7 @@ impl EditorUi {
             self.ui_state.last_edit_time = None;
 
             // Clone the project and send it to the audio thread
-            let project = self.project.clone();
+            let project = self.proj_ctx.project.clone();
             if let Err(err) = self
                 .thread_handle
                 .audio_command_tx

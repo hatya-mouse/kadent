@@ -16,6 +16,7 @@ impl EditorUi {
 
         // Get the region
         if self
+            .proj_ctx
             .project_meta
             .get_track(&track_id)
             .is_none_or(|track| track.track_type != TrackType::Note)

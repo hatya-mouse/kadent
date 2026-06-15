@@ -18,7 +18,7 @@ impl EditorUi {
 
     fn draw_regions(&mut self, ui: &mut egui::Ui, track_id: &TrackID, row_rect: egui::Rect) {
         // Get the track metadata
-        let Some(track_meta) = self.project_meta.get_track(track_id) else {
+        let Some(track_meta) = self.proj_ctx.project_meta.get_track(track_id) else {
             return;
         };
 
@@ -29,6 +29,7 @@ impl EditorUi {
         for region_id in region_ids {
             // Get the region metadata
             let Some(region_meta) = self
+                .proj_ctx
                 .project_meta
                 .get_track(track_id)
                 .and_then(|t| t.regions.get(&region_id))
@@ -54,7 +55,7 @@ impl EditorUi {
             self.region_gestures(ui, track_id, &region_id, region_rect, resize_rect);
 
             // Draw the region box and the name
-            let Some(track_meta) = self.project_meta.get_track(track_id) else {
+            let Some(track_meta) = self.proj_ctx.project_meta.get_track(track_id) else {
                 continue;
             };
             let Some(region_meta) = track_meta.regions.get(&region_id) else {
@@ -100,7 +101,11 @@ impl EditorUi {
                 })
                 .unwrap_or_default();
 
-            let track_type = self.project_meta.get_track(track_id).map(|m| m.track_type);
+            let track_type = self
+                .proj_ctx
+                .project_meta
+                .get_track(track_id)
+                .map(|m| m.track_type);
             match track_type {
                 Some(TrackType::Audio) => {
                     self.add_audio_region(track_id, "Region".to_string(), start);
@@ -141,6 +146,7 @@ impl EditorUi {
                 (resize_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
             );
             if let Some(region) = self
+                .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
@@ -149,6 +155,7 @@ impl EditorUi {
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
+                .proj_ctx
                 .project_meta
                 .get_track(track_id)
                 .and_then(|track| track.get_region(region_id))
@@ -165,6 +172,7 @@ impl EditorUi {
                     (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
                 );
                 if let Some(region) = self
+                    .proj_ctx
                     .project_meta
                     .get_track_mut(track_id)
                     .and_then(|track| track.get_region_mut(region_id))
@@ -173,6 +181,7 @@ impl EditorUi {
                 }
             } else if move_res.drag_stopped()
                 && let Some(new_start) = self
+                    .proj_ctx
                     .project_meta
                     .get_track_mut(track_id)
                     .and_then(|track| track.get_region_mut(region_id))

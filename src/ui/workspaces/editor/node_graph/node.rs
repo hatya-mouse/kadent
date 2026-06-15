@@ -24,6 +24,7 @@ impl EditorUi {
         // Borrows end at the closing brace so we can take &mut self freely afterwards.
         let (input_names, output_names, pos, display_name) = {
             let Some(node) = self
+                .proj_ctx
                 .project
                 .get_track(&track_id)
                 .and_then(|t| t.get_graph().get_node(node_id))
@@ -31,6 +32,7 @@ impl EditorUi {
                 return;
             };
             let Some(meta) = self
+                .proj_ctx
                 .project_meta
                 .get_track(&track_id)
                 .and_then(|t| t.graph.get_node_meta(node_id))
@@ -126,6 +128,7 @@ impl EditorUi {
         if response.dragged()
             && self.ui_state.node_graph_state.ghost_edge.is_none()
             && let Some(meta) = self
+                .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|t| t.graph.get_node_meta_mut(node_id))
@@ -202,7 +205,7 @@ impl EditorUi {
             // If the drag has started, get the edge pointing toward the input port and create a ghost edge
             if port_resp.drag_started() {
                 // Find the edge connected to this input port
-                let found = self.project.get_track(track_id).and_then(|t| {
+                let found = self.proj_ctx.project.get_track(track_id).and_then(|t| {
                     t.get_graph()
                         .get_edges()
                         .iter()

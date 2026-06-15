@@ -1,20 +1,21 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
+    core::project_ctx::EditorContext,
     fonts::RichTextExt,
-    storage::project::create_new_project,
+    storage::{app_state::add_and_store_recent_projects, project::create_new_project},
     ui::{
         components::{
             dialog::dialog,
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
-        workspaces::{EditorTransition, SplashUi},
+        workspaces::SplashUi,
     },
 };
 use eframe::egui;
 
 impl SplashUi {
-    pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
+    pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
         let mut dialog_state = self.splash_state.new_project_state.take()?;
 
         let mut should_close = false;
@@ -67,7 +68,7 @@ impl SplashUi {
                         let project_path = project_dir
                             .join(&dialog_state.project_name)
                             .with_added_extension(PROJECT_FILE_EXTENSION);
-                        self.add_and_store_recent_projects(&project_path);
+                        add_and_store_recent_projects(&project_path);
                         create_new_project(&dialog_state.project_name, project_dir).ok()
                     } else {
                         None

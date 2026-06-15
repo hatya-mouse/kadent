@@ -21,6 +21,7 @@ impl EditorUi {
     ) {
         // Get the target region
         let Some(track) = self
+            .proj_ctx
             .project
             .get_track_mut(&track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
@@ -34,6 +35,7 @@ impl EditorUi {
 
         // Get the color of the track
         let Some(track_color) = self
+            .proj_ctx
             .project_meta
             .get_track(&track_id)
             .map(|track| track.color)
@@ -310,6 +312,7 @@ impl EditorUi {
                 (resize_res.drag_delta().x / self.ui_state.piano_roll_state.pixels_per_beat) as f64,
             );
             if let Some(region) = self
+                .proj_ctx
                 .project
                 .get_track_mut(note_id.0)
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
@@ -319,6 +322,7 @@ impl EditorUi {
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
+                .proj_ctx
                 .project
                 .get_track(note_id.0)
                 .and_then(|track| track.as_any().downcast_ref::<NoteTrack>())
@@ -339,6 +343,7 @@ impl EditorUi {
             self.ui_state.set_selected_note(*note_id.2);
 
             if let Some(region) = self
+                .proj_ctx
                 .project
                 .get_track_mut(note_id.0)
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
@@ -349,6 +354,7 @@ impl EditorUi {
             }
         } else if move_res.drag_stopped() {
             let committed = self
+                .proj_ctx
                 .project
                 .get_track(note_id.0)
                 .and_then(|t| t.as_any().downcast_ref::<NoteTrack>())

@@ -8,57 +8,37 @@ pub(crate) mod timeline;
 pub(crate) mod toolbar;
 
 use crate::{
-    core::metadata::ProjectMeta,
+    core::project_ctx::{EditorContext, ProjectContext},
     ui::{theme, workspaces::editor::state::EditorUiState},
 };
 use eframe::egui;
-use kadent_engine::{
-    data_types::AudioContext,
-    mixer::Project,
-    thread::{AudioError, AudioThread, AudioThreadHandle},
-};
-use std::{path::PathBuf, time::Duration};
+use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
+use std::time::Duration;
 
 pub struct EditorUi {
-    /// The path to the project file.
-    pub project_path: PathBuf,
-    /// A master source of the project.
-    pub project: Project,
-    /// Whether the audio is playing.
-    pub is_playing: bool,
     /// A thread handle to communicate with the audio thread.
     pub thread_handle: AudioThreadHandle,
+    /// The current project context.
+    pub proj_ctx: ProjectContext,
     /// Errors to be shown.
     pub errors: Vec<AudioError>,
-    /// The metadata of the project.
-    pub project_meta: ProjectMeta,
     /// UI states to store the current UI state.
     pub ui_state: EditorUiState,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
-    /// The name of the currently connected MIDI input port.
-    pub selected_midi_port: Option<String>,
 }
 
 impl EditorUi {
-    pub fn new(
-        project_path: PathBuf,
-        audio_ctx: AudioContext,
-        project: Project,
-        project_meta: ProjectMeta,
-    ) -> Self {
-        let thread_handle = AudioThread::spawn(audio_ctx, project.clone());
+    pub fn new(editor_ctx: EditorContext) -> Self {
+        let thread_handle =
+            AudioThread::spawn(editor_ctx.audio_ctx, editor_ctx.proj_ctx.project.clone());
 
         Self {
-            project_path,
-            project,
-            is_playing: false,
+            proj_ctx: editor_ctx.proj_ctx,
             thread_handle,
             errors: Vec::new(),
-            project_meta,
             ui_state: EditorUiState::default(),
             debug_mode: true,
-            selected_midi_port: None,
         }
     }
 

@@ -1,11 +1,13 @@
 mod error;
 mod init;
 mod new_project;
+mod open_project;
 mod trait_impl;
 mod traits;
 
 pub(crate) use init::init_kasl_nodes;
 pub(crate) use new_project::create_new_project;
+pub(crate) use open_project::open_project_to_ctx;
 pub(crate) use trait_impl::load_proj_res::LoadProjResult;
 pub(crate) use trait_impl::project_meta::StoredTrackMeta;
 pub(crate) use traits::{AsBytes, FromBytes, safe_read};

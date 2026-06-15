@@ -1,9 +1,11 @@
 use crate::{
+    core::project_ctx::EditorContext,
     fonts::RichTextExt,
+    storage::project::open_project_to_ctx,
     ui::{
         components::card_button::card_button,
         theme,
-        workspaces::{EditorTransition, SplashUi, splash::state::NewProjectDialogState},
+        workspaces::{SplashUi, splash::state::NewProjectDialogState},
     },
 };
 use eframe::egui;
@@ -13,7 +15,7 @@ const BUTTON_HEIGHT: f32 = 44.0;
 const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 2.0;
 
 impl SplashUi {
-    pub(super) fn splash_controls(&mut self, ui: &mut egui::Ui) -> Option<EditorTransition> {
+    pub(super) fn splash_controls(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
         ui.vertical_centered(|ui| {
             let full_width = ui.available_width();
             let full_height = ui.available_height();
@@ -36,7 +38,7 @@ impl SplashUi {
 
             let button_size = egui::vec2(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-            let new_project =
+            let new_project_res =
                 card_button(ui, ui.id().with("New Project"), Some(button_size), |ui| {
                     ui.vertical_centered(|ui| {
                         ui.label(
@@ -50,7 +52,7 @@ impl SplashUi {
                 });
             ui.add_space(12.0);
 
-            let open_project =
+            let open_project_res =
                 card_button(ui, ui.id().with("Open Project"), Some(button_size), |ui| {
                     ui.vertical_centered(|ui| {
                         ui.label(
@@ -65,14 +67,14 @@ impl SplashUi {
                     });
                 });
 
-            if new_project.clicked() {
+            if new_project_res.clicked() {
                 self.splash_state.new_project_state = Some(NewProjectDialogState::default());
             }
 
-            if open_project.clicked()
+            if open_project_res.clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_file()
             {
-                return self.open_project(project_dir);
+                return open_project_to_ctx(project_dir);
             }
 
             None

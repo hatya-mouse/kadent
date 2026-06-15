@@ -1,11 +1,11 @@
 use crate::{
-    consts::{KADENT_DATA_DIR_NAME, RECENT_PROJCETS_PATH},
+    consts::{KADENT_DATA_DIR_NAME, RECENT_PROJCETS_MAX_NUM, RECENT_PROJCETS_PATH},
     ui::workspaces::splash::state::RecentProjData,
 };
 use std::{
     fs::File,
     io::{Read, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub(crate) fn load_recent_projects() -> Vec<RecentProjData> {
@@ -42,7 +42,31 @@ pub(crate) fn load_recent_projects() -> Vec<RecentProjData> {
         .collect()
 }
 
-pub(crate) fn save_recent_projects(paths: &[PathBuf]) {
+pub(crate) fn add_and_store_recent_projects(project_path: &Path) {
+    let mut recent_projects: Vec<PathBuf> = load_recent_projects()
+        .into_iter()
+        .map(|proj| proj.path)
+        .collect();
+
+    // Add the project at the first
+    // If the same project already exists, remove the existing one and add new one at the first
+    let project_path_buf = project_path.to_path_buf();
+    if let Some(existing_index) = recent_projects
+        .iter()
+        .position(|path_buf| path_buf == &project_path_buf)
+    {
+        recent_projects.remove(existing_index);
+    }
+    recent_projects.insert(0, project_path_buf);
+    // Limit the number of recent projcets
+    recent_projects.truncate(RECENT_PROJCETS_MAX_NUM);
+    recent_projects.shrink_to_fit();
+
+    // Save the paths to the disk
+    save_recent_projects(&recent_projects);
+}
+
+fn save_recent_projects(paths: &[PathBuf]) {
     let app_data_path = dirs::data_dir()
         .expect("Could not get data dir")
         .join(KADENT_DATA_DIR_NAME);

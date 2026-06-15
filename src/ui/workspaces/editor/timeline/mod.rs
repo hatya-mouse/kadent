@@ -27,7 +27,7 @@ impl EditorUi {
         }
 
         // Clamp the vertical scroll amount
-        let track_count = self.project_meta.track_order.len();
+        let track_count = self.proj_ctx.project_meta.track_order.len();
         let track_height = self.ui_state.timeline_state.track_height;
         let content_height = track_count as f32 * track_height;
         let visible_height = total_rect.height() - RULER_HEIGHT;

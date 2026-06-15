@@ -36,7 +36,7 @@ impl EditorUi {
                     }
                 }
 
-                let track_order = self.project_meta.track_order.clone();
+                let track_order = self.proj_ctx.project_meta.track_order.clone();
                 for (i, track_id) in track_order.iter().enumerate() {
                     let y = available.min.y + i as f32 * track_height;
                     let row_rect = egui::Rect::from_min_size(

@@ -25,6 +25,9 @@ pub(crate) struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
 
+    /// The name of the currently connected MIDI input port.
+    pub selected_midi_port: Option<String>,
+
     /// The current toolbar state.
     pub toolbar_state: ToolbarState,
     /// The current dialog state.
@@ -36,6 +39,8 @@ pub(crate) struct EditorUiState {
     /// The current node graph state.
     pub node_graph_state: NodeGraphState,
 
+    /// Whether the audio is playing.
+    pub is_playing: bool,
     /// The current playhead position, in beats.
     pub playhead_beats: Beats,
     /// The latest playhead samples received from the audio thread.

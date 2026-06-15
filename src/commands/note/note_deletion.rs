@@ -16,6 +16,7 @@ impl EditorUi {
     ) {
         // Set the note's start time
         if let Some(region) = self
+            .proj_ctx
             .project
             .get_track_mut(track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())

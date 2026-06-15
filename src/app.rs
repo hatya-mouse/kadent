@@ -1,8 +1,12 @@
-use crate::ui::{
-    theme,
-    workspaces::{EditorUi, SplashUi},
+use crate::{
+    storage::project::open_project_to_ctx,
+    ui::{
+        theme,
+        workspaces::{EditorUi, SplashUi},
+    },
 };
 use eframe::{self, egui};
+use std::path::PathBuf;
 
 pub enum KadentApp {
     Splash(Box<SplashUi>),
@@ -10,10 +14,16 @@ pub enum KadentApp {
 }
 
 impl KadentApp {
-    pub fn new(cc: &eframe::CreationContext) -> Self {
+    pub fn new(cc: &eframe::CreationContext, initial_project: Option<PathBuf>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         Self::setup_fonts(&cc.egui_ctx);
         Self::base_style(&cc.egui_ctx);
+
+        if let Some(initial_project) = initial_project
+            && let Some(editor_ctx) = open_project_to_ctx(initial_project)
+        {
+            return KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
+        }
         KadentApp::Splash(Box::default())
     }
 
@@ -29,7 +39,7 @@ impl KadentApp {
 impl eframe::App for KadentApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
         // Compute any splash→editor transition before mutating self.
-        let transition = if let KadentApp::Splash(splash) = self {
+        let editor_ctx = if let KadentApp::Splash(splash) = self {
             egui::CentralPanel::default()
                 .frame(
                     egui::Frame::new()
@@ -45,13 +55,8 @@ impl eframe::App for KadentApp {
             None
         };
 
-        if let Some(transition) = transition {
-            *self = KadentApp::Editor(Box::new(EditorUi::new(
-                transition.project_path,
-                transition.audio_ctx,
-                transition.project,
-                transition.project_meta,
-            )));
+        if let Some(editor_ctx) = editor_ctx {
+            *self = KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
         }
     }
 }

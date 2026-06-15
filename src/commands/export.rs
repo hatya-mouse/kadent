@@ -8,7 +8,7 @@ use std::path::Path;
 impl EditorUi {
     pub(crate) fn export_project(&mut self, path: &Path) {
         // Request generation the f32 samples for the entire project
-        let project = self.project.clone();
+        let project = self.proj_ctx.project.clone();
         self.thread_handle
             .audio_command_tx
             .send(AudioCommand::ExportAudio(Box::new(project)))
@@ -21,7 +21,7 @@ impl EditorUi {
                     eprintln!("Error exporting audio");
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
-                    write_samples_to_wav(path, &samples, &self.project.audio_ctx);
+                    write_samples_to_wav(path, &samples, &self.proj_ctx.project.audio_ctx);
                 }
             }
         }

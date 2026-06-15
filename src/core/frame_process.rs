@@ -16,13 +16,17 @@ impl EditorUi {
 
         // Calculate if the playhead sample has changed
         if self.ui_state.last_playhead != playhead_sample {
-            self.ui_state.playhead_beats = self.project.tempo_map.samples_to_beats(playhead_sample);
+            self.ui_state.playhead_beats = self
+                .proj_ctx
+                .project
+                .tempo_map
+                .samples_to_beats(playhead_sample);
             self.ui_state.last_playhead = playhead_sample;
         }
     }
 
     pub fn process_vu_value(&mut self) {
-        let channels = self.project.audio_ctx.channels;
+        let channels = self.proj_ctx.project.audio_ctx.channels;
         self.ui_state
             .toolbar_state
             .last_vu_value

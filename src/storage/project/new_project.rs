@@ -1,8 +1,11 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
-    core::metadata::ProjectMeta,
+    core::{
+        metadata::ProjectMeta,
+        project_ctx::{EditorContext, ProjectContext},
+    },
     storage::project::save_project,
-    ui::workspaces::{EditorTransition, EditorUi},
+    ui::workspaces::EditorUi,
 };
 use kadent_engine::{
     data_types::{AudioContext, Beats},
@@ -13,7 +16,7 @@ use std::{io, path::PathBuf};
 pub(crate) fn create_new_project(
     project_name: &str,
     parent_path: PathBuf,
-) -> io::Result<EditorTransition> {
+) -> io::Result<EditorContext> {
     // 1. Generate paths for each subdirectories
     let root_path = parent_path.join(project_name);
     let src_dir = root_path.join("src");
@@ -40,10 +43,8 @@ pub(crate) fn create_new_project(
     };
     save_project(&project_path, &project, &project_meta)?;
 
-    Ok(EditorTransition {
-        project_path,
+    Ok(EditorContext::new(
+        ProjectContext::new(project_path, project, project_meta),
         audio_ctx,
-        project,
-        project_meta,
-    })
+    ))
 }
