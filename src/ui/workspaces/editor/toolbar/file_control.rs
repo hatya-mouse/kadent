@@ -1,4 +1,5 @@
 use crate::{
+    core::project_ctx::EditorContext,
     storage::project::{open_project_to_ctx, save_project},
     ui::{
         components::icon_button::toolbar_icon_button,
@@ -36,7 +37,7 @@ impl EditorUi {
             .clicked()
             {
                 let proj_path_option = rfd::FileDialog::new().pick_file();
-                self.handle_load_project(proj_path_option);
+                self.handle_open_project(proj_path_option);
             }
 
             if toolbar_icon_button(
@@ -58,15 +59,18 @@ impl EditorUi {
         });
     }
 
-    fn handle_load_project(&mut self, proj_path_option: Option<std::path::PathBuf>) {
+    fn handle_open_project(&mut self, proj_path_option: Option<std::path::PathBuf>) {
         let Some(proj_path) = proj_path_option else {
             return;
         };
-
-        // Open the project and get the project context
         let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
             return;
         };
+
+        self.set_editor_ctx(editor_ctx);
+    }
+
+    pub(crate) fn set_editor_ctx(&mut self, editor_ctx: EditorContext) {
         self.proj_ctx = editor_ctx.proj_ctx;
 
         // Seek to the start of the project after loading

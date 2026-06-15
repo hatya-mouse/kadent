@@ -1,4 +1,6 @@
 use crate::{
+    consts::PROJECT_FILE_EXTENSION,
+    core::project_ctx::EditorContext,
     storage::project::open_project_to_ctx,
     ui::{
         theme,
@@ -34,10 +36,27 @@ impl KadentApp {
             style.visuals.popup_shadow = egui::Shadow::NONE;
         });
     }
+
+    fn get_hovered_file(&self, ui: &egui::Ui) -> Option<EditorContext> {
+        ui.ctx().input(|input| {
+            if let Some(file) = input.raw.dropped_files.first()
+                && let Some(path) = &file.path
+                && path
+                    .extension()
+                    .is_some_and(|ext| ext == PROJECT_FILE_EXTENSION)
+            {
+                return open_project_to_ctx(path.clone());
+            }
+
+            None
+        })
+    }
 }
 
 impl eframe::App for KadentApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
+        let hovered_ctx = self.get_hovered_file(ui);
+
         // Show the splash screen if we're in the splash state
         // Toggle to the editor UI if the splash screen returns an editor context
         match self {
@@ -48,17 +67,21 @@ impl eframe::App for KadentApp {
                             .fill(theme::primary_bg(ui.visuals().dark_mode))
                             .inner_margin(0),
                     )
-                    .show_inside(ui, |ui| splash.ui(ui))
+                    .show_inside(ui, |ui| splash.splash_ui(ui))
                     .inner;
 
                 // If the splash screen returned an editor context, switch to the editor UI
-                if let Some(editor_ctx) = editor_ctx {
+                if let Some(editor_ctx) = hovered_ctx.or(editor_ctx) {
                     *self = KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
                 }
             }
-            KadentApp::Editor(app) => {
+            KadentApp::Editor(editor) => {
                 // If we're in the editor state, just show the editor UI
-                app.editor_ui(ui, frame);
+                editor.editor_ui(ui, frame);
+
+                if let Some(editor_ctx) = hovered_ctx {
+                    editor.set_editor_ctx(editor_ctx);
+                }
             }
         }
     }

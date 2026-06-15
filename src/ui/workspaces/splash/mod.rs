@@ -30,7 +30,7 @@ impl Default for SplashUi {
 }
 
 impl SplashUi {
-    pub fn ui(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
+    pub fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
         let mut ctx = None;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
