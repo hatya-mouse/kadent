@@ -38,25 +38,28 @@ impl KadentApp {
 
 impl eframe::App for KadentApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
-        // Compute any splash→editor transition before mutating self.
-        let editor_ctx = if let KadentApp::Splash(splash) = self {
-            egui::CentralPanel::default()
-                .frame(
-                    egui::Frame::new()
-                        .fill(theme::primary_bg(ui.visuals().dark_mode))
-                        .inner_margin(0),
-                )
-                .show_inside(ui, |ui| splash.ui(ui))
-                .inner
-        } else if let KadentApp::Editor(app) = self {
-            app.editor_ui(ui, frame);
-            None
-        } else {
-            None
-        };
+        // Show the splash screen if we're in the splash state
+        // Toggle to the editor UI if the splash screen returns an editor context
+        match self {
+            KadentApp::Splash(splash) => {
+                let editor_ctx = egui::CentralPanel::default()
+                    .frame(
+                        egui::Frame::new()
+                            .fill(theme::primary_bg(ui.visuals().dark_mode))
+                            .inner_margin(0),
+                    )
+                    .show_inside(ui, |ui| splash.ui(ui))
+                    .inner;
 
-        if let Some(editor_ctx) = editor_ctx {
-            *self = KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
+                // If the splash screen returned an editor context, switch to the editor UI
+                if let Some(editor_ctx) = editor_ctx {
+                    *self = KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
+                }
+            }
+            KadentApp::Editor(app) => {
+                // If we're in the editor state, just show the editor UI
+                app.editor_ui(ui, frame);
+            }
         }
     }
 }
