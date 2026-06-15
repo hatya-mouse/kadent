@@ -15,3 +15,11 @@ rfd = "0.17.2"
 ringbuf = "0.5.0"
 serde = "1.0.228"
 serde_json = "1.0.150"
+
+[package.metadata.bundle]
+name = "Kadent"
+identifier = "com.hatya.kadent"
+version = "0.1.0"
+category = "Music"
+copyright = "© 2026 Shuntaro Kasatani"
+osx_info_plist_exts = ["info_ext.plist"]

@@ -1,0 +1,29 @@
+version: "3"
+
+vars:
+    GREETING: Hello, world!
+
+tasks:
+    default:
+        desc: Print a greeting message
+        cmds:
+            - echo "{{.GREETING}}"
+        silent: true
+
+    dev:
+        desc: Compile and run the project in dev profile
+        cmds:
+            - cargo run
+
+    build:
+        desc: Compile the project with optimization
+        cmds:
+            - cargo build --release
+
+    package:
+        desc: Bundle the application for the platform
+        cmds:
+            - cargo install cargo-bundle
+            - cargo bundle
+            # - codesign --options runtime --entitlements entitlements.plist --sign - target/release/Kadent.app/Contents/MacOS/Kadent
+            # - codesign --deep --sign - target/release/Kadent.app
