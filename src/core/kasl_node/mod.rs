@@ -26,8 +26,7 @@ pub struct KaslNode {
     input_types: Vec<TypeInfo>,
     output_types: Vec<TypeInfo>,
 
-    /// Cached buffer size to calculate the size of input and output for single buffer.
-    buffer_size: usize,
+    audio_ctx: AudioContext,
 
     states: Vec<*mut ()>,
     program: Option<*const u8>,
@@ -67,6 +66,34 @@ impl KaslNode {
         let mut compiler = KaslCompiler::default();
         // Add the search paths to the compiler
         compiler.set_search_paths(self.search_paths.iter().map(PathBuf::from).collect());
+        compiler.add_virtual_file(
+            PathBuf::from("kadent"),
+            format!(
+                r#"
+        let channels = {}
+        let sample_rate = {}
+        let max_voices = {}
+        let buffer_size = {}
+
+        typealias Sample = [Float; {}]
+
+        func zero_sample() -> Sample {{
+            return [0.0; channels]
+        }}
+
+        struct Voice {{
+            var pitch = 0.0
+            var velocity = 0.0
+            var age = 0.0
+            var is_active = false
+        }}"#,
+                self.audio_ctx.channels,
+                self.audio_ctx.sample_rate,
+                self.audio_ctx.max_voices,
+                self.audio_ctx.buffer_size,
+                self.audio_ctx.channels,
+            ),
+        );
 
         // Read source code from disk at compile time so changes are always picked up
         let (Some(project_dir), Some(file_path)) = (&self.project_dir, &self.file_path) else {
@@ -128,7 +155,7 @@ impl KaslNode {
                     .iter()
                     .map(|item| {
                         TypeInfo::new(
-                            (item.actual_size as usize) * self.buffer_size,
+                            (item.actual_size as usize) * self.audio_ctx.buffer_size,
                             item.align as usize,
                         )
                     })
@@ -144,7 +171,7 @@ impl KaslNode {
                     .iter()
                     .map(|item| {
                         TypeInfo::new(
-                            (item.actual_size as usize) * self.buffer_size,
+                            (item.actual_size as usize) * self.audio_ctx.buffer_size,
                             item.align as usize,
                         )
                     })
@@ -238,7 +265,7 @@ impl Node for KaslNode {
     }
 
     fn update(&mut self, audio_ctx: &AudioContext) {
-        self.buffer_size = audio_ctx.buffer_size;
+        self.audio_ctx = audio_ctx.clone();
         self.update_type_infos();
     }
 
@@ -296,7 +323,7 @@ impl Clone for KaslNode {
             project_dir: self.project_dir.clone(),
             input_types: self.input_types.clone(),
             output_types: self.output_types.clone(),
-            buffer_size: self.buffer_size,
+            audio_ctx: self.audio_ctx.clone(),
             states: Vec::new(),
             program: None,
             is_first_process: false,
