@@ -1,5 +1,5 @@
 mod file_control;
-mod midi_control;
+mod io_control;
 mod playback_control;
 mod toolbar_group;
 mod vu_meter;
@@ -27,7 +27,7 @@ impl EditorUi {
 
             self.playback_control(ui);
             self.playhead_beats(ui);
-            self.midi_control(ui);
+            self.io_control(ui);
             self.file_control(ui);
             self.vu_meter(ui);
         });

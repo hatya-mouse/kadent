@@ -67,7 +67,7 @@ impl KaslNode {
         // Add the search paths to the compiler
         compiler.set_search_paths(self.search_paths.iter().map(PathBuf::from).collect());
         compiler.add_virtual_file(
-            PathBuf::from("kadent"),
+            PathBuf::from("audio"),
             format!(
                 r#"
         let channels = {}

@@ -1,10 +1,13 @@
-use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
+use crate::{
+    core::{metadata::TrackType, midi_input::MidiCommand},
+    ui::workspaces::EditorUi,
+};
 use eframe::egui;
-use kadent_engine::thread::{AudioCommand, MidiCommand};
+use kadent_engine::thread::AudioCommand;
 use midir::MidiInput;
 
 impl EditorUi {
-    pub(super) fn midi_control(&mut self, ui: &mut egui::Ui) {
+    pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
         let Ok(midi_in) = MidiInput::new("kadent") else {
             return;
         };
@@ -31,10 +34,7 @@ impl EditorUi {
                     && self.ui_state.selected_midi_port.is_some()
                 {
                     self.ui_state.selected_midi_port = None;
-                    let _ = self
-                        .thread_handle
-                        .midi_command_tx
-                        .send(MidiCommand::DisconnectMidiPort);
+                    let _ = self.midi_command_tx.send(MidiCommand::DisconnectMidiPort);
                     let _ = self
                         .thread_handle
                         .audio_command_tx
@@ -49,7 +49,6 @@ impl EditorUi {
                         && let Some(port) = ports.get(i)
                     {
                         let _ = self
-                            .thread_handle
                             .midi_command_tx
                             .send(MidiCommand::SetMidiPort(port.clone()));
                         self.ui_state.selected_midi_port = Some(name.clone());
