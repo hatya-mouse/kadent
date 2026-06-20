@@ -67,9 +67,11 @@ pub(crate) struct EditorUiState {
 
     // --- CPAL DEVICE FETCHING ---
     /// The name of the currently selected CPAL output device.
-    pub selected_output_device: Option<String>,
+    pub selected_output_device: Option<cpal::DeviceId>,
     /// The CPAL host, used for fetching audio devices.
     pub host: cpal::Host,
+    // The default output device.
+    pub default_output_device: Option<cpal::Device>,
     // The fetched audio output devices.
     pub output_devices: Vec<cpal::Device>,
 }

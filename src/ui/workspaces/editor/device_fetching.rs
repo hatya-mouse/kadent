@@ -14,6 +14,9 @@ impl EditorUi {
         self.ui_state.midi_in = Some(midi_in);
         self.ui_state.midi_in_ports = in_ports;
 
+        // Fetch the default output device
+        self.ui_state.default_output_device = self.ui_state.host.default_output_device();
+
         // Fetch the output devices
         self.ui_state.output_devices = self
             .ui_state
