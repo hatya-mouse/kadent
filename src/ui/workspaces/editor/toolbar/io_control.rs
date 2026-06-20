@@ -4,6 +4,7 @@ use eframe::egui::{self, include_image};
 use kadent_engine::thread::AudioCommand;
 
 impl EditorUi {
+    /// Displays the IO control menu for selecting audio output devices and MIDI input ports.
     pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
         let headphone_img = include_image!("../../../../../assets/icons/tri_down.svg");
         ui.menu_image_button(headphone_img, |ui| {
@@ -97,6 +98,7 @@ impl EditorUi {
     }
 }
 
+/// Helper function to get the name of the CPAL device.
 fn get_device_name(device: &cpal::Device) -> String {
     device
         .description()
