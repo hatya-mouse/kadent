@@ -6,8 +6,10 @@ use kadent_engine::thread::AudioCommand;
 impl EditorUi {
     /// Displays the IO control menu for selecting audio output devices and MIDI input ports.
     pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
-        let headphone_img = include_image!("../../../../../assets/icons/tri_down.svg");
-        ui.menu_image_button(headphone_img, |ui| {
+        let headphones_icon = include_image!("../../../../../assets/icons/headphones.svg");
+        let keyboard_icon = include_image!("../../../../../assets/icons/keyboard.svg");
+
+        ui.menu_image_button(headphones_icon.clone(), |ui| {
             ui.set_min_width(180.0);
 
             // --- AUDIO OUTPUT DEVICE ---
@@ -27,7 +29,7 @@ impl EditorUi {
                     }
                 };
 
-            ui.menu_button("Audio Output", |ui| {
+            ui.menu_image_text_button(headphones_icon, "Audio Output", |ui| {
                 if let Some(default_output_device) = &self.ui_state.default_output_device {
                     let default_output_name =
                         format!("Default — {}", get_device_name(default_output_device));
@@ -46,7 +48,7 @@ impl EditorUi {
             });
 
             // --- MIDI INPUT PORTS ---
-            ui.menu_button("MIDI Input", |ui| {
+            ui.menu_image_text_button(keyboard_icon, "MIDI Input", |ui| {
                 // Get the names of available MIDI input ports
                 let Some(midi_in) = &self.ui_state.midi_in else {
                     return;
