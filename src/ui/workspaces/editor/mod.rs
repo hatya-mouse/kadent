@@ -15,6 +15,7 @@ use crate::{
     },
     ui::{theme, workspaces::editor::state::EditorUiState},
 };
+use cpal::traits::DeviceTrait;
 use eframe::egui;
 use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
 use std::{sync::mpsc, time::Duration};
@@ -48,7 +49,13 @@ impl EditorUi {
             ui_state: EditorUiState::default(),
             debug_mode: true,
         };
+
         editor_ui.fetch_devices();
+        editor_ui.ui_state.selected_output_device = editor_ui
+            .ui_state
+            .default_output_device
+            .as_ref()
+            .and_then(|device| device.id().ok());
 
         editor_ui
     }

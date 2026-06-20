@@ -1,7 +1,4 @@
-use crate::{
-    core::{metadata::TrackType, midi_input::MidiCommand},
-    ui::workspaces::EditorUi,
-};
+use crate::{core::midi_input::MidiCommand, ui::workspaces::EditorUi};
 use cpal::traits::DeviceTrait;
 use eframe::egui::{self, include_image};
 use kadent_engine::thread::AudioCommand;
@@ -54,9 +51,14 @@ impl EditorUi {
                     return;
                 };
                 let midi_in_ports = &self.ui_state.midi_in_ports;
-                let midi_in_port_names: Vec<String> = midi_in_ports
+                let midi_in_port_names: Vec<(String, &midir::MidiInputPort)> = midi_in_ports
                     .iter()
-                    .filter_map(|p| midi_in.port_name(p).ok())
+                    .filter_map(|midi_in_port| {
+                        midi_in
+                            .port_name(midi_in_port)
+                            .ok()
+                            .map(|port_name| (port_name, midi_in_port))
+                    })
                     .collect();
 
                 if ui
@@ -74,32 +76,15 @@ impl EditorUi {
                         .ok();
                 }
 
-                for (i, name) in midi_in_port_names.iter().enumerate() {
+                for (ref name, midi_in_port) in midi_in_port_names {
                     let is_selected =
                         self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
-                    if ui.selectable_label(is_selected, name).clicked()
-                        && !is_selected
-                        && let Some(port) = midi_in_ports.get(i)
-                    {
+                    if ui.selectable_label(is_selected, name).clicked() && !is_selected {
+                        // Set the selected MIDI input port
                         self.midi_command_tx
-                            .send(MidiCommand::SetMidiPort(port.clone()))
+                            .send(MidiCommand::SetMidiPort(midi_in_port.clone()))
                             .ok();
-                        self.ui_state.selected_midi_port = Some(name.clone());
-
-                        if let Some(&track_id) =
-                            self.proj_ctx.project_meta.track_order.iter().find(|id| {
-                                self.proj_ctx
-                                    .project_meta
-                                    .tracks
-                                    .get(id)
-                                    .is_some_and(|t| t.track_type == TrackType::Note)
-                            })
-                        {
-                            self.thread_handle
-                                .audio_command_tx
-                                .send(AudioCommand::ArmTrack(track_id))
-                                .ok();
-                        }
+                        self.ui_state.selected_midi_port = Some(midi_in_port.id());
                     }
                 }
             });
