@@ -26,9 +26,6 @@ pub(crate) struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
 
-    /// The name of the currently connected MIDI input port.
-    pub selected_midi_port: Option<String>,
-
     /// The current toolbar state.
     pub toolbar_state: ToolbarState,
     /// The current dialog state.
@@ -61,16 +58,20 @@ pub(crate) struct EditorUiState {
     pub selected_node: Option<NodeID>,
 
     // --- MIDI ---
+    /// The name of the currently connected MIDI input port.
+    pub selected_midi_port: Option<String>,
     /// The MIDI input.
     pub midi_in: Option<MidiInput>,
     /// The names of the available MIDI input ports.
     pub midi_in_ports: MidiInputPorts,
 
     // --- CPAL DEVICE FETCHING ---
+    /// The name of the currently selected CPAL output device.
+    pub selected_output_device: Option<String>,
     /// The CPAL host, used for fetching audio devices.
     pub host: cpal::Host,
     // The fetched audio output devices.
-    pub output_devices: Option<cpal::OutputDevices<cpal::Devices>>,
+    pub output_devices: Vec<cpal::Device>,
 }
 
 impl EditorUiState {

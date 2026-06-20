@@ -15,6 +15,11 @@ impl EditorUi {
         self.ui_state.midi_in_ports = in_ports;
 
         // Fetch the output devices
-        self.ui_state.output_devices = self.ui_state.host.output_devices().ok();
+        self.ui_state.output_devices = self
+            .ui_state
+            .host
+            .output_devices()
+            .map(|devices| devices.collect())
+            .unwrap_or_default();
     }
 }

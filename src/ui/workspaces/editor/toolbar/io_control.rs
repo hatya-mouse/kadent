@@ -2,17 +2,36 @@ use crate::{
     core::{metadata::TrackType, midi_input::MidiCommand},
     ui::workspaces::EditorUi,
 };
+use cpal::traits::DeviceTrait;
 use eframe::egui;
 use kadent_engine::thread::AudioCommand;
 
 impl EditorUi {
     pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
+        // --- AUDIO OUTPUT DEVICE ---
+        let output_device_names: Vec<(String, &cpal::Device)> = self
+            .ui_state
+            .output_devices
+            .iter()
+            .map(|device| {
+                (
+                    device
+                        .description()
+                        .map(|description| description.name().to_string())
+                        .unwrap_or_default(),
+                    device,
+                )
+            })
+            .collect();
+
+        // --- MIDI INPUT PORTS ---
         let label = self
             .ui_state
             .selected_midi_port
             .as_deref()
             .unwrap_or("No MIDI input");
 
+        // Get the names of available MIDI input ports
         let Some(midi_in) = &self.ui_state.midi_in else {
             return;
         };
@@ -65,6 +84,21 @@ impl EditorUi {
                                 .audio_command_tx
                                 .send(AudioCommand::ArmTrack(track_id));
                         }
+                    }
+                }
+
+                for (device_name, device) in output_device_names {
+                    let is_selected = self
+                        .ui_state
+                        .selected_output_device
+                        .as_ref()
+                        .is_some_and(|d| d == &device_name);
+                    if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected {
+                        self.ui_state.selected_output_device = Some(device_name);
+                        let _ = self
+                            .thread_handle
+                            .audio_command_tx
+                            .send(AudioCommand::SetOutputDevice(device.clone()));
                     }
                 }
             });
