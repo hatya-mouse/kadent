@@ -5,27 +5,27 @@ use kadent_engine::thread::AudioCommand;
 
 impl EditorUi {
     pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
-        let mut audio_output_item =
-            |ui: &mut egui::Ui, device_name: String, device: &cpal::Device| {
-                let device_id = device.id().ok();
-                // Check if the device is currently selected
-                let is_selected = self.ui_state.selected_output_device == device_id;
-
-                if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected {
-                    // Select the label when clicked
-                    self.ui_state.selected_output_device = device_id;
-                    self.thread_handle
-                        .audio_command_tx
-                        .send(AudioCommand::SetOutputDevice(device.clone()))
-                        .ok();
-                }
-            };
-
         let headphone_img = include_image!("../../../../../assets/icons/tri_down.svg");
         ui.menu_image_button(headphone_img, |ui| {
             ui.set_min_width(180.0);
 
             // --- AUDIO OUTPUT DEVICE ---
+            let mut audio_output_item =
+                |ui: &mut egui::Ui, device_name: String, device: &cpal::Device| {
+                    let device_id = device.id().ok();
+                    // Check if the device is currently selected
+                    let is_selected = self.ui_state.selected_output_device == device_id;
+
+                    if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected {
+                        // Select the label when clicked
+                        self.ui_state.selected_output_device = device_id;
+                        self.thread_handle
+                            .audio_command_tx
+                            .send(AudioCommand::SetOutputDevice(device.clone()))
+                            .ok();
+                    }
+                };
+
             ui.menu_button("Audio Output", |ui| {
                 if let Some(default_output_device) = &self.ui_state.default_output_device {
                     let default_output_name =
@@ -88,6 +88,11 @@ impl EditorUi {
                     }
                 }
             });
+
+            // --- FETCH LATEST DEVICES ---
+            if ui.button("Refresh Devices").clicked() {
+                self.fetch_devices();
+            }
         });
     }
 }
