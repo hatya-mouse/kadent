@@ -2209,6 +2209,7 @@ dependencies = [
 name = "kadent"
 version = "0.1.0"
 dependencies = [
+ "cpal",
  "dirs",
  "eframe",
  "egui_extras",
@@ -2225,7 +2226,7 @@ dependencies = [
 [[package]]
 name = "kadent_engine"
 version = "0.3.22"
-source = "git+https://github.com/hatya-mouse/kadent_engine#de902011bf63b75974b05f25cf147869ec24aa48"
+source = "git+https://github.com/hatya-mouse/kadent_engine#08902b2aa61ba0d0b6827afa19aeb449482597ff"
 dependencies = [
  "cpal",
  "midir",

@@ -6,6 +6,7 @@ mod timeline_state;
 mod toolbar_state;
 
 pub(super) use dialog_state::{AddTrackState, DialogState};
+use midir::{MidiInput, MidiInputPorts};
 pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 
 use crate::ui::workspaces::editor::state::{
@@ -58,6 +59,18 @@ pub(crate) struct EditorUiState {
     pub selected_note: Option<NoteID>,
     /// Currently selected node ID.
     pub selected_node: Option<NodeID>,
+
+    // --- MIDI ---
+    /// The MIDI input.
+    pub midi_in: Option<MidiInput>,
+    /// The names of the available MIDI input ports.
+    pub midi_in_ports: MidiInputPorts,
+
+    // --- CPAL DEVICE FETCHING ---
+    /// The CPAL host, used for fetching audio devices.
+    pub host: cpal::Host,
+    // The fetched audio output devices.
+    pub output_devices: Option<cpal::OutputDevices<cpal::Devices>>,
 }
 
 impl EditorUiState {

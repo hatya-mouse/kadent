@@ -1,9 +1,10 @@
+mod device_fetching;
 pub(crate) mod error_list;
 pub(crate) mod inspector;
 pub(crate) mod node_graph;
 pub(crate) mod panel;
 pub(crate) mod piano_roll;
-pub mod state;
+pub(crate) mod state;
 pub(crate) mod timeline;
 pub(crate) mod toolbar;
 
@@ -34,19 +35,22 @@ pub struct EditorUi {
 }
 
 impl EditorUi {
-    pub fn new(editor_ctx: EditorContext) -> Self {
+    pub fn new(editor_ctx: EditorContext) -> EditorUi {
         let (thread_handle, midi_producer) =
             AudioThread::spawn(editor_ctx.audio_ctx, editor_ctx.proj_ctx.project.clone());
         let midi_command_tx = spawn_midi_thread(midi_producer);
 
-        Self {
+        let mut editor_ui = EditorUi {
             thread_handle,
             midi_command_tx,
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
             ui_state: EditorUiState::default(),
             debug_mode: true,
-        }
+        };
+        editor_ui.fetch_devices();
+
+        editor_ui
     }
 
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {

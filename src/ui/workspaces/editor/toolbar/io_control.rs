@@ -4,25 +4,23 @@ use crate::{
 };
 use eframe::egui;
 use kadent_engine::thread::AudioCommand;
-use midir::MidiInput;
 
 impl EditorUi {
     pub(super) fn io_control(&mut self, ui: &mut egui::Ui) {
-        let Ok(midi_in) = MidiInput::new("kadent") else {
-            return;
-        };
-
-        let ports = midi_in.ports();
-        let port_names: Vec<String> = ports
-            .iter()
-            .filter_map(|p| midi_in.port_name(p).ok())
-            .collect();
-
         let label = self
             .ui_state
             .selected_midi_port
             .as_deref()
             .unwrap_or("No MIDI input");
+
+        let Some(midi_in) = &self.ui_state.midi_in else {
+            return;
+        };
+        let midi_in_ports = &self.ui_state.midi_in_ports;
+        let midi_in_port_names: Vec<String> = midi_in_ports
+            .iter()
+            .filter_map(|p| midi_in.port_name(p).ok())
+            .collect();
 
         egui::ComboBox::from_id_salt("midi_port_selector")
             .selected_text(label)
@@ -41,12 +39,12 @@ impl EditorUi {
                         .send(AudioCommand::DisarmTrack);
                 }
 
-                for (i, name) in port_names.iter().enumerate() {
+                for (i, name) in midi_in_port_names.iter().enumerate() {
                     let is_selected =
                         self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
                     if ui.selectable_label(is_selected, name).clicked()
                         && !is_selected
-                        && let Some(port) = ports.get(i)
+                        && let Some(port) = midi_in_ports.get(i)
                     {
                         let _ = self
                             .midi_command_tx
