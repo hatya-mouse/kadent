@@ -10,6 +10,10 @@ pub(crate) fn primary_fg(dark_mode: bool) -> Color32 {
     }
 }
 
+pub(crate) fn selected_fg() -> Color32 {
+    Color32::from_rgb(240, 240, 240)
+}
+
 // --- BACKGROUNDS ---
 
 pub(crate) fn primary_bg(dark_mode: bool) -> Color32 {
@@ -34,6 +38,10 @@ pub(crate) fn tertiary_bg(dark_mode: bool) -> Color32 {
     } else {
         Color32::from_rgb(234, 236, 238)
     }
+}
+
+pub(crate) fn selected_bg() -> Color32 {
+    Color32::from_rgb(33, 140, 255)
 }
 
 // --- BUTTON ---
