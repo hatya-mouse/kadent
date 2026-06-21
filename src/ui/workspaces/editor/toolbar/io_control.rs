@@ -1,4 +1,11 @@
-use crate::{core::midi_input::MidiCommand, ui::workspaces::EditorUi};
+use crate::{
+    core::midi_input::MidiCommand,
+    ui::{
+        components::icon_button::toolbar_icon_button,
+        theme,
+        workspaces::{EditorUi, editor::toolbar::toolbar_group},
+    },
+};
 use cpal::traits::DeviceTrait;
 use eframe::egui::{self, include_image};
 use kadent_engine::thread::AudioCommand;
@@ -9,93 +16,115 @@ impl EditorUi {
         let headphones_icon = include_image!("../../../../../assets/icons/headphones.svg");
         let keyboard_icon = include_image!("../../../../../assets/icons/keyboard.svg");
 
-        ui.menu_image_button(headphones_icon.clone(), |ui| {
-            ui.set_min_width(180.0);
+        toolbar_group(ui, |ui| {
+            let response = toolbar_icon_button(ui, egui::Image::new(headphones_icon.clone()));
 
-            // --- AUDIO OUTPUT DEVICE ---
-            let mut audio_output_item =
-                |ui: &mut egui::Ui, device_name: String, device: &cpal::Device| {
-                    let device_id = device.id().ok();
-                    // Check if the device is currently selected
-                    let is_selected = self.ui_state.selected_output_device == device_id;
-
-                    if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected {
-                        // Select the label when clicked
-                        self.ui_state.selected_output_device = device_id;
-                        self.thread_handle
-                            .audio_command_tx
-                            .send(AudioCommand::SetOutputDevice(device.clone()))
-                            .ok();
-                    }
-                };
-
-            ui.menu_image_text_button(headphones_icon, "Audio Output", |ui| {
-                if let Some(default_output_device) = &self.ui_state.default_output_device {
-                    let default_output_name =
-                        format!("Default — {}", get_device_name(default_output_device));
-                    audio_output_item(ui, default_output_name, default_output_device);
-                }
-
-                let output_devices: Vec<(String, &cpal::Device)> = self
-                    .ui_state
-                    .output_devices
-                    .iter()
-                    .map(|device| (get_device_name(device), device))
-                    .collect();
-                for (device_name, device) in output_devices {
-                    audio_output_item(ui, device_name, device);
-                }
-            });
-
-            // --- MIDI INPUT PORTS ---
-            ui.menu_image_text_button(keyboard_icon, "MIDI Input", |ui| {
-                // Get the names of available MIDI input ports
-                let Some(midi_in) = &self.ui_state.midi_in else {
-                    return;
-                };
-                let midi_in_ports = &self.ui_state.midi_in_ports;
-                let midi_in_port_names: Vec<(String, &midir::MidiInputPort)> = midi_in_ports
-                    .iter()
-                    .filter_map(|midi_in_port| {
-                        midi_in
-                            .port_name(midi_in_port)
-                            .ok()
-                            .map(|port_name| (port_name, midi_in_port))
-                    })
-                    .collect();
-
-                if ui
-                    .selectable_label(self.ui_state.selected_midi_port.is_none(), "No MIDI input")
-                    .clicked()
-                    && self.ui_state.selected_midi_port.is_some()
-                {
-                    self.ui_state.selected_midi_port = None;
-                    self.midi_command_tx
-                        .send(MidiCommand::DisconnectMidiPort)
-                        .ok();
-                    self.thread_handle
-                        .audio_command_tx
-                        .send(AudioCommand::DisarmTrack)
-                        .ok();
-                }
-
-                for (ref name, midi_in_port) in midi_in_port_names {
-                    let is_selected =
-                        self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
-                    if ui.selectable_label(is_selected, name).clicked() && !is_selected {
-                        // Set the selected MIDI input port
-                        self.midi_command_tx
-                            .send(MidiCommand::SetMidiPort(midi_in_port.clone()))
-                            .ok();
-                        self.ui_state.selected_midi_port = Some(midi_in_port.id());
-                    }
-                }
-            });
-
-            // --- FETCH LATEST DEVICES ---
-            if ui.button("Refresh Devices").clicked() {
-                self.fetch_devices();
+            if response.clicked() {
+                egui::Popup::toggle_id(&response.ctx, response.id);
             }
+
+            egui::Popup::from_toggle_button_response(&response).show(|ui| {
+                ui.set_min_width(180.0);
+
+                // --- AUDIO OUTPUT DEVICE ---
+                let mut audio_output_item =
+                    |ui: &mut egui::Ui, device_name: String, device: &cpal::Device| {
+                        let device_id = device.id().ok();
+                        // Check if the device is currently selected
+                        let is_selected = self.ui_state.selected_output_device == device_id;
+
+                        if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected
+                        {
+                            // Select the label when clicked
+                            self.ui_state.selected_output_device = device_id;
+                            self.thread_handle
+                                .audio_command_tx
+                                .send(AudioCommand::SetOutputDevice(device.clone()))
+                                .ok();
+                        }
+                    };
+
+                ui.menu_image_text_button(
+                    egui::Image::new(headphones_icon)
+                        .tint(theme::primary_fg(ui.visuals().dark_mode)),
+                    "Audio Output",
+                    |ui| {
+                        if let Some(default_output_device) = &self.ui_state.default_output_device {
+                            let default_output_name =
+                                format!("Default — {}", get_device_name(default_output_device));
+                            audio_output_item(ui, default_output_name, default_output_device);
+                        }
+
+                        let output_devices: Vec<(String, &cpal::Device)> = self
+                            .ui_state
+                            .output_devices
+                            .iter()
+                            .map(|device| (get_device_name(device), device))
+                            .collect();
+                        for (device_name, device) in output_devices {
+                            audio_output_item(ui, device_name, device);
+                        }
+                    },
+                );
+
+                // --- MIDI INPUT PORTS ---
+                ui.menu_image_text_button(
+                    egui::Image::new(keyboard_icon).tint(theme::primary_fg(ui.visuals().dark_mode)),
+                    "MIDI Input",
+                    |ui| {
+                        // Get the names of available MIDI input ports
+                        let Some(midi_in) = &self.ui_state.midi_in else {
+                            return;
+                        };
+                        let midi_in_ports = &self.ui_state.midi_in_ports;
+                        let midi_in_port_names: Vec<(String, &midir::MidiInputPort)> =
+                            midi_in_ports
+                                .iter()
+                                .filter_map(|midi_in_port| {
+                                    midi_in
+                                        .port_name(midi_in_port)
+                                        .ok()
+                                        .map(|port_name| (port_name, midi_in_port))
+                                })
+                                .collect();
+
+                        if ui
+                            .selectable_label(
+                                self.ui_state.selected_midi_port.is_none(),
+                                "No MIDI input",
+                            )
+                            .clicked()
+                            && self.ui_state.selected_midi_port.is_some()
+                        {
+                            self.ui_state.selected_midi_port = None;
+                            self.midi_command_tx
+                                .send(MidiCommand::DisconnectMidiPort)
+                                .ok();
+                            self.thread_handle
+                                .audio_command_tx
+                                .send(AudioCommand::DisarmTrack)
+                                .ok();
+                        }
+
+                        for (ref name, midi_in_port) in midi_in_port_names {
+                            let is_selected =
+                                self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
+                            if ui.selectable_label(is_selected, name).clicked() && !is_selected {
+                                // Set the selected MIDI input port
+                                self.midi_command_tx
+                                    .send(MidiCommand::SetMidiPort(midi_in_port.clone()))
+                                    .ok();
+                                self.ui_state.selected_midi_port = Some(midi_in_port.id());
+                            }
+                        }
+                    },
+                );
+
+                // --- FETCH LATEST DEVICES ---
+                if ui.button("Refresh Devices").clicked() {
+                    self.fetch_devices();
+                }
+            });
         });
     }
 }
