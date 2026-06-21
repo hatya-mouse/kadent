@@ -6,7 +6,7 @@ use crate::ui::{
         editor::state::{PanelView, SplitDir},
     },
 };
-use eframe::egui::{self, CursorIcon, Rect, UiBuilder};
+use eframe::egui::{self, CursorIcon, Rect, UiBuilder, style::StyleModifier};
 
 const EDGE_SIZE: f32 = 10.0;
 const MIN_NEW_PANEL: f32 = 80.0;
@@ -69,6 +69,7 @@ fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
             ui.set_min_width(ui.available_width());
 
             egui::ComboBox::from_id_salt("panel_selection_combo_box")
+                .popup_style(StyleModifier::from(theme::menu_style(ui)))
                 .selected_text(view.to_string())
                 .show_ui(ui, |ui| {
                     PanelView::all().iter().for_each(|enum_view| {
