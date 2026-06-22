@@ -2,8 +2,8 @@ use crate::{
     core::project_ctx::EditorContext,
     storage::project::{open_project_to_ctx, save_project},
     ui::{
-        components::icon_button::toolbar_icon_button,
-        workspaces::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
+        components::{icon_button::toolbar_icon_button, toolbar_group::toolbar_group},
+        workspaces::EditorUi,
     },
 };
 use eframe::egui;

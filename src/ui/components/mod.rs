@@ -1,8 +1,9 @@
-pub(crate) mod card_button;
-pub(crate) mod color_picker;
-pub(crate) mod dialog;
-pub(crate) mod icon_button;
-pub(crate) mod scrolled_panel;
-pub(crate) mod text_button;
-pub(crate) mod text_input;
-pub(crate) mod vu_meter;
+pub(super) mod card_button;
+pub(super) mod color_picker;
+pub(super) mod dialog;
+pub(super) mod icon_button;
+pub(super) mod scrolled_panel;
+pub(super) mod text_button;
+pub(super) mod text_input;
+pub(super) mod toolbar_group;
+pub(super) mod vu_meter;

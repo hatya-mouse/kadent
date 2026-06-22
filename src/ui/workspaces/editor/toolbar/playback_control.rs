@@ -1,6 +1,6 @@
 use crate::ui::{
-    components::icon_button::toolbar_icon_button,
-    workspaces::{EditorUi, editor::toolbar::toolbar_group::toolbar_group},
+    components::{icon_button::toolbar_icon_button, toolbar_group::toolbar_group},
+    workspaces::EditorUi,
 };
 use eframe::egui;
 use kadent_engine::thread::{AudioCommand, AudioError};

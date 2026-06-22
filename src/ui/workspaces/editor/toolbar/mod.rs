@@ -1,12 +1,11 @@
 mod file_control;
 mod io_control;
 mod playback_control;
-mod toolbar_group;
 mod vu_meter;
 
 use crate::{
     fonts::RichTextExt,
-    ui::{theme, workspaces::EditorUi, workspaces::editor::toolbar::toolbar_group::toolbar_group},
+    ui::{components::toolbar_group::toolbar_group, theme, workspaces::EditorUi},
 };
 use eframe::egui;
 
