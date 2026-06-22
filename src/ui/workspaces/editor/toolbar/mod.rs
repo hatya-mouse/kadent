@@ -1,6 +1,6 @@
 mod file_control;
 mod io_control;
-mod playback_control;
+mod transport_control;
 mod vu_meter;
 
 use crate::{
@@ -24,7 +24,7 @@ impl EditorUi {
             ui.visuals_mut().widgets.active.weak_bg_fill = theme::icon_button_active();
             ui.visuals_mut().widgets.active.bg_stroke = egui::Stroke::NONE;
 
-            self.playback_control(ui);
+            self.transport_control(ui);
             self.playhead_beats(ui);
             self.io_control(ui);
             self.file_control(ui);

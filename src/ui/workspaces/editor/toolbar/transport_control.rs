@@ -6,7 +6,7 @@ use eframe::egui;
 use kadent_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
-    pub(super) fn playback_control(&mut self, ui: &mut egui::Ui) {
+    pub(super) fn transport_control(&mut self, ui: &mut egui::Ui) {
         toolbar_group(ui, |ui| {
             if toolbar_icon_button(
                 ui,
