@@ -65,9 +65,9 @@ pub(crate) fn icon_button_active() -> Color32 {
 /// Green color used for play button.
 pub(crate) fn transport_green(dark_mode: bool) -> Color32 {
     if dark_mode {
-        Color32::from_rgb(40, 170, 0)
-    } else {
         Color32::from_rgb(40, 130, 0)
+    } else {
+        Color32::from_rgb(40, 170, 0)
     }
 }
 
