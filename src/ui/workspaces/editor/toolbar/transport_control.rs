@@ -1,5 +1,9 @@
 use crate::ui::{
-    components::{icon_button::toolbar_icon_button, toolbar_group::toolbar_group},
+    components::{
+        icon_button::{toolbar_icon_button, toolbar_icon_button_colored},
+        toolbar_group::toolbar_group,
+    },
+    theme,
     workspaces::EditorUi,
 };
 use eframe::egui;
@@ -27,9 +31,15 @@ impl EditorUi {
                 }
             }
 
-            if toolbar_icon_button(
+            let play_button_color = if self.ui_state.is_playing {
+                Some(theme::transport_green(ui.visuals().dark_mode))
+            } else {
+                None
+            };
+            if toolbar_icon_button_colored(
                 ui,
                 egui::Image::new(egui::include_image!("../../../../../assets/icons/play.png")),
+                play_button_color,
             )
             .clicked()
                 && !self.ui_state.is_playing

@@ -54,13 +54,21 @@ pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
     }
 }
 
-// Visuals overrides for icon-style toolbar buttons (no visible background at rest).
 pub(crate) fn icon_button_hovered() -> Color32 {
     Color32::from_rgba_unmultiplied(150, 150, 150, 50)
 }
 
 pub(crate) fn icon_button_active() -> Color32 {
     Color32::from_rgba_unmultiplied(150, 150, 150, 100)
+}
+
+/// Green color used for play button.
+pub(crate) fn transport_green(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_rgb(40, 170, 0)
+    } else {
+        Color32::from_rgb(40, 130, 0)
+    }
 }
 
 // --- BORDER ---
