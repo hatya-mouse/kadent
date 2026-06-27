@@ -98,7 +98,6 @@ fn render_view_content(ui: &mut egui::Ui, view: &PanelView, editor: &mut EditorU
         PanelView::NodeGraph => editor.node_graph(ui),
         PanelView::Inspector => editor.inspector(ui),
         PanelView::ErrorList => editor.error_list(ui),
-        PanelView::CodeEditor => (),
     }
 }
 
