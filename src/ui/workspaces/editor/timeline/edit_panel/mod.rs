@@ -148,7 +148,7 @@ impl EditorUi {
                 painter.text(
                     egui::pos2(x + 3.0, ruler_screen_rect.min.y + 3.0),
                     egui::Align2::LEFT_TOP,
-                    format!("{}", beat + 1),
+                    format!("{}", beat),
                     egui::FontId::proportional(11.0),
                     text_color,
                 );
