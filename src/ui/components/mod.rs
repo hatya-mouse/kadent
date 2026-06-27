@@ -2,7 +2,6 @@ pub(super) mod card_button;
 pub(super) mod color_picker;
 pub(super) mod dialog;
 pub(super) mod icon_button;
-pub(super) mod scrolled_panel;
 pub(super) mod text_button;
 pub(super) mod text_input;
 pub(super) mod toolbar_group;
