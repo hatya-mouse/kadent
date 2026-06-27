@@ -47,6 +47,7 @@ impl EditorUi {
                         );
 
                         // Just allocate rect for the divider
+                        // Draw divider later to avoid ScrollArea overlapping the divider
                         let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
 
                         let scroll_output = egui::ScrollArea::horizontal()
