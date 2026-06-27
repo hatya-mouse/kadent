@@ -22,6 +22,50 @@ use kadent_engine::{
 use std::time::Instant;
 
 #[derive(Default)]
+pub(crate) enum Selection {
+    #[default]
+    None,
+    Track(TrackID),
+    Region(TrackID, RegionID),
+    Node(TrackID, NodeID),
+    Note(TrackID, RegionID, NoteID),
+}
+
+impl Selection {
+    pub(crate) fn track_id(&self) -> Option<TrackID> {
+        match self {
+            Selection::Track(track_id) => Some(*track_id),
+            Selection::Region(track_id, _) => Some(*track_id),
+            Selection::Node(track_id, _) => Some(*track_id),
+            Selection::Note(track_id, _, _) => Some(*track_id),
+            Selection::None => None,
+        }
+    }
+
+    pub(crate) fn note_id(&self) -> Option<NoteID> {
+        match self {
+            Selection::Note(_, _, note_id) => Some(*note_id),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn node_id(&self) -> Option<NodeID> {
+        match self {
+            Selection::Node(_, node_id) => Some(*node_id),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn track_and_region_id(&self) -> Option<(TrackID, RegionID)> {
+        match self {
+            Selection::Region(track_id, region_id) => Some((*track_id, *region_id)),
+            Selection::Note(track_id, region_id, _) => Some((*track_id, *region_id)),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Default)]
 pub(crate) struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
@@ -48,14 +92,8 @@ pub(crate) struct EditorUiState {
     pub last_edit_time: Option<Instant>,
 
     // --- SELECTION STATE ---
-    /// An ID of the currently selected track.
-    pub selected_track: Option<TrackID>,
-    /// An ID of the currently selected region.
-    pub selected_region: Option<(TrackID, RegionID)>,
-    /// An ID of the currently selected note.
-    pub selected_note: Option<NoteID>,
-    /// Currently selected node ID.
-    pub selected_node: Option<NodeID>,
+    /// Currently selected content.
+    pub selection: Selection,
 
     // --- MIDI ---
     /// The name of the currently connected MIDI input port.
@@ -78,54 +116,27 @@ pub(crate) struct EditorUiState {
 
 impl EditorUiState {
     /// Set the selected track to the given one, deselecting the note and the node.
-    pub fn set_selected_track(&mut self, track_id: TrackID) {
-        self.selected_track = Some(track_id);
-        self.selected_region = None;
-
-        self.selected_note = None;
-        self.selected_node = None;
+    pub fn select_track(&mut self, track_id: TrackID) {
+        self.selection = Selection::Track(track_id);
     }
 
     /// Set the selected region to the given one, deselecting the note and the node.
-    pub fn set_selected_region(&mut self, track_id: TrackID, region_id: RegionID) {
-        self.selected_track = Some(track_id);
-        self.selected_region = Some((track_id, region_id));
-
-        self.selected_note = None;
-        self.selected_node = None;
+    pub fn select_region(&mut self, track_id: TrackID, region_id: RegionID) {
+        self.selection = Selection::Region(track_id, region_id);
     }
 
     /// Set the selected note to the given one.
-    pub fn set_selected_note(&mut self, note_id: NoteID) {
-        self.selected_note = Some(note_id)
+    pub fn select_note(&mut self, track_id: TrackID, region_id: RegionID, note_id: NoteID) {
+        self.selection = Selection::Note(track_id, region_id, note_id);
     }
 
     /// Set the selected node to the given one.
-    pub fn set_selected_node(&mut self, node_id: NodeID) {
-        self.selected_node = Some(node_id);
+    pub fn select_node(&mut self, track_id: TrackID, node_id: NodeID) {
+        self.selection = Selection::Node(track_id, node_id);
     }
 
-    /// Deselects the currently selected track, region, note, and node.
+    /// Deselects the currently selected content.
     pub fn deselect_all(&mut self) {
-        self.selected_track = None;
-        self.selected_region = None;
-        self.selected_note = None;
-        self.selected_node = None;
-    }
-
-    /// Deselects the currently selected region and note.
-    pub fn deselect_region(&mut self) {
-        self.selected_region = None;
-        self.selected_note = None;
-    }
-
-    /// Deselects the currently selected note.
-    pub fn deselect_note(&mut self) {
-        self.selected_note = None;
-    }
-
-    /// Deselcts the currently selected node.
-    pub fn deselect_node(&mut self) {
-        self.selected_node = None;
+        self.selection = Selection::None;
     }
 }

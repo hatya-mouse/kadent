@@ -74,7 +74,7 @@ impl EditorUi {
 
         // Jump to a random node's position
         if jump_to_random
-            && let Some(track_id) = self.ui_state.selected_track
+            && let Some(track_id) = self.ui_state.selection.track_id()
             && let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id)
             && let Some(node_meta) = track_meta.graph.nodes.values().next()
         {
@@ -84,7 +84,7 @@ impl EditorUi {
         // Add a new node if the node is clicked on the add list
         if let Some(node_type) = node_to_add {
             // Get the currently selected track
-            let Some(track_id) = self.ui_state.selected_track else {
+            let Some(track_id) = self.ui_state.selection.track_id() else {
                 return;
             };
 

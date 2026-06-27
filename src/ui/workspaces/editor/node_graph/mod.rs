@@ -51,7 +51,7 @@ impl EditorUi {
         // Adding content_rect.min ensures nodes follow panel moves and resizes automatically.
         let view_transform = content_rect.min.to_vec2() + self.ui_state.node_graph_state.pan_offset;
 
-        let Some(track_id) = self.ui_state.selected_track else {
+        let Some(track_id) = self.ui_state.selection.track_id() else {
             return;
         };
 

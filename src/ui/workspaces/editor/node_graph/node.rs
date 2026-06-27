@@ -16,7 +16,7 @@ impl EditorUi {
         node_id: &NodeID,
         view_transform: egui::Vec2,
     ) {
-        let Some(track_id) = self.ui_state.selected_track else {
+        let Some(track_id) = self.ui_state.selection.track_id() else {
             return;
         };
 
@@ -61,7 +61,7 @@ impl EditorUi {
         let painter = ui.painter();
 
         // Draw the node background
-        let node_stroke = if self.ui_state.selected_node == Some(*node_id) {
+        let node_stroke = if self.ui_state.selection.node_id() == Some(*node_id) {
             egui::Stroke::new(2.0, theme::region_selected(dark_mode))
         } else {
             theme::border(dark_mode)
@@ -121,7 +121,7 @@ impl EditorUi {
     ) {
         // Click or drag to select the node
         if response.clicked() || response.dragged() {
-            self.ui_state.set_selected_node(*node_id);
+            self.ui_state.select_node(*track_id, *node_id);
         }
 
         // Drag to move the node; suppress when a ghost edge drag is in progress
@@ -138,14 +138,14 @@ impl EditorUi {
 
         // Delete the node if delete or backspace key is pressed
         // Check for the delete key input
-        if self.ui_state.selected_node == Some(*node_id) && ui.ui_contains_pointer() {
+        if self.ui_state.selection.node_id() == Some(*node_id) && ui.ui_contains_pointer() {
             let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
             let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
 
             if delete || backspace {
                 // Remove the note from the region
                 self.remove_node(track_id, node_id);
-                self.ui_state.selected_note = None;
+                self.ui_state.select_track(*track_id);
             }
         }
     }

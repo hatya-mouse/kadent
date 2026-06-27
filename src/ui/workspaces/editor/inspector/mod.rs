@@ -5,7 +5,10 @@ mod track;
 
 use crate::{
     fonts::RichTextExt,
-    ui::{theme, workspaces::EditorUi},
+    ui::{
+        theme,
+        workspaces::{EditorUi, editor::state::Selection},
+    },
 };
 use eframe::egui;
 use std::hash::Hash;
@@ -23,24 +26,27 @@ impl EditorUi {
 
         egui::ScrollArea::vertical()
             .auto_shrink(false)
-            .show(ui, |ui| {
-                if let Some(track_id) = self.ui_state.selected_track {
+            .show(ui, |ui| match self.ui_state.selection {
+                Selection::Track(track_id) => {
                     self.track_inspector(ui, &track_id);
                 }
-                if let Some((track_id, region_id)) = self.ui_state.selected_region {
+                Selection::Region(track_id, region_id) => {
                     self.region_inspector(ui, &track_id, &region_id);
                 }
-                if let Some(note_id) = self.ui_state.selected_note {
-                    let Some((track_id, region_id)) = self.ui_state.selected_region else {
-                        return;
-                    };
+                Selection::Note(track_id, region_id, note_id) => {
                     self.note_inspector(ui, &track_id, &region_id, &note_id);
                 }
-                if let Some(node_id) = self.ui_state.selected_node {
-                    let Some(track_id) = self.ui_state.selected_track else {
-                        return;
-                    };
+                Selection::Node(track_id, node_id) => {
                     self.node_inspector(ui, &track_id, &node_id);
+                }
+                Selection::None => {
+                    ui.centered_and_justified(|ui| {
+                        ui.label(
+                            egui::RichText::new("No selection")
+                                .size(theme::normal_font_size())
+                                .color(theme::primary_fg(ui.visuals().dark_mode)),
+                        );
+                    });
                 }
             });
     }

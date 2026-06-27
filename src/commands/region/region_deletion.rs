@@ -10,8 +10,7 @@ impl EditorUi {
             track_meta.remove_region(region_id);
         }
 
-        self.ui_state.deselect_region();
-
+        self.ui_state.select_track(*track_id);
         self.modified_project();
     }
 }

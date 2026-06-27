@@ -64,11 +64,12 @@ impl EditorUi {
             let painter = ui.painter().with_clip_rect(region_rect);
 
             // Highlight the stroke if the region is selected
-            let stroke = if self.ui_state.selected_region == Some((*track_id, region_id)) {
-                egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
-            } else {
-                theme::border(ui.visuals().dark_mode)
-            };
+            let stroke =
+                if self.ui_state.selection.track_and_region_id() == Some((*track_id, region_id)) {
+                    egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
+                } else {
+                    theme::border(ui.visuals().dark_mode)
+                };
 
             painter.rect(
                 region_rect,
@@ -139,7 +140,7 @@ impl EditorUi {
         // Support resize
         if resize_res.dragged() {
             // Select the region
-            self.ui_state.set_selected_region(*track_id, *region_id);
+            self.ui_state.select_region(*track_id, *region_id);
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
@@ -166,7 +167,7 @@ impl EditorUi {
             // Drag to move
             if move_res.dragged() {
                 // Select the region
-                self.ui_state.set_selected_region(*track_id, *region_id);
+                self.ui_state.select_region(*track_id, *region_id);
 
                 let delta_beats = Beats(
                     (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,

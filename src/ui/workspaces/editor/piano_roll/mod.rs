@@ -9,7 +9,7 @@ use eframe::egui;
 
 impl EditorUi {
     pub fn piano_roll(&mut self, ui: &mut egui::Ui) {
-        let Some((track_id, region_id)) = self.ui_state.selected_region else {
+        let Some((track_id, region_id)) = self.ui_state.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");
             return;
         };

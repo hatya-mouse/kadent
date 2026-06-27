@@ -25,8 +25,7 @@ impl EditorUi {
             region.remove_note(note_id);
         }
 
-        self.ui_state.deselect_note();
-
+        self.ui_state.select_region(*track_id, *region_id);
         self.modified_project();
     }
 }

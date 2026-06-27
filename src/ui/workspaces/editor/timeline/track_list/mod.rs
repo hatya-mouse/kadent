@@ -21,11 +21,12 @@ impl EditorUi {
 
                 for track_id in &self.proj_ctx.project_meta.track_order {
                     if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(track_id) {
-                        let bg_color = if Some(track_id) == self.ui_state.selected_track.as_ref() {
-                            theme::secondary_bg(ui.visuals().dark_mode)
-                        } else {
-                            theme::primary_bg(ui.visuals().dark_mode)
-                        };
+                        let bg_color =
+                            if Some(track_id) == self.ui_state.selection.track_id().as_ref() {
+                                theme::secondary_bg(ui.visuals().dark_mode)
+                            } else {
+                                theme::primary_bg(ui.visuals().dark_mode)
+                            };
 
                         let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
                             ui.horizontal(|ui| {
@@ -55,7 +56,7 @@ impl EditorUi {
                             theme::border(ui.visuals().dark_mode),
                         );
                         if response.clicked() {
-                            self.ui_state.set_selected_track(*track_id);
+                            self.ui_state.select_track(*track_id);
                         }
                     }
                 }

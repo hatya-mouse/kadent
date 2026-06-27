@@ -1,6 +1,7 @@
 mod device_fetching;
 pub(crate) mod error_list;
 pub(crate) mod inspector;
+mod keyboard;
 pub(crate) mod node_graph;
 pub(crate) mod panel;
 pub(crate) mod piano_roll;
@@ -63,6 +64,7 @@ impl EditorUi {
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.calculate_playhead();
         self.process_vu_value();
+        self.handle_keyboard(ui);
 
         egui::Panel::top("toolbar")
             .frame(

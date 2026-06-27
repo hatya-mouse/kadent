@@ -104,7 +104,7 @@ impl EditorUi {
                 );
 
                 // Highlight the selected note
-                let stroke = if self.ui_state.selected_note == Some(note_id) {
+                let stroke = if self.ui_state.selection.note_id() == Some(note_id) {
                     egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
                 } else {
                     theme::border(ui.visuals().dark_mode)
@@ -281,18 +281,6 @@ impl EditorUi {
         note_rect: egui::Rect,
         resize_rect: egui::Rect,
     ) {
-        // Check for the delete key input
-        if self.ui_state.selected_note == Some(*note_id.2) && ui.ui_contains_pointer() {
-            let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
-            let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
-
-            if delete || backspace {
-                // Remove the note from the region
-                self.remove_note(note_id.0, note_id.1, note_id.2);
-                self.ui_state.selected_note = None;
-            }
-        }
-
         // Get gestures on the note
         let move_res = ui.allocate_rect(note_rect, egui::Sense::drag());
         let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
@@ -305,7 +293,8 @@ impl EditorUi {
         // Handle resize
         if resize_res.dragged() {
             // Select the note
-            self.ui_state.set_selected_note(*note_id.2);
+            self.ui_state
+                .select_note(*note_id.0, *note_id.1, *note_id.2);
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
@@ -340,7 +329,8 @@ impl EditorUi {
             let new_start = note.start + delta_beats;
             let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
 
-            self.ui_state.set_selected_note(*note_id.2);
+            self.ui_state
+                .select_note(*note_id.0, *note_id.1, *note_id.2);
 
             if let Some(region) = self
                 .proj_ctx
