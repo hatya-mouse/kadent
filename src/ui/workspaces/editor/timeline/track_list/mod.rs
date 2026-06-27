@@ -25,7 +25,7 @@ impl EditorUi {
                             if Some(track_id) == self.ui_state.selection.track_id().as_ref() {
                                 theme::secondary_bg(ui.visuals().dark_mode)
                             } else {
-                                theme::primary_bg(ui.visuals().dark_mode)
+                                egui::Color32::TRANSPARENT
                             };
 
                         let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
@@ -63,7 +63,6 @@ impl EditorUi {
 
                 // "Add Track" button
                 let track_frame = egui::Frame::new()
-                    .fill(theme::primary_bg(ui.visuals().dark_mode))
                     .inner_margin(egui::Margin::symmetric(8, 2))
                     .show(ui, |ui| {
                         let desired_size = egui::vec2(list_width, 24.0);
