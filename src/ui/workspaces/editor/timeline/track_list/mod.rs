@@ -22,9 +22,9 @@ impl EditorUi {
                 for track_id in &self.proj_ctx.project_meta.track_order {
                     if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(track_id) {
                         let bg_color = if Some(track_id) == self.ui_state.selected_track.as_ref() {
-                            theme::primary_bg(ui.visuals().dark_mode)
-                        } else {
                             theme::secondary_bg(ui.visuals().dark_mode)
+                        } else {
+                            theme::primary_bg(ui.visuals().dark_mode)
                         };
 
                         let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
@@ -60,8 +60,9 @@ impl EditorUi {
                     }
                 }
 
+                // "Add Track" button
                 let track_frame = egui::Frame::new()
-                    .fill(theme::secondary_bg(ui.visuals().dark_mode))
+                    .fill(theme::primary_bg(ui.visuals().dark_mode))
                     .inner_margin(egui::Margin::symmetric(8, 2))
                     .show(ui, |ui| {
                         let desired_size = egui::vec2(list_width, 24.0);
@@ -84,11 +85,13 @@ impl EditorUi {
                         });
                     });
 
+                // Draw background and line for the "Add Track" button
                 let response = ui.allocate_rect(track_frame.response.rect, egui::Sense::click());
                 ui.painter().line_segment(
                     [response.rect.left_bottom(), response.rect.right_bottom()],
                     theme::border(ui.visuals().dark_mode),
                 );
+
                 if response.clicked() {
                     self.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
                         selected_track_type: TrackType::Audio,
