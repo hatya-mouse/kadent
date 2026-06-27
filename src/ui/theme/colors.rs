@@ -10,6 +10,14 @@ pub(crate) fn primary_fg(dark_mode: bool) -> Color32 {
     }
 }
 
+pub(crate) fn secondary_fg(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_rgb(180, 180, 180)
+    } else {
+        Color32::from_rgb(120, 120, 120)
+    }
+}
+
 pub(crate) fn selected_fg() -> Color32 {
     Color32::from_rgb(240, 240, 240)
 }

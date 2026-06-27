@@ -42,6 +42,14 @@ impl Selection {
         }
     }
 
+    pub(crate) fn region_id(&self) -> Option<RegionID> {
+        match self {
+            Selection::Region(_, region_id) => Some(*region_id),
+            Selection::Note(_, region_id, _) => Some(*region_id),
+            _ => None,
+        }
+    }
+
     pub(crate) fn note_id(&self) -> Option<NoteID> {
         match self {
             Selection::Note(_, _, note_id) => Some(*note_id),

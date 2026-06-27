@@ -1,13 +1,14 @@
 mod device_fetching;
-pub(crate) mod error_list;
-pub(crate) mod inspector;
+mod error_list;
+mod inspector;
 mod keyboard;
-pub(crate) mod node_graph;
-pub(crate) mod panel;
-pub(crate) mod piano_roll;
-pub(crate) mod state;
-pub(crate) mod timeline;
-pub(crate) mod toolbar;
+mod node_graph;
+mod panel;
+mod piano_roll;
+mod state;
+mod status_bar;
+mod timeline;
+mod toolbar;
 
 use crate::{
     core::{
@@ -75,6 +76,17 @@ impl EditorUi {
             .exact_size(44.0)
             .show_inside(ui, |ui| {
                 self.toolbar(ui);
+            });
+
+        egui::Panel::bottom("status_har")
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::tertiary_bg(ui.visuals().dark_mode))
+                    .inner_margin(egui::Margin::symmetric(12, 0)),
+            )
+            .exact_size(32.0)
+            .show_inside(ui, |ui| {
+                self.status_bar(ui);
             });
 
         egui::CentralPanel::default()
