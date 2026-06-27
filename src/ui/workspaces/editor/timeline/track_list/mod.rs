@@ -15,6 +15,8 @@ use eframe::egui::{self, include_image};
 impl EditorUi {
     pub(super) fn track_list_panel(&mut self, ui: &mut egui::Ui) {
         ui.vertical(|ui| {
+            ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
+
             for track_id in &self.proj_ctx.project_meta.track_order {
                 if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(track_id) {
                     let bg_color = if Some(track_id) == self.ui_state.selection.track_id().as_ref()
