@@ -17,15 +17,15 @@ impl EditorUi {
         egui::Panel::top(ui.id().with("ruler"))
             .frame(egui::Frame::new())
             .show_inside(ui, |ui| {
-                let available = ui.available_rect_before_wrap();
+                let panel_rect = ui.available_rect_before_wrap();
                 let ruler_screen_rect = egui::Rect::from_min_max(
-                    egui::pos2(available.min.x + track_list_width, available.min.y),
-                    egui::pos2(available.max.x, available.min.y + RULER_HEIGHT),
+                    egui::pos2(panel_rect.min.x + track_list_width, panel_rect.min.y),
+                    egui::pos2(panel_rect.max.x, panel_rect.min.y + RULER_HEIGHT),
                 );
                 self.beat_ruler(ui, ruler_screen_rect, timeline_scroll);
 
                 let vertical_separator_rect = egui::Rect::from_min_size(
-                    egui::pos2(available.min.x + track_list_width - 1.0, available.min.y),
+                    egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
                     egui::vec2(2.0, RULER_HEIGHT),
                 );
                 ui.painter()
@@ -35,15 +35,15 @@ impl EditorUi {
         egui::CentralPanel::default()
             .frame(egui::Frame::new())
             .show_inside(ui, |ui| {
-                let available = ui.available_rect_before_wrap();
+                let panel_rect = ui.available_rect_before_wrap();
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     ui.horizontal(|ui| {
                         self.track_list_panel(ui);
 
                         // Add a divider and make it draggable
                         let divider_rect = egui::Rect::from_min_size(
-                            egui::pos2(available.min.x + track_list_width - 1.0, available.min.y),
-                            egui::vec2(2.0, available.height()),
+                            egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
+                            egui::vec2(2.0, panel_rect.height()),
                         );
 
                         // Handle divider input
@@ -64,10 +64,11 @@ impl EditorUi {
                         let scroll_output = egui::ScrollArea::horizontal()
                             .horizontal_scroll_offset(timeline_scroll)
                             .show(ui, |ui| {
+                                ui.set_min_height(panel_rect.height());
                                 self.track_edit_panel(ui);
                             });
-                        ui.data_mut(|d| {
-                            d.insert_temp(timeline_scroll_key, scroll_output.state.offset.x)
+                        ui.data_mut(|data| {
+                            data.insert_temp(timeline_scroll_key, scroll_output.state.offset.x)
                         });
                     });
                 });
