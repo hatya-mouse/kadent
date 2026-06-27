@@ -8,51 +8,47 @@ use kadent_engine::{
 };
 
 impl EditorUi {
-    pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
-        egui::Frame::new()
-            .fill(theme::tertiary_bg(ui.visuals().dark_mode))
-            .show(ui, |ui| {
-                // Draw the playhead
-                self.playhead(ui, edit_rect);
+    pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
+        let track_height = self.ui_state.timeline_state.track_height;
+        let available = ui.available_rect_before_wrap();
 
-                // Draw each tracks
-                let track_height = self.ui_state.timeline_state.track_height;
-                let available = ui.available_rect_before_wrap();
+        // Draw each tracks
+        let track_order = self.proj_ctx.project_meta.track_order.clone();
+        for (i, track_id) in track_order.iter().enumerate() {
+            let y = available.min.y + i as f32 * track_height;
+            let row_rect = egui::Rect::from_min_size(
+                egui::pos2(available.min.x, y),
+                egui::vec2(available.width(), track_height),
+            );
 
-                let track_order = self.proj_ctx.project_meta.track_order.clone();
-                for (i, track_id) in track_order.iter().enumerate() {
-                    let y = available.min.y + i as f32 * track_height;
-                    let row_rect = egui::Rect::from_min_size(
-                        egui::pos2(available.min.x, y),
-                        egui::vec2(available.width(), track_height),
-                    );
+            self.track_row(ui, track_id, row_rect);
 
-                    self.track_row(ui, track_id, row_rect);
+            // Draw a separator
+            ui.painter().hline(
+                egui::Rangef {
+                    min: available.min.x,
+                    max: available.min.x + available.width(),
+                },
+                y + track_height,
+                theme::border(ui.visuals().dark_mode),
+            );
+        }
 
-                    // Draw a separator
-                    ui.painter().hline(
-                        egui::Rangef {
-                            min: available.min.x,
-                            max: available.min.x + available.width(),
-                        },
-                        y + track_height,
-                        theme::border(ui.visuals().dark_mode),
-                    );
-                }
-            });
+        // Draw the playhead
+        self.playhead(ui, available);
     }
 
-    /// Draw beat markers on the ruler area and handle click/drag to seek.
-    /// Must be called inside the horizontal ScrollArea so that `available.min.x`
-    /// reflects the current horizontal scroll offset.
-    pub(super) fn beat_ruler(&mut self, ui: &mut egui::Ui, ruler_screen_rect: egui::Rect) {
-        let available = ui.available_rect_before_wrap();
+    pub(super) fn beat_ruler(
+        &mut self,
+        ui: &mut egui::Ui,
+        ruler_screen_rect: egui::Rect,
+        scroll_x: f32,
+    ) {
         let ppb = self.ui_state.timeline_state.pixels_per_beat;
         let dark_mode = ui.visuals().dark_mode;
+        let origin_x = ruler_screen_rect.min.x - scroll_x;
 
         // --- Gesture handling ---
-        // During drag: update playhead_beats visually only
-        // On release: send AudioCommand::Seek once to avoid spamming the audio thread
         let (hover_pos, press_origin, primary_pressed, primary_down, primary_released) =
             ui.input(|i| {
                 (
@@ -64,15 +60,12 @@ impl EditorUi {
                 )
             });
 
-        // Per-panel seeking flag stored in egui temp data, keyed by ruler position
         let seek_key = egui::Id::new("ruler_seeking").with((
             ruler_screen_rect.min.x as i32,
             ruler_screen_rect.min.y as i32,
         ));
         let seeking: bool = ui.data(|data| data.get_temp(seek_key).unwrap_or(false));
 
-        // Mark drag start when the button is first pressed inside this panel's ruler
-        // * `ui` variable here is the local one for the panel
         if primary_pressed
             && let Some(origin) = press_origin
             && ruler_screen_rect.contains(origin)
@@ -87,18 +80,14 @@ impl EditorUi {
         }
 
         if seeking {
-            if primary_down {
-                // Visual-only update during drag
-                if let Some(pos) = hover_pos {
-                    let beat = Beats(((pos.x - available.min.x) / ppb).max(0.0) as f64);
-                    self.ui_state.playhead_beats = beat;
-                }
+            if primary_down && let Some(pos) = hover_pos {
+                let beat = Beats(((pos.x - origin_x) / ppb).max(0.0) as f64);
+                self.ui_state.playhead_beats = beat;
             }
 
             if primary_released {
-                // Send seek command once on mouse release
                 if let Some(pos) = hover_pos {
-                    let beat = Beats(((pos.x - available.min.x) / ppb).max(0.0) as f64);
+                    let beat = Beats(((pos.x - origin_x) / ppb).max(0.0) as f64);
                     self.ui_state.playhead_beats = beat;
                     let command = AudioCommand::Seek(beat);
                     if self
@@ -119,13 +108,8 @@ impl EditorUi {
         }
 
         // --- Drawing ---
-        let mut painter = ui.ctx().layer_painter(egui::LayerId::new(
-            egui::Order::Middle,
-            egui::Id::new("beat_ruler"),
-        ));
-        painter.set_clip_rect(ruler_screen_rect);
+        let painter = ui.painter().with_clip_rect(ruler_screen_rect);
 
-        // Determine label interval so labels are at least 60px apart
         let raw_interval = (60.0_f32 / ppb).ceil() as i32;
         let beats_per_label = if raw_interval <= 1 {
             1
@@ -142,8 +126,8 @@ impl EditorUi {
         };
 
         // Visible beat range
-        let left_beat = ((ruler_screen_rect.min.x - available.min.x) / ppb).floor() as i32;
-        let right_beat = ((ruler_screen_rect.max.x - available.min.x) / ppb).ceil() as i32;
+        let left_beat = ((ruler_screen_rect.min.x - origin_x) / ppb).floor() as i32;
+        let right_beat = ((ruler_screen_rect.max.x - origin_x) / ppb).ceil() as i32;
         let first_label_beat = (left_beat / beats_per_label) * beats_per_label;
 
         let tick_color = theme::ruler_tick(dark_mode);
@@ -153,7 +137,7 @@ impl EditorUi {
         let mut beat = first_label_beat;
         while beat <= right_beat {
             if beat >= 0 {
-                let x = available.min.x + beat as f32 * ppb;
+                let x = origin_x + beat as f32 * ppb;
 
                 painter.vline(
                     x,
@@ -161,7 +145,6 @@ impl EditorUi {
                     egui::Stroke::new(1.0, tick_color),
                 );
 
-                // Display beat numbers as 1-indexed
                 painter.text(
                     egui::pos2(x + 3.0, ruler_screen_rect.min.y + 3.0),
                     egui::Align2::LEFT_TOP,
@@ -173,11 +156,11 @@ impl EditorUi {
             beat += beats_per_label;
         }
 
-        // Minor ticks between major ticks (only when zoomed in enough)
+        // Minor ticks between major ticks
         if ppb >= 30.0 && beats_per_label > 1 {
             for sub_beat in left_beat..=right_beat {
                 if sub_beat >= 0 && sub_beat % beats_per_label != 0 {
-                    let x = available.min.x + sub_beat as f32 * ppb;
+                    let x = origin_x + sub_beat as f32 * ppb;
                     painter.vline(
                         x,
                         egui::Rangef::new(ruler_screen_rect.max.y - 5.0, ruler_screen_rect.max.y),
@@ -188,24 +171,16 @@ impl EditorUi {
         }
     }
 
-    fn playhead(&mut self, ui: &mut egui::Ui, edit_rect: egui::Rect) {
-        let available = ui.available_rect_before_wrap();
-
+    fn playhead(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
         let playhead_x =
             self.ui_state.timeline_state.pixels_per_beat * self.ui_state.playhead_beats.0 as f32;
 
         // Create a new painter to draw on the foreground layer
-        let mut painter = ui.ctx().layer_painter(egui::LayerId::new(
-            egui::Order::Middle,
-            egui::Id::new("playhead"),
-        ));
-        painter.set_clip_rect(edit_rect);
-
-        painter.vline(
-            available.min.x + playhead_x,
+        ui.painter().vline(
+            editor_rect.min.x + playhead_x,
             egui::Rangef {
-                min: available.min.y,
-                max: available.max.y,
+                min: editor_rect.min.y,
+                max: editor_rect.max.y,
             },
             egui::Stroke::new(2.0, theme::primary_fg(ui.visuals().dark_mode)),
         );
