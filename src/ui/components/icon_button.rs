@@ -42,6 +42,7 @@ pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::
                 .fit_to_exact_size(egui::vec2(20.0, 20.0))
                 .tint(theme::primary_fg(ui.visuals().dark_mode)),
         )
+        .fill(egui::Color32::TRANSPARENT)
         .corner_radius(CORNER_RADIUS),
     );
 

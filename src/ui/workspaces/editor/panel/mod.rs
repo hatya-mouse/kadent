@@ -24,8 +24,6 @@ impl EditorUi {
 }
 
 fn render_node(ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect, editor: &mut EditorUi) {
-    // Each arm is a separate match so borrows don't overlap
-
     let split_action = match node {
         PanelNode::Leaf(view) => leaf::render_leaf(ui, view, rect, editor),
         _ => None,
