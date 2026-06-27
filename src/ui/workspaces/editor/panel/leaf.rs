@@ -132,7 +132,8 @@ fn check_single_edge(ui: &mut egui::Ui, rect: Rect, edge: Edge) -> Option<SplitA
             .rect_filled(strip, 0.0, theme::panel_drag_highlight());
 
         // Draw preview of the new panel
-        let preview_size = new_accum.clamp(0.0, panel_extent(edge, rect) - MIN_NEW_PANEL);
+        let max_size = (panel_extent(edge, rect) - MIN_NEW_PANEL).max(0.0);
+        let preview_size = new_accum.clamp(0.0, max_size);
         if preview_size > 0.0 {
             let preview = new_panel_rect(rect, edge, preview_size);
             ui.painter()
@@ -147,7 +148,7 @@ fn check_single_edge(ui: &mut egui::Ui, rect: Rect, edge: Edge) -> Option<SplitA
         ui.data_mut(|d| d.remove::<f32>(accum_key));
         if prev >= MIN_NEW_PANEL {
             let extent = panel_extent(edge, rect);
-            let clamped = prev.min(extent - MIN_NEW_PANEL);
+            let clamped = prev.min((extent - MIN_NEW_PANEL).max(0.0));
             return Some(build_split_action(edge, clamped, extent));
         }
     }

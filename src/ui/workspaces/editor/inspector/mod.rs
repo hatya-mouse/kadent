@@ -31,12 +31,16 @@ impl EditorUi {
                     self.track_inspector(ui, &track_id);
                 }
                 Selection::Region(track_id, region_id) => {
+                    self.track_inspector(ui, &track_id);
                     self.region_inspector(ui, &track_id, &region_id);
                 }
                 Selection::Note(track_id, region_id, note_id) => {
+                    self.track_inspector(ui, &track_id);
+                    self.region_inspector(ui, &track_id, &region_id);
                     self.note_inspector(ui, &track_id, &region_id, &note_id);
                 }
                 Selection::Node(track_id, node_id) => {
+                    self.track_inspector(ui, &track_id);
                     self.node_inspector(ui, &track_id, &node_id);
                 }
                 Selection::None => {
@@ -44,7 +48,7 @@ impl EditorUi {
                         ui.label(
                             egui::RichText::new("No selection")
                                 .size(theme::normal_font_size())
-                                .color(theme::primary_fg(ui.visuals().dark_mode)),
+                                .color(theme::secondary_fg(ui.visuals().dark_mode)),
                         );
                     });
                 }

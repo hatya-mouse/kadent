@@ -97,13 +97,15 @@ fn render_divider(
         draw_close_overlays(ui, dir, *ratio, total);
     }
 
-    if resp.drag_stopped() {
+    // Check if the drag was released anywhere including outside the panel
+    let is_released = resp.drag_stopped() || ui.input(|i| i.pointer.any_released());
+    if is_released {
         let (f_rect, _, s_rect) = split_rects(total, dir, *ratio);
         if panel_size(dir, f_rect) < MIN_COLLAPSE_SIZE {
-            return Some(false); // If the first is too small -> keep second
+            return Some(false); // If the first is too small, keep second
         }
         if panel_size(dir, s_rect) < MIN_COLLAPSE_SIZE {
-            return Some(true); // If the second is too small -> keep first
+            return Some(true); // If the second is too small, keep first
         }
     }
 
