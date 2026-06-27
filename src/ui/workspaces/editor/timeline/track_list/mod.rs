@@ -19,8 +19,9 @@ impl EditorUi {
 
             for track_id in &self.proj_ctx.project_meta.track_order {
                 if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(track_id) {
-                    let bg_color = if Some(track_id) == self.ui_state.selection.track_id().as_ref()
-                    {
+                    // Change the background color of the selected track based on whether the track is selected
+                    let is_selected = Some(track_id) == self.ui_state.selection.track_id().as_ref();
+                    let bg_color = if is_selected {
                         theme::secondary_bg(ui.visuals().dark_mode)
                     } else {
                         egui::Color32::TRANSPARENT
