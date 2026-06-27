@@ -61,7 +61,7 @@ impl EditorUi {
             let Some(region_meta) = track_meta.regions.get(&region_id) else {
                 continue;
             };
-            let painter = ui.painter().with_clip_rect(region_rect);
+            let region_painter = ui.painter().with_clip_rect(region_rect);
 
             // Highlight the stroke if the region is selected
             let stroke =
@@ -71,14 +71,14 @@ impl EditorUi {
                     theme::border(ui.visuals().dark_mode)
                 };
 
-            painter.rect(
+            region_painter.rect(
                 region_rect,
                 4.0,
                 track_meta.color.gamma_multiply(0.8),
                 stroke,
                 egui::StrokeKind::Inside,
             );
-            painter.text(
+            region_painter.text(
                 egui::pos2(region_rect.min.x + 4.0, region_rect.min.y + 2.0),
                 egui::Align2::LEFT_TOP,
                 &region_meta.name,

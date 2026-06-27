@@ -62,6 +62,14 @@ pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
     }
 }
 
+pub(crate) fn text_button_hovered(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_white_alpha(10)
+    } else {
+        Color32::from_black_alpha(10)
+    }
+}
+
 pub(crate) fn icon_button_hovered() -> Color32 {
     Color32::from_rgba_unmultiplied(150, 150, 150, 50)
 }

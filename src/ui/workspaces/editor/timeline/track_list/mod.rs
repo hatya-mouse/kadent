@@ -58,32 +58,50 @@ impl EditorUi {
             }
 
             // "Add Track" button
-            let track_frame = egui::Frame::new()
-                .inner_margin(egui::Margin::symmetric(8, 2))
-                .show(ui, |ui| {
-                    let desired_size =
-                        egui::vec2(self.ui_state.timeline_state.track_list_width, 24.0);
-                    let layout = egui::Layout::left_to_right(egui::Align::Center);
-                    ui.allocate_ui_with_layout(desired_size, layout, |ui| {
-                        ui.set_min_width(self.ui_state.timeline_state.track_list_width);
+            let mut frame = egui::Frame::new().inner_margin(egui::Margin::symmetric(8, 4));
 
-                        ui.add(
-                            egui::Image::new(include_image!(
-                                "../../../../../../assets/icons/plus.svg"
-                            ))
-                            .fit_to_exact_size(egui::vec2(20.0, 20.0))
-                            .tint(theme::primary_fg(ui.visuals().dark_mode)),
-                        );
-                        ui.label(
-                            egui::RichText::new("Add Track")
-                                .size(theme::normal_font_size())
-                                .color(theme::primary_fg(ui.visuals().dark_mode)),
-                        );
+            let desired_width = self.ui_state.timeline_state.track_list_width;
+            let button_size = egui::vec2(desired_width, 28.0);
+
+            let response = ui
+                .allocate_ui(button_size, |ui| {
+                    // Show the background color when hovered
+                    let resp = ui.interact(
+                        ui.max_rect(),
+                        ui.id().with("add_track_button"),
+                        egui::Sense::click(),
+                    );
+                    if resp.hovered() {
+                        frame = frame.fill(theme::text_button_hovered(ui.visuals().dark_mode));
+                    }
+
+                    frame.show(ui, |ui| {
+                        // Subtract the desired width by 16px due to the inner margin of the frame
+                        ui.set_min_width(desired_width - 16.0);
+
+                        ui.horizontal_centered(|ui| {
+                            ui.spacing_mut().item_spacing = egui::vec2(4.0, 0.0);
+
+                            ui.add(
+                                egui::Image::new(include_image!(
+                                    "../../../../../../assets/icons/plus.svg"
+                                ))
+                                .fit_to_exact_size(egui::vec2(20.0, 20.0))
+                                .tint(theme::primary_fg(ui.visuals().dark_mode)),
+                            );
+                            ui.label(
+                                egui::RichText::new("Add Track")
+                                    .size(theme::normal_font_size())
+                                    .color(theme::primary_fg(ui.visuals().dark_mode)),
+                            );
+                        });
                     });
-                });
+
+                    resp
+                })
+                .inner;
 
             // Draw separator line for the "Add Track" button
-            let response = ui.allocate_rect(track_frame.response.rect, egui::Sense::click());
             ui.painter().line_segment(
                 [response.rect.left_bottom(), response.rect.right_bottom()],
                 theme::border(ui.visuals().dark_mode),

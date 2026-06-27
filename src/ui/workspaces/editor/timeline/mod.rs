@@ -46,8 +46,20 @@ impl EditorUi {
                             egui::vec2(2.0, panel_rect.height()),
                         );
 
-                        // Handle divider input
+                        // Just allocate rect for the divider
                         let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
+
+                        let scroll_output = egui::ScrollArea::horizontal()
+                            .horizontal_scroll_offset(timeline_scroll)
+                            .show(ui, |ui| {
+                                ui.set_min_height(panel_rect.height());
+                                self.track_edit_panel(ui);
+                            });
+                        ui.data_mut(|data| {
+                            data.insert_temp(timeline_scroll_key, scroll_output.state.offset.x)
+                        });
+
+                        // Handle dragging the divider and draw the divider
                         if divider_resp.dragged() {
                             self.ui_state.timeline_state.track_list_width +=
                                 divider_resp.drag_delta().x;
@@ -60,16 +72,6 @@ impl EditorUi {
                             ui.painter()
                                 .rect_filled(divider_rect, 0.0, theme::separator());
                         }
-
-                        let scroll_output = egui::ScrollArea::horizontal()
-                            .horizontal_scroll_offset(timeline_scroll)
-                            .show(ui, |ui| {
-                                ui.set_min_height(panel_rect.height());
-                                self.track_edit_panel(ui);
-                            });
-                        ui.data_mut(|data| {
-                            data.insert_temp(timeline_scroll_key, scroll_output.state.offset.x)
-                        });
                     });
                 });
             });
