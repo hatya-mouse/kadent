@@ -1,20 +1,20 @@
-use crate::ui::{
-    components::{icon_button::small_icon_button, text_button::text_button},
-    theme,
-    workspaces::EditorUi,
-};
+use crate::ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi};
 use eframe::egui;
-use std::fmt::Display;
 
+#[derive(Clone)]
 enum AddibleNodes {
     Kasl,
 }
 
-impl Display for AddibleNodes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl AddibleNodes {
+    fn name(&self) -> &str {
         match self {
-            AddibleNodes::Kasl => write!(f, "KASL Node"),
+            AddibleNodes::Kasl => "KASL Node",
         }
+    }
+
+    fn all() -> Vec<AddibleNodes> {
+        vec![AddibleNodes::Kasl]
     }
 }
 
@@ -34,24 +34,28 @@ impl EditorUi {
         ui.visuals_mut().widgets.active.bg_stroke = egui::Stroke::NONE;
 
         ui.horizontal_centered(|ui| {
-            let btn = small_icon_button(
+            let plus_button = small_icon_button(
                 ui,
                 egui::Image::new(egui::include_image!("../../../../../assets/icons/plus.svg")),
             );
-            egui::Popup::menu(&btn).show(|ui| {
-                if text_button(ui, "kasl_node", AddibleNodes::Kasl.to_string()).clicked() {
-                    node_to_add = Some(AddibleNodes::Kasl);
-                }
-            });
+            egui::Popup::menu(&plus_button)
+                .style(theme::menu_style(ui))
+                .show(|ui| {
+                    AddibleNodes::all().iter().for_each(|node| {
+                        if ui.button(node.name()).clicked() {
+                            node_to_add = Some(node.clone());
+                        }
+                    });
+                });
 
-            let jump_btn = small_icon_button(
+            let jump_button = small_icon_button(
                 ui,
                 egui::Image::new(egui::include_image!(
                     "../../../../../assets/icons/crosshair.svg"
                 )),
             )
             .on_hover_text("Jump to a random node");
-            if jump_btn.clicked() {
+            if jump_button.clicked() {
                 jump_to_random = true;
             }
         });
