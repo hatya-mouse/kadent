@@ -39,13 +39,11 @@ impl AddibleNodes {
 
 pub(crate) enum EditorAction {
     // --- PROJECT ---
-    /// Save the current project to disk.
-    SaveProject,
+    /// Save the current project and the currently opened programs in the code editor.
+    SaveAll,
     /// Open a project from disk.
     /// `(path)`
     OpenProject(PathBuf),
-    /// Save the currently oepned programs in the code editor.
-    SavePrograms,
     /// Exports a project to a WAV file.
     /// `(path)`
     ExportProject(PathBuf),
@@ -117,18 +115,24 @@ impl EditorUi {
         for action in pending_actions {
             match action {
                 // --- PROJECT ---
-                EditorAction::SaveProject => {
+                EditorAction::SaveAll => {
+                    self.save_programs();
                     self.save_project();
                 }
-                EditorAction::OpenProject(path) => self.open_project(path),
-                EditorAction::SavePrograms => self.save_programs(),
-                EditorAction::ExportProject(path) => self.export_project(&path),
+                EditorAction::OpenProject(path) => {
+                    self.open_project(path);
+                }
+                EditorAction::ExportProject(path) => {
+                    self.export_project(&path);
+                }
 
                 // --- TRACK ---
                 EditorAction::AddTrack(track_type, name, color) => {
                     self.add_track(track_type, name, color)
                 }
-                EditorAction::RemoveTrack(ref track_id) => self.remove_track(track_id),
+                EditorAction::RemoveTrack(ref track_id) => {
+                    self.remove_track(track_id);
+                }
 
                 // --- REGION ---
                 EditorAction::AddAudioRegion(ref track_id, name, start) => {
@@ -151,8 +155,12 @@ impl EditorUi {
                 EditorAction::AddNode(ref track_id, ref node_type, pos) => {
                     self.add_node(track_id, node_type, pos)
                 }
-                EditorAction::RemoveEdge(ref track_id, edge) => self.remove_edge(track_id, edge),
-                EditorAction::AddEdge(ref track_id, edge) => self.add_edge(track_id, edge),
+                EditorAction::RemoveEdge(ref track_id, edge) => {
+                    self.remove_edge(track_id, edge);
+                }
+                EditorAction::AddEdge(ref track_id, edge) => {
+                    self.add_edge(track_id, edge);
+                }
                 EditorAction::CompileKasl(ref track_id, ref node_id) => {
                     self.compile_kasl_node(track_id, node_id)
                 }
@@ -175,7 +183,9 @@ impl EditorUi {
                     ref region_id,
                     ref note_id,
                     new_duration,
-                ) => self.set_note_duration(track_id, region_id, note_id, new_duration),
+                ) => {
+                    self.set_note_duration(track_id, region_id, note_id, new_duration);
+                }
                 EditorAction::RemoveNote(ref track_id, ref region_id, ref note_id) => {
                     self.remove_note(track_id, region_id, note_id)
                 }

@@ -9,4 +9,6 @@ pub(crate) struct CodeEditorState {
     pub syntect_settings: Option<SyntectSettings>,
     /// Opened KASL programs in the code editor.
     pub opened_programs: Vec<(PathBuf, String)>,
+    /// Whether the opened programs are modified or not.
+    pub are_modified: Vec<bool>,
 }

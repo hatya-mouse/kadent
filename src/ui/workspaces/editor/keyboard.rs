@@ -33,10 +33,8 @@ impl EditorUi {
 
         let save = ui.input(|i| is_command_pressed(ui) && i.key_pressed(egui::Key::S));
         if save {
-            // Fisrt, save the opened KASL programs
-            self.push_action(EditorAction::SavePrograms);
-            // Then save the project
-            self.push_action(EditorAction::SaveProject);
+            // Save the projects and opened KASL programs
+            self.push_action(EditorAction::SaveAll);
         }
     }
 }

@@ -16,7 +16,7 @@ impl EditorUi {
             )
             .clicked()
             {
-                self.push_action(EditorAction::SaveProject);
+                self.push_action(EditorAction::SaveAll);
             }
 
             if toolbar_icon_button(
