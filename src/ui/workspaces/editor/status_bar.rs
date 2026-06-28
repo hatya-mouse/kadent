@@ -79,6 +79,7 @@ impl EditorUi {
                 let fade_in = (elapsed / TEMP_STATUS_IN).min(1.0);
                 let fade_out = (remaining / TEMP_STATUS_OUT).min(1.0);
                 let opacity = fade_in * fade_out;
+                let text_color = egui::Color32::WHITE.linear_multiply(opacity);
 
                 // Draw the notification with the animated opacity
                 egui::Frame::new()
@@ -88,8 +89,7 @@ impl EditorUi {
                     .inner_margin(egui::Margin::symmetric(6, 2))
                     .outer_margin(egui::Margin::symmetric(0, 4))
                     .show(ui, |ui| {
-                        ui.label(egui::RichText::new(&notif.text).color(egui::Color32::WHITE));
-                        ui.shrink_height_to_current();
+                        ui.label(egui::RichText::new(&notif.text).color(text_color));
                     });
 
                 // Request a repaint to keep the notification animated
