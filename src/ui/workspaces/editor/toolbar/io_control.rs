@@ -121,14 +121,19 @@ impl EditorUi {
                         }
 
                         for (ref name, midi_in_port) in midi_in_port_names {
-                            let is_selected =
-                                self.ui_state.selected_midi_port.as_deref() == Some(name.as_str());
+                            let is_selected = self.ui_state.selected_midi_port.as_ref()
+                                == Some(&midi_in_port.id());
                             if ui.selectable_label(is_selected, name).clicked() && !is_selected {
                                 // Set the selected MIDI input port
                                 self.midi_command_tx
                                     .send(MidiCommand::SetMidiPort(midi_in_port.clone()))
                                     .ok();
                                 self.ui_state.selected_midi_port = Some(midi_in_port.id());
+                                println!(
+                                    "Selected MIDI Input Port: {}, ID: {}",
+                                    name,
+                                    midi_in_port.id()
+                                );
                             }
                         }
                     });
