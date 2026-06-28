@@ -37,7 +37,7 @@ pub(crate) fn create_new_project(
         buffer_size: 512,
         max_voices: 32,
     };
-    let project = Project::new(audio_ctx.clone(), 120.0, Ticks(3840), Ticks(3840));
+    let project = Project::new(audio_ctx.clone(), 120.0, Ticks(0), Ticks(3840));
     let project_meta = ProjectMeta {
         kasl_search_paths: EditorUi::system_kasl_search_paths(),
         ..Default::default()

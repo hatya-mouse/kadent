@@ -88,6 +88,7 @@ impl KaslNode {
             var velocity = 0.0
             var age = 0.0
             var is_active = false
+            var gain = 0.0
         }}"#,
                 self.audio_ctx.channels,
                 self.audio_ctx.sample_rate,
