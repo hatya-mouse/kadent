@@ -30,6 +30,15 @@ impl EditorUi {
         self.set_editor_ctx(editor_ctx);
     }
 
+    pub(super) fn save_programs(&mut self) {
+        let opened_programs = self.ui_state.code_editor_state.opened_programs.iter();
+        for (path, code) in opened_programs {
+            if let Err(e) = std::fs::write(path, code) {
+                eprintln!("Failed to save program {}: {:?}", path.display(), e);
+            }
+        }
+    }
+
     pub(super) fn export_project(&mut self, path: &Path) {
         // Request generation the f32 samples for the entire project
         let project = self.proj_ctx.project.clone();

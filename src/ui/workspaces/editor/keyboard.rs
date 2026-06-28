@@ -13,6 +13,7 @@ impl EditorUi {
             return;
         }
 
+        // Handle delete and backspace keys
         let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
         let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
         if delete || backspace {
@@ -29,5 +30,25 @@ impl EditorUi {
                 _ => (),
             }
         }
+
+        let save = ui.input(|i| is_command_pressed(ui) && i.key_pressed(egui::Key::S));
+        if save {
+            // Fisrt, save the opened KASL programs
+            self.push_action(EditorAction::SavePrograms);
+            // Then save the project
+            self.push_action(EditorAction::SaveProject);
+        }
     }
+}
+
+/// Returns true if the command key is pressed on macOS/iOS, or the control key is pressed on other platforms.
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+fn is_command_pressed(ui: &egui::Ui) -> bool {
+    ui.input(|i| i.modifiers.command)
+}
+
+/// Returns true if the command key is pressed on macOS/iOS, or the control key is pressed on other platforms.
+#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+fn is_command_pressed(ui: &egui::Ui) -> bool {
+    ui.input(|i| i.modifiers.ctrl)
 }

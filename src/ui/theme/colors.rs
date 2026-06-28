@@ -18,7 +18,7 @@ pub(crate) fn secondary_fg(dark_mode: bool) -> Color32 {
     }
 }
 
-pub(crate) fn selected_fg() -> Color32 {
+pub(crate) const fn selected_fg() -> Color32 {
     Color32::from_rgb(240, 240, 240)
 }
 
@@ -48,7 +48,7 @@ pub(crate) fn tertiary_bg(dark_mode: bool) -> Color32 {
     }
 }
 
-pub(crate) fn selected_bg() -> Color32 {
+pub(crate) const fn selected_bg() -> Color32 {
     Color32::from_rgb(33, 140, 255)
 }
 
@@ -114,12 +114,12 @@ pub(crate) fn border(dark_mode: bool) -> Stroke {
 // --- SEPARATOR ---
 
 /// Solid divider between panel sections (ruler border, panel splitters).
-pub(crate) fn separator() -> Color32 {
+pub(crate) const fn separator() -> Color32 {
     Color32::DARK_GRAY
 }
 
 /// Separator color when the divider is hovered or dragged.
-pub(crate) fn separator_hovered() -> Color32 {
+pub(crate) const fn separator_hovered() -> Color32 {
     Color32::from_gray(140)
 }
 
@@ -149,11 +149,11 @@ pub(crate) fn ruler_label(dark_mode: bool) -> Color32 {
 
 // --- NODE GRAPH ---
 
-pub(crate) fn node_port_input() -> Color32 {
+pub(crate) const fn node_port_input() -> Color32 {
     Color32::from_rgb(100, 160, 255)
 }
 
-pub(crate) fn node_port_output() -> Color32 {
+pub(crate) const fn node_port_output() -> Color32 {
     Color32::from_rgb(255, 160, 100)
 }
 
@@ -175,12 +175,12 @@ pub(crate) fn region_selected(dark_mode: bool) -> Color32 {
     }
 }
 
-pub(crate) fn region_text() -> Color32 {
+pub(crate) const fn region_text() -> Color32 {
     Color32::WHITE
 }
 
 /// Default color assigned to a newly created track.
-pub(crate) fn default_track_color() -> Color32 {
+pub(crate) const fn default_track_color() -> Color32 {
     Color32::from_rgb(100, 150, 220)
 }
 

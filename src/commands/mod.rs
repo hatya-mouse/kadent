@@ -44,9 +44,8 @@ pub(crate) enum EditorAction {
     /// Open a project from disk.
     /// `(path)`
     OpenProject(PathBuf),
-    /// Create a new project.
-    /// `(path, code)`
-    // SaveCode(PathBuf, String),
+    /// Save the currently oepned programs in the code editor.
+    SavePrograms,
     /// Exports a project to a WAV file.
     /// `(path)`
     ExportProject(PathBuf),
@@ -122,7 +121,7 @@ impl EditorUi {
                     self.save_project();
                 }
                 EditorAction::OpenProject(path) => self.open_project(path),
-                // EditorAction::SaveCode(path, code) => (),
+                EditorAction::SavePrograms => self.save_programs(),
                 EditorAction::ExportProject(path) => self.export_project(&path),
 
                 // --- TRACK ---
