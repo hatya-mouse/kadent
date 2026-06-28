@@ -7,6 +7,10 @@ use crate::ui::{
 use eframe::egui;
 
 const TEMP_STATUS_DURATION: u64 = 5;
+/// Duration for fade-in effect in seconds.
+const TEMP_STATUS_IN: f32 = 0.2;
+/// Duration for fade-out effect in seconds.
+const TEMP_STATUS_OUT: f32 = 0.5;
 
 impl EditorUi {
     pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
@@ -42,6 +46,19 @@ impl EditorUi {
     }
 
     pub(crate) fn show_temp_status(&mut self, text: &str, color: egui::Color32) {
+        if let Some(ref notif) = self.ui_state.status_bar_state.temp_status
+            && notif.text == text
+        {
+            // If the same notification is already being displayed, make the notification stay longer
+            self.ui_state
+                .status_bar_state
+                .temp_status
+                .as_mut()
+                .unwrap()
+                .expires_at = Instant::now() + Duration::from_secs(TEMP_STATUS_DURATION);
+            return;
+        }
+
         self.ui_state.status_bar_state.temp_status = Some(TempStatusNotification {
             text: text.to_string(),
             color,
@@ -59,14 +76,24 @@ impl EditorUi {
                 let remaining = notif.expires_at.duration_since(now).as_secs_f32();
 
                 // Fade in and fade out calculations
-                let fade_in = (elapsed / 0.2).min(1.0);
-                let fade_out = (remaining / 0.5).min(1.0);
-                let alpha_multiplier = fade_in * fade_out;
+                let fade_in = (elapsed / TEMP_STATUS_IN).min(1.0);
+                let fade_out = (remaining / TEMP_STATUS_OUT).min(1.0);
+                let opacity = fade_in * fade_out;
 
-                let animated_color = notif.color.linear_multiply(alpha_multiplier);
+                // Draw the notification with the animated opacity
+                egui::Frame::new()
+                    .fill(notif.color)
+                    .multiply_with_opacity(opacity)
+                    .corner_radius(4)
+                    .inner_margin(egui::Margin::symmetric(6, 2))
+                    .outer_margin(egui::Margin::symmetric(0, 4))
+                    .show(ui, |ui| {
+                        ui.label(egui::RichText::new(&notif.text).color(egui::Color32::WHITE));
+                        ui.shrink_height_to_current();
+                    });
 
-                // Draw the notification text with the animated color
-                ui.label(egui::RichText::new(&notif.text).color(animated_color));
+                // Request a repaint to keep the notification animated
+                ui.ctx().request_repaint();
             } else {
                 self.ui_state.status_bar_state.temp_status = None;
             }
