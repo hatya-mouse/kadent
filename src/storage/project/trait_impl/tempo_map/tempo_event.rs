@@ -29,7 +29,7 @@ impl FromBytes for TempoEvent {
         cursor
             .read_exact(&mut sample_offset_bytes)
             .with_ctx(ParseContext::TempoEvent)?;
-        let ticks = Ticks(u64::from_le_bytes(ticks_bytes));
+        let ticks = Ticks(i64::from_le_bytes(ticks_bytes));
         let bpm = f64::from_le_bytes(bpm_bytes);
         let sample_offset = u64::from_le_bytes(sample_offset_bytes) as usize;
         Ok(TempoEvent::new(ticks, bpm, sample_offset))

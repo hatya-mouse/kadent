@@ -20,7 +20,7 @@ impl EditorUi {
     ) {
         let sample_rate = self.ui_state.audio_ctx.sample_rate;
         let channels = self.ui_state.audio_ctx.channels;
-        let duration = Ticks(self.ui_state.audio_ctx.resolution);
+        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
@@ -74,7 +74,7 @@ impl EditorUi {
         name: String,
         start: Ticks,
     ) {
-        let duration = Ticks(self.ui_state.audio_ctx.resolution);
+        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {

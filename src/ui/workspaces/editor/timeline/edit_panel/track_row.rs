@@ -99,7 +99,7 @@ impl EditorUi {
                 .map(|pos| {
                     Ticks(
                         ((pos.x - row_rect.min.x) * self.ui_state.timeline_ticks_per_pixel())
-                            as u64,
+                            as i64,
                     )
                 })
                 .unwrap_or_default();
@@ -155,7 +155,7 @@ impl EditorUi {
 
             // Calculate the new duration from the drag amount
             let delta_ticks = Ticks(
-                (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as u64,
+                (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64,
             );
             if let Some(region) = self
                 .proj_ctx
@@ -186,7 +186,7 @@ impl EditorUi {
                 self.push_action(EditorAction::ArmTrack(*track_id));
 
                 let delta_ticks = Ticks(
-                    (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as u64,
+                    (move_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64,
                 );
                 if let Some(region) = self
                     .proj_ctx

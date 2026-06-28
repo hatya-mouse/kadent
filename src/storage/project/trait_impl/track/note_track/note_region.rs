@@ -45,8 +45,8 @@ impl FromBytes for NoteRegion {
         cursor
             .read_exact(&mut duration_bytes)
             .with_ctx(ParseContext::NoteRegion)?;
-        let start = Ticks(u64::from_le_bytes(start_bytes));
-        let duration = Ticks(u64::from_le_bytes(duration_bytes));
+        let start = Ticks(i64::from_le_bytes(start_bytes));
+        let duration = Ticks(i64::from_le_bytes(duration_bytes));
 
         // Read the length of the note bytes
         let mut note_bytes = [0u8; 8];

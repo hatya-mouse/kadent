@@ -37,8 +37,8 @@ impl FromBytes for Note {
             .read_exact(&mut velocity_bytes)
             .with_ctx(ParseContext::Note)?;
 
-        let start = Ticks(u64::from_le_bytes(start_bytes));
-        let duration = Ticks(u64::from_le_bytes(duration_bytes));
+        let start = Ticks(i64::from_le_bytes(start_bytes));
+        let duration = Ticks(i64::from_le_bytes(duration_bytes));
         let pitch = f32::from_le_bytes(pitch_bytes);
         let velocity = f32::from_le_bytes(velocity_bytes);
 

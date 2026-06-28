@@ -83,13 +83,13 @@ impl EditorUi {
 
         if seeking {
             if primary_down && let Some(pos) = hover_pos {
-                let ticks = Ticks(((pos.x - origin_x) / ppt) as u64);
+                let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
                 self.ui_state.playhead_ticks = ticks;
             }
 
             if primary_released {
                 if let Some(pos) = hover_pos {
-                    let ticks = Ticks(((pos.x - origin_x) / ppt) as u64);
+                    let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
                     self.ui_state.playhead_ticks = ticks;
                     let command = AudioCommand::Seek(ticks);
                     if self

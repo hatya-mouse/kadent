@@ -12,7 +12,7 @@ impl EditorUi {
     ) -> (Ticks, f32) {
         let start = Ticks(
             ((scroll_amount.x + click_pos.x - note_grid_rect.min.x)
-                / self.ui_state.piano_roll_ticks_per_pixel()) as u64,
+                * self.ui_state.piano_roll_ticks_per_pixel()) as i64,
         );
         let pitch = ((scroll_content_height - scroll_amount.y - click_pos.y
             + note_grid_rect.min.y)

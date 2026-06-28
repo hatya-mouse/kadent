@@ -67,8 +67,8 @@ impl FromBytes for Project {
         cursor
             .read_exact(&mut range_duration_bytes)
             .with_ctx(ParseContext::Project)?;
-        let range_start = Ticks(u64::from_le_bytes(range_start_bytes));
-        let range_duration = Ticks(u64::from_le_bytes(range_duration_bytes));
+        let range_start = Ticks(i64::from_le_bytes(range_start_bytes));
+        let range_duration = Ticks(i64::from_le_bytes(range_duration_bytes));
 
         // Read the tempo map from the bytes
         let mut tempo_map_len_bytes = [0u8; 8];

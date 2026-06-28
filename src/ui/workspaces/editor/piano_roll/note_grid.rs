@@ -46,10 +46,11 @@ impl EditorUi {
             return;
         };
 
+        let ppt = self.ui_state.piano_roll_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
+
         // Calculate the total size of the scroll area content
-        let scroll_content_width = (region.duration.0 as f32
-            * self.ui_state.piano_roll_state.pixels_per_beat)
-            .max(note_grid_rect.width());
+        let scroll_content_width = (region.duration.0 as f32 * ppt).max(note_grid_rect.width());
         // Calculate the total height of the scroll area content (128 MIDI notes)
         let scroll_content_height =
             (128.0 * self.ui_state.piano_roll_state.note_height).max(note_grid_rect.height());
@@ -76,12 +77,10 @@ impl EditorUi {
 
             for (note_id, note) in notes {
                 // Calculate the note rect
-                let note_x =
-                    offset.x + note.start.0 as f32 * self.ui_state.piano_roll_state.pixels_per_beat;
+                let note_x = offset.x + note.start.0 as f32 * ppt;
                 let note_y =
                     offset.y + (128.0 - note.pitch) * self.ui_state.piano_roll_state.note_height;
-                let note_width =
-                    note.duration.0 as f32 * self.ui_state.piano_roll_state.pixels_per_beat;
+                let note_width = note.duration.0 as f32 * ppt;
                 let note_rect = egui::Rect::from_min_size(
                     egui::pos2(note_x, note_y),
                     egui::vec2(note_width, self.ui_state.piano_roll_state.note_height),
@@ -252,7 +251,12 @@ impl EditorUi {
                 );
 
                 // Add a note at the position
-                let note = Note::new(start, Ticks(self.ui_state.audio_ctx.resolution), pitch, 1.0);
+                let note = Note::new(
+                    start,
+                    Ticks(self.ui_state.audio_ctx.resolution as i64),
+                    pitch,
+                    1.0,
+                );
                 self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
 
                 // Play the note for feedback
@@ -304,7 +308,7 @@ impl EditorUi {
 
             // Calculate the new duration from the drag amount
             let delta_ticks = Ticks(
-                (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as u64,
+                (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as i64,
             );
             if let Some(region) = self
                 .proj_ctx
@@ -334,7 +338,7 @@ impl EditorUi {
 
         if move_res.dragged() {
             let delta_ticks = Ticks(
-                (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as u64,
+                (move_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as i64,
             );
             let delta_pitch = -move_res.drag_delta().y / self.ui_state.piano_roll_state.note_height;
             let new_start = note.start + delta_ticks;
