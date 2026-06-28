@@ -25,7 +25,7 @@ pub(crate) fn init_kasl_nodes(project: &mut Project, search_paths: &[String], pr
         let graph = track.get_graph_mut();
         let edges: Vec<_> = graph.get_edges().clone();
         for &edge in &edges {
-            let _ = graph.remove_edge(edge);
+            graph.remove_edge(edge).ok();
         }
         for edge in edges {
             if let Err(e) = graph.add_edge(edge) {

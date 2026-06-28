@@ -8,6 +8,7 @@ use std::{sync::mpsc, thread};
 pub enum MidiCommand {
     SetMidiPort(MidiInputPort),
     DisconnectMidiPort,
+    SendEvent(MidiEvent),
 }
 
 pub(crate) fn spawn_midi_thread(

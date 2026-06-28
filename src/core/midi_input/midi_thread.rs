@@ -7,7 +7,7 @@ pub(super) fn midi_thread(
     command_rx: mpsc::Receiver<MidiCommand>,
     midi_producer: ringbuf::HeapProd<MidiEvent>,
 ) {
-    let producer = Arc::new(Mutex::new(midi_producer));
+    let prod = Arc::new(Mutex::new(midi_producer));
     let mut connection: Option<midir::MidiInputConnection<()>> = None;
 
     for command in command_rx {
@@ -20,12 +20,12 @@ pub(super) fn midi_thread(
                     continue;
                 };
 
-                let prod = Arc::clone(&producer);
+                let prod_clone = Arc::clone(&prod);
                 match midi_in.connect(
                     &port,
                     "kadent_input",
                     move |_, message, _| {
-                        push_midi_event(message, &prod);
+                        push_midi_event(message, &prod_clone);
                     },
                     (),
                 ) {
@@ -35,6 +35,11 @@ pub(super) fn midi_thread(
             }
             MidiCommand::DisconnectMidiPort => {
                 connection.take();
+            }
+            MidiCommand::SendEvent(event) => {
+                if let Ok(mut prod) = prod.lock() {
+                    prod.try_push(event).ok();
+                }
             }
         }
     }
@@ -56,6 +61,6 @@ fn push_midi_event(message: &[u8], producer: &Arc<Mutex<ringbuf::HeapProd<MidiEv
     };
 
     if let Ok(mut prod) = producer.try_lock() {
-        let _ = prod.try_push(event);
+        prod.try_push(event).ok();
     }
 }

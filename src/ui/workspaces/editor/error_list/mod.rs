@@ -1,4 +1,3 @@
-mod header;
 mod item;
 
 use crate::ui::{theme, workspaces::EditorUi};
@@ -7,8 +6,6 @@ use item::draw_error_item;
 
 impl EditorUi {
     pub fn error_list(&mut self, ui: &mut egui::Ui) {
-        self.draw_error_list_header(ui);
-
         ui.painter().rect_filled(
             ui.available_rect_before_wrap(),
             0.0,
