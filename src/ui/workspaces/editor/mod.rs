@@ -47,8 +47,10 @@ pub struct EditorUi {
 
 impl EditorUi {
     pub fn new(editor_ctx: EditorContext) -> EditorUi {
-        let (thread_handle, midi_producer) =
-            AudioThread::spawn(editor_ctx.audio_ctx, editor_ctx.proj_ctx.project.clone());
+        let (thread_handle, midi_producer) = AudioThread::spawn(
+            editor_ctx.audio_ctx.clone(),
+            editor_ctx.proj_ctx.project.clone(),
+        );
         let midi_command_tx = spawn_midi_thread(midi_producer);
 
         let mut editor_ui = EditorUi {
@@ -56,7 +58,7 @@ impl EditorUi {
             midi_command_tx,
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
-            ui_state: EditorUiState::default(),
+            ui_state: EditorUiState::with_audio_ctx(editor_ctx.audio_ctx),
             pending_actions: VecDeque::new(),
             debug_mode: false,
         };

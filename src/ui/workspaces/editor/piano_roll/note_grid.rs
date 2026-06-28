@@ -4,7 +4,7 @@ use crate::{
 };
 use eframe::egui;
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     mixer::TrackID,
     track::{
         RegionID,
@@ -252,7 +252,7 @@ impl EditorUi {
                 );
 
                 // Add a note at the position
-                let note = Note::new(start, Beats(1.0), pitch, 1.0);
+                let note = Note::new(start, Ticks(self.ui_state.audio_ctx.resolution), pitch, 1.0);
                 self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
 
                 // Play the note for feedback
@@ -303,8 +303,8 @@ impl EditorUi {
                 .select_note(*note_id.0, *note_id.1, *note_id.2);
 
             // Calculate the new duration from the drag amount
-            let delta_beats = Beats(
-                (resize_res.drag_delta().x / self.ui_state.piano_roll_state.pixels_per_beat) as f64,
+            let delta_ticks = Ticks(
+                (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as u64,
             );
             if let Some(region) = self
                 .proj_ctx
@@ -313,7 +313,7 @@ impl EditorUi {
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
                 .and_then(|track| track.get_region_mut(note_id.1))
             {
-                region.set_duration(note_id.2, Beats((note.duration.0 + delta_beats.0).max(0.0)));
+                region.set_duration(note_id.2, (note.duration + delta_ticks).max(Ticks(0)));
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
@@ -333,11 +333,11 @@ impl EditorUi {
         }
 
         if move_res.dragged() {
-            let delta_beats = Beats(
-                (move_res.drag_delta().x / self.ui_state.piano_roll_state.pixels_per_beat) as f64,
+            let delta_ticks = Ticks(
+                (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as u64,
             );
             let delta_pitch = -move_res.drag_delta().y / self.ui_state.piano_roll_state.note_height;
-            let new_start = note.start + delta_beats;
+            let new_start = note.start + delta_ticks;
             let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
 
             self.ui_state

@@ -3,7 +3,7 @@ mod track_row;
 use crate::ui::{theme, workspaces::EditorUi};
 use eframe::egui;
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     thread::{AudioCommand, AudioError},
 };
 
@@ -45,6 +45,8 @@ impl EditorUi {
         scroll_x: f32,
     ) {
         let ppb = self.ui_state.timeline_state.pixels_per_beat;
+        let ppt = self.ui_state.timeline_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
         let dark_mode = ui.visuals().dark_mode;
         let origin_x = ruler_screen_rect.min.x - scroll_x;
 
@@ -81,15 +83,15 @@ impl EditorUi {
 
         if seeking {
             if primary_down && let Some(pos) = hover_pos {
-                let beat = Beats(((pos.x - origin_x) / ppb).max(0.0) as f64);
-                self.ui_state.playhead_beats = beat;
+                let ticks = Ticks(((pos.x - origin_x) / ppt) as u64);
+                self.ui_state.playhead_ticks = ticks;
             }
 
             if primary_released {
                 if let Some(pos) = hover_pos {
-                    let beat = Beats(((pos.x - origin_x) / ppb).max(0.0) as f64);
-                    self.ui_state.playhead_beats = beat;
-                    let command = AudioCommand::Seek(beat);
+                    let ticks = Ticks(((pos.x - origin_x) / ppt) as u64);
+                    self.ui_state.playhead_ticks = ticks;
+                    let command = AudioCommand::Seek(ticks);
                     if self
                         .thread_handle
                         .audio_command_tx
@@ -172,8 +174,8 @@ impl EditorUi {
     }
 
     fn playhead(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
-        let playhead_x =
-            self.ui_state.timeline_state.pixels_per_beat * self.ui_state.playhead_beats.0 as f32;
+        let playhead_x = self.ui_state.timeline_state.pixels_per_beat
+            * (self.ui_state.playhead_ticks.0 as f32 / self.ui_state.audio_ctx.resolution as f32);
 
         // Create a new painter to draw on the foreground layer
         ui.painter().vline(

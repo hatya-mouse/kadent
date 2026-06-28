@@ -1,7 +1,11 @@
 mod note;
 mod note_region;
 
-use crate::storage::project::{AsBytes, FromBytes, safe_read};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+    safe_read,
+};
 use kadent_engine::track::{
     RegionID,
     note_track::{NoteRegion, NoteTrack},
@@ -33,16 +37,19 @@ impl AsBytes for NoteTrack {
 }
 
 impl FromBytes for NoteTrack {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the length of the regions
         let mut region_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut region_len_bytes)?;
+        cursor
+            .read_exact(&mut region_len_bytes)
+            .with_ctx(ParseContext::NoteTrack)?;
         let region_len = u64::from_le_bytes(region_len_bytes) as usize;
 
         // Read the track bytes
-        let regions_data_bytes = safe_read(&mut cursor, region_len)?;
+        let regions_data_bytes =
+            safe_read(&mut cursor, region_len).with_ctx(ParseContext::NoteTrack)?;
 
         // Parse the regions
         let mut regions = HashMap::new();
@@ -51,13 +58,18 @@ impl FromBytes for NoteTrack {
             // Get the length of the region and the region ID
             let mut region_len_bytes = [0u8; 8];
             let mut region_id_bytes = [0u8; 8];
-            region_cursor.read_exact(&mut region_len_bytes)?;
-            region_cursor.read_exact(&mut region_id_bytes)?;
+            region_cursor
+                .read_exact(&mut region_len_bytes)
+                .with_ctx(ParseContext::NoteTrack)?;
+            region_cursor
+                .read_exact(&mut region_id_bytes)
+                .with_ctx(ParseContext::NoteTrack)?;
             let region_len = u64::from_le_bytes(region_len_bytes) as usize;
             let region_id = RegionID(u64::from_le_bytes(region_id_bytes) as usize);
 
             // Get the region content data and decode it
-            let region_data_bytes = safe_read(&mut region_cursor, region_len)?;
+            let region_data_bytes =
+                safe_read(&mut region_cursor, region_len).with_ctx(ParseContext::NoteTrack)?;
             let region = NoteRegion::from_bytes(&region_data_bytes)?;
 
             regions.insert(region_id, region);

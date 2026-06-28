@@ -93,9 +93,7 @@ pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     let mut project_bytes = Vec::new();
     file.read_to_end(&mut project_bytes)
         .map_err(LoadError::IoError)?;
-    let result = LoadProjResult::from_bytes(&project_bytes).map_err(LoadError::FileCorrupted)?;
-
-    Ok(result)
+    LoadProjResult::from_bytes(&project_bytes)
 }
 
 pub(crate) fn get_project_dir(project_path: &Path) -> PathBuf {

@@ -1,6 +1,6 @@
 use crate::ui::workspaces::EditorUi;
 use eframe::egui;
-use kadent_engine::data_types::Beats;
+use kadent_engine::data_types::Ticks;
 
 impl EditorUi {
     pub(in crate::ui::workspaces::editor) fn calc_note_position(
@@ -9,10 +9,10 @@ impl EditorUi {
         note_grid_rect: egui::Rect,
         scroll_content_height: f32,
         scroll_amount: egui::Vec2,
-    ) -> (Beats, f32) {
-        let start = Beats(
+    ) -> (Ticks, f32) {
+        let start = Ticks(
             ((scroll_amount.x + click_pos.x - note_grid_rect.min.x)
-                / self.ui_state.piano_roll_state.pixels_per_beat) as f64,
+                / self.ui_state.piano_roll_ticks_per_pixel()) as u64,
         );
         let pitch = ((scroll_content_height - scroll_amount.y - click_pos.y
             + note_grid_rect.min.y)

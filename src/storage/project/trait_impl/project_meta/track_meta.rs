@@ -1,5 +1,6 @@
 use crate::storage::project::{
     AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
     trait_impl::project_meta::{StoredGraphMeta, StoredRegionMeta},
     traits::safe_read,
 };
@@ -75,12 +76,14 @@ impl AsBytes for StoredTrackMeta {
 }
 
 impl FromBytes for StoredTrackMeta {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the first four bytes to get the color of the track
         let mut color_bytes = [0u8; 4];
-        cursor.read_exact(&mut color_bytes)?;
+        cursor
+            .read_exact(&mut color_bytes)
+            .with_ctx(ParseContext::TrackMeta)?;
         let color = egui::Color32::from_rgba_premultiplied(
             color_bytes[0],
             color_bytes[1],
@@ -90,36 +93,47 @@ impl FromBytes for StoredTrackMeta {
 
         // Read the length of the name
         let mut name_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut name_len_bytes)?;
+        cursor
+            .read_exact(&mut name_len_bytes)
+            .with_ctx(ParseContext::TrackMeta)?;
         let name_len = u64::from_le_bytes(name_len_bytes) as usize;
         // Read the name itself
-        let name_bytes = safe_read(&mut cursor, name_len)?;
+        let name_bytes = safe_read(&mut cursor, name_len).with_ctx(ParseContext::TrackMeta)?;
         let name = String::from_utf8(name_bytes)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+            .with_ctx(ParseContext::TrackMeta)?;
 
         // Read the length of the region metadatas
         let mut region_metas_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut region_metas_len_bytes)?;
+        cursor
+            .read_exact(&mut region_metas_len_bytes)
+            .with_ctx(ParseContext::TrackMeta)?;
         let region_metas_len = u64::from_le_bytes(region_metas_len_bytes);
 
         // Read the region metadatas
-        let region_metas_bytes = safe_read(&mut cursor, region_metas_len as usize)?;
+        let region_metas_bytes =
+            safe_read(&mut cursor, region_metas_len as usize).with_ctx(ParseContext::TrackMeta)?;
 
         let mut region_metas = HashMap::new();
         let mut region_metas_cursor = Cursor::new(region_metas_bytes.as_slice());
         while region_metas_cursor.position() < region_metas_len {
             // Read the region ID
             let mut region_id_bytes = [0u8; 8];
-            region_metas_cursor.read_exact(&mut region_id_bytes)?;
+            region_metas_cursor
+                .read_exact(&mut region_id_bytes)
+                .with_ctx(ParseContext::TrackMeta)?;
             let region_id = RegionID(u64::from_le_bytes(region_id_bytes) as usize);
 
             // Read the length of the region metadata
             let mut region_meta_len_bytes = [0u8; 8];
-            region_metas_cursor.read_exact(&mut region_meta_len_bytes)?;
+            region_metas_cursor
+                .read_exact(&mut region_meta_len_bytes)
+                .with_ctx(ParseContext::TrackMeta)?;
             let region_meta_len = u64::from_le_bytes(region_meta_len_bytes) as usize;
 
             // Read the region metadata itself
-            let region_meta_bytes = safe_read(&mut region_metas_cursor, region_meta_len)?;
+            let region_meta_bytes = safe_read(&mut region_metas_cursor, region_meta_len)
+                .with_ctx(ParseContext::TrackMeta)?;
             let region_meta = StoredRegionMeta::from_bytes(&region_meta_bytes)?;
 
             // Inser the region metadata into the hashmap
@@ -138,10 +152,12 @@ impl FromBytes for StoredTrackMeta {
     }
 }
 
-fn read_node_graph_layout(cursor: &mut Cursor<&[u8]>) -> std::io::Result<StoredGraphMeta> {
+fn read_node_graph_layout(cursor: &mut Cursor<&[u8]>) -> Result<StoredGraphMeta, LoadError> {
     let mut len_bytes = [0u8; 8];
-    cursor.read_exact(&mut len_bytes)?;
+    cursor
+        .read_exact(&mut len_bytes)
+        .with_ctx(ParseContext::TrackMeta)?;
     let len = u64::from_le_bytes(len_bytes) as usize;
-    let layout_bytes = safe_read(cursor, len)?;
+    let layout_bytes = safe_read(cursor, len).with_ctx(ParseContext::TrackMeta)?;
     StoredGraphMeta::from_bytes(&layout_bytes)
 }

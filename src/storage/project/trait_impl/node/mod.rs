@@ -2,7 +2,11 @@ mod kasl_node;
 
 use crate::{
     core::kasl_node::KaslNode,
-    storage::project::{AsBytes, FromBytes, safe_read},
+    storage::project::{
+        AsBytes, FromBytes,
+        error::{Contextualize, LoadError, ParseContext},
+        safe_read,
+    },
 };
 use kadent_engine::node::{
     Node,
@@ -45,12 +49,14 @@ impl AsBytes for dyn Node {
 }
 
 impl FromBytes for Box<dyn Node> {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Get the first one byte and get the type of the node
         let mut type_byte = [0u8; 1];
-        cursor.read_exact(&mut type_byte)?;
+        cursor
+            .read_exact(&mut type_byte)
+            .with_ctx(ParseContext::Node)?;
 
         match type_byte[0] {
             0 => Ok(Box::new(NoteInputNode::default())),
@@ -59,17 +65,19 @@ impl FromBytes for Box<dyn Node> {
             3 => {
                 // Get the size of the KASL Node data
                 let mut buf = [0u8; 8];
-                cursor.read_exact(&mut buf)?;
+                cursor.read_exact(&mut buf).with_ctx(ParseContext::Node)?;
                 let node_length = u64::from_le_bytes(buf) as usize;
                 // Get the KASL Node data
-                let node_bytes = safe_read(&mut cursor, node_length)?;
+                let node_bytes =
+                    safe_read(&mut cursor, node_length).with_ctx(ParseContext::Node)?;
                 // Create a new node and set the code
                 Ok(Box::new(KaslNode::from_bytes(&node_bytes)?))
             }
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Invalid node kind",
-            )),
+            ))
+            .with_ctx(ParseContext::Node),
         }
     }
 }

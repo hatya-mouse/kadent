@@ -1,4 +1,8 @@
-use crate::storage::project::{AsBytes, FromBytes, safe_read};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+    safe_read,
+};
 use kadent_engine::{
     graph::{Graph, node_id::NodeID},
     node::Node,
@@ -36,29 +40,34 @@ impl AsBytes for Graph {
 }
 
 impl FromBytes for Graph {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut graph = Graph::default();
         let mut cursor = Cursor::new(bytes);
         let mut buf = [0u8; 8];
 
         // Read input_id and output_id
-        cursor.read_exact(&mut buf)?;
+        cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
         let input_id = NodeID(u64::from_le_bytes(buf) as usize);
-        cursor.read_exact(&mut buf)?;
+        cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
         let output_id = NodeID(u64::from_le_bytes(buf) as usize);
 
         // Read nodes
-        cursor.read_exact(&mut buf)?;
+        cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
         let nodes_length = u64::from_le_bytes(buf) as usize;
-        let nodes_bytes = safe_read(&mut cursor, nodes_length)?;
+        let nodes_bytes = safe_read(&mut cursor, nodes_length).with_ctx(ParseContext::Graph)?;
         let mut nodes_cursor = Cursor::new(nodes_bytes.as_slice());
 
         while nodes_cursor.position() < nodes_length as u64 {
-            nodes_cursor.read_exact(&mut buf)?;
+            nodes_cursor
+                .read_exact(&mut buf)
+                .with_ctx(ParseContext::Graph)?;
             let node_id = NodeID(u64::from_le_bytes(buf) as usize);
-            nodes_cursor.read_exact(&mut buf)?;
+            nodes_cursor
+                .read_exact(&mut buf)
+                .with_ctx(ParseContext::Graph)?;
             let node_length = u64::from_le_bytes(buf) as usize;
-            let node_bytes = safe_read(&mut nodes_cursor, node_length)?;
+            let node_bytes =
+                safe_read(&mut nodes_cursor, node_length).with_ctx(ParseContext::Graph)?;
             let node = <Box<dyn Node>>::from_bytes(&node_bytes)?;
             graph.add_node_with_id(node_id, node);
         }
@@ -67,16 +76,16 @@ impl FromBytes for Graph {
         graph.set_output_id(output_id);
 
         // Read edges
-        cursor.read_exact(&mut buf)?;
+        cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
         let edge_count = u64::from_le_bytes(buf) as usize;
         for _ in 0..edge_count {
-            cursor.read_exact(&mut buf)?;
+            cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
             let from_id = NodeID(u64::from_le_bytes(buf) as usize);
-            cursor.read_exact(&mut buf)?;
+            cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
             let out_idx = u64::from_le_bytes(buf) as usize;
-            cursor.read_exact(&mut buf)?;
+            cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
             let to_id = NodeID(u64::from_le_bytes(buf) as usize);
-            cursor.read_exact(&mut buf)?;
+            cursor.read_exact(&mut buf).with_ctx(ParseContext::Graph)?;
             let in_idx = u64::from_le_bytes(buf) as usize;
             graph.add_edge_unchecked((from_id, out_idx, to_id, in_idx));
         }

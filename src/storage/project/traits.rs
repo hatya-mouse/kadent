@@ -1,3 +1,4 @@
+use crate::storage::project::error::LoadError;
 use std::io::{Cursor, Read};
 
 pub trait AsBytes {
@@ -7,7 +8,7 @@ pub trait AsBytes {
 
 pub trait FromBytes: Sized {
     /// Loads the instance of self from bytes.
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self>;
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError>;
 }
 
 pub fn safe_read(cursor: &mut Cursor<&[u8]>, len: usize) -> std::io::Result<Vec<u8>> {

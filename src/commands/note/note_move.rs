@@ -1,6 +1,6 @@
 use crate::ui::workspaces::EditorUi;
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     mixer::TrackID,
     track::{
         RegionID,
@@ -14,7 +14,7 @@ impl EditorUi {
         track_id: &TrackID,
         region_id: &RegionID,
         note_id: &NoteID,
-        new_start: Beats,
+        new_start: Ticks,
     ) {
         // Set the note's start time
         if let Some(region) = self
@@ -54,7 +54,7 @@ impl EditorUi {
         track_id: &TrackID,
         region_id: &RegionID,
         note_id: &NoteID,
-        new_duration: Beats,
+        new_duration: Ticks,
     ) {
         // Set the note's duration
         if let Some(region) = self

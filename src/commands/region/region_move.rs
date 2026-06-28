@@ -1,12 +1,12 @@
 use crate::ui::workspaces::EditorUi;
-use kadent_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
+use kadent_engine::{data_types::Ticks, mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(in crate::commands) fn move_region(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
-        new_start: Beats,
+        new_start: Ticks,
     ) {
         // Move the region to the new start beats
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
@@ -27,7 +27,7 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
-        new_duration: Beats,
+        new_duration: Ticks,
     ) {
         // Move the region to the new start beats
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {

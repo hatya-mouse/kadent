@@ -1,7 +1,11 @@
 mod audio_track;
 mod note_track;
 
-use crate::storage::project::{AsBytes, FromBytes, safe_read};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+    safe_read,
+};
 use kadent_engine::{
     graph::Graph,
     track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
@@ -48,27 +52,33 @@ impl AsBytes for dyn Track {
 }
 
 impl FromBytes for Box<dyn Track> {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the length of the graph data
         let mut graph_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut graph_len_bytes)?;
+        cursor
+            .read_exact(&mut graph_len_bytes)
+            .with_ctx(ParseContext::Track)?;
         let graph_len = u64::from_le_bytes(graph_len_bytes) as usize;
 
         // Read the graph data
-        let graph_data_bytes = safe_read(&mut cursor, graph_len)?;
+        let graph_data_bytes = safe_read(&mut cursor, graph_len).with_ctx(ParseContext::Track)?;
         let graph = Graph::from_bytes(&graph_data_bytes)?;
 
         // Get the first one byte and get the type of the track
         let mut type_byte = [0u8; 1];
         let mut track_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut type_byte)?;
-        cursor.read_exact(&mut track_len_bytes)?;
+        cursor
+            .read_exact(&mut type_byte)
+            .with_ctx(ParseContext::Track)?;
+        cursor
+            .read_exact(&mut track_len_bytes)
+            .with_ctx(ParseContext::Track)?;
         let track_len = u64::from_le_bytes(track_len_bytes) as usize;
 
         // Get the content bytes
-        let track_data_bytes = safe_read(&mut cursor, track_len)?;
+        let track_data_bytes = safe_read(&mut cursor, track_len).with_ctx(ParseContext::Track)?;
 
         let mut track: Box<dyn Track> = match type_byte[0] {
             0 => Box::new(AudioTrack::from_bytes(&track_data_bytes)?),
@@ -77,7 +87,8 @@ impl FromBytes for Box<dyn Track> {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
                     "Invalid track kind",
-                ));
+                ))
+                .with_ctx(ParseContext::Track);
             }
         };
         track.set_graph(graph);

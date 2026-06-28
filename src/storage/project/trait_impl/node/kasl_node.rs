@@ -1,6 +1,9 @@
 use crate::{
     core::kasl_node::KaslNode,
-    storage::project::{AsBytes, FromBytes},
+    storage::project::{
+        AsBytes, FromBytes,
+        error::{Contextualize, LoadError, ParseContext},
+    },
 };
 
 impl AsBytes for KaslNode {
@@ -11,9 +14,10 @@ impl AsBytes for KaslNode {
 }
 
 impl FromBytes for KaslNode {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let path_str = String::from_utf8(bytes.to_vec())
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+            .with_ctx(ParseContext::KaslNode)?;
         let mut node = KaslNode::new();
         if !path_str.is_empty() {
             node.set_file_path(path_str);

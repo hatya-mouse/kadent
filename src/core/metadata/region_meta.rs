@@ -1,15 +1,15 @@
-use kadent_engine::data_types::Beats;
+use kadent_engine::data_types::Ticks;
 
 #[derive(Debug)]
 pub(crate) struct RegionMeta {
     pub name: String,
-    pub start: Beats,
-    pub duration: Beats,
-    pub max_duration: Option<Beats>,
+    pub start: Ticks,
+    pub duration: Ticks,
+    pub max_duration: Option<Ticks>,
 }
 
 impl RegionMeta {
-    pub fn new(name: String, start: Beats, duration: Beats, max_duration: Option<Beats>) -> Self {
+    pub fn new(name: String, start: Ticks, duration: Ticks, max_duration: Option<Ticks>) -> Self {
         Self {
             name,
             start,
@@ -20,11 +20,11 @@ impl RegionMeta {
 
     // --- REGION MODIFICATION ---
 
-    pub fn move_region(&mut self, new_start: Beats) {
+    pub fn move_region(&mut self, new_start: Ticks) {
         self.start = new_start;
     }
 
-    pub fn set_duration(&mut self, new_duration: Beats) {
+    pub fn set_duration(&mut self, new_duration: Ticks) {
         self.duration = self
             .max_duration
             .map(|max| new_duration.min(max))

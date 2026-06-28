@@ -4,7 +4,10 @@ use eframe::egui;
 
 use crate::{
     core::metadata::{NodeMeta, NodeType},
-    storage::project::{AsBytes, FromBytes},
+    storage::project::{
+        AsBytes, FromBytes,
+        error::{Contextualize, LoadError, ParseContext},
+    },
 };
 
 pub struct StoredNodeMeta {
@@ -48,29 +51,40 @@ impl AsBytes for StoredNodeMeta {
 }
 
 impl FromBytes for StoredNodeMeta {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the node type from the first byte
         let mut node_type_byte = [0u8; 1];
-        cursor.read_exact(&mut node_type_byte)?;
+        cursor
+            .read_exact(&mut node_type_byte)
+            .with_ctx(ParseContext::NodeMeta)?;
         let node_type: NodeType = node_type_byte[0].into();
 
         // Read the display name length and bytesa
         let mut name_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut name_len_bytes)?;
+        cursor
+            .read_exact(&mut name_len_bytes)
+            .with_ctx(ParseContext::NodeMeta)?;
         let name_len = u64::from_le_bytes(name_len_bytes) as usize;
 
         let mut name_bytes = vec![0u8; name_len];
-        cursor.read_exact(&mut name_bytes)?;
+        cursor
+            .read_exact(&mut name_bytes)
+            .with_ctx(ParseContext::NodeMeta)?;
         let display_name = String::from_utf8(name_bytes)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+            .with_ctx(ParseContext::NodeMeta)?;
 
         // Read the position from the bytes
         let mut pos_x_bytes = [0u8; 4];
         let mut pos_y_bytes = [0u8; 4];
-        cursor.read_exact(&mut pos_x_bytes)?;
-        cursor.read_exact(&mut pos_y_bytes)?;
+        cursor
+            .read_exact(&mut pos_x_bytes)
+            .with_ctx(ParseContext::NodeMeta)?;
+        cursor
+            .read_exact(&mut pos_y_bytes)
+            .with_ctx(ParseContext::NodeMeta)?;
 
         // Construct the StoredNodeMeta from the read data
         let stored_node_meta = StoredNodeMeta {

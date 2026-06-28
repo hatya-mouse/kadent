@@ -10,7 +10,11 @@ pub use track_meta::StoredTrackMeta;
 
 use crate::{
     core::metadata::ProjectMeta,
-    storage::project::{AsBytes, FromBytes, traits::safe_read},
+    storage::project::{
+        AsBytes, FromBytes,
+        error::{Contextualize, LoadError, ParseContext},
+        traits::safe_read,
+    },
 };
 use kadent_engine::mixer::TrackID;
 use std::{
@@ -70,18 +74,21 @@ impl AsBytes for StoredProjMeta {
 }
 
 impl FromBytes for StoredProjMeta {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // --- TRACK METAS ---
 
         // Read the length of the track metadatas
         let mut track_metas_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut track_metas_len_bytes)?;
+        cursor
+            .read_exact(&mut track_metas_len_bytes)
+            .with_ctx(ParseContext::ProjectMeta)?;
         let track_metas_len = u64::from_le_bytes(track_metas_len_bytes);
 
         // Read the track metadatas
-        let track_metas_bytes = safe_read(&mut cursor, track_metas_len as usize)?;
+        let track_metas_bytes =
+            safe_read(&mut cursor, track_metas_len as usize).with_ctx(ParseContext::ProjectMeta)?;
 
         // Loop over the track metadatas and read each track metadata
         let mut track_metas = HashMap::new();
@@ -89,15 +96,20 @@ impl FromBytes for StoredProjMeta {
         while track_metas_cursor.position() < track_metas_len {
             // Read the track ID and the length of the track metadata
             let mut track_id_bytes = [0u8; 8];
-            track_metas_cursor.read_exact(&mut track_id_bytes)?;
+            track_metas_cursor
+                .read_exact(&mut track_id_bytes)
+                .with_ctx(ParseContext::ProjectMeta)?;
             let track_id = TrackID(u64::from_le_bytes(track_id_bytes) as usize);
 
             let mut track_meta_len_bytes = [0u8; 8];
-            track_metas_cursor.read_exact(&mut track_meta_len_bytes)?;
+            track_metas_cursor
+                .read_exact(&mut track_meta_len_bytes)
+                .with_ctx(ParseContext::ProjectMeta)?;
             let track_meta_len = u64::from_le_bytes(track_meta_len_bytes) as usize;
 
             // Read the track metadata
-            let track_meta_bytes = safe_read(&mut track_metas_cursor, track_meta_len)?;
+            let track_meta_bytes = safe_read(&mut track_metas_cursor, track_meta_len)
+                .with_ctx(ParseContext::ProjectMeta)?;
 
             // Convert the track metadata bytes to a StoredTrackMeta and insert it into the HashMap
             let track_meta = StoredTrackMeta::from_bytes(&track_meta_bytes)?;
@@ -108,11 +120,14 @@ impl FromBytes for StoredProjMeta {
 
         // Read the length of the kasl search paths
         let mut kasl_search_paths_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut kasl_search_paths_len_bytes)?;
+        cursor
+            .read_exact(&mut kasl_search_paths_len_bytes)
+            .with_ctx(ParseContext::ProjectMeta)?;
         let kasl_search_paths_len = u64::from_le_bytes(kasl_search_paths_len_bytes);
 
         // Read the kasl search paths data
-        let kasl_search_paths_bytes = safe_read(&mut cursor, kasl_search_paths_len as usize)?;
+        let kasl_search_paths_bytes = safe_read(&mut cursor, kasl_search_paths_len as usize)
+            .with_ctx(ParseContext::ProjectMeta)?;
 
         // Read the kasl search paths
         let mut kasl_search_paths = Vec::new();
@@ -120,13 +135,17 @@ impl FromBytes for StoredProjMeta {
         while kasl_search_paths_cursor.position() < kasl_search_paths_len {
             // Read the length of the path
             let mut path_len_bytes = [0u8; 8];
-            kasl_search_paths_cursor.read_exact(&mut path_len_bytes)?;
+            kasl_search_paths_cursor
+                .read_exact(&mut path_len_bytes)
+                .with_ctx(ParseContext::ProjectMeta)?;
             let path_len = u64::from_le_bytes(path_len_bytes) as usize;
 
             // Read the path bytes and convert it to a String
-            let path_bytes = safe_read(&mut kasl_search_paths_cursor, path_len)?;
+            let path_bytes = safe_read(&mut kasl_search_paths_cursor, path_len)
+                .with_ctx(ParseContext::ProjectMeta)?;
             let path = String::from_utf8(path_bytes)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+                .with_ctx(ParseContext::ProjectMeta)?;
             kasl_search_paths.push(path);
         }
 

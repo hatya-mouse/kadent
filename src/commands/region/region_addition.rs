@@ -1,6 +1,6 @@
 use crate::{core::metadata::RegionMeta, ui::workspaces::EditorUi};
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     mixer::TrackID,
     track::{
         RegionID,
@@ -16,11 +16,11 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         name: String,
-        start: Beats,
+        start: Ticks,
     ) {
-        let sample_rate = self.proj_ctx.project.audio_ctx.sample_rate;
-        let channels = self.proj_ctx.project.audio_ctx.channels;
-        let duration = Beats(1.0);
+        let sample_rate = self.ui_state.audio_ctx.sample_rate;
+        let channels = self.ui_state.audio_ctx.channels;
+        let duration = Ticks(self.ui_state.audio_ctx.resolution);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
@@ -40,7 +40,11 @@ impl EditorUi {
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             // Create a region and add it to the audio track
             let base_bpm = 120.0;
-            let frames = (duration.0 / base_bpm) as usize * 60 * sample_rate;
+            let frames = (duration.0 as f64
+                / (self.ui_state.audio_ctx.resolution as f64 * base_bpm))
+                as usize
+                * 60
+                * sample_rate as usize;
             let audio_region = AudioRegion::zeros(
                 frames,
                 sample_rate as u32,
@@ -68,9 +72,9 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         name: String,
-        start: Beats,
+        start: Ticks,
     ) {
-        let duration = Beats(1.0);
+        let duration = Ticks(self.ui_state.audio_ctx.resolution);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
@@ -108,9 +112,9 @@ impl EditorUi {
 /// Returns None if start is already occupied, or Some(clamped_duration) otherwise.
 fn calculate_region_placement(
     regions: &HashMap<RegionID, RegionMeta>,
-    start: Beats,
-    desired_duration: Beats,
-) -> Option<Beats> {
+    start: Ticks,
+    desired_duration: Ticks,
+) -> Option<Ticks> {
     // Do not add region if the start beat has already been occupied
     let start_blocked = regions
         .values()
@@ -122,10 +126,10 @@ fn calculate_region_placement(
     // Clamp the region using the nearest region
     let clamped_duration = regions
         .values()
-        .filter(|r| r.start.0 > start.0)
-        .map(|r| Beats(r.start.0 - start.0))
-        .filter(|d| d.0 < desired_duration.0)
-        .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
+        .filter(|r| r.start > start)
+        .map(|r| r.start - start)
+        .filter(|d| d < &desired_duration)
+        .min_by(|a, b| a.partial_cmp(b).unwrap())
         .unwrap_or(desired_duration);
 
     Some(clamped_duration)

@@ -33,11 +33,13 @@ impl EditorUi {
     }
 
     fn playhead_beats(&mut self, ui: &mut egui::Ui) {
+        let playhead_beats =
+            self.ui_state.playhead_ticks.0 as f32 / self.ui_state.audio_ctx.resolution as f32;
         toolbar_group(ui, |ui| {
             ui.add_sized(
                 [200.0, 28.0],
                 egui::Label::new(
-                    egui::RichText::new(format!("{:.3}", self.ui_state.playhead_beats.0))
+                    egui::RichText::new(format!("{:.3}", playhead_beats))
                         .size(theme::toolbar_beats_font_size())
                         .color(theme::primary_fg(ui.visuals().dark_mode))
                         .bold(),

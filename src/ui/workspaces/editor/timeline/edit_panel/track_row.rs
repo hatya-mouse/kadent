@@ -4,7 +4,7 @@ use crate::{
     ui::{theme, workspaces::EditorUi},
 };
 use eframe::egui;
-use kadent_engine::{data_types::Beats, mixer::TrackID, track::RegionID};
+use kadent_engine::{data_types::Ticks, mixer::TrackID, track::RegionID};
 
 impl EditorUi {
     pub(super) fn track_row(
@@ -23,7 +23,8 @@ impl EditorUi {
             return;
         };
 
-        let ppb = self.ui_state.timeline_state.pixels_per_beat;
+        let ppt = self.ui_state.timeline_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
         let region_ids: Vec<RegionID> = track_meta.regions.keys().copied().collect();
 
         // Loop through the regions in the track and draw them
@@ -39,8 +40,8 @@ impl EditorUi {
             };
 
             // Calculate where to put the region
-            let x = row_rect.min.x + region_meta.start.0 as f32 * ppb;
-            let w = (region_meta.duration.0 as f32 * ppb).max(8.0);
+            let x = row_rect.min.x + region_meta.start.0 as f32 * ppt;
+            let w = (region_meta.duration.0 as f32 * ppt).max(8.0);
             let region_rect = egui::Rect::from_min_size(
                 egui::pos2(x, row_rect.min.y + 2.0),
                 egui::vec2(w, row_rect.height() - 4.0),
@@ -96,9 +97,9 @@ impl EditorUi {
             let start = response
                 .interact_pointer_pos()
                 .map(|pos| {
-                    Beats(
-                        ((pos.x - row_rect.min.x) / self.ui_state.timeline_state.pixels_per_beat)
-                            as f64,
+                    Ticks(
+                        ((pos.x - row_rect.min.x) * self.ui_state.timeline_ticks_per_pixel())
+                            as u64,
                     )
                 })
                 .unwrap_or_default();
@@ -153,8 +154,8 @@ impl EditorUi {
             self.push_action(EditorAction::ArmTrack(*track_id));
 
             // Calculate the new duration from the drag amount
-            let delta_beats = Beats(
-                (resize_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
+            let delta_ticks = Ticks(
+                (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as u64,
             );
             if let Some(region) = self
                 .proj_ctx
@@ -162,7 +163,7 @@ impl EditorUi {
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                region.set_duration(Beats((region.duration.0 + delta_beats.0).max(0.0)));
+                region.set_duration((region.duration + delta_ticks).max(Ticks(0)));
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
@@ -184,8 +185,8 @@ impl EditorUi {
                 self.ui_state.select_region(*track_id, *region_id);
                 self.push_action(EditorAction::ArmTrack(*track_id));
 
-                let delta_beats = Beats(
-                    (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,
+                let delta_ticks = Ticks(
+                    (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as u64,
                 );
                 if let Some(region) = self
                     .proj_ctx
@@ -193,7 +194,7 @@ impl EditorUi {
                     .get_track_mut(track_id)
                     .and_then(|track| track.get_region_mut(region_id))
                 {
-                    region.move_region(Beats((region.start.0 + delta_beats.0).max(0.0)));
+                    region.move_region((region.start + delta_ticks).max(Ticks(0)));
                 }
             } else if move_res.drag_stopped()
                 && let Some(new_start) = self

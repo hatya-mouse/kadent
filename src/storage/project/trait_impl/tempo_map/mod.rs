@@ -1,6 +1,10 @@
 mod tempo_event;
 
-use crate::storage::project::{AsBytes, FromBytes, safe_read};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+    safe_read,
+};
 use kadent_engine::mixer::{TempoEvent, TempoMap};
 use std::io::{Cursor, Read};
 
@@ -19,16 +23,19 @@ impl AsBytes for TempoMap {
 }
 
 impl FromBytes for TempoMap {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the length of the events data
         let mut events_len_bytes = [0u8; 8];
-        cursor.read_exact(&mut events_len_bytes)?;
+        cursor
+            .read_exact(&mut events_len_bytes)
+            .with_ctx(ParseContext::TempoMap)?;
         let events_len = u64::from_le_bytes(events_len_bytes) as usize;
 
         // Get the events data bytes
-        let events_data_bytes = safe_read(&mut cursor, events_len)?;
+        let events_data_bytes =
+            safe_read(&mut cursor, events_len).with_ctx(ParseContext::TempoMap)?;
 
         // Parse the events from the data bytes
         let mut events = Vec::new();
@@ -36,7 +43,9 @@ impl FromBytes for TempoMap {
         while events_cursor.position() < events_cursor.get_ref().len() as u64 {
             // Get the bytes for the next event
             let mut event_bytes = [0u8; 24];
-            events_cursor.read_exact(&mut event_bytes)?;
+            events_cursor
+                .read_exact(&mut event_bytes)
+                .with_ctx(ParseContext::TempoMap)?;
             // Parse the event from the bytes
             let event = TempoEvent::from_bytes(&event_bytes)?;
             events.push(event);

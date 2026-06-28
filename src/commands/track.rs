@@ -13,8 +13,8 @@ impl EditorUi {
     pub(super) fn add_track(&mut self, track_type: TrackType, name: String, color: egui::Color32) {
         // Create a track with the given type
         let track: Box<dyn Track> = match track_type {
-            TrackType::Audio => Box::new(AudioTrack::new(self.proj_ctx.project.audio_ctx.clone())),
-            TrackType::Note => Box::new(NoteTrack::new(self.proj_ctx.project.audio_ctx.clone())),
+            TrackType::Audio => Box::new(AudioTrack::new(self.ui_state.audio_ctx.clone())),
+            TrackType::Note => Box::new(NoteTrack::new(self.ui_state.audio_ctx.clone())),
         };
         // Add a track to the project
         let track_id = self.proj_ctx.project.add_track(track);

@@ -64,7 +64,7 @@ impl EditorUi {
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
                     self.show_temp_status("Exported Project", theme::successful_fg());
-                    write_samples_to_wav(path, &samples, &self.proj_ctx.project.audio_ctx);
+                    write_samples_to_wav(path, &samples, &self.ui_state.audio_ctx);
                 }
             }
         }

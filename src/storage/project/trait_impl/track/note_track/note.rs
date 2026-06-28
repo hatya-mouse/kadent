@@ -1,5 +1,8 @@
-use crate::storage::project::{AsBytes, FromBytes};
-use kadent_engine::{data_types::Beats, track::note_track::Note};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+};
+use kadent_engine::{data_types::Ticks, track::note_track::Note};
 use std::io::{Cursor, Read};
 
 impl AsBytes for Note {
@@ -12,7 +15,7 @@ impl AsBytes for Note {
 }
 
 impl FromBytes for Note {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Get the start beats, duration, pitch and velocity from the bytes
@@ -21,13 +24,21 @@ impl FromBytes for Note {
         let mut pitch_bytes = [0u8; 4];
         let mut velocity_bytes = [0u8; 4];
 
-        cursor.read_exact(&mut start_bytes)?;
-        cursor.read_exact(&mut duration_bytes)?;
-        cursor.read_exact(&mut pitch_bytes)?;
-        cursor.read_exact(&mut velocity_bytes)?;
+        cursor
+            .read_exact(&mut start_bytes)
+            .with_ctx(ParseContext::Note)?;
+        cursor
+            .read_exact(&mut duration_bytes)
+            .with_ctx(ParseContext::Note)?;
+        cursor
+            .read_exact(&mut pitch_bytes)
+            .with_ctx(ParseContext::Note)?;
+        cursor
+            .read_exact(&mut velocity_bytes)
+            .with_ctx(ParseContext::Note)?;
 
-        let start = Beats(f64::from_le_bytes(start_bytes));
-        let duration = Beats(f64::from_le_bytes(duration_bytes));
+        let start = Ticks(u64::from_le_bytes(start_bytes));
+        let duration = Ticks(u64::from_le_bytes(duration_bytes));
         let pitch = f32::from_le_bytes(pitch_bytes);
         let velocity = f32::from_le_bytes(velocity_bytes);
 

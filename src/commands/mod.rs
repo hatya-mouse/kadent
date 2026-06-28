@@ -11,7 +11,7 @@ mod track;
 use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
 use eframe::egui;
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
     track::{
@@ -61,16 +61,16 @@ pub(crate) enum EditorAction {
     // --- REGION ---
     /// Add a new audio region to the given audio track.
     /// `(track_id, name, start)`
-    AddAudioRegion(TrackID, String, Beats),
+    AddAudioRegion(TrackID, String, Ticks),
     /// Add a new note region to the given note track.
     /// `(track_id, name, start)`
-    AddNoteRegion(TrackID, String, Beats),
+    AddNoteRegion(TrackID, String, Ticks),
     /// Move a region to a new start position in beats.
     /// `(track_id, region_id, new_start)`
-    MoveRegion(TrackID, RegionID, Beats),
+    MoveRegion(TrackID, RegionID, Ticks),
     /// Set a duration of the given region.
     /// `(track_id, region_id, new_duration)`
-    SetRegionDuration(TrackID, RegionID, Beats),
+    SetRegionDuration(TrackID, RegionID, Ticks),
     /// Remove a region from the given track.
     /// `(track_id, region_id)`
     RemoveRegion(TrackID, RegionID),
@@ -98,13 +98,13 @@ pub(crate) enum EditorAction {
     AddNote(TrackID, RegionID, Note),
     /// Move a note to a new start position in beats.
     /// `(track_id, region_id, note_id, new_start)`
-    MoveNote(TrackID, RegionID, NoteID, Beats),
+    MoveNote(TrackID, RegionID, NoteID, Ticks),
     /// Set a pitch of a note in the given note region.
     /// `(track_id, region_id, note_id, new_pitch)`
     SetNotePitch(TrackID, RegionID, NoteID, f32),
     /// Set a duration of a note in the given note region.
     /// `(track_id, region_id, note_id, new_duration)`
-    SetNoteDuration(TrackID, RegionID, NoteID, Beats),
+    SetNoteDuration(TrackID, RegionID, NoteID, Ticks),
     /// Remove a note from the given note region.
     /// `(track_id, region_id, note_id)`
     RemoveNote(TrackID, RegionID, NoteID),

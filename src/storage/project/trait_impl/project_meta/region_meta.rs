@@ -1,4 +1,7 @@
-use crate::storage::project::{AsBytes, FromBytes};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+};
 
 pub struct StoredRegionMeta {
     pub name: String,
@@ -20,10 +23,11 @@ impl AsBytes for StoredRegionMeta {
 }
 
 impl FromBytes for StoredRegionMeta {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         // Read the name from the bytes vector
         let name = String::from_utf8(bytes.to_vec())
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+            .with_ctx(ParseContext::RegionMeta)?;
         Ok(Self { name })
     }
 }

@@ -17,7 +17,7 @@ use crate::ui::workspaces::editor::state::{
     timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
 use kadent_engine::{
-    data_types::Beats,
+    data_types::{AudioContext, Ticks},
     graph::node_id::NodeID,
     mixer::TrackID,
     track::{RegionID, note_track::NoteID},
@@ -100,7 +100,7 @@ pub(crate) struct EditorUiState {
     /// Whether the audio is playing.
     pub is_playing: bool,
     /// The current playhead position, in beats.
-    pub playhead_beats: Beats,
+    pub playhead_ticks: Ticks,
     /// The latest playhead samples received from the audio thread.
     pub last_playhead: usize,
 
@@ -128,9 +128,20 @@ pub(crate) struct EditorUiState {
     pub default_output_device: Option<cpal::Device>,
     // The fetched audio output devices.
     pub output_devices: Vec<cpal::Device>,
+
+    // --- AUDIO CONTEXT ---
+    /// The current audio context.
+    pub audio_ctx: AudioContext,
 }
 
 impl EditorUiState {
+    pub fn with_audio_ctx(audio_ctx: AudioContext) -> Self {
+        EditorUiState {
+            audio_ctx,
+            ..Default::default()
+        }
+    }
+
     /// Set the selected track to the given one, deselecting the note and the node.
     pub fn select_track(&mut self, track_id: TrackID) {
         self.selection = Selection::Track(track_id);
@@ -154,5 +165,15 @@ impl EditorUiState {
     /// Deselects the currently selected content.
     pub fn deselect_all(&mut self) {
         self.selection = Selection::None;
+    }
+
+    /// Gets the ticks per pixel in the timeline.
+    pub fn timeline_ticks_per_pixel(&self) -> f32 {
+        self.audio_ctx.resolution as f32 / self.timeline_state.pixels_per_beat
+    }
+
+    /// Gets the ticks per pixel in the piano roll.
+    pub fn piano_roll_ticks_per_pixel(&self) -> f32 {
+        self.audio_ctx.resolution as f32 / self.piano_roll_state.pixels_per_beat
     }
 }

@@ -8,7 +8,7 @@ use crate::{
     ui::workspaces::EditorUi,
 };
 use kadent_engine::{
-    data_types::{AudioContext, Beats},
+    data_types::{AudioContext, Ticks},
     mixer::Project,
 };
 use std::{io, path::PathBuf};
@@ -31,12 +31,13 @@ pub(crate) fn create_new_project(
 
     // 3. Create an empty project file
     let audio_ctx = AudioContext {
+        resolution: 480,
         channels: 2,
         sample_rate: 48000,
         buffer_size: 512,
         max_voices: 32,
     };
-    let project = Project::new(audio_ctx.clone(), 120.0, Beats(0.0), Beats(8.0));
+    let project = Project::new(audio_ctx.clone(), 120.0, Ticks(3840), Ticks(3840));
     let project_meta = ProjectMeta {
         kasl_search_paths: EditorUi::system_kasl_search_paths(),
         ..Default::default()

@@ -1,6 +1,10 @@
 use crate::{
     core::metadata::GraphMeta,
-    storage::project::{AsBytes, FromBytes, trait_impl::project_meta::StoredNodeMeta},
+    storage::project::{
+        AsBytes, FromBytes,
+        error::{Contextualize, LoadError, ParseContext},
+        trait_impl::project_meta::StoredNodeMeta,
+    },
 };
 use kadent_engine::graph::node_id::NodeID;
 use std::{
@@ -56,17 +60,21 @@ impl AsBytes for StoredGraphMeta {
 }
 
 impl FromBytes for StoredGraphMeta {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the length of the nodes bytes
         let mut nodes_bytes_length_bytes = [0u8; 8];
-        cursor.read_exact(&mut nodes_bytes_length_bytes)?;
+        cursor
+            .read_exact(&mut nodes_bytes_length_bytes)
+            .with_ctx(ParseContext::GraphMeta)?;
         let nodes_bytes_length = u64::from_le_bytes(nodes_bytes_length_bytes) as usize;
 
         // Read the nodes bytes
         let mut nodes_bytes = vec![0u8; nodes_bytes_length];
-        cursor.read_exact(&mut nodes_bytes)?;
+        cursor
+            .read_exact(&mut nodes_bytes)
+            .with_ctx(ParseContext::GraphMeta)?;
 
         // Read each node
         let mut nodes_cursor = Cursor::new(nodes_bytes);
@@ -74,17 +82,23 @@ impl FromBytes for StoredGraphMeta {
         while (nodes_cursor.position() as usize) < nodes_bytes_length {
             // Read the node ID
             let mut node_id_bytes = [0u8; 8];
-            nodes_cursor.read_exact(&mut node_id_bytes)?;
+            nodes_cursor
+                .read_exact(&mut node_id_bytes)
+                .with_ctx(ParseContext::GraphMeta)?;
             let node_id = NodeID(u64::from_le_bytes(node_id_bytes) as usize);
 
             // Read the length of the node bytes
             let mut node_bytes_length_bytes = [0u8; 8];
-            nodes_cursor.read_exact(&mut node_bytes_length_bytes)?;
+            nodes_cursor
+                .read_exact(&mut node_bytes_length_bytes)
+                .with_ctx(ParseContext::GraphMeta)?;
             let node_bytes_length = u64::from_le_bytes(node_bytes_length_bytes) as usize;
 
             // Read the node bytes
             let mut node_bytes = vec![0u8; node_bytes_length];
-            nodes_cursor.read_exact(&mut node_bytes)?;
+            nodes_cursor
+                .read_exact(&mut node_bytes)
+                .with_ctx(ParseContext::GraphMeta)?;
 
             // Create the StoredNodeMeta from the bytes and insert it into the map
             let node_meta = StoredNodeMeta::from_bytes(&node_bytes)?;

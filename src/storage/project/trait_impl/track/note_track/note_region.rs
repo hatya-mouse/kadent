@@ -1,6 +1,10 @@
-use crate::storage::project::{AsBytes, FromBytes, safe_read};
+use crate::storage::project::{
+    AsBytes, FromBytes,
+    error::{Contextualize, LoadError, ParseContext},
+    safe_read,
+};
 use kadent_engine::{
-    data_types::Beats,
+    data_types::Ticks,
     track::note_track::{Note, NoteID, NoteRegion},
 };
 use std::{
@@ -29,24 +33,31 @@ impl AsBytes for NoteRegion {
 }
 
 impl FromBytes for NoteRegion {
-    fn from_bytes(bytes: &[u8]) -> std::io::Result<Self> {
+    fn from_bytes(bytes: &[u8]) -> Result<Self, LoadError> {
         let mut cursor = Cursor::new(bytes);
 
         // Read the start and duration
         let mut start_bytes = [0u8; 8];
         let mut duration_bytes = [0u8; 8];
-        cursor.read_exact(&mut start_bytes)?;
-        cursor.read_exact(&mut duration_bytes)?;
-        let start = Beats(f64::from_le_bytes(start_bytes));
-        let duration = Beats(f64::from_le_bytes(duration_bytes));
+        cursor
+            .read_exact(&mut start_bytes)
+            .with_ctx(ParseContext::NoteRegion)?;
+        cursor
+            .read_exact(&mut duration_bytes)
+            .with_ctx(ParseContext::NoteRegion)?;
+        let start = Ticks(u64::from_le_bytes(start_bytes));
+        let duration = Ticks(u64::from_le_bytes(duration_bytes));
 
         // Read the length of the note bytes
         let mut note_bytes = [0u8; 8];
-        cursor.read_exact(&mut note_bytes)?;
+        cursor
+            .read_exact(&mut note_bytes)
+            .with_ctx(ParseContext::NoteRegion)?;
         let notes_len = u64::from_le_bytes(note_bytes) as usize;
 
         // Read the note bytes
-        let notes_data_bytes = safe_read(&mut cursor, notes_len)?;
+        let notes_data_bytes =
+            safe_read(&mut cursor, notes_len).with_ctx(ParseContext::NoteRegion)?;
 
         // Parse the notes
         let mut notes = HashMap::new();
@@ -54,8 +65,12 @@ impl FromBytes for NoteRegion {
         while note_cursor.position() < notes_len as u64 {
             let mut note_id_bytes = [0u8; 8];
             let mut note_data_bytes = [0u8; 24];
-            note_cursor.read_exact(&mut note_id_bytes)?;
-            note_cursor.read_exact(&mut note_data_bytes)?;
+            note_cursor
+                .read_exact(&mut note_id_bytes)
+                .with_ctx(ParseContext::NoteRegion)?;
+            note_cursor
+                .read_exact(&mut note_data_bytes)
+                .with_ctx(ParseContext::NoteRegion)?;
 
             let note_id = u64::from_le_bytes(note_id_bytes) as usize;
             let note = Note::from_bytes(&note_data_bytes)?;
