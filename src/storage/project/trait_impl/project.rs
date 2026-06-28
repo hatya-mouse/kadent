@@ -52,7 +52,7 @@ impl FromBytes for Project {
         let mut cursor = Cursor::new(bytes);
 
         // Read the audio configurations from the bytes
-        let mut audio_ctx_bytes = [0u8; 32];
+        let mut audio_ctx_bytes = [0u8; 40];
         cursor
             .read_exact(&mut audio_ctx_bytes)
             .with_ctx(ParseContext::Project)?;

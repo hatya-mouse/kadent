@@ -27,6 +27,7 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<EditorContext
                 );
 
                 let audio_ctx = proj_res.project.audio_ctx.clone();
+                println!("Project loaded successfully: {:?}", audio_ctx);
                 Some(EditorContext::new(
                     ProjectContext::new(project_path, proj_res.project, project_meta),
                     audio_ctx,

@@ -41,7 +41,7 @@ impl FromBytes for AudioContext {
         cursor
             .read_exact(&mut max_voices_bytes)
             .with_ctx(ParseContext::AudioContext)?;
-        let resolution = u64::from_le_bytes(channels_bytes);
+        let resolution = u64::from_le_bytes(resolution_bytes);
         let channels = u64::from_le_bytes(channels_bytes) as usize;
         let sample_rate = u64::from_le_bytes(sample_rate_bytes);
         let buffer_size = u64::from_le_bytes(buffer_size_bytes) as usize;
