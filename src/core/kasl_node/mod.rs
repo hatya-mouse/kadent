@@ -1,6 +1,8 @@
 mod error;
+mod syntax;
 
-pub use error::KaslNodeError;
+pub(crate) use error::KaslNodeError;
+pub(crate) use syntax::kasl_syntax_set;
 
 use kadent_engine::{
     data_types::{AudioContext, TypeInfo},

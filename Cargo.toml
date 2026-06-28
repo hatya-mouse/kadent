@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 dirs = "6.0.0"
 eframe = "0.34.3"
-egui_extras = { version = "0.34.3", features = ["all_loaders"] }
+egui_extras = { version = "0.34.3", features = ["all_loaders", "syntect"] }
 hound = "3.5.1"
 kasl = { version = "0.2.29", features = ["cranelift"] }
 kadent_engine = { git = "https://github.com/hatya-mouse/kadent_engine" }
@@ -16,6 +16,10 @@ ringbuf = "0.5.0"
 serde = "1.0.228"
 serde_json = "1.0.150"
 cpal = "0.18.1"
+syntect = "5.3.0"
+
+[build-dependencies]
+syntect = "5.3.0"
 
 [package.metadata.bundle]
 name = "Kadent"

@@ -3,7 +3,7 @@ use kasl::core::error::ErrorRecord;
 use std::fmt::Display;
 
 #[derive(Debug)]
-pub enum KaslNodeError {
+pub(crate) enum KaslNodeError {
     Compile(Vec<ErrorRecord>),
     FileRead(std::io::Error),
     Backend(String),

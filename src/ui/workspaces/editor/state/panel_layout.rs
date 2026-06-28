@@ -8,6 +8,7 @@ pub enum PanelView {
     NodeGraph,
     Inspector,
     ErrorList,
+    CodeEditor,
 }
 
 impl Display for PanelView {
@@ -18,6 +19,7 @@ impl Display for PanelView {
             PanelView::NodeGraph => write!(f, "Node Graph"),
             PanelView::Inspector => write!(f, "Inspector"),
             PanelView::ErrorList => write!(f, "Error List"),
+            PanelView::CodeEditor => write!(f, "Code Editor"),
         }
     }
 }
@@ -30,6 +32,7 @@ impl PanelView {
             PanelView::NodeGraph,
             PanelView::Inspector,
             PanelView::ErrorList,
+            PanelView::CodeEditor,
         ]
     }
 }

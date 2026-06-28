@@ -1,3 +1,4 @@
+mod code_editor;
 mod device_fetching;
 mod error_list;
 mod inspector;
@@ -12,6 +13,7 @@ mod toolbar;
 
 use crate::{
     core::{
+        kasl_node::kasl_syntax_set,
         midi_input::{MidiCommand, spawn_midi_thread},
         project_ctx::{EditorContext, ProjectContext},
     },
@@ -21,6 +23,7 @@ use cpal::traits::DeviceTrait;
 use eframe::egui;
 use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
 use std::{sync::mpsc, time::Duration};
+use syntect::parsing::SyntaxSet;
 
 pub struct EditorUi {
     /// A thread handle to communicate with the audio thread.
@@ -33,6 +36,8 @@ pub struct EditorUi {
     pub errors: Vec<AudioError>,
     /// UI states to store the current UI state.
     pub ui_state: EditorUiState,
+    /// Syntax set for KASL language.
+    pub syntax_set: SyntaxSet,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
@@ -49,6 +54,7 @@ impl EditorUi {
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
             ui_state: EditorUiState::default(),
+            syntax_set: kasl_syntax_set(),
             debug_mode: true,
         };
 
