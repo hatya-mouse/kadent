@@ -21,6 +21,12 @@ pub(crate) enum TrackType {
     Note,
 }
 
+impl TrackType {
+    pub fn all() -> [Self; 2] {
+        [Self::Audio, Self::Note]
+    }
+}
+
 impl TrackMeta {
     pub fn new(name: String, color: egui::Color32, track_type: TrackType) -> Self {
         Self {

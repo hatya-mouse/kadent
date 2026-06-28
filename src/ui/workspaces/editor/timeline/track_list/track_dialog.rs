@@ -25,16 +25,18 @@ impl EditorUi {
 
         let modal = dialog(ui, "Add Track", |ui| {
             ui.columns(2, |cols| {
+                *cols[0].style_mut() = theme::menu_style(&cols[0]);
                 cols[0].label("Track Type");
-                for track_type in [TrackType::Audio, TrackType::Note] {
-                    let selected = state.selected_track_type == track_type;
+
+                TrackType::all().iter().for_each(|track_type| {
+                    let selected = &state.selected_track_type == track_type;
                     if cols[0]
                         .selectable_label(selected, track_type.to_string())
                         .clicked()
                     {
-                        state.selected_track_type = track_type;
+                        state.selected_track_type = *track_type;
                     }
-                }
+                });
 
                 cols[1].label("Track Name");
                 text_input(&mut cols[1], &mut state.name);

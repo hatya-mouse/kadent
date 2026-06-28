@@ -3,8 +3,8 @@ use eframe::egui::{self, Style};
 
 const ITEM_CORNER_RADIUS: egui::CornerRadius = egui::CornerRadius::same(4);
 const MENU_CORNER_RADIUS: egui::CornerRadius = egui::CornerRadius::same(7);
-const MENU_SPACING: f32 = 2.0;
-const MENU_MARGIN: i8 = 3;
+const MENU_SPACING: f32 = 3.0;
+const MENU_MARGIN: i8 = 4;
 const MENU_ITEM_PADDING: egui::Vec2 = egui::vec2(5.0, 3.0);
 
 pub(crate) fn menu_style(ui: &egui::Ui) -> Style {
