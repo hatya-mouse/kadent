@@ -10,28 +10,23 @@ use kadent_engine::{
 use std::path::{Path, PathBuf};
 
 impl EditorUi {
-    pub(super) fn save_project(&mut self) {
-        match save_project(
+    pub(super) fn save_all(&mut self) {
+        let program_res = self.save_programs();
+        let proj_res = save_project(
             &self.proj_ctx.project_path,
             &self.proj_ctx.project,
             &self.proj_ctx.project_meta,
-        ) {
-            Ok(()) => (),
-            Err(e) => {
-                eprintln!("Failed to save project: {:?}", e);
-            }
+        );
+
+        if program_res.is_ok() && proj_res.is_ok() {
+            self.show_temp_status("Saved Project");
+        } else {
+            self.show_temp_status("Failed to Save Project");
         }
     }
 
-    pub(super) fn open_project(&mut self, proj_path: PathBuf) {
-        let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
-            return;
-        };
-        self.set_editor_ctx(editor_ctx);
-    }
-
     /// Save all opened programs to their respective file paths.
-    pub(super) fn save_programs(&mut self) {
+    fn save_programs(&mut self) -> std::io::Result<()> {
         let paths_and_buffers = self
             .ui_state
             .code_editor_state
@@ -39,10 +34,18 @@ impl EditorUi {
             .iter()
             .zip(self.ui_state.code_editor_state.code_buffers.iter());
         for (path, buffer) in paths_and_buffers {
-            if let Err(e) = std::fs::write(path, buffer) {
-                eprintln!("Failed to save program {}: {:?}", path.display(), e);
-            }
+            std::fs::write(path, buffer)?;
         }
+        Ok(())
+    }
+
+    pub(super) fn open_project(&mut self, proj_path: PathBuf) {
+        let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
+            self.show_temp_status("Failed to Open Project");
+            return;
+        };
+        self.set_editor_ctx(editor_ctx);
+        self.show_temp_status("Opened Project");
     }
 
     pub(super) fn export_project(&mut self, path: &Path) {
@@ -57,9 +60,10 @@ impl EditorUi {
         if let Ok(res) = self.thread_handle.result_rx.recv() {
             match res {
                 Err(_) => {
-                    eprintln!("Error exporting audio");
+                    self.show_temp_status("Failed to Export Project");
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
+                    self.show_temp_status("Exported Project");
                     write_samples_to_wav(path, &samples, &self.proj_ctx.project.audio_ctx);
                 }
             }

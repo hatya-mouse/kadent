@@ -1,8 +1,15 @@
-use crate::ui::{theme, workspaces::EditorUi};
+use std::time::{Duration, Instant};
+
+use crate::ui::{
+    theme,
+    workspaces::{EditorUi, editor::state::TempStatusNotification},
+};
 use eframe::egui;
 
+const TEMP_STATUS_DURATION: u64 = 5;
+
 impl EditorUi {
-    pub(super) fn status_bar(&self, ui: &mut egui::Ui) {
+    pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
             let audio_ctx = &self.proj_ctx.project.audio_ctx;
             self.status_text(ui, &format!("Sample Rate {}", audio_ctx.sample_rate));
@@ -27,6 +34,23 @@ impl EditorUi {
                     self.status_text(ui, &node_meta.display_name);
                 }
             }
+
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if let Some(notif) = self.ui_state.status_bar_state.temp_status.as_ref() {
+                    if Instant::now() < notif.expires_at {
+                        self.status_text(ui, &notif.text);
+                    } else {
+                        self.ui_state.status_bar_state.temp_status = None;
+                    }
+                }
+            });
+        });
+    }
+
+    pub(crate) fn show_temp_status(&mut self, text: &str) {
+        self.ui_state.status_bar_state.temp_status = Some(TempStatusNotification {
+            text: text.to_string(),
+            expires_at: Instant::now() + Duration::from_secs(TEMP_STATUS_DURATION),
         });
     }
 

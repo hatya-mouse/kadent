@@ -116,8 +116,7 @@ impl EditorUi {
             match action {
                 // --- PROJECT ---
                 EditorAction::SaveAll => {
-                    self.save_programs();
-                    self.save_project();
+                    self.save_all();
                 }
                 EditorAction::OpenProject(path) => {
                     self.open_project(path);

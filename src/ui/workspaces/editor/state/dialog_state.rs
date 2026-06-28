@@ -2,7 +2,7 @@ use crate::core::metadata::TrackType;
 use std::fmt::Display;
 
 #[derive(Default)]
-pub enum DialogState {
+pub(crate) enum DialogState {
     #[default]
     None,
     AddTrack(AddTrackState),

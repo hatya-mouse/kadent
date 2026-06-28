@@ -1,4 +1,4 @@
-pub struct PianoRollState {
+pub(crate) struct PianoRollState {
     /// Pixels per beat in the piano roll.
     pub pixels_per_beat: f32,
     /// The height of the each note in the piano roll.
