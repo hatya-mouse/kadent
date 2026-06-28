@@ -105,7 +105,7 @@ impl EditorUi {
                         if ui
                             .selectable_label(
                                 self.ui_state.selected_midi_port.is_none(),
-                                "No MIDI input",
+                                "No MIDI Input",
                             )
                             .clicked()
                             && self.ui_state.selected_midi_port.is_some()
