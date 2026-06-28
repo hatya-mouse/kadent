@@ -6,14 +6,17 @@ use eframe::egui;
 impl EditorUi {
     pub(super) fn code_editor(&mut self, ui: &mut egui::Ui) {
         // Load the code from the temporary storage
-        let buffer_code_id = ui.id().with("buffer_code");
-        let Some(mut code) = ui.data_mut(|data| data.get_temp(buffer_code_id)) else {
-            return;
-        };
+        let buffer_index_id = ui.id().with("buffer_index");
+        let buffer_index: Option<usize> = ui.data_mut(|data| data.get_temp(buffer_index_id));
 
-        self.kasl_editor(ui, &mut code);
+        egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |_| {
+            // FILE BROWSER
+        });
 
-        // Save the code back to the temporary storage
-        ui.data_mut(|data| data.insert_temp(buffer_code_id, code));
+        egui::Panel::right(ui.id().with("code_editor_right")).show_inside(ui, |ui| {
+            if let Some(buffer_index) = buffer_index {
+                self.kasl_editor(ui, buffer_index);
+            }
+        });
     }
 }

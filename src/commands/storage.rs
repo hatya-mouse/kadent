@@ -30,10 +30,16 @@ impl EditorUi {
         self.set_editor_ctx(editor_ctx);
     }
 
+    /// Save all opened programs to their respective file paths.
     pub(super) fn save_programs(&mut self) {
-        let opened_programs = self.ui_state.code_editor_state.opened_programs.iter();
-        for (path, code) in opened_programs {
-            if let Err(e) = std::fs::write(path, code) {
+        let paths_and_buffers = self
+            .ui_state
+            .code_editor_state
+            .opened_programs
+            .iter()
+            .zip(self.ui_state.code_editor_state.code_buffers.iter());
+        for (path, buffer) in paths_and_buffers {
+            if let Err(e) = std::fs::write(path, buffer) {
                 eprintln!("Failed to save program {}: {:?}", path.display(), e);
             }
         }
