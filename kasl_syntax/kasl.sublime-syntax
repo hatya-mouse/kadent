@@ -1,0 +1,144 @@
+%YAML 1.2
+---
+name: KASL
+file_extensions:
+    - kasl
+scope: source.kasl
+
+contexts:
+    main:
+        - include: comments
+        - include: input-attributes
+        - include: keywords-declaration
+        - include: keywords-control
+        - include: keywords-operator-props
+        - include: types
+        - include: builtin-functions
+        - include: literals
+        - include: function-calls
+        - include: operators
+        - include: punctuation
+
+    # --- COMMENTS ---
+
+    comments:
+        - match: //.*$
+          scope: comment.line.double-slash.kasl
+
+    # --- INPUT ATTRIBUTES (#name) ---
+
+    input-attributes:
+        - match: "#[a-zA-Z_][a-zA-Z0-9_]*"
+          scope: meta.annotation.kasl entity.other.attribute-name.kasl
+
+    # --- KEYWORDS ---
+
+    keywords-declaration:
+        - match: \b(import|as|typealias|struct|func|static|operator|infix|prefix|postfix|input|output|state|let|var)\b
+          scope: keyword.declaration.kasl
+
+    keywords-control:
+        - match: \b(if|else|loop|return)\b
+          scope: keyword.control.flow.kasl
+
+    keywords-operator-props:
+        - match: \b(precedence|associativity|left|right|none)\b
+          scope: keyword.other.operator-property.kasl
+
+    # --- BUILT-IN TYPES ---
+
+    types:
+        - match: \b(Int|Float|Bool|Void|Builtin)\b
+          scope: storage.type.primitive.kasl
+
+    # --- BUILTIN FUNCTIONS ---
+
+    builtin-functions:
+        - match: \bBuiltin\b
+          scope: support.class.builtin.kasl
+          push: builtin-member-access
+
+    builtin-member-access:
+        - match: '\.'
+          scope: punctuation.accessor.dot.kasl
+          set: builtin-function-name
+        - match: ""
+          pop: true
+
+    builtin-function-name:
+        - match: |-
+              (?x)
+              \b(?:
+                # Math
+                sqrt|fast_sin|fast_cos|sin|cos|tan|asin|acos|atan2|atan|log10|log2|log|fpow
+                # Float
+                |fadd|fsub|fmul|fdiv|fmod|fmax|fmin|fabs|fsgn|fneg|floor|ceil|round
+                |feq|fne|fgt|flt|fge|fle
+                # Integer
+                |iadd|isub|imul|idiv|imod|imax|imin|iabs|isgn|ineg
+                |ieq|ine|igt|ilt|ige|ile
+                # Integer bitwise / shift
+                |iand|ior|ixor|inand|inor|ixnor|ishl|sshr|ushr|inot
+                # Bool logical
+                |band|bor|bxor|bnand|bnor|bxnor|bnot|beq|bne
+                # Type conversion
+                |itof|ftoi
+              )\b
+          scope: support.function.builtin.kasl
+          pop: true
+        - match: ""
+          pop: true
+
+    # --- LITERALS ---
+
+    literals:
+        - match: \b(true|false)\b
+          scope: constant.language.boolean.kasl
+        # Float must come before int
+        - match: \b[0-9]+\.[0-9]+\b
+          scope: constant.numeric.float.kasl
+        - match: \b[0-9]+\b
+          scope: constant.numeric.integer.kasl
+
+    # --- FUNCTION CALLS (user-defined) ---
+
+    function-calls:
+        - match: \b([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()
+          scope: variable.function.kasl
+
+    # --- OPERATORS ---
+
+    operators:
+        # Return type arrow — matched first so it gets its own scope
+        - match: "->"
+          scope: punctuation.separator.return-type.kasl
+        # Assignment
+        - match: '(?<![+\-*/%^<>!?|&@~])=(?![+\-*/%^<>!?|&@~])'
+          scope: keyword.operator.assignment.kasl
+        # All operator character sequences (custom operators + built-in)
+        - match: '[+\-*/%^<>=!?|&@~]+'
+          scope: keyword.operator.kasl
+
+    # --- PUNCTUATION ---
+
+    punctuation:
+        - match: '\{'
+          scope: punctuation.section.block.begin.kasl
+        - match: '\}'
+          scope: punctuation.section.block.end.kasl
+        - match: '\('
+          scope: punctuation.section.parens.begin.kasl
+        - match: '\)'
+          scope: punctuation.section.parens.end.kasl
+        - match: '\['
+          scope: punctuation.section.brackets.begin.kasl
+        - match: '\]'
+          scope: punctuation.section.brackets.end.kasl
+        - match: ":"
+          scope: punctuation.separator.type-annotation.kasl
+        - match: ","
+          scope: punctuation.separator.comma.kasl
+        - match: ";"
+          scope: punctuation.separator.semicolon.kasl
+        - match: '\.'
+          scope: punctuation.accessor.dot.kasl

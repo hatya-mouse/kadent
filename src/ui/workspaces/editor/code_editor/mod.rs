@@ -56,14 +56,8 @@ func main() {
             ts: ThemeSet::load_defaults(),
         };
 
-        let highlighted_str = highlight_with(
-            ui.ctx(),
-            ui.style(),
-            &CodeTheme::default(),
-            code,
-            "rs",
-            &syntect_settings,
-        );
+        let highlighted_str =
+            highlight_with(ui.ctx(), ui.style(), &theme, code, "rs", &syntect_settings);
         ui.add(egui::Label::new(highlighted_str).selectable(true));
     }
 }
