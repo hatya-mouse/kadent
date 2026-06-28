@@ -21,9 +21,10 @@ use crate::{
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
+use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
 use std::{sync::mpsc, time::Duration};
-use syntect::parsing::SyntaxSet;
+use syntect::highlighting::ThemeSet;
 
 pub struct EditorUi {
     /// A thread handle to communicate with the audio thread.
@@ -36,8 +37,6 @@ pub struct EditorUi {
     pub errors: Vec<AudioError>,
     /// UI states to store the current UI state.
     pub ui_state: EditorUiState,
-    /// Syntax set for KASL language.
-    pub syntax_set: SyntaxSet,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
@@ -54,10 +53,16 @@ impl EditorUi {
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
             ui_state: EditorUiState::default(),
-            syntax_set: kasl_syntax_set(),
             debug_mode: true,
         };
 
+        // Load the kasl syntax set and create a syntect settings
+        editor_ui.ui_state.code_editor_state.syntect_settings = Some(SyntectSettings {
+            ps: kasl_syntax_set(),
+            ts: ThemeSet::load_defaults(),
+        });
+
+        // Fetch the avaliable devices first
         editor_ui.fetch_devices();
         editor_ui.ui_state.selected_output_device = editor_ui
             .ui_state
@@ -69,6 +74,8 @@ impl EditorUi {
     }
 
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.ui_state.code_editor_state.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
+
         self.calculate_playhead();
         self.process_vu_value();
         self.handle_keyboard(ui);

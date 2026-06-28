@@ -1,3 +1,4 @@
+mod code_editor_state;
 mod dialog_state;
 mod node_graph_state;
 mod panel_layout;
@@ -10,8 +11,8 @@ use midir::{MidiInput, MidiInputPorts};
 pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 
 use crate::ui::workspaces::editor::state::{
-    node_graph_state::NodeGraphState, piano_roll_state::PianoRollState,
-    timeline_state::TimelineState, toolbar_state::ToolbarState,
+    code_editor_state::CodeEditorState, node_graph_state::NodeGraphState,
+    piano_roll_state::PianoRollState, timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
 use kadent_engine::{
     data_types::Beats,
@@ -88,6 +89,8 @@ pub(crate) struct EditorUiState {
     pub piano_roll_state: PianoRollState,
     /// The current node graph state.
     pub node_graph_state: NodeGraphState,
+    /// The current code editor state.
+    pub code_editor_state: CodeEditorState,
 
     /// Whether the audio is playing.
     pub is_playing: bool,
