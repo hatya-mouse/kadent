@@ -1,6 +1,8 @@
 use crate::{
-    core::project_ctx::EditorContext, fonts::RichTextExt, storage::project::open_project_to_ctx,
-    ui::workspaces::SplashUi,
+    core::project_ctx::EditorContext,
+    fonts::RichTextExt,
+    storage::project::open_project_to_ctx,
+    ui::{theme, workspaces::SplashUi},
 };
 use eframe::egui;
 
@@ -51,15 +53,17 @@ impl SplashUi {
                         egui::Sense::click(),
                     );
 
-                    if response.hovered() {
+                    if response.is_pointer_button_down_on() {
                         ui.painter().rect_filled(
                             response.rect,
                             egui::CornerRadius::same(6),
-                            if ui.visuals().dark_mode {
-                                egui::Color32::from_white_alpha(10)
-                            } else {
-                                egui::Color32::from_black_alpha(10)
-                            },
+                            theme::card_button_pressed(ui.visuals().dark_mode),
+                        );
+                    } else if response.hovered() {
+                        ui.painter().rect_filled(
+                            response.rect,
+                            egui::CornerRadius::same(6),
+                            theme::card_button_hovered(ui.visuals().dark_mode),
                         );
                     }
 

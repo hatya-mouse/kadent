@@ -62,7 +62,7 @@ pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
     }
 }
 
-pub(crate) fn text_button_hovered(dark_mode: bool) -> Color32 {
+pub(crate) fn card_button_hovered(dark_mode: bool) -> Color32 {
     if dark_mode {
         Color32::from_white_alpha(10)
     } else {
@@ -70,7 +70,7 @@ pub(crate) fn text_button_hovered(dark_mode: bool) -> Color32 {
     }
 }
 
-pub(crate) fn text_button_clicked(dark_mode: bool) -> Color32 {
+pub(crate) fn card_button_pressed(dark_mode: bool) -> Color32 {
     if dark_mode {
         Color32::from_white_alpha(20)
     } else {

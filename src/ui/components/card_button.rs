@@ -41,13 +41,13 @@ pub(crate) fn card_button_enabled<R>(
             ui.painter().rect_filled(
                 response.rect,
                 egui::CornerRadius::same(6),
-                theme::text_button_clicked(ui.visuals().dark_mode),
+                theme::card_button_pressed(ui.visuals().dark_mode),
             );
         } else if response.hovered() {
             ui.painter().rect_filled(
                 response.rect,
                 egui::CornerRadius::same(6),
-                theme::text_button_hovered(ui.visuals().dark_mode),
+                theme::card_button_hovered(ui.visuals().dark_mode),
             );
         }
 

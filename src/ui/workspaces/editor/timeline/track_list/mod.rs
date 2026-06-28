@@ -75,7 +75,7 @@ impl EditorUi {
                         egui::Sense::click(),
                     );
                     if resp.hovered() {
-                        frame = frame.fill(theme::text_button_hovered(ui.visuals().dark_mode));
+                        frame = frame.fill(theme::card_button_hovered(ui.visuals().dark_mode));
                     }
 
                     frame.show(ui, |ui| {
