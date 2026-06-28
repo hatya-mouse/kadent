@@ -57,7 +57,7 @@ impl EditorUi {
             errors: Vec::new(),
             ui_state: EditorUiState::default(),
             pending_actions: VecDeque::new(),
-            debug_mode: true,
+            debug_mode: false,
         };
 
         // Load the kasl syntax set and create a syntect settings
@@ -84,7 +84,7 @@ impl EditorUi {
         self.process_vu_value();
         self.handle_keyboard(ui);
 
-        egui::Panel::top("toolbar")
+        egui::Panel::top(ui.id().with("toolbar"))
             .frame(
                 egui::Frame::new()
                     .fill(theme::tertiary_bg(ui.visuals().dark_mode))
@@ -95,7 +95,7 @@ impl EditorUi {
                 self.toolbar(ui);
             });
 
-        egui::Panel::bottom("status_har")
+        egui::Panel::bottom(ui.id().with("status_bar"))
             .frame(
                 egui::Frame::new()
                     .fill(theme::tertiary_bg(ui.visuals().dark_mode))

@@ -3,17 +3,6 @@ mod header;
 mod node;
 mod port;
 
-// --- NODE LAYOUT CONSTANTS ---
-
-pub(super) const NODE_WIDTH: f32 = 180.0;
-pub(super) const HEADER_HEIGHT: f32 = 28.0;
-pub(super) const PORT_ROW_HEIGHT: f32 = 22.0;
-pub(super) const PORT_RADIUS: f32 = 8.0;
-/// Padding on top and bottom of the node body.
-pub(super) const NODE_PADDING: f32 = 4.0;
-/// Thinkness of the edge lines.
-pub(super) const EDGE_WIDTH: f32 = 4.0;
-
 use crate::{
     commands::EditorAction,
     ui::{
@@ -30,10 +19,20 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
+// --- NODE LAYOUT CONSTANTS ---
+pub(super) const NODE_WIDTH: f32 = 180.0;
+pub(super) const HEADER_HEIGHT: f32 = 28.0;
+pub(super) const PORT_ROW_HEIGHT: f32 = 22.0;
+pub(super) const PORT_RADIUS: f32 = 8.0;
+/// Padding on top and bottom of the node body.
+pub(super) const NODE_PADDING: f32 = 4.0;
+/// Thinkness of the edge lines.
+pub(super) const EDGE_WIDTH: f32 = 4.0;
+
 impl EditorUi {
     pub fn node_graph(&mut self, ui: &mut egui::Ui) {
         // Draw the node graph header
-        egui::Panel::top("node_graph_header")
+        egui::Panel::top(ui.id().with("node_graph_header"))
             .frame(
                 egui::Frame::new()
                     .fill(theme::tertiary_bg(ui.visuals().dark_mode))
