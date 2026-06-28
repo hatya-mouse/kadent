@@ -2,7 +2,11 @@ use crate::ui::workspaces::EditorUi;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
-    pub(crate) fn remove_edge(&mut self, track_id: &TrackID, edge: (NodeID, usize, NodeID, usize)) {
+    pub(in crate::commands) fn remove_edge(
+        &mut self,
+        track_id: &TrackID,
+        edge: (NodeID, usize, NodeID, usize),
+    ) {
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
             if let Err(err) = track.get_graph_mut().remove_edge(edge) {
                 eprintln!("Failed to remove edge: {:#?}", err);
@@ -14,7 +18,11 @@ impl EditorUi {
         }
     }
 
-    pub(crate) fn add_edge(&mut self, track_id: &TrackID, edge: (NodeID, usize, NodeID, usize)) {
+    pub(in crate::commands) fn add_edge(
+        &mut self,
+        track_id: &TrackID,
+        edge: (NodeID, usize, NodeID, usize),
+    ) {
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
             if let Err(err) = track.get_graph_mut().add_edge(edge) {
                 eprintln!("Failed to add edge: {:#?}", err);

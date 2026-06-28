@@ -1,9 +1,14 @@
-use crate::ui::{
-    components::{color_picker::color_picker, text_button::text_button, text_input::text_input},
-    theme,
-    workspaces::{
-        EditorUi,
-        editor::inspector::{inspector_item, inspector_section},
+use crate::{
+    commands::EditorAction,
+    ui::{
+        components::{
+            color_picker::color_picker, text_button::text_button, text_input::text_input,
+        },
+        theme,
+        workspaces::{
+            EditorUi,
+            editor::inspector::{inspector_item, inspector_section},
+        },
     },
 };
 use eframe::egui;
@@ -26,7 +31,7 @@ impl EditorUi {
 
             inspector_item(ui, "Delete", |ui| {
                 if text_button(ui, "delete_track", "Delete Track").clicked() {
-                    self.remove_track(track_id);
+                    self.push_action(EditorAction::RemoveTrack(*track_id));
                 }
             });
 

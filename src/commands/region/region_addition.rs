@@ -12,7 +12,12 @@ use std::collections::HashMap;
 
 impl EditorUi {
     /// Adds a new empty audio region to the given audio track.
-    pub(crate) fn add_audio_region(&mut self, track_id: &TrackID, name: String, start: Beats) {
+    pub(in crate::commands) fn add_audio_region(
+        &mut self,
+        track_id: &TrackID,
+        name: String,
+        start: Beats,
+    ) {
         let sample_rate = self.proj_ctx.project.audio_ctx.sample_rate;
         let channels = self.proj_ctx.project.audio_ctx.channels;
         let duration = Beats(1.0);
@@ -59,7 +64,12 @@ impl EditorUi {
     }
 
     /// Adds a new empty audio region to the given audio track.
-    pub(crate) fn add_note_region(&mut self, track_id: &TrackID, name: String, start: Beats) {
+    pub(in crate::commands) fn add_note_region(
+        &mut self,
+        track_id: &TrackID,
+        name: String,
+        start: Beats,
+    ) {
         let duration = Beats(1.0);
 
         // Get the target track

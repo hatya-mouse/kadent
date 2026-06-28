@@ -8,7 +8,12 @@ use kadent_engine::{
 };
 
 impl EditorUi {
-    pub(crate) fn add_note(&mut self, track_id: &TrackID, region_id: &RegionID, note: Note) {
+    pub(in crate::commands) fn add_note(
+        &mut self,
+        track_id: &TrackID,
+        region_id: &RegionID,
+        note: Note,
+    ) {
         // Set the note's start time
         if let Some(region) = self
             .proj_ctx

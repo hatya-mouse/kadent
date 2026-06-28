@@ -8,7 +8,7 @@ use kadent_engine::{
 };
 
 impl EditorUi {
-    pub(crate) fn remove_note(
+    pub(in crate::commands) fn remove_note(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,

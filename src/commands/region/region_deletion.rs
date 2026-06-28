@@ -2,7 +2,7 @@ use crate::ui::workspaces::EditorUi;
 use kadent_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorUi {
-    pub(crate) fn remove_region(&mut self, track_id: &TrackID, region_id: &RegionID) {
+    pub(in crate::commands) fn remove_region(&mut self, track_id: &TrackID, region_id: &RegionID) {
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
             track.remove_region(region_id);
         }

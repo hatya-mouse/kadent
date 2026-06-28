@@ -1,4 +1,5 @@
 use crate::{
+    commands::EditorAction,
     core::metadata::TrackType,
     fonts::RichTextExt,
     ui::{
@@ -55,11 +56,11 @@ impl EditorUi {
                     )
                     .clicked()
                     .then(|| {
-                        self.add_track(
+                        self.push_action(EditorAction::AddTrack(
                             state.selected_track_type,
                             state.name.clone(),
                             theme::default_track_color(),
-                        );
+                        ));
                         should_close = true;
                     });
                 });

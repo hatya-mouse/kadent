@@ -171,7 +171,11 @@ impl EditorUi {
                 .and_then(|track| track.get_region(region_id))
                 .map(|region| region.duration)
         {
-            self.set_region_duration(track_id, region_id, new_duration);
+            self.push_action(EditorAction::SetRegionDuration(
+                *track_id,
+                *region_id,
+                new_duration,
+            ));
         } else {
             // Drag to move
             if move_res.dragged() {

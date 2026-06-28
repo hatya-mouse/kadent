@@ -321,7 +321,12 @@ impl EditorUi {
                 .and_then(|track| track.get_region(note_id.1))
                 .and_then(|region| region.get_duration(note_id.2))
         {
-            self.set_note_duration(note_id.0, note_id.1, note_id.2, new_duration);
+            self.push_action(EditorAction::SetNoteDuration(
+                *note_id.0,
+                *note_id.1,
+                *note_id.2,
+                new_duration,
+            ));
         }
 
         if move_res.dragged() {

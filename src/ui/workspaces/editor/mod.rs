@@ -23,7 +23,7 @@ use crate::{
 use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
-use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
+use kadent_engine::thread::{AudioCommand, AudioError, AudioThread, AudioThreadHandle};
 use std::{collections::VecDeque, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
@@ -130,6 +130,26 @@ impl EditorUi {
 
         // Execute all pending actions
         self.consume_actions();
+    }
+
+    /// Checks if the project has been modified recently and sends an update command to the audio thread if necessary.
+    /// Should not be called directly because this is automatically called.
+    fn update_project(&mut self) {
+        if let Some(t) = self.ui_state.last_edit_time
+            && t.elapsed() > std::time::Duration::from_millis(300)
+        {
+            self.ui_state.last_edit_time = None;
+
+            // Clone the project and send it to the audio thread
+            let project = self.proj_ctx.project.clone();
+            if let Err(err) = self
+                .thread_handle
+                .audio_command_tx
+                .send(AudioCommand::UpdateProject(Box::new(project)))
+            {
+                println!("Failed to send project update command: {err}");
+            }
+        }
     }
 
     pub(crate) fn system_kasl_search_paths() -> Vec<String> {

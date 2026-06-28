@@ -1,12 +1,13 @@
 //! Command implementations to communicate with the audio engine.
 
-mod export;
 mod graph;
 mod note;
 mod project_updater;
 mod region;
+mod storage;
 mod track;
 
+use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
 use eframe::egui;
 use kadent_engine::{
     data_types::Beats,
@@ -18,8 +19,6 @@ use kadent_engine::{
     },
 };
 use std::path::PathBuf;
-
-use crate::ui::workspaces::EditorUi;
 
 #[derive(Clone)]
 pub(crate) enum AddibleNodes {
@@ -46,8 +45,19 @@ pub(crate) enum EditorAction {
     /// `(path)`
     OpenProject(PathBuf),
     /// Create a new project.
+    /// `(path, code)`
+    // SaveCode(PathBuf, String),
+    /// Exports a project to a WAV file.
     /// `(path)`
-    SaveCode(PathBuf, String),
+    ExportProject(PathBuf),
+
+    // --- TRACK ---
+    /// Add a new track to the project.
+    /// `(track_type, name, color)`
+    AddTrack(TrackType, String, egui::Color32),
+    /// Remove a track from the project.
+    /// `(track_id)`
+    RemoveTrack(TrackID),
 
     // --- REGION ---
     /// Add a new audio region to the given audio track.
@@ -59,6 +69,9 @@ pub(crate) enum EditorAction {
     /// Move a region to a new start position in beats.
     /// `(track_id, region_id, new_start)`
     MoveRegion(TrackID, RegionID, Beats),
+    /// Set a duration of the given region.
+    /// `(track_id, region_id, new_duration)`
+    SetRegionDuration(TrackID, RegionID, Beats),
     /// Remove a region from the given track.
     /// `(track_id, region_id)`
     RemoveRegion(TrackID, RegionID),
@@ -90,6 +103,9 @@ pub(crate) enum EditorAction {
     /// Set a pitch of a note in the given note region.
     /// `(track_id, region_id, note_id, new_pitch)`
     SetNotePitch(TrackID, RegionID, NoteID, f32),
+    /// Set a duration of a note in the given note region.
+    /// `(track_id, region_id, note_id, new_duration)`
+    SetNoteDuration(TrackID, RegionID, NoteID, Beats),
     /// Remove a note from the given note region.
     /// `(track_id, region_id, note_id)`
     RemoveNote(TrackID, RegionID, NoteID),
@@ -101,9 +117,21 @@ impl EditorUi {
         let pending_actions: Vec<EditorAction> = self.pending_actions.drain(..).collect();
         for action in pending_actions {
             match action {
-                // EditorAction::SaveProject => self.save_project(),
-                // EditorAction::OpenProject(path) => self.open_project(path),
-                // EditorAction::SaveCode(path, code) => self.save_code(path, code),
+                // --- PROJECT ---
+                EditorAction::SaveProject => {
+                    self.save_project();
+                }
+                EditorAction::OpenProject(path) => self.open_project(path),
+                // EditorAction::SaveCode(path, code) => (),
+                EditorAction::ExportProject(path) => self.export_project(&path),
+
+                // --- TRACK ---
+                EditorAction::AddTrack(track_type, name, color) => {
+                    self.add_track(track_type, name, color)
+                }
+                EditorAction::RemoveTrack(ref track_id) => self.remove_track(track_id),
+
+                // --- REGION ---
                 EditorAction::AddAudioRegion(ref track_id, name, start) => {
                     self.add_audio_region(track_id, name, start)
                 }
@@ -113,9 +141,14 @@ impl EditorUi {
                 EditorAction::MoveRegion(ref track_id, ref region_id, new_start) => {
                     self.move_region(track_id, region_id, new_start)
                 }
+                EditorAction::SetRegionDuration(ref track_id, ref region_id, new_duration) => {
+                    self.set_region_duration(track_id, region_id, new_duration)
+                }
                 EditorAction::RemoveRegion(ref track_id, ref region_id) => {
                     self.remove_region(track_id, region_id)
                 }
+
+                // --- NODE ---
                 EditorAction::AddNode(ref track_id, ref node_type, pos) => {
                     self.add_node(track_id, node_type, pos)
                 }
@@ -127,6 +160,8 @@ impl EditorUi {
                 EditorAction::RemoveNode(ref track_id, ref node_id) => {
                     self.remove_node(track_id, node_id)
                 }
+
+                // --- NOTE ---
                 EditorAction::AddNote(ref track_id, ref region_id, note) => {
                     self.add_note(track_id, region_id, note)
                 }
@@ -136,10 +171,15 @@ impl EditorUi {
                 EditorAction::SetNotePitch(ref track_id, ref region_id, ref note_id, new_pitch) => {
                     self.set_note_pitch(track_id, region_id, note_id, new_pitch)
                 }
+                EditorAction::SetNoteDuration(
+                    ref track_id,
+                    ref region_id,
+                    ref note_id,
+                    new_duration,
+                ) => self.set_note_duration(track_id, region_id, note_id, new_duration),
                 EditorAction::RemoveNote(ref track_id, ref region_id, ref note_id) => {
                     self.remove_note(track_id, region_id, note_id)
                 }
-                _ => (),
             }
         }
     }

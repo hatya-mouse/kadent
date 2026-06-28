@@ -2,7 +2,7 @@ use crate::ui::workspaces::EditorUi;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
-    pub(crate) fn remove_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
+    pub(in crate::commands) fn remove_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
         // Get the track and track metadata
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
             return;

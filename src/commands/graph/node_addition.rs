@@ -22,7 +22,7 @@ impl EditorUi {
         }
     }
 
-    pub(crate) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
+    pub(in crate::commands) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         let mut kasl_node = KaslNode::new();
         let project_dir = get_project_dir(&self.proj_ctx.project_path);
         kasl_node.set_search_paths(self.proj_ctx.project_meta.kasl_search_paths.clone());
