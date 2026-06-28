@@ -6,6 +6,7 @@ mod keyboard;
 mod node_graph;
 mod panel;
 mod piano_roll;
+mod preview_notes;
 mod state;
 mod status_bar;
 mod timeline;
@@ -82,6 +83,7 @@ impl EditorUi {
 
         self.calculate_playhead();
         self.process_vu_value();
+        self.update_preview_notes();
         self.handle_keyboard(ui);
 
         egui::Panel::top(ui.id().with("toolbar"))

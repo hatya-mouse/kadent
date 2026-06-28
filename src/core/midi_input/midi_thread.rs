@@ -37,7 +37,7 @@ pub(super) fn midi_thread(
                 connection.take();
             }
             MidiCommand::SendEvent(event) => {
-                if let Ok(mut prod) = prod.lock() {
+                if let Ok(mut prod) = prod.try_lock() {
                     prod.try_push(event).ok();
                 }
             }
@@ -45,7 +45,7 @@ pub(super) fn midi_thread(
     }
 }
 
-fn push_midi_event(message: &[u8], producer: &Arc<Mutex<ringbuf::HeapProd<MidiEvent>>>) {
+fn push_midi_event(message: &[u8], prod: &Arc<Mutex<ringbuf::HeapProd<MidiEvent>>>) {
     if message.len() < 2 {
         return;
     }
@@ -60,7 +60,7 @@ fn push_midi_event(message: &[u8], producer: &Arc<Mutex<ringbuf::HeapProd<MidiEv
         _ => return,
     };
 
-    if let Ok(mut prod) = producer.try_lock() {
+    if let Ok(mut prod) = prod.try_lock() {
         prod.try_push(event).ok();
     }
 }

@@ -254,6 +254,9 @@ impl EditorUi {
                 // Add a note at the position
                 let note = Note::new(start, Beats(1.0), pitch, 1.0);
                 self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
+
+                // Play the note for feedback
+                self.play_note_feedback(pitch.round() as u8, 255u8);
             }
         } else if response.hovered() {
             // Handle pinch zoom gesture
@@ -368,6 +371,9 @@ impl EditorUi {
                     *note_id.2,
                     new_pitch.round(),
                 ));
+
+                // Play the note for feedback
+                self.play_note_feedback(new_pitch.round() as u8, (note.velocity * 127.0) as u8);
             }
         }
     }
