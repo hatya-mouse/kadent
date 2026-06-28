@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{core::metadata::RegionMeta, ui::workspaces::EditorUi};
 use kadent_engine::{
     data_types::Beats,
@@ -10,6 +8,7 @@ use kadent_engine::{
         note_track::{NoteRegion, NoteTrack},
     },
 };
+use std::collections::HashMap;
 
 impl EditorUi {
     /// Adds a new empty audio region to the given audio track.

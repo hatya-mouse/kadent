@@ -14,13 +14,16 @@ pub(super) const NODE_PADDING: f32 = 4.0;
 /// Thinkness of the edge lines.
 pub(super) const EDGE_WIDTH: f32 = 4.0;
 
-use crate::ui::{
-    theme,
-    workspaces::{
-        EditorUi,
-        editor::node_graph::{
-            edge::{draw_edges, draw_ghost_edge},
-            port::find_hovered_input,
+use crate::{
+    commands::EditorAction,
+    ui::{
+        theme,
+        workspaces::{
+            EditorUi,
+            editor::node_graph::{
+                edge::{draw_edges, draw_ghost_edge},
+                port::find_hovered_input,
+            },
         },
     },
 };
@@ -162,12 +165,14 @@ impl EditorUi {
                 ) {
                     // Remove the dragged node from the project and add a new edge to the hovered port
                     if let Some(old_edge) = self.ui_state.node_graph_state.dragged_edge {
-                        self.remove_edge(track_id, old_edge);
+                        self.pending_actions
+                            .push_back(EditorAction::RemoveEdge(*track_id, old_edge));
                     }
 
                     // Add the new edge to the project
                     let new_edge = (ghost_edge.0.0, ghost_edge.0.1, *node_id, port);
-                    self.add_edge(track_id, new_edge);
+                    self.pending_actions
+                        .push_back(EditorAction::AddEdge(*track_id, new_edge));
 
                     // Mark that we've connected the dragged edge to input
                     has_connected_to_input = true;
@@ -180,7 +185,8 @@ impl EditorUi {
                 // If we didn't connect to an input, just remove the dragged edge from the project
                 // because it has released in empty space
                 if let Some(old_edge) = self.ui_state.node_graph_state.dragged_edge {
-                    self.remove_edge(track_id, old_edge);
+                    self.pending_actions
+                        .push_back(EditorAction::RemoveEdge(*track_id, old_edge));
                 }
             }
         }

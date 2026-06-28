@@ -9,7 +9,7 @@ use kadent_engine::{
 };
 
 impl EditorUi {
-    pub(crate) fn set_note_start(
+    pub(crate) fn move_note(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,

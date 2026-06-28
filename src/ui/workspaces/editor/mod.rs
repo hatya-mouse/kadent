@@ -12,6 +12,7 @@ mod timeline;
 mod toolbar;
 
 use crate::{
+    commands::EditorAction,
     core::{
         kasl_node::kasl_syntax_set,
         midi_input::{MidiCommand, spawn_midi_thread},
@@ -23,7 +24,7 @@ use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use kadent_engine::thread::{AudioError, AudioThread, AudioThreadHandle};
-use std::{sync::mpsc, time::Duration};
+use std::{collections::VecDeque, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
 pub struct EditorUi {
@@ -37,6 +38,8 @@ pub struct EditorUi {
     pub errors: Vec<AudioError>,
     /// UI states to store the current UI state.
     pub ui_state: EditorUiState,
+    /// Pending actions to be executed in the frame.
+    pub pending_actions: VecDeque<EditorAction>,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
@@ -53,6 +56,7 @@ impl EditorUi {
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
             ui_state: EditorUiState::default(),
+            pending_actions: VecDeque::new(),
             debug_mode: true,
         };
 

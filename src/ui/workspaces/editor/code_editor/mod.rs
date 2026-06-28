@@ -1,35 +1,19 @@
+mod kasl_editor;
+
 use crate::ui::workspaces::EditorUi;
-use eframe::egui::{self, TextBuffer};
-use egui_extras::syntax_highlighting::highlight_with;
+use eframe::egui;
 
 impl EditorUi {
     pub(super) fn code_editor(&mut self, ui: &mut egui::Ui) {
-        let (Some(theme), Some(syntect_settings)) = (
-            self.ui_state.code_editor_state.theme.as_ref(),
-            self.ui_state.code_editor_state.syntect_settings.as_ref(),
-        ) else {
+        // Load the code from the temporary storage
+        let buffer_code_id = ui.id().with("buffer_code");
+        let Some(mut code) = ui.data_mut(|data| data.get_temp(buffer_code_id)) else {
             return;
         };
 
-        let mut layouter = |ui: &egui::Ui, buffer: &dyn TextBuffer, wrap_width: f32| {
-            let mut layout_job = highlight_with(
-                ui.ctx(),
-                ui.style(),
-                theme,
-                buffer.as_str(),
-                "kasl",
-                syntect_settings,
-            );
-            layout_job.wrap.max_width = wrap_width;
-            ui.fonts_mut(|fonts| fonts.layout_job(layout_job))
-        };
+        self.kasl_editor(ui, &mut code);
 
-        ui.add(
-            egui::TextEdit::multiline(&mut self.ui_state.code_editor_state.code)
-                .code_editor()
-                .desired_rows(20)
-                .lock_focus(true)
-                .layouter(&mut layouter),
-        );
+        // Save the code back to the temporary storage
+        ui.data_mut(|data| data.insert_temp(buffer_code_id, code));
     }
 }

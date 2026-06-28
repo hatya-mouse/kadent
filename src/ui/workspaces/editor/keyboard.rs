@@ -1,6 +1,9 @@
 //! Handles keyboard inputs.
 
-use crate::ui::workspaces::{EditorUi, editor::state::Selection};
+use crate::{
+    commands::EditorAction,
+    ui::workspaces::{EditorUi, editor::state::Selection},
+};
 use eframe::egui;
 
 impl EditorUi {
@@ -15,16 +18,16 @@ impl EditorUi {
         if delete || backspace {
             match self.ui_state.selection {
                 Selection::Region(track_id, region_id) => {
-                    self.remove_region(&track_id, &region_id);
-                    self.ui_state.select_track(track_id);
+                    self.pending_actions
+                        .push_back(EditorAction::RemoveRegion(track_id, region_id));
                 }
                 Selection::Node(track_id, node_id) => {
-                    self.remove_node(&track_id, &node_id);
-                    self.ui_state.select_track(track_id);
+                    self.pending_actions
+                        .push_back(EditorAction::RemoveNode(track_id, node_id));
                 }
                 Selection::Note(track_id, region_id, note_id) => {
-                    self.remove_note(&track_id, &region_id, &note_id);
-                    self.ui_state.select_region(track_id, region_id);
+                    self.pending_actions
+                        .push_back(EditorAction::RemoveNote(track_id, region_id, note_id));
                 }
                 _ => (),
             }

@@ -104,7 +104,7 @@ impl EditorUi {
 
         // Handle node gestures (click to select, drag to move)
         let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
-        self.apply_node_gesture(ui, response, node_id, &track_id);
+        self.apply_node_gesture(response, node_id, &track_id);
 
         // Handle output port drag to create ghost edges (allocated after node so ports take priority)
         self.handle_output_port_drags(ui, node_id, node_rect, output_names.len());
@@ -114,7 +114,6 @@ impl EditorUi {
 
     fn apply_node_gesture(
         &mut self,
-        ui: &mut egui::Ui,
         response: egui::Response,
         node_id: &NodeID,
         track_id: &TrackID,
@@ -134,19 +133,6 @@ impl EditorUi {
                 .and_then(|t| t.graph.get_node_meta_mut(node_id))
         {
             meta.pos += response.drag_delta();
-        }
-
-        // Delete the node if delete or backspace key is pressed
-        // Check for the delete key input
-        if self.ui_state.selection.node_id() == Some(*node_id) && ui.ui_contains_pointer() {
-            let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
-            let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
-
-            if delete || backspace {
-                // Remove the note from the region
-                self.remove_node(track_id, node_id);
-                self.ui_state.select_track(*track_id);
-            }
         }
     }
 

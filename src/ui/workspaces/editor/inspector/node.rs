@@ -75,7 +75,11 @@ impl EditorUi {
 
             inspector_item(ui, "Compile", |ui| {
                 if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
-                    self.compile_kasl_node(track_id, node_id);
+                    self.pending_actions
+                        .push_back(crate::commands::EditorAction::CompileKasl(
+                            track_id.clone(),
+                            node_id.clone(),
+                        ));
                 }
             });
         }

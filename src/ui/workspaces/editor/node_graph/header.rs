@@ -1,22 +1,8 @@
-use crate::ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi};
+use crate::{
+    commands::{AddibleNodes, EditorAction},
+    ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi},
+};
 use eframe::egui;
-
-#[derive(Clone)]
-enum AddibleNodes {
-    Kasl,
-}
-
-impl AddibleNodes {
-    fn name(&self) -> &str {
-        match self {
-            AddibleNodes::Kasl => "KASL Node",
-        }
-    }
-
-    fn all() -> Vec<AddibleNodes> {
-        vec![AddibleNodes::Kasl]
-    }
-}
 
 impl EditorUi {
     pub(super) fn draw_node_graph_header(&mut self, ui: &mut egui::Ui) {
@@ -78,9 +64,8 @@ impl EditorUi {
 
             let pan = self.ui_state.node_graph_state.pan_offset;
             let pos = egui::pos2(-pan.x + 20.0, -pan.y + 20.0);
-            match node_type {
-                AddibleNodes::Kasl => self.add_kasl_node(&track_id, pos),
-            }
+            self.pending_actions
+                .push_back(EditorAction::AddNode(track_id, node_type, pos));
         }
     }
 }

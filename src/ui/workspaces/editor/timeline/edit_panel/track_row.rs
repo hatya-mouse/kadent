@@ -1,4 +1,5 @@
 use crate::{
+    commands::EditorAction,
     core::metadata::TrackType,
     ui::{theme, workspaces::EditorUi},
 };
@@ -109,10 +110,18 @@ impl EditorUi {
                 .map(|m| m.track_type);
             match track_type {
                 Some(TrackType::Audio) => {
-                    self.add_audio_region(track_id, "Region".to_string(), start);
+                    self.pending_actions.push_back(EditorAction::AddAudioRegion(
+                        *track_id,
+                        "Region".to_string(),
+                        start,
+                    ));
                 }
                 Some(TrackType::Note) => {
-                    self.add_note_region(track_id, "Region".to_string(), start);
+                    self.pending_actions.push_back(EditorAction::AddNoteRegion(
+                        *track_id,
+                        "Region".to_string(),
+                        start,
+                    ));
                 }
                 None => (),
             }
@@ -188,7 +197,8 @@ impl EditorUi {
                     .and_then(|track| track.get_region_mut(region_id))
                     .map(|region| region.start)
             {
-                self.move_region(track_id, region_id, new_start);
+                self.pending_actions
+                    .push_back(EditorAction::MoveRegion(*track_id, *region_id, new_start));
             }
         }
     }
