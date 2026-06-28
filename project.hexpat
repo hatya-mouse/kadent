@@ -10,10 +10,10 @@ struct Color32 {
 // ─── Note (24 bytes fixed) ───────────────────────────────────────────────────
 
 struct Note {
-    double start;
-    double duration;
-    float  pitch;
-    float  velocity;
+    s64   start;
+    s64   duration;
+    float pitch;
+    float velocity;
 };
 
 // ─── NoteRegion ──────────────────────────────────────────────────────────────
@@ -25,9 +25,9 @@ struct NoteEntry {
 };
 
 struct NoteRegion {
-    double   start;
-    double   duration;
-    u64      notes_len;
+    s64       start;
+    s64       duration;
+    u64       notes_len;
     NoteEntry notes[notes_len / 32];
 };
 
@@ -102,10 +102,10 @@ struct TrackEntry {
 };
 
 // ─── TempoMap ────────────────────────────────────────────────────────────────
-// TempoEvent is 24 bytes fixed: beat(f64) + bpm(f64) + sample_offset(u64)
+// TempoEvent is 24 bytes fixed: ticks(i64) + bpm(f64) + sample_offset(u64)
 
 struct TempoEvent {
-    double beat;
+    s64    ticks;
     double bpm;
     u64    sample_offset;
 };
@@ -115,9 +115,10 @@ struct TempoMap {
     TempoEvent events[events_len / 24];
 };
 
-// ─── AudioContext (32 bytes) ─────────────────────────────────────────────────
+// ─── AudioContext (40 bytes) ─────────────────────────────────────────────────
 
 struct AudioContext {
+    u64 resolution;
     u64 channels;
     u64 sample_rate;
     u64 buffer_size;
@@ -128,8 +129,8 @@ struct AudioContext {
 
 struct Project {
     AudioContext audio_ctx;
-    double       range_start;
-    double       range_duration;
+    s64          range_start;
+    s64          range_duration;
     u64          tempo_map_len;
     TempoMap     tempo_map;
     u64          tracks_len;
