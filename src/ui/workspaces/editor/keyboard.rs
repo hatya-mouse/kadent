@@ -5,8 +5,6 @@ use crate::{
     ui::workspaces::{EditorUi, editor::state::Selection},
 };
 use eframe::egui;
-#[cfg(any(target_os = "macos", target_os = "ios"))]
-use eframe::egui::InputState;
 
 impl EditorUi {
     pub(super) fn handle_keyboard(&mut self, ui: &egui::Ui) {
