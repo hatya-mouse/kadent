@@ -80,7 +80,7 @@ impl EditorUi {
 
                     frame.show(ui, |ui| {
                         // Subtract the desired width by 16px due to the inner margin of the frame
-                        ui.set_min_width(desired_width - 16.0);
+                        ui.set_min_width((desired_width - 16.0).max(0.0));
 
                         ui.horizontal_centered(|ui| {
                             ui.spacing_mut().item_spacing = egui::vec2(4.0, 0.0);

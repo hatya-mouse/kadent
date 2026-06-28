@@ -36,8 +36,14 @@ pub(crate) fn card_button_enabled<R>(
         // Get hover response from the inner contents
         let response = ui.interact(frame_response.rect, id, egui::Sense::click());
 
-        // Show background color when hovered
-        if response.hovered() {
+        // Show background color when pressed or hovered
+        if response.is_pointer_button_down_on() {
+            ui.painter().rect_filled(
+                response.rect,
+                egui::CornerRadius::same(6),
+                theme::text_button_clicked(ui.visuals().dark_mode),
+            );
+        } else if response.hovered() {
             ui.painter().rect_filled(
                 response.rect,
                 egui::CornerRadius::same(6),

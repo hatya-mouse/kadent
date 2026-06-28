@@ -5,6 +5,7 @@ use crate::ui::{theme, workspaces::EditorUi};
 use eframe::egui;
 
 const RULER_HEIGHT: f32 = 20.0;
+const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 
 impl EditorUi {
     pub fn timeline(&mut self, ui: &mut egui::Ui) {
@@ -62,8 +63,10 @@ impl EditorUi {
 
                         // Handle dragging the divider and draw the divider
                         if divider_resp.dragged() {
-                            self.ui_state.timeline_state.track_list_width +=
-                                divider_resp.drag_delta().x;
+                            self.ui_state.timeline_state.track_list_width =
+                                (self.ui_state.timeline_state.track_list_width
+                                    + divider_resp.drag_delta().x)
+                                    .max(MIN_TRACK_LIST_WIDTH);
                         }
                         if divider_resp.hovered() {
                             ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
