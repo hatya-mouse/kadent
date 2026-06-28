@@ -253,8 +253,7 @@ impl EditorUi {
 
                 // Add a note at the position
                 let note = Note::new(start, Beats(1.0), pitch, 1.0);
-                self.pending_actions
-                    .push_back(EditorAction::AddNote(*track_id, *region_id, note));
+                self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
             }
         } else if response.hovered() {
             // Handle pinch zoom gesture
@@ -355,10 +354,10 @@ impl EditorUi {
                 .and_then(|t| t.get_region(note_id.1))
                 .and_then(|r| Some((r.get_start(note_id.2)?, r.get_pitch(note_id.2)?)));
             if let Some((new_start, new_pitch)) = committed {
-                self.pending_actions.push_back(EditorAction::MoveNote(
+                self.push_action(EditorAction::MoveNote(
                     *note_id.0, *note_id.1, *note_id.2, new_start,
                 ));
-                self.pending_actions.push_back(EditorAction::SetNotePitch(
+                self.push_action(EditorAction::SetNotePitch(
                     *note_id.0,
                     *note_id.1,
                     *note_id.2,

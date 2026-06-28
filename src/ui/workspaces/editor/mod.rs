@@ -120,13 +120,16 @@ impl EditorUi {
         self.track_dialog(ui);
         self.update_project();
 
-        // Request a repaint to update the playhead and the VU meter.
+        // Request a repaint to update the playhead and the VU meter
         ui.ctx().request_repaint_after(Duration::from_millis(16));
 
         while let Ok(Err(err)) = self.thread_handle.result_rx.try_recv() {
             eprintln!("Audio thread error occurred");
             self.errors.push(err);
         }
+
+        // Execute all pending actions
+        self.consume_actions();
     }
 
     pub(crate) fn system_kasl_search_paths() -> Vec<String> {
@@ -143,5 +146,9 @@ impl EditorUi {
             }
         }
         paths
+    }
+
+    fn push_action(&mut self, action: EditorAction) {
+        self.pending_actions.push_back(action);
     }
 }

@@ -110,14 +110,14 @@ impl EditorUi {
                 .map(|m| m.track_type);
             match track_type {
                 Some(TrackType::Audio) => {
-                    self.pending_actions.push_back(EditorAction::AddAudioRegion(
+                    self.push_action(EditorAction::AddAudioRegion(
                         *track_id,
                         "Region".to_string(),
                         start,
                     ));
                 }
                 Some(TrackType::Note) => {
-                    self.pending_actions.push_back(EditorAction::AddNoteRegion(
+                    self.push_action(EditorAction::AddNoteRegion(
                         *track_id,
                         "Region".to_string(),
                         start,
@@ -197,8 +197,7 @@ impl EditorUi {
                     .and_then(|track| track.get_region_mut(region_id))
                     .map(|region| region.start)
             {
-                self.pending_actions
-                    .push_back(EditorAction::MoveRegion(*track_id, *region_id, new_start));
+                self.push_action(EditorAction::MoveRegion(*track_id, *region_id, new_start));
             }
         }
     }

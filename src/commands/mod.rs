@@ -96,8 +96,10 @@ pub(crate) enum EditorAction {
 }
 
 impl EditorUi {
+    /// Consume all pending actions and execute them in order.
     pub(crate) fn consume_actions(&mut self) {
-        for action in self.pending_actions.drain(..) {
+        let pending_actions: Vec<EditorAction> = self.pending_actions.drain(..).collect();
+        for action in pending_actions {
             match action {
                 // EditorAction::SaveProject => self.save_project(),
                 // EditorAction::OpenProject(path) => self.open_project(path),
@@ -114,7 +116,7 @@ impl EditorUi {
                 EditorAction::RemoveRegion(ref track_id, ref region_id) => {
                     self.remove_region(track_id, region_id)
                 }
-                EditorAction::AddNode(ref track_id, node_type, pos) => {
+                EditorAction::AddNode(ref track_id, ref node_type, pos) => {
                     self.add_node(track_id, node_type, pos)
                 }
                 EditorAction::RemoveEdge(ref track_id, edge) => self.remove_edge(track_id, edge),

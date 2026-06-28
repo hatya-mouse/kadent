@@ -1,4 +1,5 @@
 use crate::{
+    commands::EditorAction,
     core::kasl_node::KaslNode,
     ui::{
         components::{
@@ -75,11 +76,7 @@ impl EditorUi {
 
             inspector_item(ui, "Compile", |ui| {
                 if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
-                    self.pending_actions
-                        .push_back(crate::commands::EditorAction::CompileKasl(
-                            track_id.clone(),
-                            node_id.clone(),
-                        ));
+                    self.push_action(EditorAction::CompileKasl(*track_id, *node_id));
                 }
             });
         }

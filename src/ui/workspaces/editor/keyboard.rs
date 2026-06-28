@@ -18,16 +18,13 @@ impl EditorUi {
         if delete || backspace {
             match self.ui_state.selection {
                 Selection::Region(track_id, region_id) => {
-                    self.pending_actions
-                        .push_back(EditorAction::RemoveRegion(track_id, region_id));
+                    self.push_action(EditorAction::RemoveRegion(track_id, region_id));
                 }
                 Selection::Node(track_id, node_id) => {
-                    self.pending_actions
-                        .push_back(EditorAction::RemoveNode(track_id, node_id));
+                    self.push_action(EditorAction::RemoveNode(track_id, node_id));
                 }
                 Selection::Note(track_id, region_id, note_id) => {
-                    self.pending_actions
-                        .push_back(EditorAction::RemoveNote(track_id, region_id, note_id));
+                    self.push_action(EditorAction::RemoveNote(track_id, region_id, note_id));
                 }
                 _ => (),
             }

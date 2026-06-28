@@ -64,8 +64,7 @@ impl EditorUi {
 
             let pan = self.ui_state.node_graph_state.pan_offset;
             let pos = egui::pos2(-pan.x + 20.0, -pan.y + 20.0);
-            self.pending_actions
-                .push_back(EditorAction::AddNode(track_id, node_type, pos));
+            self.push_action(EditorAction::AddNode(track_id, node_type, pos));
         }
     }
 }
