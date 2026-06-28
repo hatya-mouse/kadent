@@ -22,6 +22,14 @@ pub(crate) const fn selected_fg() -> Color32 {
     Color32::from_rgb(240, 240, 240)
 }
 
+pub(crate) const fn successful_fg() -> Color32 {
+    Color32::from_rgb(0, 180, 0)
+}
+
+pub(crate) const fn error_fg() -> Color32 {
+    Color32::from_rgb(180, 0, 0)
+}
+
 // --- BACKGROUNDS ---
 
 pub(crate) fn primary_bg(dark_mode: bool) -> Color32 {

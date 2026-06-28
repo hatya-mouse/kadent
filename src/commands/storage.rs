@@ -1,7 +1,7 @@
 use crate::{
     core::project_ctx::EditorContext,
     storage::project::{open_project_to_ctx, save_project},
-    ui::workspaces::EditorUi,
+    ui::{theme, workspaces::EditorUi},
 };
 use kadent_engine::{
     data_types::AudioContext,
@@ -19,9 +19,9 @@ impl EditorUi {
         );
 
         if program_res.is_ok() && proj_res.is_ok() {
-            self.show_temp_status("Saved Project");
+            self.show_temp_status("Saved Project", theme::successful_fg());
         } else {
-            self.show_temp_status("Failed to Save Project");
+            self.show_temp_status("Failed to Save Project", theme::error_fg());
         }
     }
 
@@ -41,11 +41,11 @@ impl EditorUi {
 
     pub(super) fn open_project(&mut self, proj_path: PathBuf) {
         let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
-            self.show_temp_status("Failed to Open Project");
+            self.show_temp_status("Failed to Open Project", theme::error_fg());
             return;
         };
         self.set_editor_ctx(editor_ctx);
-        self.show_temp_status("Opened Project");
+        self.show_temp_status("Opened Project", theme::successful_fg());
     }
 
     pub(super) fn export_project(&mut self, path: &Path) {
@@ -60,10 +60,10 @@ impl EditorUi {
         if let Ok(res) = self.thread_handle.result_rx.recv() {
             match res {
                 Err(_) => {
-                    self.show_temp_status("Failed to Export Project");
+                    self.show_temp_status("Failed to Export Project", theme::error_fg());
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
-                    self.show_temp_status("Exported Project");
+                    self.show_temp_status("Exported Project", theme::successful_fg());
                     write_samples_to_wav(path, &samples, &self.proj_ctx.project.audio_ctx);
                 }
             }

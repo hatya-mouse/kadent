@@ -36,22 +36,41 @@ impl EditorUi {
             }
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if let Some(notif) = self.ui_state.status_bar_state.temp_status.as_ref() {
-                    if Instant::now() < notif.expires_at {
-                        self.status_text(ui, &notif.text);
-                    } else {
-                        self.ui_state.status_bar_state.temp_status = None;
-                    }
-                }
+                self.notification_text(ui);
             });
         });
     }
 
-    pub(crate) fn show_temp_status(&mut self, text: &str) {
+    pub(crate) fn show_temp_status(&mut self, text: &str, color: egui::Color32) {
         self.ui_state.status_bar_state.temp_status = Some(TempStatusNotification {
             text: text.to_string(),
+            color,
+            started_at: Instant::now(),
             expires_at: Instant::now() + Duration::from_secs(TEMP_STATUS_DURATION),
         });
+    }
+
+    fn notification_text(&mut self, ui: &mut egui::Ui) {
+        if let Some(ref notif) = self.ui_state.status_bar_state.temp_status {
+            let now = Instant::now();
+
+            if now < notif.expires_at {
+                let elapsed = now.duration_since(notif.started_at).as_secs_f32();
+                let remaining = notif.expires_at.duration_since(now).as_secs_f32();
+
+                // Fade in and fade out calculations
+                let fade_in = (elapsed / 0.2).min(1.0);
+                let fade_out = (remaining / 0.5).min(1.0);
+                let alpha_multiplier = fade_in * fade_out;
+
+                let animated_color = notif.color.linear_multiply(alpha_multiplier);
+
+                // Draw the notification text with the animated color
+                ui.label(egui::RichText::new(&notif.text).color(animated_color));
+            } else {
+                self.ui_state.status_bar_state.temp_status = None;
+            }
+        }
     }
 
     fn status_text(&self, ui: &mut egui::Ui, text: &str) {

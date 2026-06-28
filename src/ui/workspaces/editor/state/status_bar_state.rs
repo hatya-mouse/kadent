@@ -1,3 +1,4 @@
+use eframe::egui;
 use std::time::Instant;
 
 #[derive(Default)]
@@ -8,6 +9,7 @@ pub(crate) struct StatusBarState {
 
 pub(crate) struct TempStatusNotification {
     pub(crate) text: String,
-    /// An Instant to manage the duration of the temporary status text.
+    pub(crate) color: egui::Color32,
+    pub(crate) started_at: Instant,
     pub(crate) expires_at: Instant,
 }
