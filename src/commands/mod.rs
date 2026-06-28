@@ -1,6 +1,7 @@
 //! Command implementations to communicate with the audio engine.
 
 mod graph;
+mod midi;
 mod note;
 mod project_updater;
 mod region;
@@ -18,6 +19,7 @@ use kadent_engine::{
         note_track::{Note, NoteID},
     },
 };
+use midir::MidiInputPort;
 use std::path::PathBuf;
 
 #[derive(Clone)]
@@ -106,6 +108,18 @@ pub(crate) enum EditorAction {
     /// Remove a note from the given note region.
     /// `(track_id, region_id, note_id)`
     RemoveNote(TrackID, RegionID, NoteID),
+
+    // --- MIDI ---
+    /// Set the MIDI input port to the given port.
+    /// `(midi_in_port)`
+    SetMidiInputPort(MidiInputPort),
+    /// Disconnect the currently connected MIDI input port.
+    DisconnectMidiPort,
+    /// Arm the given track.
+    /// `(track_id)`
+    ArmTrack(TrackID),
+    /// Disarm the currently armed track.
+    DisarmTrack,
 }
 
 impl EditorUi {
@@ -187,6 +201,20 @@ impl EditorUi {
                 }
                 EditorAction::RemoveNote(ref track_id, ref region_id, ref note_id) => {
                     self.remove_note(track_id, region_id, note_id)
+                }
+
+                // --- MIDI ---
+                EditorAction::SetMidiInputPort(midi_in_port) => {
+                    self.set_midi_input_port(midi_in_port);
+                }
+                EditorAction::DisconnectMidiPort => {
+                    self.disconnect_midi_port();
+                }
+                EditorAction::ArmTrack(track_id) => {
+                    self.arm_track(track_id);
+                }
+                EditorAction::DisarmTrack => {
+                    self.disarm_track();
                 }
             }
         }

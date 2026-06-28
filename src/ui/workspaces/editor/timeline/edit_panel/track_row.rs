@@ -150,6 +150,7 @@ impl EditorUi {
         if resize_res.dragged() {
             // Select the region
             self.ui_state.select_region(*track_id, *region_id);
+            self.push_action(EditorAction::ArmTrack(*track_id));
 
             // Calculate the new duration from the drag amount
             let delta_beats = Beats(
@@ -181,6 +182,7 @@ impl EditorUi {
             if move_res.dragged() {
                 // Select the region
                 self.ui_state.select_region(*track_id, *region_id);
+                self.push_action(EditorAction::ArmTrack(*track_id));
 
                 let delta_beats = Beats(
                     (move_res.drag_delta().x / self.ui_state.timeline_state.pixels_per_beat) as f64,

@@ -1,5 +1,5 @@
 use crate::{
-    core::midi_input::MidiCommand,
+    commands::EditorAction,
     ui::{
         components::icon_button::toolbar_icon_button,
         theme,
@@ -14,6 +14,7 @@ use eframe::egui::{
     style::StyleModifier,
 };
 use kadent_engine::thread::AudioCommand;
+use midir::MidiInputPort;
 
 impl EditorUi {
     /// Displays the IO control menu for selecting audio output devices and MIDI input ports.
@@ -90,17 +91,17 @@ impl EditorUi {
                         let Some(midi_in) = &self.ui_state.midi_in else {
                             return;
                         };
-                        let midi_in_ports = &self.ui_state.midi_in_ports;
-                        let midi_in_port_names: Vec<(String, &midir::MidiInputPort)> =
-                            midi_in_ports
-                                .iter()
-                                .filter_map(|midi_in_port| {
-                                    midi_in
-                                        .port_name(midi_in_port)
-                                        .ok()
-                                        .map(|port_name| (port_name, midi_in_port))
-                                })
-                                .collect();
+                        let midi_in_port_names: Vec<(String, MidiInputPort)> = self
+                            .ui_state
+                            .midi_in_ports
+                            .iter()
+                            .filter_map(|midi_in_port| {
+                                midi_in
+                                    .port_name(midi_in_port)
+                                    .ok()
+                                    .map(|port_name| (port_name, midi_in_port.clone()))
+                            })
+                            .collect();
 
                         if ui
                             .selectable_label(
@@ -110,14 +111,7 @@ impl EditorUi {
                             .clicked()
                             && self.ui_state.selected_midi_port.is_some()
                         {
-                            self.ui_state.selected_midi_port = None;
-                            self.midi_command_tx
-                                .send(MidiCommand::DisconnectMidiPort)
-                                .ok();
-                            self.thread_handle
-                                .audio_command_tx
-                                .send(AudioCommand::DisarmTrack)
-                                .ok();
+                            self.push_action(EditorAction::DisconnectMidiPort);
                         }
 
                         for (ref name, midi_in_port) in midi_in_port_names {
@@ -125,15 +119,7 @@ impl EditorUi {
                                 == Some(&midi_in_port.id());
                             if ui.selectable_label(is_selected, name).clicked() && !is_selected {
                                 // Set the selected MIDI input port
-                                self.midi_command_tx
-                                    .send(MidiCommand::SetMidiPort(midi_in_port.clone()))
-                                    .ok();
-                                self.ui_state.selected_midi_port = Some(midi_in_port.id());
-                                println!(
-                                    "Selected MIDI Input Port: {}, ID: {}",
-                                    name,
-                                    midi_in_port.id()
-                                );
+                                self.push_action(EditorAction::SetMidiInputPort(midi_in_port));
                             }
                         }
                     });
