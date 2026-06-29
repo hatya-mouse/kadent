@@ -36,8 +36,8 @@ impl AsBytes for Project {
             track.as_bytes(&mut track_bytes);
 
             // Write the track ID, the size of the track and its contents
-            tracks_bytes.extend(&(track_id.0 as u64).to_le_bytes());
-            tracks_bytes.extend(&(track_bytes.len() as u64).to_le_bytes());
+            tracks_bytes.extend(track_id.0.to_le_bytes());
+            tracks_bytes.extend(track_bytes.len().to_le_bytes());
             tracks_bytes.extend(track_bytes);
         }
 
@@ -104,7 +104,7 @@ impl FromBytes for Project {
             tracks_cursor
                 .read_exact(&mut data_len_bytes)
                 .with_ctx(ParseContext::Project)?;
-            let track_id = TrackID(u64::from_le_bytes(track_id_bytes) as usize);
+            let track_id = TrackID(u64::from_le_bytes(track_id_bytes));
             let data_len = u64::from_le_bytes(data_len_bytes) as usize;
 
             // Parse the track contents

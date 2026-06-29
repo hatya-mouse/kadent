@@ -25,7 +25,7 @@ impl AsBytes for NoteTrack {
 
             // Store the length of the region and the region itself
             regions_bytes.extend((region_bytes.len() as u64).to_le_bytes());
-            regions_bytes.extend((region_id.0 as u64).to_le_bytes());
+            regions_bytes.extend(region_id.0.to_le_bytes());
             regions_bytes.extend(region_bytes);
         }
 
@@ -65,7 +65,7 @@ impl FromBytes for NoteTrack {
                 .read_exact(&mut region_id_bytes)
                 .with_ctx(ParseContext::NoteTrack)?;
             let region_len = u64::from_le_bytes(region_len_bytes) as usize;
-            let region_id = RegionID(u64::from_le_bytes(region_id_bytes) as usize);
+            let region_id = RegionID(u64::from_le_bytes(region_id_bytes));
 
             // Get the region content data and decode it
             let region_data_bytes =

@@ -122,7 +122,7 @@ impl FromBytes for StoredTrackMeta {
             region_metas_cursor
                 .read_exact(&mut region_id_bytes)
                 .with_ctx(ParseContext::TrackMeta)?;
-            let region_id = RegionID(u64::from_le_bytes(region_id_bytes) as usize);
+            let region_id = RegionID(u64::from_le_bytes(region_id_bytes));
 
             // Read the length of the region metadata
             let mut region_meta_len_bytes = [0u8; 8];

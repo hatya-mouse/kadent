@@ -21,7 +21,7 @@ impl AsBytes for NoteRegion {
         // Convert the notes into bytes
         let mut note_bytes = Vec::new();
         for (note_id, note) in &self.notes {
-            note_bytes.extend((note_id.0 as u64).to_le_bytes());
+            note_bytes.extend(note_id.0.to_le_bytes());
             note.as_bytes(&mut note_bytes);
         }
 
@@ -72,7 +72,7 @@ impl FromBytes for NoteRegion {
                 .read_exact(&mut note_data_bytes)
                 .with_ctx(ParseContext::NoteRegion)?;
 
-            let note_id = u64::from_le_bytes(note_id_bytes) as usize;
+            let note_id = u64::from_le_bytes(note_id_bytes);
             let note = Note::from_bytes(&note_data_bytes)?;
 
             notes.insert(NoteID(note_id), note);

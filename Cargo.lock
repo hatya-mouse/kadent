@@ -2277,8 +2277,8 @@ dependencies = [
 
 [[package]]
 name = "kadent_engine"
-version = "0.3.25"
-source = "git+https://github.com/hatya-mouse/kadent_engine#870e809d9c74efa91cd1bea9f5d4a982e760f8f7"
+version = "0.4.0"
+source = "git+https://github.com/hatya-mouse/kadent_engine#e1ccdb1e362676ed4d714c31e17c91018ccc4ccb"
 dependencies = [
  "cpal",
  "midir",
@@ -2286,6 +2286,7 @@ dependencies = [
  "ringbuf",
  "rmp-serde",
  "serde",
+ "uuid",
 ]
 
 [[package]]

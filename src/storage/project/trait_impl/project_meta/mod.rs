@@ -52,7 +52,7 @@ impl AsBytes for StoredProjMeta {
             track_meta.as_bytes(&mut track_meta_bytes);
 
             // Write the track ID and the length of the track metadata
-            track_metas_bytes.extend(&(track_id.0 as u64).to_le_bytes());
+            track_metas_bytes.extend(track_id.0.to_le_bytes());
             track_metas_bytes.extend(&(track_meta_bytes.len() as u64).to_le_bytes());
             track_metas_bytes.extend(track_meta_bytes);
         }
@@ -99,7 +99,7 @@ impl FromBytes for StoredProjMeta {
             track_metas_cursor
                 .read_exact(&mut track_id_bytes)
                 .with_ctx(ParseContext::ProjectMeta)?;
-            let track_id = TrackID(u64::from_le_bytes(track_id_bytes) as usize);
+            let track_id = TrackID(u64::from_le_bytes(track_id_bytes));
 
             let mut track_meta_len_bytes = [0u8; 8];
             track_metas_cursor

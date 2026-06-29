@@ -45,7 +45,7 @@ impl AsBytes for StoredGraphMeta {
             node.as_bytes(&mut node_bytes);
 
             // Write the ID of the node
-            nodes_bytes.extend((node_id.0 as u64).to_le_bytes());
+            nodes_bytes.extend(node_id.0.to_le_bytes());
             // Write the length of the node bytes
             nodes_bytes.extend((node_bytes.len() as u64).to_le_bytes());
             // Write the node bytes
@@ -85,7 +85,7 @@ impl FromBytes for StoredGraphMeta {
             nodes_cursor
                 .read_exact(&mut node_id_bytes)
                 .with_ctx(ParseContext::GraphMeta)?;
-            let node_id = NodeID(u64::from_le_bytes(node_id_bytes) as usize);
+            let node_id = NodeID(u64::from_le_bytes(node_id_bytes));
 
             // Read the length of the node bytes
             let mut node_bytes_length_bytes = [0u8; 8];
