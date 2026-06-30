@@ -2278,7 +2278,7 @@ dependencies = [
 [[package]]
 name = "kadent_engine"
 version = "0.4.0"
-source = "git+https://github.com/hatya-mouse/kadent_engine#180d13a0b8090c257ad2ff860f684316ecd0ee0e"
+source = "git+https://github.com/hatya-mouse/kadent_engine#4103e73b34067a630592b5dd416b6e78d55c267d"
 dependencies = [
  "cpal",
  "midir",
