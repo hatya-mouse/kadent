@@ -26,10 +26,10 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<EditorContext
                     &project_dir,
                 );
 
-                let audio_ctx = proj_res.project.audio_ctx.clone();
+                let proj_config = proj_res.project.proj_config.clone();
                 Some(EditorContext::new(
                     ProjectContext::new(project_path, proj_res.project, project_meta),
-                    audio_ctx,
+                    proj_config,
                 ))
             }
             Err(e) => {

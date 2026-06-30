@@ -4,7 +4,7 @@ use crate::{
     ui::{theme, workspaces::EditorUi},
 };
 use kadent_engine::{
-    data_types::AudioContext,
+    data_types::{HardwareConfig, ProjectConfig},
     thread::{AudioCommand, AudioError, AudioResult},
 };
 use std::path::{Path, PathBuf};
@@ -53,7 +53,10 @@ impl EditorUi {
         let project = self.proj_ctx.project.clone();
         self.thread_handle
             .audio_command_tx
-            .send(AudioCommand::ExportAudio(Box::new(project)))
+            .send(AudioCommand::ExportAudio(
+                Box::new(project),
+                self.ui_state.hardware_config.clone(),
+            ))
             .unwrap();
 
         // Wait for the audio thread to generate the samples and send them back
@@ -64,7 +67,12 @@ impl EditorUi {
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
                     self.show_temp_status("Exported Project", theme::successful_fg());
-                    write_samples_to_wav(path, &samples, &self.ui_state.audio_ctx);
+                    write_samples_to_wav(
+                        path,
+                        &samples,
+                        &self.ui_state.proj_config,
+                        &self.ui_state.hardware_config,
+                    );
                 }
             }
         }
@@ -90,10 +98,15 @@ impl EditorUi {
     }
 }
 
-fn write_samples_to_wav(path: &Path, samples: &[f32], audio_ctx: &AudioContext) {
+fn write_samples_to_wav(
+    path: &Path,
+    samples: &[f32],
+    proj_config: &ProjectConfig,
+    hardware_config: &HardwareConfig,
+) {
     let spec = hound::WavSpec {
-        channels: audio_ctx.channels as u16,
-        sample_rate: audio_ctx.sample_rate as u32,
+        channels: proj_config.channels,
+        sample_rate: hardware_config.sample_rate as u32,
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };

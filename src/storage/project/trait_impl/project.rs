@@ -4,7 +4,7 @@ use crate::storage::project::{
     safe_read,
 };
 use kadent_engine::{
-    data_types::{AudioContext, Ticks},
+    data_types::{HardwareConfig, ProjectConfig, Ticks},
     mixer::{Project, TempoMap, TrackID},
     track::Track,
 };
@@ -16,7 +16,8 @@ use std::{
 impl AsBytes for Project {
     fn as_bytes(&self, bytes: &mut Vec<u8>) {
         // Write the audio configurations
-        self.audio_ctx.as_bytes(bytes);
+        self.proj_config.as_bytes(bytes);
+        self.hardware_config.as_bytes(bytes);
 
         // Write the range of the song
         bytes.extend(&self.range_start.0.to_le_bytes());
@@ -52,11 +53,16 @@ impl FromBytes for Project {
         let mut cursor = Cursor::new(bytes);
 
         // Read the audio configurations from the bytes
-        let mut audio_ctx_bytes = [0u8; 40];
+        let mut proj_config_bytes = [0u8; 10];
+        let mut hardware_config_bytes = [0u8; 14];
         cursor
-            .read_exact(&mut audio_ctx_bytes)
+            .read_exact(&mut proj_config_bytes)
             .with_ctx(ParseContext::Project)?;
-        let audio_ctx = AudioContext::from_bytes(&audio_ctx_bytes)?;
+        cursor
+            .read_exact(&mut hardware_config_bytes)
+            .with_ctx(ParseContext::Project)?;
+        let proj_config = ProjectConfig::from_bytes(&proj_config_bytes)?;
+        let hardware_config = HardwareConfig::from_bytes(&hardware_config_bytes)?;
 
         // Read the range of the song
         let mut range_start_bytes = [0u8; 8];
@@ -79,7 +85,7 @@ impl FromBytes for Project {
         let tempo_map_bytes =
             safe_read(&mut cursor, tempo_map_len).with_ctx(ParseContext::Project)?;
         let mut tempo_map = TempoMap::from_bytes(&tempo_map_bytes)?;
-        tempo_map.set_audio_ctx(audio_ctx.clone());
+        tempo_map.set_proj_ctx(proj_config.clone());
 
         // Read the length of all tracks
         let mut tracks_len_bytes = [0u8; 8];
@@ -116,14 +122,19 @@ impl FromBytes for Project {
         }
 
         // Construct the new project
-        let mut project =
-            Project::with_tempo_map(audio_ctx.clone(), tempo_map, range_start, range_duration);
+        let mut project = Project::with_tempo_map(
+            proj_config.clone(),
+            hardware_config.clone(),
+            tempo_map,
+            range_start,
+            range_duration,
+        );
         project.tracks = tracks;
         restore_next_track_id(&mut project);
 
         // Restore the audio context on deserialized tracks
         for track in project.tracks.values_mut() {
-            track.set_audio_ctx(&audio_ctx);
+            track.set_config(&proj_config, &hardware_config);
         }
 
         Ok(project)

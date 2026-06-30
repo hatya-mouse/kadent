@@ -46,7 +46,7 @@ impl EditorUi {
     ) {
         let ppb = self.ui_state.timeline_state.pixels_per_beat;
         let ppt = self.ui_state.timeline_state.pixels_per_beat
-            / self.ui_state.audio_ctx.resolution as f32;
+            / self.ui_state.proj_config.resolution as f32;
         let dark_mode = ui.visuals().dark_mode;
         let origin_x = ruler_screen_rect.min.x - scroll_x;
 
@@ -175,7 +175,7 @@ impl EditorUi {
 
     fn playhead(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
         let playhead_x = self.ui_state.timeline_state.pixels_per_beat
-            * (self.ui_state.playhead_ticks.0 as f32 / self.ui_state.audio_ctx.resolution as f32);
+            * (self.ui_state.playhead_ticks.0 as f32 / self.ui_state.proj_config.resolution as f32);
 
         // Create a new painter to draw on the foreground layer
         ui.painter().vline(

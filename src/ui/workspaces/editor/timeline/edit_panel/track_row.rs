@@ -24,7 +24,7 @@ impl EditorUi {
         };
 
         let ppt = self.ui_state.timeline_state.pixels_per_beat
-            / self.ui_state.audio_ctx.resolution as f32;
+            / self.ui_state.proj_config.resolution as f32;
         let region_ids: Vec<RegionID> = track_meta.regions.keys().copied().collect();
 
         // Loop through the regions in the track and draw them

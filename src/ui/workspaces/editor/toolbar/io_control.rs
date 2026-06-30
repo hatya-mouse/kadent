@@ -50,7 +50,10 @@ impl EditorUi {
                                 self.ui_state.selected_output_device = device_id;
                                 self.thread_handle
                                     .audio_command_tx
-                                    .send(AudioCommand::SetOutputDevice(device.clone()))
+                                    .send(AudioCommand::SetOutputDevice(
+                                        device.clone(),
+                                        self.ui_state.hardware_config.clone(),
+                                    ))
                                     .ok();
                             }
                         };

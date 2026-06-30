@@ -47,7 +47,7 @@ impl EditorUi {
         };
 
         let ppt = self.ui_state.piano_roll_state.pixels_per_beat
-            / self.ui_state.audio_ctx.resolution as f32;
+            / self.ui_state.proj_config.resolution as f32;
 
         // Calculate the total size of the scroll area content
         let scroll_content_width = (region.duration.0 as f32 * ppt).max(note_grid_rect.width());
@@ -253,7 +253,7 @@ impl EditorUi {
                 // Add a note at the position
                 let note = Note::new(
                     start,
-                    Ticks(self.ui_state.audio_ctx.resolution as i64),
+                    Ticks(self.ui_state.proj_config.resolution as i64),
                     pitch,
                     1.0,
                 );

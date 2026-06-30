@@ -18,9 +18,9 @@ impl EditorUi {
         name: String,
         start: Ticks,
     ) {
-        let sample_rate = self.ui_state.audio_ctx.sample_rate;
-        let channels = self.ui_state.audio_ctx.channels;
-        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
+        let sample_rate = self.ui_state.hardware_config.sample_rate;
+        let channels = self.ui_state.proj_config.channels;
+        let duration = Ticks(self.ui_state.proj_config.resolution as i64);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
@@ -41,14 +41,14 @@ impl EditorUi {
             // Create a region and add it to the audio track
             let base_bpm = 120.0;
             let frames = (duration.0 as f64
-                / (self.ui_state.audio_ctx.resolution as f64 * base_bpm))
+                / (self.ui_state.proj_config.resolution as f64 * base_bpm))
                 as usize
                 * 60
                 * sample_rate as usize;
             let audio_region = AudioRegion::zeros(
                 frames,
                 sample_rate as u32,
-                channels as u16,
+                channels,
                 base_bpm,
                 start,
                 *duration,
@@ -74,7 +74,7 @@ impl EditorUi {
         name: String,
         start: Ticks,
     ) {
-        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
+        let duration = Ticks(self.ui_state.proj_config.resolution as i64);
 
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {

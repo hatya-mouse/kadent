@@ -26,7 +26,7 @@ impl EditorUi {
     }
 
     pub fn process_vu_value(&mut self) {
-        let channels = self.ui_state.audio_ctx.channels;
+        let channels = self.ui_state.proj_config.channels as usize;
         self.ui_state
             .toolbar_state
             .last_vu_value

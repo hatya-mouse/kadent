@@ -1,6 +1,5 @@
-use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
-
 use crate::{core::kasl_node::KaslNode, ui::workspaces::EditorUi};
+use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
     pub(in crate::commands) fn compile_kasl_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
@@ -14,7 +13,9 @@ impl EditorUi {
             return;
         };
 
-        if let Err(err) = kasl_node.compile() {
+        if let Err(err) =
+            kasl_node.compile(&self.ui_state.proj_config, &self.ui_state.hardware_config)
+        {
             eprintln!("Error compiling KaslNode: {}", err);
         } else {
             self.modified_project();

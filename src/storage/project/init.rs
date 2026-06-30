@@ -12,7 +12,9 @@ pub(crate) fn init_kasl_nodes(project: &mut Project, search_paths: &[String], pr
                 kasl_node.set_search_paths(search_paths.to_vec());
                 kasl_node.set_project_dir(project_dir.to_path_buf());
 
-                if let Err(errors) = kasl_node.compile() {
+                if let Err(errors) =
+                    kasl_node.compile(&project.proj_config, &project.hardware_config)
+                {
                     eprintln!("KaslNode compile failed on load: {:?}", errors);
                 }
             }

@@ -17,7 +17,7 @@ use crate::ui::workspaces::editor::state::{
     timeline_state::TimelineState, toolbar_state::ToolbarState,
 };
 use kadent_engine::{
-    data_types::{AudioContext, Ticks},
+    data_types::{HardwareConfig, ProjectConfig, Ticks},
     graph::node_id::NodeID,
     mixer::TrackID,
     track::{RegionID, note_track::NoteID},
@@ -130,14 +130,16 @@ pub(crate) struct EditorUiState {
     pub output_devices: Vec<cpal::Device>,
 
     // --- AUDIO CONTEXT ---
-    /// The current audio context.
-    pub audio_ctx: AudioContext,
+    /// The current project configuration.
+    pub proj_config: ProjectConfig,
+    /// The current hardware configuration.
+    pub hardware_config: HardwareConfig,
 }
 
 impl EditorUiState {
-    pub fn with_audio_ctx(audio_ctx: AudioContext) -> Self {
+    pub fn with_proj_config(proj_config: ProjectConfig) -> Self {
         EditorUiState {
-            audio_ctx,
+            proj_config,
             ..Default::default()
         }
     }
@@ -169,11 +171,11 @@ impl EditorUiState {
 
     /// Gets the ticks per pixel in the timeline.
     pub fn timeline_ticks_per_pixel(&self) -> f32 {
-        self.audio_ctx.resolution as f32 / self.timeline_state.pixels_per_beat
+        self.proj_config.resolution as f32 / self.timeline_state.pixels_per_beat
     }
 
     /// Gets the ticks per pixel in the piano roll.
     pub fn piano_roll_ticks_per_pixel(&self) -> f32 {
-        self.audio_ctx.resolution as f32 / self.piano_roll_state.pixels_per_beat
+        self.proj_config.resolution as f32 / self.piano_roll_state.pixels_per_beat
     }
 }

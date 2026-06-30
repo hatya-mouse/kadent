@@ -1,10 +1,9 @@
-use std::time::{Duration, Instant};
-
 use crate::ui::{
     theme,
     workspaces::{EditorUi, editor::state::TempStatusNotification},
 };
 use eframe::egui;
+use std::time::{Duration, Instant};
 
 const TEMP_STATUS_DURATION: u64 = 5;
 /// Duration for fade-in effect in seconds.
@@ -15,9 +14,9 @@ const TEMP_STATUS_OUT: f32 = 0.5;
 impl EditorUi {
     pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
-            let audio_ctx = &self.ui_state.audio_ctx;
-            self.status_text(ui, &format!("Sample Rate {}", audio_ctx.sample_rate));
-            self.status_text(ui, &format!("Buffer Size {}", audio_ctx.buffer_size));
+            let hardware_config = &self.ui_state.hardware_config;
+            self.status_text(ui, &format!("Sample Rate {}", hardware_config.sample_rate));
+            self.status_text(ui, &format!("Buffer Size {}", hardware_config.buffer_size));
 
             if let Some(track_id) = self.ui_state.selection.track_id()
                 && let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id)
