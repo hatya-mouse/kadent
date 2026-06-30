@@ -250,13 +250,15 @@ impl EditorUi {
                     scroll_amount,
                 );
 
+                // Set the length of the note to the lenght of the last edited note
+                let note_duration = self
+                    .ui_state
+                    .piano_roll_state
+                    .last_edited_note_length
+                    .unwrap_or(Ticks(self.ui_state.audio_ctx.resolution as i64));
+
                 // Add a note at the position
-                let note = Note::new(
-                    start,
-                    Ticks(self.ui_state.audio_ctx.resolution as i64),
-                    pitch,
-                    1.0,
-                );
+                let note = Note::new(start, note_duration, pitch, 1.0);
                 self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
 
                 // Play the note for feedback
@@ -328,6 +330,7 @@ impl EditorUi {
                 .and_then(|track| track.get_region(note_id.1))
                 .and_then(|region| region.get_duration(note_id.2))
         {
+            self.ui_state.piano_roll_state.last_edited_note_length = Some(new_duration);
             self.push_action(EditorAction::SetNoteDuration(
                 *note_id.0,
                 *note_id.1,
@@ -366,6 +369,7 @@ impl EditorUi {
                 .and_then(|t| t.get_region(note_id.1))
                 .and_then(|r| Some((r.get_start(note_id.2)?, r.get_pitch(note_id.2)?)));
             if let Some((new_start, new_pitch)) = committed {
+                self.ui_state.piano_roll_state.last_edited_note_length = Some(note.duration);
                 self.push_action(EditorAction::MoveNote(
                     *note_id.0, *note_id.1, *note_id.2, new_start,
                 ));
