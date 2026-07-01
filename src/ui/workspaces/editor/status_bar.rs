@@ -2,7 +2,10 @@ use std::time::{Duration, Instant};
 
 use crate::ui::{
     theme,
-    workspaces::{EditorUi, editor::state::TempStatusNotification},
+    workspaces::{
+        EditorUi,
+        editor::state::{Modification, TempStatusNotification},
+    },
 };
 use eframe::egui;
 
@@ -39,6 +42,8 @@ impl EditorUi {
                 }
             }
 
+            self.modification_text(ui);
+
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 self.notification_text(ui);
             });
@@ -65,6 +70,37 @@ impl EditorUi {
             started_at: Instant::now(),
             expires_at: Instant::now() + Duration::from_secs(TEMP_STATUS_DURATION),
         });
+    }
+
+    fn modification_text(&mut self, ui: &mut egui::Ui) {
+        if self.ui_state.modification.is_none() {
+            return;
+        }
+
+        let resolution = self.ui_state.audio_ctx.resolution as f32;
+        let modification_string = match self.ui_state.modification {
+            Modification::None => unreachable!(),
+            Modification::ProjectRange(start_ticks, end_ticks) => {
+                let start_beats = start_ticks.0 as f32 / resolution;
+                let end_beats = end_ticks.0 as f32 / resolution;
+                format!("Project Range: {} – {} Beats", start_beats, end_beats)
+            }
+            Modification::RegionRange(start_ticks, end_ticks) => {
+                let start_beats = start_ticks.0 as f32 / resolution;
+                let end_beats = end_ticks.0 as f32 / resolution;
+                format!("Region Range: {} – {} Beats", start_beats, end_beats)
+            }
+            Modification::NotePosition(start_ticks, end_ticks, pitch) => {
+                let start_beats = start_ticks.0 as f32 / resolution;
+                let end_beats = end_ticks.0 as f32 / resolution;
+                format!(
+                    "Note: {} – {} Beats, Pitch {}",
+                    start_beats, end_beats, pitch
+                )
+            }
+        };
+
+        self.status_text(ui, &modification_string);
     }
 
     fn notification_text(&mut self, ui: &mut egui::Ui) {

@@ -1,6 +1,9 @@
 use crate::{
     commands::EditorAction,
-    ui::{theme, workspaces::EditorUi},
+    ui::{
+        theme,
+        workspaces::{EditorUi, editor::state::Modification},
+    },
 };
 use eframe::egui;
 use kadent_engine::{
@@ -312,6 +315,7 @@ impl EditorUi {
             let delta_ticks = Ticks(
                 (resize_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as i64,
             );
+
             if let Some(region) = self
                 .proj_ctx
                 .project
@@ -319,7 +323,14 @@ impl EditorUi {
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
                 .and_then(|track| track.get_region_mut(note_id.1))
             {
-                region.set_duration(note_id.2, (note.duration + delta_ticks).max(Ticks(0)));
+                let new_duration = (note.duration + delta_ticks).max(Ticks(0));
+                region.set_duration(note_id.2, new_duration);
+
+                self.ui_state.set_modification(Modification::NotePosition(
+                    note.start,
+                    note.duration + delta_ticks,
+                    note.pitch,
+                ));
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
@@ -344,8 +355,6 @@ impl EditorUi {
                 (move_res.drag_delta().x * self.ui_state.piano_roll_ticks_per_pixel()) as i64,
             );
             let delta_pitch = -move_res.drag_delta().y / self.ui_state.piano_roll_state.note_height;
-            let new_start = note.start + delta_ticks;
-            let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
 
             self.ui_state
                 .select_note(*note_id.0, *note_id.1, *note_id.2);
@@ -357,8 +366,16 @@ impl EditorUi {
                 .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
                 .and_then(|track| track.get_region_mut(note_id.1))
             {
+                let new_start = note.start + delta_ticks;
+                let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
                 region.set_start(note_id.2, new_start);
                 region.set_pitch(note_id.2, new_pitch);
+
+                self.ui_state.set_modification(Modification::NotePosition(
+                    new_start,
+                    note.duration,
+                    new_pitch,
+                ));
             }
         } else if move_res.drag_stopped() {
             let committed = self

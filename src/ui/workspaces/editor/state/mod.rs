@@ -1,5 +1,6 @@
 mod code_editor_state;
 mod dialog_state;
+mod modification;
 mod node_graph_state;
 mod panel_layout;
 mod piano_roll_state;
@@ -8,6 +9,7 @@ mod timeline_state;
 mod toolbar_state;
 
 pub(super) use dialog_state::{AddTrackState, DialogState};
+pub(super) use modification::Modification;
 pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 pub(super) use status_bar_state::TempStatusNotification;
 
@@ -111,6 +113,10 @@ pub(crate) struct EditorUiState {
     /// Currently selected content.
     pub selection: Selection,
 
+    // --- MODIFICATION STATE ---
+    /// The last modified value in purpose of showing the value in the status bar.
+    pub modification: Modification,
+
     // --- MIDI ---
     /// The name of the currently connected MIDI input port.
     pub selected_midi_port: Option<String>,
@@ -175,5 +181,10 @@ impl EditorUiState {
     /// Gets the ticks per pixel in the piano roll.
     pub fn piano_roll_ticks_per_pixel(&self) -> f32 {
         self.audio_ctx.resolution as f32 / self.piano_roll_state.pixels_per_beat
+    }
+
+    /// Sets the modification state to the given one.
+    pub fn set_modification(&mut self, modification: Modification) {
+        self.modification = modification;
     }
 }

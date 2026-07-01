@@ -2,7 +2,10 @@ mod track_row;
 
 use crate::ui::{
     theme,
-    workspaces::{EditorUi, editor::timeline::TIMELINE_LEFT_PADDING},
+    workspaces::{
+        EditorUi,
+        editor::timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+    },
 };
 use eframe::egui;
 use kadent_engine::{
@@ -13,6 +16,27 @@ use kadent_engine::{
 impl EditorUi {
     pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
         let track_height = self.ui_state.timeline_state.track_height;
+
+        // Ensure the scroll area extends past the project range end (or last region end)
+        let ppt = self.ui_state.timeline_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
+        let range_end_ticks =
+            self.proj_ctx.project.range_start.0 + self.proj_ctx.project.range_duration.0;
+        let last_region_end = self
+            .proj_ctx
+            .project_meta
+            .track_order
+            .iter()
+            .filter_map(|id| self.proj_ctx.project_meta.get_track(id))
+            .flat_map(|t| t.regions.values())
+            .map(|r| r.start.0 + r.duration.0)
+            .max()
+            .unwrap_or(0);
+        let content_end_ticks = range_end_ticks.max(last_region_end);
+        ui.set_min_width(
+            TIMELINE_LEFT_PADDING + content_end_ticks as f32 * ppt + TIMELINE_RIGHT_PADDING,
+        );
+
         let available = ui.available_rect_before_wrap();
 
         // Draw each tracks
@@ -207,12 +231,12 @@ impl EditorUi {
 
         // Create a rect in the each side of the project range to detect dragging
         let start_handle_rect = egui::Rect::from_min_max(
-            egui::pos2(start_x - 5.0, ruler_screen_rect.min.y),
-            egui::pos2(start_x + 5.0, ruler_screen_rect.max.y),
+            egui::pos2(start_x - 8.0, ruler_screen_rect.min.y),
+            egui::pos2(start_x, ruler_screen_rect.max.y),
         );
         let end_handle_rect = egui::Rect::from_min_max(
-            egui::pos2(end_x - 5.0, ruler_screen_rect.min.y),
-            egui::pos2(end_x + 5.0, ruler_screen_rect.max.y),
+            egui::pos2(end_x, ruler_screen_rect.min.y),
+            egui::pos2(end_x + 8.0, ruler_screen_rect.max.y),
         );
 
         // Draw the drag handles

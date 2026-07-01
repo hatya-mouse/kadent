@@ -8,6 +8,8 @@ pub(crate) const RULER_HEIGHT: f32 = 20.0;
 pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 /// Extra pixels of empty space inserted before zero beat
 pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
+/// Extra pixels of empty space appended after the last region or project range end
+pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
 
 impl EditorUi {
     pub fn timeline(&mut self, ui: &mut egui::Ui) {
