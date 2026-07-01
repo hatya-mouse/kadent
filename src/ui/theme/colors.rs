@@ -155,6 +155,10 @@ pub(crate) fn ruler_label(dark_mode: bool) -> Color32 {
     primary_fg(dark_mode).gamma_multiply(0.75)
 }
 
+pub(crate) fn range_outside_overlay() -> Color32 {
+    Color32::from_black_alpha(128)
+}
+
 // --- NODE GRAPH ---
 
 pub(crate) const fn node_port_input() -> Color32 {

@@ -171,6 +171,83 @@ impl EditorUi {
                 }
             }
         }
+
+        // Add draggable project range indicator
+        self.project_range_indicator(ui, &painter, ruler_screen_rect, origin_x, ppt);
+    }
+
+    fn project_range_indicator(
+        &mut self,
+        ui: &mut egui::Ui,
+        painter: &egui::Painter,
+        ruler_screen_rect: egui::Rect,
+        origin_x: f32,
+        ppt: f32,
+    ) {
+        let range_start = self.proj_ctx.project.range_start;
+        let range_end = range_start + self.proj_ctx.project.range_duration;
+        let start_x = origin_x + range_start.0 as f32 * ppt;
+        let end_x = origin_x + range_end.0 as f32 * ppt;
+
+        let range_left_rect = egui::Rect::from_min_max(
+            egui::pos2(ruler_screen_rect.min.x, ruler_screen_rect.min.y),
+            egui::pos2(start_x, ruler_screen_rect.max.y),
+        );
+        let range_right_rect = egui::Rect::from_min_max(
+            egui::pos2(end_x, ruler_screen_rect.min.y),
+            egui::pos2(ruler_screen_rect.max.x, ruler_screen_rect.max.y),
+        );
+
+        // Draw the range that are outside the project range
+        painter.rect_filled(range_left_rect, 0.0, theme::range_outside_overlay());
+        painter.rect_filled(range_right_rect, 0.0, theme::range_outside_overlay());
+
+        // Create a rect in the each side of the project range to detect dragging
+        let start_handle_rect = egui::Rect::from_min_max(
+            egui::pos2(start_x - 5.0, ruler_screen_rect.min.y),
+            egui::pos2(start_x + 5.0, ruler_screen_rect.max.y),
+        );
+        let end_handle_rect = egui::Rect::from_min_max(
+            egui::pos2(end_x - 5.0, ruler_screen_rect.min.y),
+            egui::pos2(end_x + 5.0, ruler_screen_rect.max.y),
+        );
+
+        // Draw the drag handles
+        painter.rect_filled(start_handle_rect, 0.0, theme::selected_bg());
+        painter.rect_filled(end_handle_rect, 0.0, theme::selected_bg());
+
+        // Expand the actual handle rects to make it easier to drag
+        let start_drag_res = ui.allocate_rect(
+            start_handle_rect.expand2(egui::vec2(5.0, 0.0)),
+            egui::Sense::drag(),
+        );
+        let end_drag_res = ui.allocate_rect(
+            end_handle_rect.expand2(egui::vec2(5.0, 0.0)),
+            egui::Sense::drag(),
+        );
+
+        // Change cursor icon when hovering over the drag handles
+        if start_drag_res.hovered() || end_drag_res.hovered() {
+            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+        }
+
+        // Handle drag gesture
+        // Check the end drag first to prioritize the end drag over the start drag
+        if end_drag_res.dragged() {
+            let drag_delta = end_drag_res.drag_delta();
+            let ticks_delta = (drag_delta.x / ppt) as i64;
+
+            // Avoid negative duration by using saturating_sub
+            let new_range_end = range_end.0 + ticks_delta;
+            self.proj_ctx.project.range_duration =
+                Ticks(new_range_end.saturating_sub(range_start.0));
+        } else if end_drag_res.dragged() {
+            let drag_delta = start_drag_res.drag_delta();
+            let ticks_delta = (drag_delta.x / ppt) as i64;
+
+            // Avoid negative start by using saturating_add
+            self.proj_ctx.project.range_start = Ticks(range_start.0.saturating_add(ticks_delta));
+        }
     }
 
     fn playhead(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
