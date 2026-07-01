@@ -3,7 +3,7 @@ use crate::{
     core::metadata::TrackType,
     ui::{
         theme,
-        workspaces::{EditorUi, editor::timeline::SCROLL_LEFT_PADDING},
+        workspaces::{EditorUi, editor::timeline::TIMELINE_LEFT_PADDING},
     },
 };
 use eframe::egui;
@@ -43,7 +43,7 @@ impl EditorUi {
             };
 
             // Calculate where to put the region
-            let x = row_rect.min.x + SCROLL_LEFT_PADDING + region_meta.start.0 as f32 * ppt;
+            let x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_meta.start.0 as f32 * ppt;
             let w = (region_meta.duration.0 as f32 * ppt).max(8.0);
             let region_rect = egui::Rect::from_min_size(
                 egui::pos2(x, row_rect.min.y + 2.0),
@@ -101,7 +101,7 @@ impl EditorUi {
                 .interact_pointer_pos()
                 .map(|pos| {
                     Ticks(
-                        ((pos.x - row_rect.min.x - SCROLL_LEFT_PADDING)
+                        ((pos.x - row_rect.min.x - TIMELINE_LEFT_PADDING)
                             * self.ui_state.timeline_ticks_per_pixel())
                             as i64,
                     )
