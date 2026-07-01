@@ -80,22 +80,32 @@ impl EditorUi {
         let resolution = self.ui_state.audio_ctx.resolution as f32;
         let modification_string = match self.ui_state.modification {
             Modification::None => unreachable!(),
-            Modification::ProjectRange(start_ticks, end_ticks) => {
+            Modification::ProjectRange(start_ticks, duration_ticks) => {
                 let start_beats = start_ticks.0 as f32 / resolution;
-                let end_beats = end_ticks.0 as f32 / resolution;
-                format!("Project Range: {} – {} Beats", start_beats, end_beats)
-            }
-            Modification::RegionRange(start_ticks, end_ticks) => {
-                let start_beats = start_ticks.0 as f32 / resolution;
-                let end_beats = end_ticks.0 as f32 / resolution;
-                format!("Region Range: {} – {} Beats", start_beats, end_beats)
-            }
-            Modification::NotePosition(start_ticks, end_ticks, pitch) => {
-                let start_beats = start_ticks.0 as f32 / resolution;
-                let end_beats = end_ticks.0 as f32 / resolution;
+                let duration_beats = duration_ticks.0 as f32 / resolution;
                 format!(
-                    "Note: {} – {} Beats, Pitch {}",
-                    start_beats, end_beats, pitch
+                    "Project Range: {:.3} – {:.3} Beats",
+                    start_beats,
+                    start_beats + duration_beats
+                )
+            }
+            Modification::RegionRange(start_ticks, duration_ticks) => {
+                let start_beats = start_ticks.0 as f32 / resolution;
+                let duration_beats = duration_ticks.0 as f32 / resolution;
+                format!(
+                    "Region Range: {:.3} – {:.3} Beats",
+                    start_beats,
+                    start_beats + duration_beats
+                )
+            }
+            Modification::NotePosition(start_ticks, duration_ticks, pitch) => {
+                let start_beats = start_ticks.0 as f32 / resolution;
+                let duration_beats = duration_ticks.0 as f32 / resolution;
+                format!(
+                    "Note: {:.3} – {:.3} Beats, Pitch {:.3}",
+                    start_beats,
+                    start_beats + duration_beats,
+                    pitch
                 )
             }
         };

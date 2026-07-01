@@ -4,7 +4,10 @@ use crate::ui::{
     theme,
     workspaces::{
         EditorUi,
-        editor::timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+        editor::{
+            state::Modification,
+            timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+        },
     },
 };
 use eframe::egui;
@@ -212,7 +215,8 @@ impl EditorUi {
         ppt: f32,
     ) {
         let range_start = self.proj_ctx.project.range_start;
-        let range_end = range_start + self.proj_ctx.project.range_duration;
+        let range_duration = self.proj_ctx.project.range_duration;
+        let range_end = range_start + range_duration;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
 
@@ -265,20 +269,26 @@ impl EditorUi {
             let ticks_delta = (drag_delta.x / ppt) as i64;
 
             // Avoid negative duration by using saturating_sub
-            let new_range_end = range_end.0 + ticks_delta;
-            self.proj_ctx.project.range_duration =
-                Ticks(new_range_end.saturating_sub(range_start.0));
+            let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
+            self.proj_ctx.project.range_duration = new_duration;
+
+            self.ui_state
+                .set_modification(Modification::ProjectRange(range_start, new_duration));
         } else if start_drag_res.dragged() {
             let drag_delta = start_drag_res.drag_delta();
             let ticks_delta = (drag_delta.x / ppt) as i64;
 
             // Avoid negative start by using saturating_add
             // Increate the duration when the start is reduced, and vice versa
-            let new_start = Ticks((range_start.0 + ticks_delta).max(0));
+            let new_start = Ticks(range_start.0.saturating_add(ticks_delta).max(0));
             let start_delta = new_start.0 - range_start.0;
-            self.proj_ctx.project.range_duration =
-                Ticks((self.proj_ctx.project.range_duration.0 - start_delta).max(0));
+            let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
+
             self.proj_ctx.project.range_start = new_start;
+            self.proj_ctx.project.range_duration = new_duration;
+
+            self.ui_state
+                .set_modification(Modification::ProjectRange(new_start, new_duration));
         }
     }
 

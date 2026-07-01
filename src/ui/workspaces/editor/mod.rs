@@ -19,7 +19,10 @@ use crate::{
         midi_input::{MidiCommand, spawn_midi_thread},
         project_ctx::{EditorContext, ProjectContext},
     },
-    ui::{theme, workspaces::editor::state::EditorUiState},
+    ui::{
+        theme,
+        workspaces::editor::state::{EditorUiState, Modification},
+    },
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
@@ -99,6 +102,7 @@ impl EditorUi {
                 self.toolbar(ui);
             });
 
+        // The status bar should display the modification state from the last frame
         egui::Panel::bottom(ui.id().with("status_bar"))
             .frame(
                 egui::Frame::new()
@@ -109,6 +113,9 @@ impl EditorUi {
             .show_inside(ui, |ui| {
                 self.status_bar(ui);
             });
+
+        // Reset the modification state from the last frame
+        self.ui_state.set_modification(Modification::None);
 
         egui::CentralPanel::default()
             .frame(

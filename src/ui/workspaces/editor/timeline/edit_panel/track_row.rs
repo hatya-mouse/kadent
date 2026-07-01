@@ -3,7 +3,10 @@ use crate::{
     core::metadata::TrackType,
     ui::{
         theme,
-        workspaces::{EditorUi, editor::timeline::TIMELINE_LEFT_PADDING},
+        workspaces::{
+            EditorUi,
+            editor::{state::Modification, timeline::TIMELINE_LEFT_PADDING},
+        },
     },
 };
 use eframe::egui;
@@ -167,8 +170,13 @@ impl EditorUi {
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                region.set_duration((region.duration + delta_ticks).max(Ticks(0)));
+                let new_duration = (region.duration + delta_ticks).max(Ticks(0));
+                region.set_duration(new_duration);
+
+                self.ui_state
+                    .set_modification(Modification::RegionRange(region.start, new_duration));
             }
+            return;
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
                 .proj_ctx
@@ -182,34 +190,38 @@ impl EditorUi {
                 *region_id,
                 new_duration,
             ));
-        } else {
-            // Drag to move
-            if move_res.dragged() {
-                // Select the region
-                self.ui_state.select_region(*track_id, *region_id);
-                self.push_action(EditorAction::ArmTrack(*track_id));
+            return;
+        }
 
-                let delta_ticks = Ticks(
-                    (move_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64,
-                );
-                if let Some(region) = self
-                    .proj_ctx
-                    .project_meta
-                    .get_track_mut(track_id)
-                    .and_then(|track| track.get_region_mut(region_id))
-                {
-                    region.move_region((region.start + delta_ticks).max(Ticks(0)));
-                }
-            } else if move_res.drag_stopped()
-                && let Some(new_start) = self
-                    .proj_ctx
-                    .project_meta
-                    .get_track_mut(track_id)
-                    .and_then(|track| track.get_region_mut(region_id))
-                    .map(|region| region.start)
+        // Drag to move
+        if move_res.dragged() {
+            // Select the region
+            self.ui_state.select_region(*track_id, *region_id);
+            self.push_action(EditorAction::ArmTrack(*track_id));
+
+            let delta_ticks =
+                Ticks((move_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64);
+            if let Some(region) = self
+                .proj_ctx
+                .project_meta
+                .get_track_mut(track_id)
+                .and_then(|track| track.get_region_mut(region_id))
             {
-                self.push_action(EditorAction::MoveRegion(*track_id, *region_id, new_start));
+                let new_start = (region.start + delta_ticks).max(Ticks(0));
+                region.move_region(new_start);
+
+                self.ui_state
+                    .set_modification(Modification::RegionRange(new_start, region.duration));
             }
+        } else if move_res.drag_stopped()
+            && let Some(new_start) = self
+                .proj_ctx
+                .project_meta
+                .get_track_mut(track_id)
+                .and_then(|track| track.get_region_mut(region_id))
+                .map(|region| region.start)
+        {
+            self.push_action(EditorAction::MoveRegion(*track_id, *region_id, new_start));
         }
     }
 }
