@@ -4,8 +4,10 @@ mod track_list;
 use crate::ui::{theme, workspaces::EditorUi};
 use eframe::egui;
 
-const RULER_HEIGHT: f32 = 20.0;
-const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
+pub(crate) const RULER_HEIGHT: f32 = 20.0;
+pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
+/// Extra pixels of empty space inserted before zero beat
+pub(crate) const SCROLL_LEFT_PADDING: f32 = 100.0;
 
 impl EditorUi {
     pub fn timeline(&mut self, ui: &mut egui::Ui) {
@@ -13,7 +15,10 @@ impl EditorUi {
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
         let timeline_scroll_key = ui.id().with("timeline_scroll");
-        let timeline_scroll = ui.data(|data| data.get_temp(timeline_scroll_key).unwrap_or(0.0));
+        let timeline_scroll = ui.data(|data| {
+            data.get_temp(timeline_scroll_key)
+                .unwrap_or(SCROLL_LEFT_PADDING)
+        });
 
         egui::Panel::top(ui.id().with("ruler"))
             .frame(egui::Frame::new())

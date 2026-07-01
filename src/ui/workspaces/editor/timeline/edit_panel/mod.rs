@@ -1,6 +1,9 @@
 mod track_row;
 
-use crate::ui::{theme, workspaces::EditorUi};
+use crate::ui::{
+    theme,
+    workspaces::{EditorUi, editor::timeline::SCROLL_LEFT_PADDING},
+};
 use eframe::egui;
 use kadent_engine::{
     data_types::Ticks,
@@ -48,7 +51,7 @@ impl EditorUi {
         let ppt = self.ui_state.timeline_state.pixels_per_beat
             / self.ui_state.audio_ctx.resolution as f32;
         let dark_mode = ui.visuals().dark_mode;
-        let origin_x = ruler_screen_rect.min.x - scroll_x;
+        let origin_x = ruler_screen_rect.min.x - scroll_x + SCROLL_LEFT_PADDING;
 
         // --- Gesture handling ---
         let (hover_pos, press_origin, primary_pressed, primary_down, primary_released) =
@@ -241,12 +244,17 @@ impl EditorUi {
             let new_range_end = range_end.0 + ticks_delta;
             self.proj_ctx.project.range_duration =
                 Ticks(new_range_end.saturating_sub(range_start.0));
-        } else if end_drag_res.dragged() {
+        } else if start_drag_res.dragged() {
             let drag_delta = start_drag_res.drag_delta();
             let ticks_delta = (drag_delta.x / ppt) as i64;
 
             // Avoid negative start by using saturating_add
-            self.proj_ctx.project.range_start = Ticks(range_start.0.saturating_add(ticks_delta));
+            // Increate the duration when the start is reduced, and vice versa
+            let new_start = Ticks((range_start.0 + ticks_delta).max(0));
+            let start_delta = new_start.0 - range_start.0;
+            self.proj_ctx.project.range_duration =
+                Ticks((self.proj_ctx.project.range_duration.0 - start_delta).max(0));
+            self.proj_ctx.project.range_start = new_start;
         }
     }
 
