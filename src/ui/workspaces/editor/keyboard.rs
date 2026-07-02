@@ -45,5 +45,17 @@ impl EditorUi {
                 self.push_action(EditorAction::Play);
             }
         }
+
+        let seek_forward = ui.input(|i| i.key_pressed(egui::Key::ArrowRight));
+        if seek_forward {
+            self.push_action(EditorAction::Seek(
+                self.proj_ctx.project.range_start + self.proj_ctx.project.range_duration,
+            ));
+        }
+
+        let seek_back = ui.input(|i| i.key_pressed(egui::Key::ArrowLeft));
+        if seek_back {
+            self.push_action(EditorAction::Seek(self.proj_ctx.project.range_start));
+        }
     }
 }
