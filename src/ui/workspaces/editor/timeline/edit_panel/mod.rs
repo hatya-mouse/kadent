@@ -8,7 +8,10 @@ use crate::{
             EditorUi,
             editor::{
                 state::Modification,
-                timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+                timeline::{
+                    TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB,
+                    TIMELINE_RIGHT_PADDING,
+                },
             },
         },
     },
@@ -66,6 +69,9 @@ impl EditorUi {
 
         // Draw the playhead
         self.playhead(ui, available);
+
+        // Handle pinch / zoom gesture for timeline zoooooming
+        self.handle_timeline_zoom(ui, available);
     }
 
     pub(super) fn beat_ruler(
@@ -296,5 +302,18 @@ impl EditorUi {
             },
             egui::Stroke::new(2.0, theme::primary_fg(ui.visuals().dark_mode)),
         );
+    }
+
+    fn handle_timeline_zoom(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
+        let editor_res = ui.allocate_rect(editor_rect, egui::Sense::hover());
+        if editor_res.hovered() {
+            let zoom_delta = ui.input(|i| i.zoom_delta());
+
+            if zoom_delta != 1.0 {
+                let new_ppb = self.ui_state.timeline_state.pixels_per_beat * zoom_delta;
+                self.ui_state.timeline_state.pixels_per_beat =
+                    new_ppb.clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
+            }
+        }
     }
 }

@@ -268,7 +268,6 @@ impl EditorUi {
                 self.play_note_feedback(pitch.round() as u8, 255u8);
             }
         } else if response.hovered() {
-            // Handle pinch zoom gesture
             let zoom_delta = ui.input(|i| i.zoom_delta());
 
             // Only zoom to adjust note height, and press shift in the meantime to adjust pixels per beat
