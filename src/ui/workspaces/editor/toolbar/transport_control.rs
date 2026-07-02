@@ -1,13 +1,15 @@
-use crate::ui::{
-    components::{
-        icon_button::{toolbar_icon_button, toolbar_icon_button_colored},
-        toolbar_group::toolbar_group,
+use crate::{
+    commands::EditorAction,
+    ui::{
+        components::{
+            icon_button::{toolbar_icon_button, toolbar_icon_button_colored},
+            toolbar_group::toolbar_group,
+        },
+        theme,
+        workspaces::EditorUi,
     },
-    theme,
-    workspaces::EditorUi,
 };
 use eframe::egui;
-use kadent_engine::thread::{AudioCommand, AudioError};
 
 impl EditorUi {
     pub(super) fn transport_control(&mut self, ui: &mut egui::Ui) {
@@ -20,15 +22,7 @@ impl EditorUi {
             )
             .clicked()
             {
-                let command = AudioCommand::Seek(self.proj_ctx.project.range_start);
-                if self
-                    .thread_handle
-                    .audio_command_tx
-                    .send(command.clone())
-                    .is_err()
-                {
-                    self.errors.push(AudioError::CommandFailed(command));
-                }
+                self.push_action(EditorAction::Seek(self.proj_ctx.project.range_start));
             }
 
             let play_button_color = if self.ui_state.is_playing {
@@ -44,17 +38,7 @@ impl EditorUi {
             .clicked()
                 && !self.ui_state.is_playing
             {
-                let command = AudioCommand::Play;
-                if self
-                    .thread_handle
-                    .audio_command_tx
-                    .send(command.clone())
-                    .is_err()
-                {
-                    self.errors.push(AudioError::CommandFailed(command));
-                } else {
-                    self.ui_state.is_playing = true;
-                }
+                self.push_action(EditorAction::Play);
             }
 
             if toolbar_icon_button(
@@ -66,17 +50,7 @@ impl EditorUi {
             .clicked()
                 && self.ui_state.is_playing
             {
-                let command = AudioCommand::Pause;
-                if self
-                    .thread_handle
-                    .audio_command_tx
-                    .send(command.clone())
-                    .is_err()
-                {
-                    self.errors.push(AudioError::CommandFailed(command));
-                } else {
-                    self.ui_state.is_playing = false;
-                }
+                self.push_action(EditorAction::Pause);
             }
 
             if toolbar_icon_button(
@@ -87,17 +61,9 @@ impl EditorUi {
             )
             .clicked()
             {
-                let command = AudioCommand::Seek(
+                self.push_action(EditorAction::Seek(
                     self.proj_ctx.project.range_start + self.proj_ctx.project.range_duration,
-                );
-                if self
-                    .thread_handle
-                    .audio_command_tx
-                    .send(command.clone())
-                    .is_err()
-                {
-                    self.errors.push(AudioError::CommandFailed(command));
-                }
+                ));
             }
         });
     }

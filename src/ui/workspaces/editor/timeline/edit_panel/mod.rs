@@ -1,20 +1,20 @@
 mod track_row;
 
-use crate::ui::{
-    theme,
-    workspaces::{
-        EditorUi,
-        editor::{
-            state::Modification,
-            timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+use crate::{
+    commands::EditorAction,
+    ui::{
+        theme,
+        workspaces::{
+            EditorUi,
+            editor::{
+                state::Modification,
+                timeline::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+            },
         },
     },
 };
 use eframe::egui;
-use kadent_engine::{
-    data_types::Ticks,
-    thread::{AudioCommand, AudioError},
-};
+use kadent_engine::data_types::Ticks;
 
 impl EditorUi {
     pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
@@ -120,16 +120,7 @@ impl EditorUi {
             if primary_released {
                 if let Some(pos) = hover_pos {
                     let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
-                    self.ui_state.playhead_ticks = ticks;
-                    let command = AudioCommand::Seek(ticks);
-                    if self
-                        .thread_handle
-                        .audio_command_tx
-                        .send(command.clone())
-                        .is_err()
-                    {
-                        self.errors.push(AudioError::CommandFailed(command));
-                    }
+                    self.push_action(EditorAction::Seek(ticks));
                 }
                 ui.data_mut(|data| data.remove::<bool>(seek_key));
             }

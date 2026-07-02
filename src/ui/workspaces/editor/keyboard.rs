@@ -36,5 +36,14 @@ impl EditorUi {
             // Save the projects and opened KASL programs
             self.push_action(EditorAction::SaveAll);
         }
+
+        let play_pause = ui.input(|i| i.key_pressed(egui::Key::Space));
+        if play_pause {
+            if self.ui_state.is_playing {
+                self.push_action(EditorAction::Pause);
+            } else {
+                self.push_action(EditorAction::Play);
+            }
+        }
     }
 }

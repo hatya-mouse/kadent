@@ -7,6 +7,7 @@ mod project_updater;
 mod region;
 mod storage;
 mod track;
+mod transport;
 
 use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
 use eframe::egui;
@@ -49,6 +50,15 @@ pub(crate) enum EditorAction {
     /// Exports a project to a WAV file.
     /// `(path)`
     ExportProject(PathBuf),
+
+    // --- TRANSPORT ---
+    /// Start plyaing the project.
+    Play,
+    /// Pause playing the project.
+    Pause,
+    /// Seek to the specific position in the project.
+    /// `(target_ticks)`
+    Seek(Ticks),
 
     // --- TRACK ---
     /// Add a new track to the project.
@@ -137,6 +147,17 @@ impl EditorUi {
                 }
                 EditorAction::ExportProject(path) => {
                     self.export_project(&path);
+                }
+
+                // --- TRANSPORT ---
+                EditorAction::Play => {
+                    self.play();
+                }
+                EditorAction::Pause => {
+                    self.pause();
+                }
+                EditorAction::Seek(target_ticks) => {
+                    self.seek(target_ticks);
                 }
 
                 // --- TRACK ---

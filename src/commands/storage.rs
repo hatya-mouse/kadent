@@ -5,7 +5,7 @@ use crate::{
 };
 use kadent_engine::{
     data_types::AudioContext,
-    thread::{AudioCommand, AudioError, AudioResult},
+    thread::{AudioCommand, AudioResult},
 };
 use std::path::{Path, PathBuf};
 
@@ -75,15 +75,7 @@ impl EditorUi {
         self.proj_ctx = editor_ctx.proj_ctx;
 
         // Seek to the start of the project after loading
-        let command = AudioCommand::Seek(self.proj_ctx.project.range_start);
-        if self
-            .thread_handle
-            .audio_command_tx
-            .send(command.clone())
-            .is_err()
-        {
-            self.errors.push(AudioError::CommandFailed(command));
-        }
+        self.seek(self.proj_ctx.project.range_start);
 
         // Notify the audio thread of the project change
         self.modified_project();
