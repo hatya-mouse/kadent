@@ -48,15 +48,11 @@ impl EditorUi {
             // Update the peak hold values
             let current_vu = self.ui_state.toolbar_state.last_vu_value[channel];
             let peak_hold = &mut self.ui_state.toolbar_state.peak_holds[channel];
-            if peak_hold.hold_time.elapsed().as_secs_f32() > PEAK_HOLD_TIME {
+            if peak_hold.hold_time.elapsed().as_secs_f32() > PEAK_HOLD_TIME
+                || current_vu > peak_hold.value
+            {
                 peak_hold.value = current_vu;
                 peak_hold.hold_time = std::time::Instant::now();
-            } else {
-                let current_vu = self.ui_state.toolbar_state.last_vu_value[channel];
-                if current_vu > peak_hold.value {
-                    peak_hold.value = current_vu;
-                    peak_hold.hold_time = std::time::Instant::now();
-                }
             }
         }
     }
