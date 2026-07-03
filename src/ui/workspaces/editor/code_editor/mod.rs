@@ -15,9 +15,11 @@ impl EditorUi {
                 self.file_browser(ui, buffer_index);
             });
 
-            egui::CentralPanel::default().show_inside(ui, |ui| {
-                self.kasl_editor(ui, buffer_index);
-            });
+            egui::CentralPanel::default()
+                .frame(egui::Frame::new())
+                .show_inside(ui, |ui| {
+                    self.kasl_editor(ui, buffer_index);
+                });
         } else {
             let new_buffer_index = self.ui_state.code_editor_state.code_buffers.len();
             self.ui_state.code_editor_state.code_buffers.push(None);

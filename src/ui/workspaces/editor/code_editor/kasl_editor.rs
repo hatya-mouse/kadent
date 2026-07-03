@@ -1,4 +1,7 @@
-use crate::ui::{components::icon_button::small_icon_button, workspaces::EditorUi};
+use crate::ui::{
+    components::{icon_button::small_icon_button, panel_header::panel_header},
+    workspaces::EditorUi,
+};
 use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::highlight_with;
 
@@ -17,7 +20,7 @@ impl EditorUi {
             return;
         };
 
-        // Header: filename and close button
+        // Show filename and close button in the header
         let file_name = self
             .ui_state
             .code_editor_state
@@ -29,7 +32,7 @@ impl EditorUi {
             .unwrap_or_default();
 
         let mut close_clicked = false;
-        ui.horizontal(|ui| {
+        panel_header(ui, |ui| {
             ui.label(&file_name);
             if small_icon_button(
                 ui,
@@ -71,8 +74,9 @@ impl EditorUi {
             return;
         };
 
-        // Create a layouter closure that highlights the code using KASL syntax set
-        let mut layouter = |ui: &egui::Ui, buffer: &dyn TextBuffer, wrap_width: f32| {
+        // Create a layouter closure that highlights the code using KASL syntax set.
+        // wrap_width is forced to infinity to disable line wrapping (horizontal scroll instead).
+        let mut layouter = |ui: &egui::Ui, buffer: &dyn TextBuffer, _wrap_width: f32| {
             let mut layout_job = highlight_with(
                 ui.ctx(),
                 ui.style(),
@@ -81,16 +85,26 @@ impl EditorUi {
                 "kasl",
                 syntect_settings,
             );
-            layout_job.wrap.max_width = wrap_width;
+            layout_job.wrap.max_width = f32::INFINITY;
             ui.fonts_mut(|fonts| fonts.layout_job(layout_job))
         };
 
-        ui.add(
-            egui::TextEdit::multiline(code)
-                .code_editor()
-                .desired_rows(20)
-                .lock_focus(true)
-                .layouter(&mut layouter),
-        );
+        // Compute the minimum rows needed to fill the available vertical space
+        let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
+        let min_rows = (ui.available_height() / row_height).ceil() as usize;
+        let desired_rows = code.lines().count().max(min_rows);
+
+        egui::ScrollArea::both()
+            .auto_shrink(false)
+            .show(ui, |ui| {
+                ui.add(
+                    egui::TextEdit::multiline(code)
+                        .code_editor()
+                        .desired_width(f32::INFINITY)
+                        .desired_rows(desired_rows)
+                        .lock_focus(true)
+                        .layouter(&mut layouter),
+                );
+            });
     }
 }
