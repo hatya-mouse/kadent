@@ -13,10 +13,13 @@ pub(super) use modification::Modification;
 pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 pub(super) use status_bar_state::TempStatusNotification;
 
-use crate::ui::workspaces::editor::state::{
-    code_editor_state::CodeEditorState, node_graph_state::NodeGraphState,
-    piano_roll_state::PianoRollState, status_bar_state::StatusBarState,
-    timeline_state::TimelineState, toolbar_state::ToolbarState,
+use crate::{
+    commands::FileNode,
+    ui::workspaces::editor::state::{
+        code_editor_state::CodeEditorState, node_graph_state::NodeGraphState,
+        piano_roll_state::PianoRollState, status_bar_state::StatusBarState,
+        timeline_state::TimelineState, toolbar_state::ToolbarState,
+    },
 };
 use kadent_engine::{
     data_types::{AudioContext, Ticks},
@@ -116,6 +119,10 @@ pub(crate) struct EditorUiState {
     // --- MODIFICATION STATE ---
     /// The last modified value in purpose of showing the value in the status bar.
     pub modification: Modification,
+
+    // --- PROJECT DIRECTORY STRUCTURE ---
+    /// Cached graph of the project directory structure.
+    pub project_dir_cache: Vec<FileNode>,
 
     // --- MIDI ---
     /// The name of the currently connected MIDI input port.

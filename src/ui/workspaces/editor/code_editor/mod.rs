@@ -1,3 +1,4 @@
+mod file_browser;
 mod kasl_editor;
 
 use crate::ui::workspaces::EditorUi;
@@ -9,8 +10,8 @@ impl EditorUi {
         let buffer_index_id = ui.id().with("buffer_index");
         let buffer_index: Option<usize> = ui.data_mut(|data| data.get_temp(buffer_index_id));
 
-        egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |_| {
-            // FILE BROWSER
+        egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |ui| {
+            self.file_browser(ui);
         });
 
         egui::Panel::right(ui.id().with("code_editor_right")).show_inside(ui, |ui| {

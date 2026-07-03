@@ -9,6 +9,8 @@ mod storage;
 mod track;
 mod transport;
 
+pub(crate) use storage::{FileNode, FileNodeKind};
+
 use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
 use eframe::egui;
 use kadent_engine::{
@@ -50,6 +52,10 @@ pub(crate) enum EditorAction {
     /// Exports a project to a WAV file.
     /// `(path)`
     ExportProject(PathBuf),
+
+    // --- STORAGE ---
+    /// Updates the cache of the file tree.
+    UpdateDirCache,
 
     // --- TRANSPORT ---
     /// Start plyaing the project.
@@ -147,6 +153,11 @@ impl EditorUi {
                 }
                 EditorAction::ExportProject(path) => {
                     self.export_project(&path);
+                }
+
+                // --- STORAGE ---
+                EditorAction::UpdateDirCache => {
+                    self.update_dir_cache();
                 }
 
                 // --- TRANSPORT ---

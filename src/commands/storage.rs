@@ -9,6 +9,17 @@ use kadent_engine::{
 };
 use std::path::{Path, PathBuf};
 
+pub(crate) enum FileNodeKind {
+    File,
+    Dir { children: Vec<FileNode> },
+}
+
+pub(crate) struct FileNode {
+    pub path: PathBuf,
+    pub name: String,
+    pub kind: FileNodeKind,
+}
+
 impl EditorUi {
     pub(super) fn save_all(&mut self) {
         let program_res = self.save_programs();
@@ -70,6 +81,10 @@ impl EditorUi {
         }
     }
 
+    pub(super) fn update_dir_cache(&mut self) {
+        self.ui_state.project_dir_structure = recursively_create_graph(&self.proj_ctx.project_path);
+    }
+
     /// Set the editor context and update the project context accordingly.
     pub(crate) fn set_editor_ctx(&mut self, editor_ctx: EditorContext) {
         self.proj_ctx = editor_ctx.proj_ctx;
@@ -96,4 +111,28 @@ fn write_samples_to_wav(path: &Path, samples: &[f32], audio_ctx: &AudioContext) 
         writer.write_sample(clamped as i16).unwrap();
     }
     writer.finalize().unwrap();
+}
+
+/// Recursively create a graph of the project directory structure.
+fn recursively_create_graph(path: &Path) -> Vec<FileNode> {
+    if let Ok(files) = std::fs::read_dir(path) {
+        files
+            .filter_map(|file| {
+                file.map(|file| FileNode {
+                    path: file.path(),
+                    name: file.file_name().to_string_lossy().to_string(),
+                    kind: if file.path().is_dir() {
+                        FileNodeKind::Dir {
+                            children: recursively_create_graph(&file.path()),
+                        }
+                    } else {
+                        FileNodeKind::File
+                    },
+                })
+                .ok()
+            })
+            .collect()
+    } else {
+        Vec::new()
+    }
 }
