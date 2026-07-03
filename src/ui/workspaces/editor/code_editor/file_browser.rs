@@ -6,13 +6,13 @@ use eframe::egui;
 use std::path::{Path, PathBuf};
 
 impl EditorUi {
-    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, buffer_index: usize) {
+    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Get the currently opened path for highlighting (empty path = nothing selected)
         let opened_path: PathBuf = self
             .ui_state
             .code_editor_state
             .code_buffers
-            .get(buffer_index)
+            .get(&panel_id)
             .and_then(|b| b.as_ref())
             .map(|(path, _)| path.clone())
             .unwrap_or_default();
@@ -31,7 +31,7 @@ impl EditorUi {
                 .ui_state
                 .code_editor_state
                 .code_buffers
-                .get_mut(buffer_index)
+                .get_mut(&panel_id)
         {
             *buffer = Some((path, content));
         }

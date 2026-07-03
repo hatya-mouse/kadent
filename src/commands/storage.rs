@@ -40,14 +40,14 @@ impl EditorUi {
 
     /// Save all opened programs to their respective file paths.
     fn save_programs(&mut self) -> std::io::Result<()> {
-        for (path, buffer) in self
+        for (path, content) in self
             .ui_state
             .code_editor_state
             .code_buffers
-            .iter()
-            .flatten()
+            .values()
+            .filter_map(|b| b.as_ref())
         {
-            std::fs::write(path, buffer)?;
+            std::fs::write(path, content)?;
         }
         Ok(())
     }

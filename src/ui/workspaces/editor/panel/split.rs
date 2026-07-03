@@ -19,13 +19,14 @@ pub(super) fn render_split(
     second: &mut PanelNode,
     rect: Rect,
     editor: &mut EditorUi,
+    node_id: egui::Id,
 ) -> Option<bool> {
     let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
     if panel_size(dir, first_rect) >= 1.0 {
-        super::render_node(ui, first, first_rect, editor);
+        super::render_node(ui, first, first_rect, editor, node_id.with("first"));
     }
     if panel_size(dir, second_rect) >= 1.0 {
-        super::render_node(ui, second, second_rect, editor);
+        super::render_node(ui, second, second_rect, editor, node_id.with("second"));
     }
     render_divider(ui, div_rect, dir, ratio, rect)
 }

@@ -98,7 +98,7 @@ impl EditorUi {
                 )
             });
 
-        let seek_key = egui::Id::new("ruler_seeking").with((
+        let seek_key = ui.id().with("ruler_seeking").with((
             ruler_screen_rect.min.x as i32,
             ruler_screen_rect.min.y as i32,
         ));

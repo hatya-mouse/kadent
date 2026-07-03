@@ -6,7 +6,7 @@ pub(crate) fn dialog<R>(
     title: impl Into<String>,
     content: impl FnOnce(&mut egui::Ui) -> R,
 ) -> ModalResponse<R> {
-    egui::Modal::new(egui::Id::new("add_track"))
+    egui::Modal::new(ui.id().with("add_track"))
         .frame(
             egui::Frame::popup(ui.style())
                 .shadow(egui::Shadow::NONE)

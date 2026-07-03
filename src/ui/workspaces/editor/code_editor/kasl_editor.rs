@@ -6,14 +6,14 @@ use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::highlight_with;
 
 impl EditorUi {
-    pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, buffer_index: usize) {
+    pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Show a placeholder when no file is open
-        let Some(Some(_)) = self
+        if !self
             .ui_state
             .code_editor_state
             .code_buffers
-            .get(buffer_index)
-        else {
+            .contains_key(&panel_id)
+        {
             ui.centered_and_justified(|ui| {
                 ui.label("Select a file to edit");
             });
@@ -25,7 +25,7 @@ impl EditorUi {
             .ui_state
             .code_editor_state
             .code_buffers
-            .get(buffer_index)
+            .get(&panel_id)
             .and_then(|b| b.as_ref())
             .and_then(|(path, _)| path.file_name())
             .map(|n| n.to_string_lossy().into_owned())
@@ -49,19 +49,19 @@ impl EditorUi {
                 .ui_state
                 .code_editor_state
                 .code_buffers
-                .get_mut(buffer_index)
+                .get_mut(&panel_id)
             {
                 *buffer = None;
             }
             return;
         }
 
-        // Get a mutable reference to the code buffer at the specified index
+        // Get a mutable reference to the code buffer for this panel
         let Some(Some((_, code))) = self
             .ui_state
             .code_editor_state
             .code_buffers
-            .get_mut(buffer_index)
+            .get_mut(&panel_id)
         else {
             return;
         };
@@ -94,17 +94,15 @@ impl EditorUi {
         let min_rows = (ui.available_height() / row_height).ceil() as usize;
         let desired_rows = code.lines().count().max(min_rows);
 
-        egui::ScrollArea::both()
-            .auto_shrink(false)
-            .show(ui, |ui| {
-                ui.add(
-                    egui::TextEdit::multiline(code)
-                        .code_editor()
-                        .desired_width(f32::INFINITY)
-                        .desired_rows(desired_rows)
-                        .lock_focus(true)
-                        .layouter(&mut layouter),
-                );
-            });
+        egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
+            ui.add(
+                egui::TextEdit::multiline(code)
+                    .code_editor()
+                    .desired_width(f32::INFINITY)
+                    .desired_rows(desired_rows)
+                    .lock_focus(true)
+                    .layouter(&mut layouter),
+            );
+        });
     }
 }

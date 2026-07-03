@@ -6,6 +6,7 @@ use crate::ui::workspaces::{
     editor::state::{PanelNode, PanelView, SplitDir},
 };
 use eframe::egui;
+use std::collections::HashSet;
 
 struct SplitAction {
     dir: SplitDir,
@@ -18,14 +19,28 @@ impl EditorUi {
     pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
         // Extract the layout tree to avoid a simultaneous borrow of self
         let mut layout = std::mem::take(&mut self.ui_state.panel_layout);
-        render_node(ui, &mut layout, rect, self);
+        render_node(ui, &mut layout, rect, self, ui.id().with("panel_root"));
+
+        // Remove code buffers for panels that no longer exist in the layout tree
+        let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
+        self.ui_state
+            .code_editor_state
+            .code_buffers
+            .retain(|id, _| active_ids.contains(id));
+
         self.ui_state.panel_layout = layout;
     }
 }
 
-fn render_node(ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect, editor: &mut EditorUi) {
+fn render_node(
+    ui: &mut egui::Ui,
+    node: &mut PanelNode,
+    rect: egui::Rect,
+    editor: &mut EditorUi,
+    node_id: egui::Id,
+) {
     let split_action = match node {
-        PanelNode::Leaf(view) => leaf::render_leaf(ui, view, rect, editor),
+        PanelNode::Leaf(view) => leaf::render_leaf(ui, view, rect, editor, node_id),
         _ => None,
     };
 
@@ -35,7 +50,7 @@ fn render_node(ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect, editor
             ratio,
             first,
             second,
-        } => split::render_split(ui, *dir, ratio, first, second, rect, editor),
+        } => split::render_split(ui, *dir, ratio, first, second, rect, editor, node_id),
         _ => None,
     };
 
@@ -72,5 +87,22 @@ fn render_node(ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect, editor
             }
             other => other,
         };
+    }
+}
+
+/// Recursively collects the stable panel IDs of all CodeEditor leaves in the tree.
+fn collect_code_editor_ids(node: &PanelNode, node_id: egui::Id) -> HashSet<egui::Id> {
+    match node {
+        PanelNode::Leaf(PanelView::CodeEditor) => {
+            let mut set = HashSet::new();
+            set.insert(node_id);
+            set
+        }
+        PanelNode::Leaf(_) => HashSet::new(),
+        PanelNode::Split { first, second, .. } => {
+            let mut ids = collect_code_editor_ids(first, node_id.with("first"));
+            ids.extend(collect_code_editor_ids(second, node_id.with("second")));
+            ids
+        }
     }
 }
