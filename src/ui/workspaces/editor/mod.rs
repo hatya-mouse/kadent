@@ -80,6 +80,9 @@ impl EditorUi {
             .as_ref()
             .and_then(|device| device.id().ok());
 
+        // Load the project structure and cache it
+        editor_ui.push_action(EditorAction::UpdateDirCache);
+
         editor_ui
     }
 

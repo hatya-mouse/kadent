@@ -9,11 +9,13 @@ use kadent_engine::{
 };
 use std::path::{Path, PathBuf};
 
+#[derive(Debug)]
 pub(crate) enum FileNodeKind {
     File,
     Dir { children: Vec<FileNode> },
 }
 
+#[derive(Debug)]
 pub(crate) struct FileNode {
     pub path: PathBuf,
     pub name: String,
@@ -38,13 +40,13 @@ impl EditorUi {
 
     /// Save all opened programs to their respective file paths.
     fn save_programs(&mut self) -> std::io::Result<()> {
-        let paths_and_buffers = self
+        for (path, buffer) in self
             .ui_state
             .code_editor_state
-            .opened_programs
+            .code_buffers
             .iter()
-            .zip(self.ui_state.code_editor_state.code_buffers.iter());
-        for (path, buffer) in paths_and_buffers {
+            .flatten()
+        {
             std::fs::write(path, buffer)?;
         }
         Ok(())
@@ -82,7 +84,11 @@ impl EditorUi {
     }
 
     pub(super) fn update_dir_cache(&mut self) {
-        self.ui_state.project_dir_structure = recursively_create_graph(&self.proj_ctx.project_path);
+        if let Some(project_dir_path) = self.proj_ctx.project_path.parent()
+            && project_dir_path.is_dir()
+        {
+            self.ui_state.project_dir_cache = recursively_create_graph(project_dir_path);
+        }
     }
 
     /// Set the editor context and update the project context accordingly.
