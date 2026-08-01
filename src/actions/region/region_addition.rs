@@ -1,4 +1,6 @@
-use crate::{core::metadata::RegionMeta, ui::workspaces::EditorUi};
+use crate::{
+    background_thread::DecodedAudio, core::metadata::RegionMeta, ui::workspaces::EditorUi,
+};
 use kadent_engine::{
     data_types::Ticks,
     mixer::TrackID,
@@ -104,6 +106,67 @@ impl EditorUi {
             }
 
             // Update the project on the audio thread
+            self.modified_project();
+        }
+    }
+
+    pub(crate) fn finish_audio_import(
+        &mut self,
+        track_id: TrackID,
+        start: Ticks,
+        decoded: DecodedAudio,
+    ) {
+        let current_bpm = {
+            let events = &self.proj_ctx.project.tempo_map.events;
+            let idx = events
+                .partition_point(|e| e.ticks() <= start)
+                .saturating_sub(1);
+            events[idx].bpm()
+        };
+        let duration_seconds = decoded.frames as f64 / decoded.sample_rate as f64;
+        let duration = Ticks(
+            (duration_seconds / 60.0 * current_bpm * self.ui_state.audio_ctx.resolution as f64)
+                .round() as i64,
+        );
+
+        let Some(track) = self.proj_ctx.project.get_track_mut(&track_id) else {
+            return;
+        };
+        let Some(duration) = self
+            .proj_ctx
+            .project_meta
+            .get_track(&track_id)
+            .map(|t| &t.regions)
+            .and_then(|regions| calculate_region_placement(regions, start, duration))
+        else {
+            return;
+        };
+
+        self.ui_state.status_bar_state.current_task = None;
+
+        if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
+            let audio_region = AudioRegion {
+                data: decoded.data,
+                frames: decoded.frames,
+                sample_rate: decoded.sample_rate,
+                channels: decoded.channels,
+                base_bpm: current_bpm,
+                start,
+                duration,
+                max_duration: duration,
+            };
+            let region_id = audio_track.add_region(audio_region);
+
+            if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(&track_id) {
+                let region_meta = RegionMeta::new(
+                    "Imported Audio".to_string(),
+                    start,
+                    duration,
+                    Some(duration),
+                );
+                track_meta.add_region(region_id, region_meta);
+            }
+
             self.modified_project();
         }
     }

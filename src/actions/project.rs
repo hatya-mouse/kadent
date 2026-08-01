@@ -64,7 +64,17 @@ impl EditorUi {
             .unwrap();
     }
 
-    pub(super) fn import_audio_file(&mut self, track_id: TrackID, start: Ticks, path: &Path) {}
+    pub(super) fn import_audio_file(&mut self, track_id: TrackID, start: Ticks, path: &Path) {
+        self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Import);
+        self.background_handle
+            .command_tx
+            .send(BackgroundThreadCommand::ImportAudio {
+                track_id,
+                start,
+                path: path.to_path_buf(),
+            })
+            .ok();
+    }
 
     pub(super) fn update_dir_cache(&mut self) {
         if let Some(project_dir_path) = self.proj_ctx.project_path.parent()

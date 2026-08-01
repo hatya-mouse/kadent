@@ -1,12 +1,18 @@
 //! An implementation of the background thread that processes heavy tasks such as file I/O operations.
 
+mod audio_import;
 mod commands;
 mod project;
 
-pub(crate) use commands::{BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult};
+pub(crate) use commands::{
+    BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult, DecodedAudio,
+};
 
 use crate::{
-    background_thread::project::{run_save_project, run_write_wav},
+    background_thread::{
+        audio_import::run_decode_wav,
+        project::{run_save_project, run_write_wav},
+    },
     storage::project::open_project_to_ctx,
 };
 use std::sync::mpsc;
@@ -55,6 +61,18 @@ fn background_thread(
                 samples,
                 audio_ctx,
             } => BackgroundThreadResult::WroteWav(run_write_wav(&path, &samples, &audio_ctx)),
+            BackgroundThreadCommand::ImportAudio {
+                track_id,
+                start,
+                path,
+            } => {
+                let result = run_decode_wav(&path);
+                BackgroundThreadResult::ImportedAudio {
+                    track_id,
+                    start,
+                    result,
+                }
+            }
         };
         result_tx.send(result).ok();
     }

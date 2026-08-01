@@ -52,6 +52,7 @@ impl EditorUi {
                         BackgroundTaskStatus::Save => "Saving Project...",
                         BackgroundTaskStatus::Open => "Opening Project...",
                         BackgroundTaskStatus::Export => "Exporting Project...",
+                        BackgroundTaskStatus::Import => "Importing File...",
                     },
                 );
             }

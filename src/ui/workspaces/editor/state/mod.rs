@@ -9,6 +9,7 @@ mod timeline_state;
 mod toolbar_state;
 
 pub(super) use dialog_state::{AddTrackState, DialogState};
+use eframe::egui;
 pub(super) use modification::Modification;
 pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 pub(super) use status_bar_state::TempStatusNotification;
@@ -28,7 +29,7 @@ use kadent_engine::{
     track::{RegionID, note_track::NoteID},
 };
 use midir::{MidiInput, MidiInputPorts};
-use std::time::Instant;
+use std::{path::PathBuf, time::Instant};
 
 #[derive(Default)]
 pub(crate) enum Selection {
