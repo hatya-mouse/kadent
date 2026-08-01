@@ -2,7 +2,7 @@ use crate::ui::workspaces::EditorUi;
 use kadent_engine::{data_types::Ticks, mixer::TrackID, track::RegionID};
 
 impl EditorUi {
-    pub(in crate::commands) fn move_region(
+    pub(in crate::actions) fn move_region(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
@@ -23,7 +23,7 @@ impl EditorUi {
         self.modified_project();
     }
 
-    pub(in crate::commands) fn set_region_duration(
+    pub(in crate::actions) fn set_region_duration(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,

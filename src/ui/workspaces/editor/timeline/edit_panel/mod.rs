@@ -1,7 +1,7 @@
 mod track_row;
 
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::{
         theme,
         workspaces::{

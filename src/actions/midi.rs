@@ -1,4 +1,4 @@
-use crate::{core::midi_input::MidiCommand, ui::workspaces::EditorUi};
+use crate::{core::midi_thread::MidiCommand, ui::workspaces::EditorUi};
 use kadent_engine::{mixer::TrackID, thread::AudioCommand};
 use midir::MidiInputPort;
 

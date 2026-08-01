@@ -1,5 +1,5 @@
 use crate::{
-    commands::{AddibleNodes, EditorAction},
+    actions::{AddibleNodes, EditorAction},
     ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi},
 };
 use eframe::egui;

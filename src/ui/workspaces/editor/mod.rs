@@ -13,10 +13,10 @@ mod timeline;
 mod toolbar;
 
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     core::{
         kasl_node::kasl_syntax_set,
-        midi_input::{MidiCommand, spawn_midi_thread},
+        midi_thread::{MidiCommand, spawn_midi_thread},
         project_ctx::{EditorContext, ProjectContext},
     },
     ui::{

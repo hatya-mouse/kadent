@@ -14,7 +14,7 @@ pub(super) use panel_layout::{PanelNode, PanelView, SplitDir};
 pub(super) use status_bar_state::TempStatusNotification;
 
 use crate::{
-    commands::FileNode,
+    actions::FileNode,
     ui::workspaces::editor::state::{
         code_editor_state::CodeEditorState, node_graph_state::NodeGraphState,
         piano_roll_state::PianoRollState, status_bar_state::StatusBarState,

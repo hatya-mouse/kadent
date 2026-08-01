@@ -1,5 +1,5 @@
 use crate::{
-    commands::AddibleNodes,
+    actions::AddibleNodes,
     core::{
         kasl_node::KaslNode,
         metadata::{NodeMeta, NodeType},
@@ -11,7 +11,7 @@ use eframe::egui;
 use kadent_engine::mixer::TrackID;
 
 impl EditorUi {
-    pub(in crate::commands) fn add_node(
+    pub(in crate::actions) fn add_node(
         &mut self,
         track_id: &TrackID,
         node_type: &AddibleNodes,
@@ -22,7 +22,7 @@ impl EditorUi {
         }
     }
 
-    pub(in crate::commands) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
+    pub(in crate::actions) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         let mut kasl_node = KaslNode::new();
         let project_dir = get_project_dir(&self.proj_ctx.project_path);
         kasl_node.set_search_paths(self.proj_ctx.project_meta.kasl_search_paths.clone());

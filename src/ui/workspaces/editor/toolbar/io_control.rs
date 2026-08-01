@@ -1,5 +1,5 @@
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::{
         components::icon_button::toolbar_icon_button,
         theme,

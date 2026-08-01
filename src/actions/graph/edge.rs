@@ -2,7 +2,7 @@ use crate::ui::workspaces::EditorUi;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorUi {
-    pub(in crate::commands) fn remove_edge(
+    pub(in crate::actions) fn remove_edge(
         &mut self,
         track_id: &TrackID,
         edge: (NodeID, usize, NodeID, usize),
@@ -18,7 +18,7 @@ impl EditorUi {
         }
     }
 
-    pub(in crate::commands) fn add_edge(
+    pub(in crate::actions) fn add_edge(
         &mut self,
         track_id: &TrackID,
         edge: (NodeID, usize, NodeID, usize),

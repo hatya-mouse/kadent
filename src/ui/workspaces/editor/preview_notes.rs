@@ -1,4 +1,4 @@
-use crate::{core::midi_input::MidiCommand, ui::workspaces::EditorUi};
+use crate::{core::midi_thread::MidiCommand, ui::workspaces::EditorUi};
 use kadent_engine::data_types::MidiEvent;
 
 const PREVIEW_NOTE_DURATION: std::time::Duration = std::time::Duration::from_millis(500);

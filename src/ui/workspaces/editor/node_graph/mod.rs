@@ -4,7 +4,7 @@ mod node;
 mod port;
 
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::{
         components::panel_header::panel_header,
         theme,

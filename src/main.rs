@@ -1,9 +1,10 @@
+mod actions;
 mod app;
-mod commands;
 mod consts;
 mod core;
 mod fonts;
 mod storage;
+mod thread;
 mod ui;
 mod utils;
 

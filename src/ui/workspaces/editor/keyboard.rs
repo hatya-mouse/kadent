@@ -1,7 +1,7 @@
 //! Handles keyboard inputs.
 
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::workspaces::{EditorUi, editor::state::Selection},
 };
 use eframe::egui;

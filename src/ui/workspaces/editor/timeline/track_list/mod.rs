@@ -1,7 +1,7 @@
 mod track_dialog;
 
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     core::metadata::TrackType,
     ui::{
         theme,

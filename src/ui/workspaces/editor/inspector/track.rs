@@ -1,5 +1,5 @@
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::{
         components::{
             color_picker::color_picker, text_button::text_button, text_input::text_input,

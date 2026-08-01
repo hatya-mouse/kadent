@@ -38,20 +38,6 @@ impl EditorUi {
         }
     }
 
-    /// Save all opened programs to their respective file paths.
-    fn save_programs(&mut self) -> std::io::Result<()> {
-        for (path, content) in self
-            .ui_state
-            .code_editor_state
-            .code_buffers
-            .values()
-            .filter_map(|b| b.as_ref())
-        {
-            std::fs::write(path, content)?;
-        }
-        Ok(())
-    }
-
     pub(super) fn open_project(&mut self, proj_path: PathBuf) {
         let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
             self.show_temp_status("Failed to Open Project", theme::error_fg());
@@ -77,7 +63,7 @@ impl EditorUi {
                 }
                 Ok(AudioResult::ExportedAudio(samples)) => {
                     self.show_temp_status("Exported Project", theme::successful_fg());
-                    write_samples_to_wav(path, &samples, &self.ui_state.audio_ctx);
+                    // write_samples_to_wav(path, &samples, &self.ui_state.audio_ctx);
                 }
             }
         }
@@ -101,22 +87,6 @@ impl EditorUi {
         // Notify the audio thread of the project change
         self.modified_project();
     }
-}
-
-fn write_samples_to_wav(path: &Path, samples: &[f32], audio_ctx: &AudioContext) {
-    let spec = hound::WavSpec {
-        channels: audio_ctx.channels as u16,
-        sample_rate: audio_ctx.sample_rate as u32,
-        bits_per_sample: 16,
-        sample_format: hound::SampleFormat::Int,
-    };
-
-    let mut writer = hound::WavWriter::create(path, spec).unwrap();
-    for &sample in samples {
-        let clamped = (sample * i16::MAX as f32).clamp(i16::MIN as f32, i16::MAX as f32);
-        writer.write_sample(clamped as i16).unwrap();
-    }
-    writer.finalize().unwrap();
 }
 
 /// Recursively create a graph of the project directory structure.

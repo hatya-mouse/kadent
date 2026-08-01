@@ -1,5 +1,5 @@
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     core::kasl_node::KaslNode,
     ui::{
         components::{

@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 impl EditorUi {
     /// Adds a new empty audio region to the given audio track.
-    pub(in crate::commands) fn add_audio_region(
+    pub(in crate::actions) fn add_audio_region(
         &mut self,
         track_id: &TrackID,
         name: String,
@@ -68,7 +68,7 @@ impl EditorUi {
     }
 
     /// Adds a new empty audio region to the given audio track.
-    pub(in crate::commands) fn add_note_region(
+    pub(in crate::actions) fn add_note_region(
         &mut self,
         track_id: &TrackID,
         name: String,

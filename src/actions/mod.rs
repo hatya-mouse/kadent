@@ -1,15 +1,15 @@
-//! Command implementations to communicate with the audio engine.
+//! Processes the actions that are executed in the UI thread.
 
 mod graph;
 mod midi;
 mod note;
+mod project;
 mod project_updater;
 mod region;
-mod storage;
 mod track;
 mod transport;
 
-pub(crate) use storage::{FileNode, FileNodeKind};
+pub(crate) use project::{FileNode, FileNodeKind};
 
 use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
 use eframe::egui;

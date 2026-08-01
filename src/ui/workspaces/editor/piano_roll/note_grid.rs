@@ -1,5 +1,5 @@
 use crate::{
-    commands::EditorAction,
+    actions::EditorAction,
     ui::{
         theme,
         workspaces::{EditorUi, editor::state::Modification},
