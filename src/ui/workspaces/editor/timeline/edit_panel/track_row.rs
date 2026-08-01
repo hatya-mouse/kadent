@@ -132,6 +132,7 @@ impl EditorUi {
         }
 
         self.try_resolve_audio_drop(track_id, row_rect);
+        self.show_dragged_hint(ui, row_rect);
     }
 
     fn region_gestures(

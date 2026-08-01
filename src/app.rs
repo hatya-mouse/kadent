@@ -60,11 +60,27 @@ impl KadentApp {
             None
         })
     }
+
+    fn get_hovered_audio_file(&self, ui: &egui::Ui) -> Option<(PathBuf, egui::Pos2)> {
+        ui.ctx().input(|input| {
+            if let Some(file) = input.raw.hovered_files.first()
+                && let Some(path) = &file.path
+                && let Some(extension) = path.extension()
+                && extension == "wav"
+            {
+                let hover_pos = input.pointer.hover_pos().unwrap_or_default();
+                return Some((path.clone(), hover_pos));
+            }
+
+            None
+        })
+    }
 }
 
 impl eframe::App for KadentApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
         let dropped_file = self.get_dropped_file(ui);
+        let hovered_file = self.get_hovered_audio_file(ui);
 
         // Show the splash screen if we're in the splash state
         // Toggle to the editor UI if the splash screen returns an editor context
@@ -98,6 +114,8 @@ impl eframe::App for KadentApp {
                 if let Some(GetDroppedFileResult::AudioFile(dropped_path, drop_pos)) = dropped_file
                 {
                     editor.audio_dropped(dropped_path, drop_pos);
+                } else if let Some((hovered_path, hover_pos)) = hovered_file {
+                    editor.audio_hovered(hovered_path, hover_pos);
                 }
             }
         }
