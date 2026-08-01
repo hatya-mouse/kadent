@@ -3,7 +3,7 @@ use crate::{
     core::project_ctx::EditorContext,
     ui::{theme, workspaces::EditorUi},
 };
-use kadent_engine::thread::AudioCommand;
+use kadent_engine::{data_types::Ticks, mixer::TrackID, thread::AudioCommand};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -63,6 +63,8 @@ impl EditorUi {
             .send(AudioCommand::ExportAudio(Box::new(project)))
             .unwrap();
     }
+
+    pub(super) fn import_audio_file(&mut self, track_id: TrackID, start: Ticks, path: &Path) {}
 
     pub(super) fn update_dir_cache(&mut self) {
         if let Some(project_dir_path) = self.proj_ctx.project_path.parent()

@@ -102,13 +102,7 @@ impl EditorUi {
         if response.double_clicked() {
             let start = response
                 .interact_pointer_pos()
-                .map(|pos| {
-                    Ticks(
-                        ((pos.x - row_rect.min.x - TIMELINE_LEFT_PADDING)
-                            * self.ui_state.timeline_ticks_per_pixel())
-                            as i64,
-                    )
-                })
+                .map(|pos| self.x_to_ticks(pos.x, row_rect))
                 .unwrap_or_default();
 
             let track_type = self
@@ -136,6 +130,8 @@ impl EditorUi {
 
             ui.close();
         }
+
+        self.try_resolve_audio_drop(track_id, row_rect);
     }
 
     fn region_gestures(

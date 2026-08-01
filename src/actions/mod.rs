@@ -57,6 +57,9 @@ pub(crate) enum EditorAction {
     /// Exports a project to a WAV file.
     /// `(path)`
     ExportProject(PathBuf),
+    /// Load a audio file into the given track at the given start position.
+    /// `(track_id, start, path)`
+    ImportAudioFile(TrackID, Ticks, PathBuf),
 
     // --- STORAGE ---
     /// Updates the cache of the file tree.
@@ -158,6 +161,9 @@ impl EditorUi {
                 }
                 EditorAction::ExportProject(path) => {
                     self.export_project(&path);
+                }
+                EditorAction::ImportAudioFile(track_id, start, path) => {
+                    self.import_audio_file(track_id, start, &path);
                 }
 
                 // --- STORAGE ---

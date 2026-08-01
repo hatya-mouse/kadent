@@ -1,3 +1,4 @@
+mod audio_drop;
 mod track_row;
 
 use crate::{
@@ -315,5 +316,13 @@ impl EditorUi {
                     new_ppb.clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
             }
         }
+    }
+
+    pub(super) fn x_to_ticks(&self, x: f32, row_rect: egui::Rect) -> Ticks {
+        Ticks(
+            ((x - row_rect.min.x - TIMELINE_LEFT_PADDING)
+                * self.ui_state.timeline_ticks_per_pixel()) as i64,
+        )
+        .max(Ticks(0))
     }
 }

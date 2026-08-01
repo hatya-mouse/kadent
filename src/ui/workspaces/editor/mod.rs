@@ -1,3 +1,4 @@
+mod background_results;
 mod code_editor;
 mod device_fetching;
 mod error_list;
@@ -14,7 +15,7 @@ mod toolbar;
 
 use crate::{
     actions::EditorAction,
-    background_thread::{BackgroundThreadHandle, BackgroundThreadResult, spawn_background_thread},
+    background_thread::{BackgroundThreadHandle, spawn_background_thread},
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
@@ -190,38 +191,5 @@ impl EditorUi {
 
     fn push_action(&mut self, action: EditorAction) {
         self.pending_actions.push_back(action);
-    }
-
-    fn process_background_results(&mut self) {
-        while let Ok(result) = self.background_handle.result_rx.try_recv() {
-            self.ui_state.status_bar_state.current_task = None;
-            match result {
-                BackgroundThreadResult::SavedProject(result) => match result {
-                    Ok(_) => {
-                        self.show_temp_status("Saved Project", theme::successful_fg());
-                    }
-                    Err(_) => {
-                        self.show_temp_status("Failed to Save Project", theme::error_fg());
-                    }
-                },
-                BackgroundThreadResult::OpenedProject(ctx) => match ctx {
-                    Some(editor_ctx) => {
-                        self.set_editor_ctx(*editor_ctx);
-                        self.show_temp_status("Opened Project", theme::successful_fg());
-                    }
-                    None => {
-                        self.show_temp_status("Failed to Open Project", theme::error_fg());
-                    }
-                },
-                BackgroundThreadResult::WroteWav(result) => match result {
-                    Ok(_) => {
-                        self.show_temp_status("Exported Project", theme::successful_fg());
-                    }
-                    Err(_) => {
-                        self.show_temp_status("Failed to Export Project", theme::error_fg());
-                    }
-                },
-            }
-        }
     }
 }

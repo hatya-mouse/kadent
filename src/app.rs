@@ -15,6 +15,11 @@ pub enum KadentApp {
     Editor(Box<EditorUi>),
 }
 
+enum GetDroppedFileResult {
+    EditorCtx(Box<EditorContext>),
+    AudioFile(PathBuf, egui::Pos2),
+}
+
 impl KadentApp {
     pub fn new(cc: &eframe::CreationContext, initial_project: Option<PathBuf>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
@@ -37,15 +42,19 @@ impl KadentApp {
         });
     }
 
-    fn get_hovered_file(&self, ui: &egui::Ui) -> Option<EditorContext> {
+    fn get_dropped_file(&self, ui: &egui::Ui) -> Option<GetDroppedFileResult> {
         ui.ctx().input(|input| {
             if let Some(file) = input.raw.dropped_files.first()
                 && let Some(path) = &file.path
-                && path
-                    .extension()
-                    .is_some_and(|ext| ext == PROJECT_FILE_EXTENSION)
+                && let Some(extension) = path.extension()
             {
-                return open_project_to_ctx(path.clone());
+                if extension == PROJECT_FILE_EXTENSION {
+                    return open_project_to_ctx(path.clone())
+                        .map(|ctx| GetDroppedFileResult::EditorCtx(Box::new(ctx)));
+                } else if extension == "wav" {
+                    let drop_pos = input.pointer.hover_pos().unwrap_or_default();
+                    return Some(GetDroppedFileResult::AudioFile(path.clone(), drop_pos));
+                }
             }
 
             None
@@ -55,7 +64,7 @@ impl KadentApp {
 
 impl eframe::App for KadentApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
-        let hovered_ctx = self.get_hovered_file(ui);
+        let dropped_file = self.get_dropped_file(ui);
 
         // Show the splash screen if we're in the splash state
         // Toggle to the editor UI if the splash screen returns an editor context
@@ -71,7 +80,14 @@ impl eframe::App for KadentApp {
                     .inner;
 
                 // If the splash screen returned an editor context, switch to the editor UI
-                if let Some(editor_ctx) = hovered_ctx.or(editor_ctx) {
+                let dropped_ctx = dropped_file.and_then(|result| {
+                    if let GetDroppedFileResult::EditorCtx(editor_ctx) = result {
+                        Some(editor_ctx)
+                    } else {
+                        None
+                    }
+                });
+                if let Some(editor_ctx) = dropped_ctx.map(|ctx| *ctx).or(editor_ctx) {
                     *self = KadentApp::Editor(Box::new(EditorUi::new(editor_ctx)));
                 }
             }
@@ -79,8 +95,9 @@ impl eframe::App for KadentApp {
                 // If we're in the editor state, just show the editor UI
                 editor.editor_ui(ui, frame);
 
-                if let Some(editor_ctx) = hovered_ctx {
-                    editor.set_editor_ctx(editor_ctx);
+                if let Some(GetDroppedFileResult::AudioFile(dropped_path, drop_pos)) = dropped_file
+                {
+                    editor.audio_dropped(dropped_path, drop_pos);
                 }
             }
         }

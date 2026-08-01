@@ -145,6 +145,10 @@ pub(crate) struct EditorUiState {
     // --- AUDIO CONTEXT ---
     /// The current audio context.
     pub audio_ctx: AudioContext,
+
+    // --- AUDIO FILE IMPORT ---
+    /// The last audio file dropped into the editor, along with the position where it was dropped.
+    pub last_audio_drop: Option<(PathBuf, egui::Pos2)>,
 }
 
 impl EditorUiState {
