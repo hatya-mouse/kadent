@@ -6,7 +6,7 @@ use eframe::egui;
 use kadent_engine::track::{RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack};
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct TrackMeta {
     pub name: String,
     pub color: egui::Color32,

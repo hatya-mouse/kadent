@@ -3,12 +3,11 @@
 mod commands;
 mod project;
 
+pub(crate) use commands::{BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult};
+
 use crate::{
+    background_thread::project::{run_save_project, run_write_wav},
     storage::project::open_project_to_ctx,
-    thread::{
-        commands::{BackgroundThreadCommand, BackgroundThreadResult},
-        project::{run_save_project, run_write_wav},
-    },
 };
 use std::sync::mpsc;
 
@@ -49,7 +48,7 @@ fn background_thread(
                 &code_buffers,
             )),
             BackgroundThreadCommand::OpenProject { path } => {
-                BackgroundThreadResult::OpenedProject(open_project_to_ctx(path))
+                BackgroundThreadResult::OpenedProject(open_project_to_ctx(path).map(Box::new))
             }
             BackgroundThreadCommand::WriteWav {
                 path,
@@ -57,6 +56,6 @@ fn background_thread(
                 audio_ctx,
             } => BackgroundThreadResult::WroteWav(run_write_wav(&path, &samples, &audio_ctx)),
         };
-        result_tx.send(result);
+        result_tx.send(result).ok();
     }
 }

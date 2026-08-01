@@ -1,6 +1,6 @@
 use kadent_engine::data_types::Ticks;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct RegionMeta {
     pub name: String,
     pub start: Ticks,

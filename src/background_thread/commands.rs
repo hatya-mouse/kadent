@@ -5,8 +5,8 @@ use std::path::PathBuf;
 pub(crate) enum BackgroundThreadCommand {
     SaveProject {
         path: PathBuf,
-        project: Project,
-        proj_meta: ProjectMeta,
+        project: Box<Project>,
+        proj_meta: Box<ProjectMeta>,
         code_buffers: Vec<(PathBuf, String)>,
     },
     OpenProject {
@@ -21,6 +21,12 @@ pub(crate) enum BackgroundThreadCommand {
 
 pub(crate) enum BackgroundThreadResult {
     SavedProject(std::io::Result<()>),
-    OpenedProject(Option<EditorContext>),
+    OpenedProject(Option<Box<EditorContext>>),
     WroteWav(hound::Result<()>),
+}
+
+pub(crate) enum BackgroundTaskStatus {
+    Save,
+    Open,
+    Export,
 }

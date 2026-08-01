@@ -37,7 +37,7 @@ impl std::fmt::Display for NodeType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct NodeMeta {
     /// The type of the node.
     pub node_type: NodeType,

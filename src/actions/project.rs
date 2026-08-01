@@ -1,12 +1,9 @@
 use crate::{
+    background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     core::project_ctx::EditorContext,
-    storage::project::{open_project_to_ctx, save_project},
     ui::{theme, workspaces::EditorUi},
 };
-use kadent_engine::{
-    data_types::AudioContext,
-    thread::{AudioCommand, AudioResult},
-};
+use kadent_engine::thread::AudioCommand;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -24,49 +21,47 @@ pub(crate) struct FileNode {
 
 impl EditorUi {
     pub(super) fn save_all(&mut self) {
-        let program_res = self.save_programs();
-        let proj_res = save_project(
-            &self.proj_ctx.project_path,
-            &self.proj_ctx.project,
-            &self.proj_ctx.project_meta,
-        );
-
-        if program_res.is_ok() && proj_res.is_ok() {
-            self.show_temp_status("Saved Project", theme::successful_fg());
-        } else {
-            self.show_temp_status("Failed to Save Project", theme::error_fg());
-        }
+        self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Save);
+        self.background_handle
+            .command_tx
+            .send(BackgroundThreadCommand::SaveProject {
+                path: self.proj_ctx.project_path.to_path_buf(),
+                project: Box::new(self.proj_ctx.project.clone()),
+                proj_meta: Box::new(self.proj_ctx.project_meta.clone()),
+                code_buffers: self
+                    .ui_state
+                    .code_editor_state
+                    .code_buffers
+                    .values()
+                    .flatten()
+                    .cloned()
+                    .collect(),
+            })
+            .ok();
     }
 
     pub(super) fn open_project(&mut self, proj_path: PathBuf) {
-        let Some(editor_ctx) = open_project_to_ctx(proj_path) else {
-            self.show_temp_status("Failed to Open Project", theme::error_fg());
-            return;
-        };
-        self.set_editor_ctx(editor_ctx);
-        self.show_temp_status("Opened Project", theme::successful_fg());
+        self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Open);
+        self.background_handle
+            .command_tx
+            .send(BackgroundThreadCommand::OpenProject { path: proj_path })
+            .ok();
     }
 
     pub(super) fn export_project(&mut self, path: &Path) {
+        // If the project is already being exported, show a message and return early
+        if self.pending_export_path.is_some() {
+            self.show_temp_status("Export already in progress", theme::error_fg());
+            return;
+        }
+        self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Export);
+        self.pending_export_path = Some(path.to_path_buf());
         // Request generation the f32 samples for the entire project
         let project = self.proj_ctx.project.clone();
         self.thread_handle
             .audio_command_tx
             .send(AudioCommand::ExportAudio(Box::new(project)))
             .unwrap();
-
-        // Wait for the audio thread to generate the samples and send them back
-        if let Ok(res) = self.thread_handle.result_rx.recv() {
-            match res {
-                Err(_) => {
-                    self.show_temp_status("Failed to Export Project", theme::error_fg());
-                }
-                Ok(AudioResult::ExportedAudio(samples)) => {
-                    self.show_temp_status("Exported Project", theme::successful_fg());
-                    // write_samples_to_wav(path, &samples, &self.ui_state.audio_ctx);
-                }
-            }
-        }
     }
 
     pub(super) fn update_dir_cache(&mut self) {

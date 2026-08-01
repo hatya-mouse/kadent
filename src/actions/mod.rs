@@ -11,12 +11,17 @@ mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
 
-use crate::{core::metadata::TrackType, ui::workspaces::EditorUi};
+use crate::{
+    background_thread::BackgroundThreadCommand,
+    core::metadata::TrackType,
+    ui::{theme, workspaces::EditorUi},
+};
 use eframe::egui;
 use kadent_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
+    thread::AudioResult,
     track::{
         RegionID,
         note_track::{Note, NoteID},
@@ -247,6 +252,33 @@ impl EditorUi {
                 }
                 EditorAction::DisarmTrack => {
                     self.disarm_track();
+                }
+            }
+        }
+    }
+
+    /// Handles result returned from the audio thread.
+    pub(crate) fn process_audio_thread_result(&mut self) {
+        // Wait for the audio thread to generate the samples and send them back
+        while let Ok(res) = self.thread_handle.result_rx.try_recv() {
+            match res {
+                Ok(AudioResult::ExportedAudio(samples)) => {
+                    let Some(export_path) = self.pending_export_path.take() else {
+                        return;
+                    };
+
+                    self.background_handle
+                        .command_tx
+                        .send(BackgroundThreadCommand::WriteWav {
+                            path: export_path,
+                            samples,
+                            audio_ctx: self.ui_state.audio_ctx.clone(),
+                        })
+                        .ok();
+                }
+                Err(_) => {
+                    self.pending_export_path.take();
+                    self.show_temp_status("Failed to Export Project", theme::error_fg());
                 }
             }
         }

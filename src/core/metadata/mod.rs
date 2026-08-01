@@ -12,7 +12,7 @@ use crate::storage::project::LoadProjResult;
 use kadent_engine::mixer::TrackID;
 use std::collections::HashMap;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub(crate) struct ProjectMeta {
     pub tracks: HashMap<TrackID, TrackMeta>,
     pub track_order: Vec<TrackID>,

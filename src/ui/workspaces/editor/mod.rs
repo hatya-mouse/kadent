@@ -14,6 +14,7 @@ mod toolbar;
 
 use crate::{
     actions::EditorAction,
+    background_thread::{BackgroundThreadHandle, BackgroundThreadResult, spawn_background_thread},
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
@@ -28,12 +29,14 @@ use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use kadent_engine::thread::{AudioCommand, AudioError, AudioThread, AudioThreadHandle};
-use std::{collections::VecDeque, sync::mpsc, time::Duration};
+use std::{collections::VecDeque, path::PathBuf, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
 pub struct EditorUi {
     /// A thread handle to communicate with the audio thread.
     pub thread_handle: AudioThreadHandle,
+    /// A thread handle to communicate with the background processing thread.
+    pub background_handle: BackgroundThreadHandle,
     /// A channel to send MIDI commands to the MIDI thread.
     pub midi_command_tx: mpsc::Sender<MidiCommand>,
     /// The current project context.
@@ -44,6 +47,8 @@ pub struct EditorUi {
     pub ui_state: EditorUiState,
     /// Pending actions to be executed in the frame.
     pub pending_actions: VecDeque<EditorAction>,
+    /// The path to write the currently exported project to.
+    pub pending_export_path: Option<PathBuf>,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
@@ -54,15 +59,18 @@ impl EditorUi {
             editor_ctx.audio_ctx.clone(),
             editor_ctx.proj_ctx.project.clone(),
         );
+        let background_handle = spawn_background_thread();
         let midi_command_tx = spawn_midi_thread(midi_producer);
 
         let mut editor_ui = EditorUi {
             thread_handle,
+            background_handle,
             midi_command_tx,
             proj_ctx: editor_ctx.proj_ctx,
             errors: Vec::new(),
             ui_state: EditorUiState::with_audio_ctx(editor_ctx.audio_ctx),
             pending_actions: VecDeque::new(),
+            pending_export_path: None,
             debug_mode: false,
         };
 
@@ -137,13 +145,11 @@ impl EditorUi {
         // Request a repaint to update the playhead and the VU meter
         ui.ctx().request_repaint_after(Duration::from_millis(16));
 
-        while let Ok(Err(err)) = self.thread_handle.result_rx.try_recv() {
-            eprintln!("Audio thread error occurred");
-            self.errors.push(err);
-        }
-
         // Execute all pending actions
         self.consume_actions();
+        self.process_audio_thread_result();
+        // Process the result of the background thread
+        self.process_background_results();
     }
 
     /// Checks if the project has been modified recently and sends an update command to the audio thread if necessary.
@@ -184,5 +190,38 @@ impl EditorUi {
 
     fn push_action(&mut self, action: EditorAction) {
         self.pending_actions.push_back(action);
+    }
+
+    fn process_background_results(&mut self) {
+        while let Ok(result) = self.background_handle.result_rx.try_recv() {
+            self.ui_state.status_bar_state.current_task = None;
+            match result {
+                BackgroundThreadResult::SavedProject(result) => match result {
+                    Ok(_) => {
+                        self.show_temp_status("Saved Project", theme::successful_fg());
+                    }
+                    Err(_) => {
+                        self.show_temp_status("Failed to Save Project", theme::error_fg());
+                    }
+                },
+                BackgroundThreadResult::OpenedProject(ctx) => match ctx {
+                    Some(editor_ctx) => {
+                        self.set_editor_ctx(*editor_ctx);
+                        self.show_temp_status("Opened Project", theme::successful_fg());
+                    }
+                    None => {
+                        self.show_temp_status("Failed to Open Project", theme::error_fg());
+                    }
+                },
+                BackgroundThreadResult::WroteWav(result) => match result {
+                    Ok(_) => {
+                        self.show_temp_status("Exported Project", theme::successful_fg());
+                    }
+                    Err(_) => {
+                        self.show_temp_status("Failed to Export Project", theme::error_fg());
+                    }
+                },
+            }
+        }
     }
 }

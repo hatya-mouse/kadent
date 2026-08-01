@@ -1,3 +1,4 @@
+use crate::background_thread::BackgroundTaskStatus;
 use eframe::egui;
 use std::time::Instant;
 
@@ -5,6 +6,8 @@ use std::time::Instant;
 pub(crate) struct StatusBarState {
     /// Temporary status notification shown in the right side of the status bar.
     pub(crate) temp_status: Option<TempStatusNotification>,
+    /// Currently processing task to show in the status bar.
+    pub(crate) current_task: Option<BackgroundTaskStatus>,
 }
 
 pub(crate) struct TempStatusNotification {

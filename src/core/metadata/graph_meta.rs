@@ -2,7 +2,7 @@ use crate::core::metadata::NodeMeta;
 use kadent_engine::graph::{Graph, node_id::NodeID};
 use std::collections::HashMap;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub(crate) struct GraphMeta {
     /// The positions of nodes in canvas space.
     pub nodes: HashMap<NodeID, NodeMeta>,

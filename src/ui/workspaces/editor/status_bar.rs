@@ -1,10 +1,13 @@
 use std::time::{Duration, Instant};
 
-use crate::ui::{
-    theme,
-    workspaces::{
-        EditorUi,
-        editor::state::{Modification, TempStatusNotification},
+use crate::{
+    background_thread::BackgroundTaskStatus,
+    ui::{
+        theme,
+        workspaces::{
+            EditorUi,
+            editor::state::{Modification, TempStatusNotification},
+        },
     },
 };
 use eframe::egui;
@@ -39,6 +42,18 @@ impl EditorUi {
                 {
                     self.status_text(ui, "—");
                     self.status_text(ui, &node_meta.display_name);
+                }
+
+                if let Some(task) = &self.ui_state.status_bar_state.current_task {
+                    self.status_text(ui, "—");
+                    self.status_text(
+                        ui,
+                        match task {
+                            BackgroundTaskStatus::Save => "Saving Project...",
+                            BackgroundTaskStatus::Open => "Opening Project...",
+                            BackgroundTaskStatus::Export => "Exporting Project...",
+                        },
+                    );
                 }
             }
 
