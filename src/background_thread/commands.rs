@@ -16,7 +16,7 @@ pub(crate) enum BackgroundThreadCommand {
     SaveProject {
         path: PathBuf,
         project: Box<Project>,
-        proj_meta: Box<ProjectMeta>,
+        project_meta: Box<ProjectMeta>,
         code_buffers: Vec<(PathBuf, String)>,
     },
     OpenProject {

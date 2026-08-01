@@ -44,12 +44,12 @@ pub(crate) fn save_project(
     file.write_all(&patch_ver.to_le_bytes())?;
 
     // Write the project metadata
-    let stored_proj_meta = StoredProjMeta::from_proj_meta(project_meta);
-    let mut proj_meta_bytes = Vec::new();
-    stored_proj_meta.as_bytes(&mut proj_meta_bytes);
+    let stored_project_meta = StoredProjMeta::from_project_meta(project_meta);
+    let mut project_meta_bytes = Vec::new();
+    stored_project_meta.as_bytes(&mut project_meta_bytes);
     // Write the length of the project metadata before writing the project metadata itself
-    file.write_all(&(proj_meta_bytes.len() as u64).to_le_bytes())?;
-    file.write_all(&proj_meta_bytes)?;
+    file.write_all(&(project_meta_bytes.len() as u64).to_le_bytes())?;
+    file.write_all(&project_meta_bytes)?;
 
     // Write the project
     let mut project_bytes = Vec::new();

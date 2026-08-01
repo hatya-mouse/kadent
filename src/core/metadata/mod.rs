@@ -9,7 +9,7 @@ pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
 use crate::storage::project::LoadProjResult;
-use kadent_engine::mixer::TrackID;
+use kadent_engine::{data_types::Ticks, mixer::TrackID};
 use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone)]
@@ -17,6 +17,8 @@ pub(crate) struct ProjectMeta {
     pub tracks: HashMap<TrackID, TrackMeta>,
     pub track_order: Vec<TrackID>,
     pub kasl_search_paths: Vec<String>,
+    pub range_start: Ticks,
+    pub range_duration: Ticks,
 }
 
 #[derive(Debug)]
@@ -27,13 +29,15 @@ pub enum ProjectMetaLoadingError {
 impl ProjectMeta {
     pub fn from_load_res(proj_res: &LoadProjResult) -> Result<Self, ProjectMetaLoadingError> {
         let mut new_meta = ProjectMeta {
-            kasl_search_paths: proj_res.proj_meta.kasl_search_paths.clone(),
+            kasl_search_paths: proj_res.project_meta.kasl_search_paths.clone(),
+            range_start: proj_res.project.range_start,
+            range_duration: proj_res.project.range_duration,
             ..Default::default()
         };
 
         // Initialize the tracks
         for (track_id, track) in &proj_res.project.tracks {
-            if let Some(stored_track_meta) = proj_res.proj_meta.track_metas.get(track_id) {
+            if let Some(stored_track_meta) = proj_res.project_meta.track_metas.get(track_id) {
                 let track_meta = TrackMeta::from_stored(track.as_ref(), stored_track_meta);
                 new_meta.add_track(*track_id, track_meta);
             } else {

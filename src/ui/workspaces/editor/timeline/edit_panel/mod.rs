@@ -212,8 +212,8 @@ impl EditorUi {
         origin_x: f32,
         ppt: f32,
     ) {
-        let range_start = self.proj_ctx.project.range_start;
-        let range_duration = self.proj_ctx.project.range_duration;
+        let range_start = self.proj_ctx.project_meta.range_start;
+        let range_duration = self.proj_ctx.project_meta.range_duration;
         let range_end = range_start + range_duration;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
@@ -268,7 +268,7 @@ impl EditorUi {
 
             // Avoid negative duration by using saturating_sub
             let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
-            self.proj_ctx.project.range_duration = new_duration;
+            self.proj_ctx.project_meta.range_duration = new_duration;
 
             self.ui_state
                 .set_modification(Modification::ProjectRange(range_start, new_duration));
@@ -282,11 +282,19 @@ impl EditorUi {
             let start_delta = new_start.0 - range_start.0;
             let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
 
-            self.proj_ctx.project.range_start = new_start;
-            self.proj_ctx.project.range_duration = new_duration;
+            self.proj_ctx.project_meta.range_start = new_start;
+            self.proj_ctx.project_meta.range_duration = new_duration;
 
             self.ui_state
                 .set_modification(Modification::ProjectRange(new_start, new_duration));
+        }
+
+        // Confirm the change when the mouse is released
+        if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
+            self.push_action(EditorAction::SetProjectRange(
+                self.proj_ctx.project_meta.range_start,
+                self.proj_ctx.project_meta.range_duration,
+            ));
         }
     }
 

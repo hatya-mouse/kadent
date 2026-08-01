@@ -28,8 +28,8 @@ pub struct StoredProjMeta {
 }
 
 impl StoredProjMeta {
-    pub fn from_proj_meta(proj_meta: &ProjectMeta) -> Self {
-        let track_metas = proj_meta
+    pub fn from_project_meta(project_meta: &ProjectMeta) -> Self {
+        let track_metas = project_meta
             .tracks
             .iter()
             .map(|(track_id, track_meta)| (*track_id, StoredTrackMeta::from_track_meta(track_meta)))
@@ -37,7 +37,7 @@ impl StoredProjMeta {
 
         Self {
             track_metas,
-            kasl_search_paths: proj_meta.kasl_search_paths.clone(),
+            kasl_search_paths: project_meta.kasl_search_paths.clone(),
         }
     }
 }
@@ -150,11 +150,11 @@ impl FromBytes for StoredProjMeta {
         }
 
         // Construct the StoredProjMeta
-        let proj_meta = StoredProjMeta {
+        let project_meta = StoredProjMeta {
             track_metas,
             kasl_search_paths,
         };
 
-        Ok(proj_meta)
+        Ok(project_meta)
     }
 }

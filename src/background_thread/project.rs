@@ -5,11 +5,11 @@ use std::path::{Path, PathBuf};
 pub(super) fn run_save_project(
     path: &Path,
     project: &Project,
-    proj_meta: &ProjectMeta,
+    project_meta: &ProjectMeta,
     code_buffers: &[(PathBuf, String)],
 ) -> std::io::Result<()> {
     let program_res = save_programs(code_buffers);
-    let proj_res = save_project(path, project, proj_meta);
+    let proj_res = save_project(path, project, project_meta);
     program_res.and(proj_res)
 }
 

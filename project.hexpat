@@ -205,8 +205,8 @@ struct KadentFile {
     u32          version_major;
     u32          version_minor;
     u32          version_patch;
-    u64          proj_meta_len;
-    StoredProjMeta proj_meta;
+    u64          project_meta_len;
+    StoredProjMeta project_meta;
     Project      project;
 };
 

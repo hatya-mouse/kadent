@@ -27,7 +27,7 @@ impl EditorUi {
             .send(BackgroundThreadCommand::SaveProject {
                 path: self.proj_ctx.project_path.to_path_buf(),
                 project: Box::new(self.proj_ctx.project.clone()),
-                proj_meta: Box::new(self.proj_ctx.project_meta.clone()),
+                project_meta: Box::new(self.proj_ctx.project_meta.clone()),
                 code_buffers: self
                     .ui_state
                     .code_editor_state
@@ -92,6 +92,12 @@ impl EditorUi {
         self.seek(self.proj_ctx.project.range_start);
 
         // Notify the audio thread of the project change
+        self.modified_project();
+    }
+
+    pub(super) fn set_project_range(&mut self, start: Ticks, duration: Ticks) {
+        self.proj_ctx.project.range_start = start;
+        self.proj_ctx.project.range_duration = duration;
         self.modified_project();
     }
 }

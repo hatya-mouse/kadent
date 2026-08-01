@@ -45,12 +45,12 @@ fn background_thread(
             BackgroundThreadCommand::SaveProject {
                 path,
                 project,
-                proj_meta,
+                project_meta,
                 code_buffers,
             } => BackgroundThreadResult::SavedProject(run_save_project(
                 &path,
                 &project,
-                &proj_meta,
+                &project_meta,
                 &code_buffers,
             )),
             BackgroundThreadCommand::OpenProject { path } => {
