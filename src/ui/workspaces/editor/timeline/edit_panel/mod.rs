@@ -22,7 +22,11 @@ use eframe::egui;
 use kadent_engine::{data_types::Ticks, mixer::TrackID};
 
 impl EditorUi {
-    pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn track_edit_panel(
+        &mut self,
+        ui: &mut egui::Ui,
+        scroll_offset: f32,
+    ) -> Option<f32> {
         let track_height = self.ui_state.timeline_state.track_height;
 
         // Ensure the scroll area extends past the project range end (or last region end)
@@ -73,11 +77,13 @@ impl EditorUi {
         self.playhead(ui, available);
 
         // Handle pinch / zoom gesture for timeline zoooooming
-        self.handle_timeline_zoom(ui, available);
+        let scroll_override = self.handle_timeline_zoom(ui, available, scroll_offset);
 
         // Handle dragged or dropped file
         self.try_resolve_audio_drop();
         self.show_dragged_hint(ui);
+
+        scroll_override
     }
 
     pub(super) fn beat_ruler(
@@ -318,17 +324,36 @@ impl EditorUi {
         );
     }
 
-    fn handle_timeline_zoom(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
+    /// Returns the new scroll offset when a zoom gesture happened this frame and the
+    /// horizontal scroll offset needs to be corrected.
+    fn handle_timeline_zoom(
+        &mut self,
+        ui: &mut egui::Ui,
+        editor_rect: egui::Rect,
+        scroll_offset: f32,
+    ) -> Option<f32> {
         let editor_res = ui.allocate_rect(editor_rect, egui::Sense::hover());
-        if editor_res.hovered() {
-            let zoom_delta = ui.input(|i| i.zoom_delta());
-
-            if zoom_delta != 1.0 {
-                let new_ppb = self.ui_state.timeline_state.pixels_per_beat * zoom_delta;
-                self.ui_state.timeline_state.pixels_per_beat =
-                    new_ppb.clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
-            }
+        if !editor_res.hovered() {
+            return None;
         }
+        let zoom_delta = ui.input(|i| i.zoom_delta());
+        if zoom_delta == 1.0 {
+            return None;
+        }
+        let cursor_x = ui.input(|i| i.pointer.hover_pos())?.x;
+
+        // Ticks under the cursor before changing the zoom level
+        let ticks_at_cursor = self.x_to_ticks(cursor_x, editor_rect);
+
+        let old_ppb = self.ui_state.timeline_state.pixels_per_beat;
+        let new_ppb = (old_ppb * zoom_delta).clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
+        self.ui_state.timeline_state.pixels_per_beat = new_ppb;
+
+        // Shift the scroll offset by however much the position of `ticks_at_cursor` moved due to
+        // the zoom change, so it stays under the cursor
+        let resolution = self.ui_state.audio_ctx.resolution as f32;
+        let delta_offset = ticks_at_cursor.0 as f32 * (new_ppb - old_ppb) / resolution;
+        Some((scroll_offset + delta_offset).max(0.0))
     }
 
     pub(super) fn x_to_ticks(&self, x: f32, row_rect: egui::Rect) -> Ticks {

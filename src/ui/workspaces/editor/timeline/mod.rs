@@ -69,11 +69,13 @@ impl EditorUi {
                             .horizontal_scroll_offset(timeline_scroll)
                             .show(ui, |ui| {
                                 ui.set_min_height(panel_rect.height());
-                                self.track_edit_panel(ui);
+                                self.track_edit_panel(ui, timeline_scroll)
                             });
-                        ui.data_mut(|data| {
-                            data.insert_temp(timeline_scroll_key, scroll_output.state.offset.x)
-                        });
+                        // If a zoom gesture requested a specific scroll offset this frame, use
+                        // that instead of the ScrollArea's own (zoom-unaware) native offset.
+                        let final_offset =
+                            scroll_output.inner.unwrap_or(scroll_output.state.offset.x);
+                        ui.data_mut(|data| data.insert_temp(timeline_scroll_key, final_offset));
 
                         // Handle dragging the divider and draw the divider
                         if divider_resp.dragged() {
