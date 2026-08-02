@@ -112,9 +112,12 @@ impl EditorUi {
         }
     }
 
-    pub(crate) fn finish_audio_import(&mut self, file_name: Option<String>, decoded: DecodedAudio) {
-        let start = self.ui_state.playhead_ticks;
-
+    pub(crate) fn finish_audio_import(
+        &mut self,
+        file_name: Option<String>,
+        start: Ticks,
+        decoded: DecodedAudio,
+    ) {
         // Calculate the length of the audio region to add
         let current_bpm = {
             let events = &self.proj_ctx.project.tempo_map.events;

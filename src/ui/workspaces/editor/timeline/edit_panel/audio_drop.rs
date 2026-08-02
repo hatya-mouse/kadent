@@ -30,7 +30,10 @@ impl EditorUi {
         }
 
         // We have already checked that last_audio_drop is Some, so we can safely unwrap it here
-        self.push_action(EditorAction::ImportAudioFile(file_path));
+        self.push_action(EditorAction::ImportAudioFile(
+            file_path,
+            self.ui_state.playhead_ticks,
+        ));
     }
 
     pub(super) fn show_dragged_hint(&mut self, ui: &mut egui::Ui) {

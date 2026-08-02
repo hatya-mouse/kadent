@@ -61,9 +61,17 @@ fn background_thread(
                 samples,
                 audio_ctx,
             } => BackgroundThreadResult::WroteWav(run_write_wav(&path, &samples, &audio_ctx)),
-            BackgroundThreadCommand::ImportAudio { file_name, path } => {
+            BackgroundThreadCommand::ImportAudio {
+                file_name,
+                start,
+                path,
+            } => {
                 let result = run_decode_wav(&path);
-                BackgroundThreadResult::ImportedAudio { file_name, result }
+                BackgroundThreadResult::ImportedAudio {
+                    file_name,
+                    start,
+                    result,
+                }
             }
         };
         result_tx.send(result).ok();

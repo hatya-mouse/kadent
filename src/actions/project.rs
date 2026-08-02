@@ -64,7 +64,7 @@ impl EditorUi {
             .unwrap();
     }
 
-    pub(super) fn import_audio_file(&mut self, path: &Path) {
+    pub(super) fn import_audio_file(&mut self, path: &Path, start: Ticks) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Import);
         self.background_handle
             .command_tx
@@ -72,6 +72,7 @@ impl EditorUi {
                 file_name: path
                     .file_name()
                     .map(|os_str| os_str.to_string_lossy().to_string()),
+                start,
                 path: path.to_path_buf(),
             })
             .ok();
