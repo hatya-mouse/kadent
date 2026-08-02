@@ -58,14 +58,6 @@ impl EditorUi {
         region_id: RegionID,
         region_rect: &egui::Rect,
     ) {
-        let Some(region_meta) = self
-            .proj_ctx
-            .project_meta
-            .get_track(&track_id)
-            .and_then(|t| t.get_region(&region_id))
-        else {
-            return;
-        };
         let Some(region) = self
             .proj_ctx
             .project
@@ -80,7 +72,7 @@ impl EditorUi {
         // `region.data`/waveform peaks are stored at the region's own native sample rate, independent of the project's audio_ctx sample rate,
         // so we use region's max_duration to calculate the number of samples that should be displayed in the region's width
         let region_samples = if region.max_duration.0 > 0 {
-            (region.frames as f64 * region_meta.duration.0 as f64 / region.max_duration.0 as f64)
+            (region.frames as f64 * region.duration.0 as f64 / region.max_duration.0 as f64)
                 as usize
         } else {
             0
@@ -161,6 +153,7 @@ impl EditorUi {
             points.push(egui::pos2(x, y_center - max * half_height));
             points.push(egui::pos2(x, y_center - min * half_height));
         }
+
         // Draw the whole line
         painter.add(egui::Shape::line(
             points,

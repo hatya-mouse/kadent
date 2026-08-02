@@ -1,4 +1,5 @@
 mod audio_drop;
+mod region_notes;
 mod track_row;
 mod waveform;
 

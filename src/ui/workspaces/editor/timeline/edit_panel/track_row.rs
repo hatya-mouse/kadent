@@ -137,6 +137,8 @@ impl EditorUi {
 
             if track_meta.track_type == TrackType::Audio {
                 self.draw_waveform_in(ui, *track_id, region_id, &draw_rect);
+            } else {
+                self.draw_notes_in(ui, track_id, &region_id, &region_rect);
             }
         }
     }
