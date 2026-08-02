@@ -44,19 +44,20 @@ impl EditorUi {
                 return;
             }
 
+            // Store the new region id after moving the region to the new track
+            // This variable is also used for checking whether moving the region was successful or not
+            let mut new_region_id = None;
             match original_track_meta.track_type {
                 TrackType::Audio => {
-                    // Confirm the destination exists and is the right type *before* removing
-                    // the region from the source track, so a failed lookup can never lose data.
                     if original_track
-                        .as_any_mut()
-                        .downcast_mut::<AudioTrack>()
+                        .as_any()
+                        .downcast_ref::<AudioTrack>()
                         .is_some()
                         && self
                             .proj_ctx
                             .project
-                            .get_track_mut(new_track_id)
-                            .is_some_and(|t| t.as_any_mut().downcast_mut::<AudioTrack>().is_some())
+                            .get_track(new_track_id)
+                            .is_some_and(|t| t.as_any().downcast_ref::<AudioTrack>().is_some())
                         && let Some(original_track) =
                             self.proj_ctx.project.get_track_mut(original_track_id)
                         && let Some(original_audio_track) =
@@ -70,20 +71,20 @@ impl EditorUi {
                             .get_track_mut(new_track_id)
                             .and_then(|t| t.as_any_mut().downcast_mut::<AudioTrack>())
                         {
-                            new_audio_track.add_region(region);
+                            new_region_id = Some(new_audio_track.add_region(region));
                         }
                     }
                 }
                 TrackType::Note => {
                     if original_track
-                        .as_any_mut()
-                        .downcast_mut::<NoteTrack>()
+                        .as_any()
+                        .downcast_ref::<NoteTrack>()
                         .is_some()
                         && self
                             .proj_ctx
                             .project
-                            .get_track_mut(new_track_id)
-                            .is_some_and(|t| t.as_any_mut().downcast_mut::<NoteTrack>().is_some())
+                            .get_track(new_track_id)
+                            .is_some_and(|t| t.as_any().downcast_ref::<NoteTrack>().is_some())
                         && let Some(original_track) =
                             self.proj_ctx.project.get_track_mut(original_track_id)
                         && let Some(original_note_track) =
@@ -97,28 +98,23 @@ impl EditorUi {
                             .get_track_mut(new_track_id)
                             .and_then(|t| t.as_any_mut().downcast_mut::<NoteTrack>())
                         {
-                            new_note_track.add_region(region);
+                            new_region_id = Some(new_note_track.add_region(region));
                         }
                     }
                 }
             }
 
-            // Also move track in the region meta. Confirm the destination exists *before*
-            // removing the region meta from the source, so a failed lookup can never lose data.
-            if self
-                .proj_ctx
-                .project_meta
-                .get_track(new_track_id)
-                .is_some()
+            if let Some(new_region_id) = new_region_id
+                && self.proj_ctx.project_meta.get_track(new_track_id).is_some()
                 && let Some(original_track_meta) =
                     self.proj_ctx.project_meta.get_track_mut(original_track_id)
                 && let Some(mut region_meta) = original_track_meta.remove_region(region_id)
             {
                 region_meta.move_region(new_start);
-                if let Some(new_track_meta) =
-                    self.proj_ctx.project_meta.get_track_mut(new_track_id)
+                if let Some(new_track_meta) = self.proj_ctx.project_meta.get_track_mut(new_track_id)
                 {
-                    new_track_meta.add_region(*region_id, region_meta);
+                    new_track_meta.add_region(new_region_id, region_meta);
+                    self.ui_state.select_region(*new_track_id, new_region_id);
                 }
             }
         } else {
