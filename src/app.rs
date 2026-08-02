@@ -17,7 +17,7 @@ pub enum KadentApp {
 
 enum GetDroppedFileResult {
     EditorCtx(Box<EditorContext>),
-    AudioFile(PathBuf, egui::Pos2),
+    AudioFile(PathBuf),
 }
 
 impl KadentApp {
@@ -52,8 +52,7 @@ impl KadentApp {
                     return open_project_to_ctx(path.clone())
                         .map(|ctx| GetDroppedFileResult::EditorCtx(Box::new(ctx)));
                 } else if extension == "wav" {
-                    let drop_pos = input.pointer.hover_pos().unwrap_or_default();
-                    return Some(GetDroppedFileResult::AudioFile(path.clone(), drop_pos));
+                    return Some(GetDroppedFileResult::AudioFile(path.clone()));
                 }
             }
 
@@ -61,15 +60,12 @@ impl KadentApp {
         })
     }
 
-    fn get_hovered_audio_file(&self, ui: &egui::Ui) -> Option<(PathBuf, egui::Pos2)> {
+    fn get_hovered_audio_file(&self, ui: &egui::Ui) -> Option<PathBuf> {
         ui.ctx().input(|input| {
             if let Some(file) = input.raw.hovered_files.first()
                 && let Some(path) = &file.path
-                && let Some(extension) = path.extension()
-                && extension == "wav"
             {
-                let hover_pos = input.pointer.hover_pos().unwrap_or_default();
-                return Some((path.clone(), hover_pos));
+                return Some(path.clone());
             }
 
             None
@@ -111,11 +107,10 @@ impl eframe::App for KadentApp {
                 // If we're in the editor state, just show the editor UI
                 editor.editor_ui(ui, frame);
 
-                if let Some(GetDroppedFileResult::AudioFile(dropped_path, drop_pos)) = dropped_file
-                {
-                    editor.audio_dropped(dropped_path, drop_pos);
-                } else if let Some((hovered_path, hover_pos)) = hovered_file {
-                    editor.audio_hovered(hovered_path, hover_pos);
+                if let Some(GetDroppedFileResult::AudioFile(dropped_path)) = dropped_file {
+                    editor.audio_dropped(dropped_path);
+                } else if let Some(hovered_path) = hovered_file {
+                    editor.audio_hovered(hovered_path);
                 }
             }
         }

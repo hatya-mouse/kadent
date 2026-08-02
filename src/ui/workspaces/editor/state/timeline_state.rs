@@ -1,4 +1,4 @@
-use eframe::egui;
+use kadent_engine::{mixer::TrackID, track::RegionID};
 use std::path::PathBuf;
 
 pub(crate) struct TimelineState {
@@ -11,9 +11,12 @@ pub(crate) struct TimelineState {
 
     // --- AUDIO FILE IMPORT ---
     /// The last audio file dropped into the editor, along with the position where it was dropped.
-    pub last_audio_drop: Option<(PathBuf, egui::Pos2)>,
+    pub last_audio_drop: Option<PathBuf>,
     /// Currently being dragged file and its position.
-    pub dragging_audio_file: Option<(PathBuf, egui::Pos2)>,
+    pub dragging_audio_file: Option<PathBuf>,
+    /// Lastly added region corresponds to an audio file.
+    /// This is used to move the region to another track when adding a region by dropping an audio file.
+    pub last_dropped_region: Option<(TrackID, RegionID)>,
 }
 
 impl Default for TimelineState {
@@ -24,6 +27,7 @@ impl Default for TimelineState {
             pixels_per_beat: 80.0,
             last_audio_drop: None,
             dragging_audio_file: None,
+            last_dropped_region: None,
         }
     }
 }

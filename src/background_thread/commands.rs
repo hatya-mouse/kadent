@@ -1,8 +1,5 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
-use kadent_engine::{
-    data_types::{AudioContext, Ticks},
-    mixer::{Project, TrackID},
-};
+use kadent_engine::{data_types::AudioContext, mixer::Project};
 use std::path::PathBuf;
 
 pub(crate) struct DecodedAudio {
@@ -28,8 +25,7 @@ pub(crate) enum BackgroundThreadCommand {
         audio_ctx: AudioContext,
     },
     ImportAudio {
-        track_id: TrackID,
-        start: Ticks,
+        file_name: Option<String>,
         path: PathBuf,
     },
 }
@@ -39,8 +35,7 @@ pub(crate) enum BackgroundThreadResult {
     OpenedProject(Option<Box<EditorContext>>),
     WroteWav(hound::Result<()>),
     ImportedAudio {
-        track_id: TrackID,
-        start: Ticks,
+        file_name: Option<String>,
         result: hound::Result<DecodedAudio>,
     },
 }

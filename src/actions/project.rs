@@ -3,7 +3,7 @@ use crate::{
     core::project_ctx::EditorContext,
     ui::{theme, workspaces::EditorUi},
 };
-use kadent_engine::{data_types::Ticks, mixer::TrackID, thread::AudioCommand};
+use kadent_engine::{data_types::Ticks, thread::AudioCommand};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -64,13 +64,14 @@ impl EditorUi {
             .unwrap();
     }
 
-    pub(super) fn import_audio_file(&mut self, track_id: TrackID, start: Ticks, path: &Path) {
+    pub(super) fn import_audio_file(&mut self, path: &Path) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Import);
         self.background_handle
             .command_tx
             .send(BackgroundThreadCommand::ImportAudio {
-                track_id,
-                start,
+                file_name: path
+                    .file_name()
+                    .map(|os_str| os_str.to_string_lossy().to_string()),
                 path: path.to_path_buf(),
             })
             .ok();

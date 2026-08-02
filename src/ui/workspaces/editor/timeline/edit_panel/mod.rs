@@ -73,6 +73,10 @@ impl EditorUi {
 
         // Handle pinch / zoom gesture for timeline zoooooming
         self.handle_timeline_zoom(ui, available);
+
+        // Handle dragged or dropped file
+        self.try_resolve_audio_drop();
+        self.show_dragged_hint(ui);
     }
 
     pub(super) fn beat_ruler(

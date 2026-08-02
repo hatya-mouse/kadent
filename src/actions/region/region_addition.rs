@@ -1,5 +1,7 @@
 use crate::{
-    background_thread::DecodedAudio, core::metadata::RegionMeta, ui::workspaces::EditorUi,
+    background_thread::DecodedAudio,
+    core::metadata::{RegionMeta, TrackType},
+    ui::{theme, workspaces::EditorUi},
 };
 use kadent_engine::{
     data_types::Ticks,
@@ -110,12 +112,10 @@ impl EditorUi {
         }
     }
 
-    pub(crate) fn finish_audio_import(
-        &mut self,
-        track_id: TrackID,
-        start: Ticks,
-        decoded: DecodedAudio,
-    ) {
+    pub(crate) fn finish_audio_import(&mut self, file_name: Option<String>, decoded: DecodedAudio) {
+        let start = self.ui_state.playhead_ticks;
+
+        // Calculate the length of the audio region to add
         let current_bpm = {
             let events = &self.proj_ctx.project.tempo_map.events;
             let idx = events
@@ -129,9 +129,15 @@ impl EditorUi {
                 .round() as i64,
         );
 
+        // Automatically choose the audio track to add the region to
+        let region_name = file_name.unwrap_or("Imported File".to_string());
+        let track_id = self.available_audio_track(&region_name);
+
+        // Get the audio track
         let Some(track) = self.proj_ctx.project.get_track_mut(&track_id) else {
             return;
         };
+        // Then calculate the duration of the region to prevent region overlapping
         let Some(duration) = self
             .proj_ctx
             .project_meta
@@ -157,17 +163,36 @@ impl EditorUi {
             };
             let region_id = audio_track.add_region(audio_region);
 
+            self.ui_state.timeline_state.last_dropped_region = Some((track_id, region_id));
+
+            // Set the name of the region to the file name or fallback to the default name
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(&track_id) {
-                let region_meta = RegionMeta::new(
-                    "Imported Audio".to_string(),
-                    start,
-                    duration,
-                    Some(duration),
-                );
+                let region_meta = RegionMeta::new(region_name, start, duration, Some(duration));
                 track_meta.add_region(region_id, region_meta);
             }
 
             self.modified_project();
+        }
+    }
+
+    fn available_audio_track(&mut self, file_name: &str) -> TrackID {
+        if let Some(selected_audio_track) = self.ui_state.selection.track_id() {
+            selected_audio_track
+        } else if let Some(first_audio_track) = self
+            .proj_ctx
+            .project_meta
+            .tracks
+            .iter()
+            .find(|track| matches!(track.1.track_type, TrackType::Audio))
+            .map(|track| *track.0)
+        {
+            first_audio_track
+        } else {
+            self.add_track(
+                TrackType::Audio,
+                file_name.to_string(),
+                theme::selected_bg(),
+            )
         }
     }
 }

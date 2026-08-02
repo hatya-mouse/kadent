@@ -33,13 +33,9 @@ impl EditorUi {
                         self.show_temp_status("Failed to Export Project", theme::error_fg());
                     }
                 },
-                BackgroundThreadResult::ImportedAudio {
-                    track_id,
-                    start,
-                    result,
-                } => match result {
+                BackgroundThreadResult::ImportedAudio { file_name, result } => match result {
                     Ok(decoded) => {
-                        self.finish_audio_import(track_id, start, decoded);
+                        self.finish_audio_import(file_name, decoded);
                         self.show_temp_status("Imported Audio", theme::successful_fg());
                     }
                     Err(_) => {

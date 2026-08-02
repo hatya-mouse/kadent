@@ -58,8 +58,8 @@ pub(crate) enum EditorAction {
     /// `(path)`
     ExportProject(PathBuf),
     /// Load a audio file into the given track at the given start position.
-    /// `(track_id, start, path)`
-    ImportAudioFile(TrackID, Ticks, PathBuf),
+    /// `(path)`
+    ImportAudioFile(PathBuf),
     /// Sets the range of the project to be exported.
     /// `(start, duration)`
     SetProjectRange(Ticks, Ticks),
@@ -165,8 +165,8 @@ impl EditorUi {
                 EditorAction::ExportProject(path) => {
                     self.export_project(&path);
                 }
-                EditorAction::ImportAudioFile(track_id, start, path) => {
-                    self.import_audio_file(track_id, start, &path);
+                EditorAction::ImportAudioFile(path) => {
+                    self.import_audio_file(&path);
                 }
                 EditorAction::SetProjectRange(start, end) => {
                     self.set_project_range(start, end);
@@ -190,7 +190,7 @@ impl EditorUi {
 
                 // --- TRACK ---
                 EditorAction::AddTrack(track_type, name, color) => {
-                    self.add_track(track_type, name, color)
+                    self.add_track(track_type, name, color);
                 }
                 EditorAction::RemoveTrack(ref track_id) => {
                     self.remove_track(track_id);

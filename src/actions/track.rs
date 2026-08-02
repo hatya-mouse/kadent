@@ -10,7 +10,12 @@ use kadent_engine::{
 
 impl EditorUi {
     /// Adds a new track to the project and the project metadata.
-    pub(super) fn add_track(&mut self, track_type: TrackType, name: String, color: egui::Color32) {
+    pub(crate) fn add_track(
+        &mut self,
+        track_type: TrackType,
+        name: String,
+        color: egui::Color32,
+    ) -> TrackID {
         // Create a track with the given type
         let track: Box<dyn Track> = match track_type {
             TrackType::Audio => Box::new(AudioTrack::new(self.ui_state.audio_ctx.clone())),
@@ -29,6 +34,8 @@ impl EditorUi {
 
         // Update the project on the audio thread
         self.modified_project();
+
+        track_id
     }
 
     /// Removes a track from the project and the project metadata.
