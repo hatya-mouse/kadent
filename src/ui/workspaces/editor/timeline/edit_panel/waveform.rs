@@ -6,7 +6,10 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{
     mixer::TrackID,
-    track::{RegionID, audio_track::AudioTrack},
+    track::{
+        RegionID,
+        audio_track::{AudioRegion, AudioTrack},
+    },
 };
 
 /// Space between waveform and top/bottom of the region
@@ -67,7 +70,7 @@ impl EditorUi {
 
         // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
         if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
-            self.draw_raw_waveform_in(ui, track_id, region_id, region_rect);
+            self.draw_raw_waveform_in(ui, region, region_rect);
             return;
         }
 
@@ -113,6 +116,7 @@ impl EditorUi {
         let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
         let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
 
+        let mut points = Vec::with_capacity((end_pixel - start_pixel) * 2);
         for pixel in start_pixel..end_pixel {
             let start_index = ((pixel as f32 * peaks_per_pixel) as usize).min(peaks.len());
             let end_index = (((pixel + 1) as f32 * peaks_per_pixel) as usize).min(peaks.len());
@@ -129,34 +133,19 @@ impl EditorUi {
 
             // Then calculate the start and end y positions for the line segment to draw
             let x = region_rect.left() + pixel as f32;
-            let y_top = y_center - max * half_height;
-            let y_bottom = y_center - min * half_height;
 
-            // Draw the line for the current pixel
-            painter.line_segment(
-                [egui::Pos2::new(x, y_top), egui::Pos2::new(x, y_bottom)],
-                egui::Stroke::new(1.0, theme::waveform_color()),
-            );
+            // Add line segments
+            points.push(egui::pos2(x, y_center - max * half_height));
+            points.push(egui::pos2(x, y_center - min * half_height));
         }
+        // Draw the whole line
+        painter.add(egui::Shape::line(
+            points,
+            egui::Stroke::new(1.0, theme::waveform_color()),
+        ));
     }
 
-    fn draw_raw_waveform_in(
-        &self,
-        ui: &egui::Ui,
-        track_id: TrackID,
-        region_id: RegionID,
-        region_rect: &egui::Rect,
-    ) {
-        let Some(region) = self
-            .proj_ctx
-            .project
-            .get_track(&track_id)
-            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
-            .and_then(|t| t.get_region(&region_id))
-        else {
-            return;
-        };
-
+    fn draw_raw_waveform_in(&self, ui: &egui::Ui, region: &AudioRegion, region_rect: &egui::Rect) {
         let visible_rect = region_rect.intersect(ui.clip_rect());
         if visible_rect.width() <= 0.0 {
             return;
