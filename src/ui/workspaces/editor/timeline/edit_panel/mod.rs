@@ -18,7 +18,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::data_types::Ticks;
+use kadent_engine::{data_types::Ticks, mixer::TrackID};
 
 impl EditorUi {
     pub(crate) fn track_edit_panel(&mut self, ui: &mut egui::Ui) {
@@ -55,7 +55,7 @@ impl EditorUi {
                 egui::vec2(available.width(), track_height),
             );
 
-            self.track_row(ui, track_id, row_rect);
+            self.track_row(ui, track_id, row_rect, available.min.y);
 
             // Draw a separator
             ui.painter().hline(
@@ -336,5 +336,16 @@ impl EditorUi {
                 * self.ui_state.timeline_ticks_per_pixel()) as i64,
         )
         .max(Ticks(0))
+    }
+
+    /// Converts a screen-space y position to the track it falls into,
+    /// given the y position of the top of the track list content area.
+    pub(super) fn y_to_track_id(&self, y: f32, content_top: f32) -> Option<TrackID> {
+        let track_height = self.ui_state.timeline_state.track_height;
+        if y < content_top || track_height <= 0.0 {
+            return None;
+        }
+        let index = ((y - content_top) / track_height) as usize;
+        self.proj_ctx.project_meta.track_order.get(index).copied()
     }
 }

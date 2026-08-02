@@ -122,13 +122,21 @@ pub(crate) fn border(dark_mode: bool) -> Stroke {
 // --- SEPARATOR ---
 
 /// Solid divider between panel sections (ruler border, panel splitters).
-pub(crate) const fn separator() -> Color32 {
-    Color32::DARK_GRAY
+pub(crate) const fn separator(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_gray(60)
+    } else {
+        Color32::from_gray(200)
+    }
 }
 
 /// Separator color when the divider is hovered or dragged.
-pub(crate) const fn separator_hovered() -> Color32 {
-    Color32::from_gray(140)
+pub(crate) const fn separator_hovered(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_gray(80)
+    } else {
+        Color32::from_gray(180)
+    }
 }
 
 // --- PANEL INTERACTIONS ---

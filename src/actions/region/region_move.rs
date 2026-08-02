@@ -31,37 +31,92 @@ impl EditorUi {
                 return;
             };
 
-            match (original_track_meta.track_type, new_track_meta.track_type) {
-                (TrackType::Audio, TrackType::Audio) => {
-                    if let Some(original_audio_track) =
-                        original_track.as_any_mut().downcast_mut::<AudioTrack>()
-                        && let Some(region) = original_audio_track.take_region(region_id)
-                        && let Some(new_track) = self.proj_ctx.project.get_track_mut(new_track_id)
-                        && let Some(new_audio_track) =
-                            new_track.as_any_mut().downcast_mut::<AudioTrack>()
+            // Check if the destination track is of the same type as the original track
+            if original_track_meta.track_type != new_track_meta.track_type {
+                self.show_temp_status(
+                    &format!(
+                        "Cannot move {} region to {} track",
+                        original_track_meta.track_type.fmt_lowercase(),
+                        new_track_meta.track_type.fmt_lowercase()
+                    ),
+                    theme::error_fg(),
+                );
+                return;
+            }
+
+            match original_track_meta.track_type {
+                TrackType::Audio => {
+                    // Confirm the destination exists and is the right type *before* removing
+                    // the region from the source track, so a failed lookup can never lose data.
+                    if original_track
+                        .as_any_mut()
+                        .downcast_mut::<AudioTrack>()
+                        .is_some()
+                        && self
+                            .proj_ctx
+                            .project
+                            .get_track_mut(new_track_id)
+                            .is_some_and(|t| t.as_any_mut().downcast_mut::<AudioTrack>().is_some())
+                        && let Some(original_track) =
+                            self.proj_ctx.project.get_track_mut(original_track_id)
+                        && let Some(original_audio_track) =
+                            original_track.as_any_mut().downcast_mut::<AudioTrack>()
+                        && let Some(mut region) = original_audio_track.take_region(region_id)
                     {
-                        new_audio_track.add_region(region);
+                        region.start = new_start;
+                        if let Some(new_audio_track) = self
+                            .proj_ctx
+                            .project
+                            .get_track_mut(new_track_id)
+                            .and_then(|t| t.as_any_mut().downcast_mut::<AudioTrack>())
+                        {
+                            new_audio_track.add_region(region);
+                        }
                     }
                 }
-                (TrackType::Note, TrackType::Note) => {
-                    if let Some(original_note_track) =
-                        original_track.as_any_mut().downcast_mut::<NoteTrack>()
-                        && let Some(region) = original_note_track.take_region(region_id)
-                        && let Some(new_track) = self.proj_ctx.project.get_track_mut(new_track_id)
-                        && let Some(new_note_track) =
-                            new_track.as_any_mut().downcast_mut::<NoteTrack>()
+                TrackType::Note => {
+                    if original_track
+                        .as_any_mut()
+                        .downcast_mut::<NoteTrack>()
+                        .is_some()
+                        && self
+                            .proj_ctx
+                            .project
+                            .get_track_mut(new_track_id)
+                            .is_some_and(|t| t.as_any_mut().downcast_mut::<NoteTrack>().is_some())
+                        && let Some(original_track) =
+                            self.proj_ctx.project.get_track_mut(original_track_id)
+                        && let Some(original_note_track) =
+                            original_track.as_any_mut().downcast_mut::<NoteTrack>()
+                        && let Some(mut region) = original_note_track.take_region(region_id)
                     {
-                        new_note_track.add_region(region);
+                        region.start = new_start;
+                        if let Some(new_note_track) = self
+                            .proj_ctx
+                            .project
+                            .get_track_mut(new_track_id)
+                            .and_then(|t| t.as_any_mut().downcast_mut::<NoteTrack>())
+                        {
+                            new_note_track.add_region(region);
+                        }
                     }
                 }
-                (original_track_type, new_track_type) => {
-                    self.show_temp_status(
-                        &format!(
-                            "Cannot move {} region to {} track",
-                            original_track_type, new_track_type
-                        ),
-                        theme::error_fg(),
-                    );
+            }
+
+            // Also move track in the region meta
+            if let Some(original_audio_track_meta) =
+                self.proj_ctx.project_meta.get_track_mut(original_track_id)
+            {
+                let Some(mut region_meta) = original_audio_track_meta.remove_region(region_id)
+                else {
+                    return;
+                };
+
+                if let Some(new_audio_track_meta) =
+                    self.proj_ctx.project_meta.get_track_mut(new_track_id)
+                {
+                    region_meta.move_region(new_start);
+                    new_audio_track_meta.add_region(*region_id, region_meta);
                 }
             }
         } else {
@@ -77,8 +132,6 @@ impl EditorUi {
                 region_meta.move_region(new_start);
             }
         }
-
-        // Set the region start beats in metadata
 
         self.modified_project();
     }

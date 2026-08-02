@@ -25,13 +25,20 @@ impl TrackType {
     pub fn all() -> [Self; 2] {
         [Self::Audio, Self::Note]
     }
+
+    pub fn fmt_lowercase(&self) -> String {
+        match self {
+            TrackType::Audio => "audio".to_string(),
+            TrackType::Note => "note".to_string(),
+        }
+    }
 }
 
 impl Display for TrackType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TrackType::Audio => write!(f, "audio"),
-            TrackType::Note => write!(f, "note"),
+            TrackType::Audio => write!(f, "Audio"),
+            TrackType::Note => write!(f, "Note"),
         }
     }
 }
@@ -120,7 +127,7 @@ impl TrackMeta {
         self.regions.get_mut(id)
     }
 
-    pub fn remove_region(&mut self, id: &RegionID) {
-        self.regions.remove(id);
+    pub fn remove_region(&mut self, id: &RegionID) -> Option<RegionMeta> {
+        self.regions.remove(id)
     }
 }

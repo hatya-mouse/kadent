@@ -74,9 +74,9 @@ fn render_divider(
     let resp = ui.allocate_rect(div_rect, egui::Sense::drag());
 
     let color = if resp.hovered() || resp.dragged() {
-        theme::separator_hovered()
+        theme::separator_hovered(ui.visuals().dark_mode)
     } else {
-        theme::separator()
+        theme::separator(ui.visuals().dark_mode)
     };
     ui.painter().rect_filled(div_rect, 0.0, color);
 

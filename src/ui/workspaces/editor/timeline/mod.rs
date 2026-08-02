@@ -40,8 +40,11 @@ impl EditorUi {
                     egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
                     egui::vec2(2.0, RULER_HEIGHT),
                 );
-                ui.painter()
-                    .rect_filled(vertical_separator_rect, 0, theme::separator());
+                ui.painter().rect_filled(
+                    vertical_separator_rect,
+                    0,
+                    theme::separator(ui.visuals().dark_mode),
+                );
             });
 
         egui::CentralPanel::default()
@@ -81,11 +84,17 @@ impl EditorUi {
                         }
                         if divider_resp.hovered() {
                             ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
-                            ui.painter()
-                                .rect_filled(divider_rect, 0.0, theme::separator_hovered());
+                            ui.painter().rect_filled(
+                                divider_rect,
+                                0.0,
+                                theme::separator_hovered(ui.visuals().dark_mode),
+                            );
                         } else {
-                            ui.painter()
-                                .rect_filled(divider_rect, 0.0, theme::separator());
+                            ui.painter().rect_filled(
+                                divider_rect,
+                                0.0,
+                                theme::separator(ui.visuals().dark_mode),
+                            );
                         }
                     });
                 });
