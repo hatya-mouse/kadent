@@ -94,7 +94,7 @@ pub(crate) enum EditorAction {
     AddNoteRegion(TrackID, String, Ticks),
     /// Move a region to a new start position in beats.
     /// `(track_id, region_id, new_start)`
-    MoveRegion(TrackID, RegionID, Ticks),
+    MoveRegion(TrackID, RegionID, TrackID, Ticks),
     /// Set a duration of the given region.
     /// `(track_id, region_id, new_duration)`
     SetRegionDuration(TrackID, RegionID, Ticks),
@@ -203,9 +203,12 @@ impl EditorUi {
                 EditorAction::AddNoteRegion(ref track_id, name, start) => {
                     self.add_note_region(track_id, name, start)
                 }
-                EditorAction::MoveRegion(ref track_id, ref region_id, new_start) => {
-                    self.move_region(track_id, region_id, new_start)
-                }
+                EditorAction::MoveRegion(
+                    ref original_track_id,
+                    ref region_id,
+                    ref new_track_id,
+                    new_start,
+                ) => self.move_region(original_track_id, region_id, new_track_id, new_start),
                 EditorAction::SetRegionDuration(ref track_id, ref region_id, new_duration) => {
                     self.set_region_duration(track_id, region_id, new_duration)
                 }
@@ -290,7 +293,7 @@ impl EditorUi {
                 }
                 Err(_) => {
                     self.pending_export_path.take();
-                    self.show_temp_status("Failed to Export Project", theme::error_fg());
+                    self.show_temp_status("Failed to export project", theme::error_fg());
                 }
             }
         }

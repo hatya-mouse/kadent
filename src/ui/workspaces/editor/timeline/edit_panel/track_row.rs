@@ -215,7 +215,9 @@ impl EditorUi {
                 .and_then(|track| track.get_region_mut(region_id))
                 .map(|region| region.start)
         {
-            self.push_action(EditorAction::MoveRegion(*track_id, *region_id, new_start));
+            self.push_action(EditorAction::MoveRegion(
+                *track_id, *region_id, *track_id, new_start,
+            ));
         }
     }
 }

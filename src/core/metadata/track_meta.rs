@@ -4,7 +4,7 @@ use crate::{
 };
 use eframe::egui;
 use kadent_engine::track::{RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack};
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Clone)]
 pub(crate) struct TrackMeta {
@@ -24,6 +24,15 @@ pub(crate) enum TrackType {
 impl TrackType {
     pub fn all() -> [Self; 2] {
         [Self::Audio, Self::Note]
+    }
+}
+
+impl Display for TrackType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TrackType::Audio => write!(f, "Audio"),
+            TrackType::Note => write!(f, "Note"),
+        }
     }
 }
 

@@ -10,36 +10,36 @@ impl EditorUi {
             match result {
                 BackgroundThreadResult::SavedProject(result) => match result {
                     Ok(_) => {
-                        self.show_temp_status("Saved Project", theme::successful_fg());
+                        self.show_temp_status("Saved project", theme::successful_fg());
                     }
                     Err(_) => {
-                        self.show_temp_status("Failed to Save Project", theme::error_fg());
+                        self.show_temp_status("Failed to save project", theme::error_fg());
                     }
                 },
                 BackgroundThreadResult::OpenedProject(ctx) => match ctx {
                     Some(editor_ctx) => {
                         self.set_editor_ctx(*editor_ctx);
-                        self.show_temp_status("Opened Project", theme::successful_fg());
+                        self.show_temp_status("Opened project", theme::successful_fg());
                     }
                     None => {
-                        self.show_temp_status("Failed to Open Project", theme::error_fg());
+                        self.show_temp_status("Failed to open project", theme::error_fg());
                     }
                 },
                 BackgroundThreadResult::WroteWav(result) => match result {
                     Ok(_) => {
-                        self.show_temp_status("Exported Project", theme::successful_fg());
+                        self.show_temp_status("Exported project", theme::successful_fg());
                     }
                     Err(_) => {
-                        self.show_temp_status("Failed to Export Project", theme::error_fg());
+                        self.show_temp_status("Failed to export project", theme::error_fg());
                     }
                 },
                 BackgroundThreadResult::ImportedAudio { file_name, result } => match result {
                     Ok(decoded) => {
                         self.finish_audio_import(file_name, decoded);
-                        self.show_temp_status("Imported Audio", theme::successful_fg());
+                        self.show_temp_status("Imported audio", theme::successful_fg());
                     }
                     Err(_) => {
-                        self.show_temp_status("Failed to Import Audio", theme::error_fg());
+                        self.show_temp_status("Failed to import audio", theme::error_fg());
                     }
                 },
             }

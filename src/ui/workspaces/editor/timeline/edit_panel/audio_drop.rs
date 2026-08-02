@@ -21,11 +21,11 @@ impl EditorUi {
 
         // Check if the file format is supported
         let Some(extension) = file_path.extension() else {
-            self.show_temp_status("File Format Not Supported", theme::error_fg());
+            self.show_temp_status("File format not supported", theme::error_fg());
             return;
         };
         if extension != "wav" {
-            self.show_temp_status("File Format Not Supported", theme::error_fg());
+            self.show_temp_status("File format not supported", theme::error_fg());
             return;
         }
 
