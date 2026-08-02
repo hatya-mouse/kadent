@@ -124,7 +124,7 @@ impl EditorUi {
             events[idx].bpm()
         };
         let duration_seconds = decoded.frames as f64 / decoded.sample_rate as f64;
-        let duration = Ticks(
+        let data_duration = Ticks(
             (duration_seconds / 60.0 * current_bpm * self.ui_state.audio_ctx.resolution as f64)
                 .round() as i64,
         );
@@ -138,12 +138,12 @@ impl EditorUi {
             return;
         };
         // Then calculate the duration of the region to prevent region overlapping
-        let Some(duration) = self
+        let Some(region_duration) = self
             .proj_ctx
             .project_meta
             .get_track(&track_id)
             .map(|t| &t.regions)
-            .and_then(|regions| calculate_region_placement(regions, start, duration))
+            .and_then(|regions| calculate_region_placement(regions, start, data_duration))
         else {
             return;
         };
@@ -158,8 +158,8 @@ impl EditorUi {
                 channels: decoded.channels,
                 base_bpm: current_bpm,
                 start,
-                duration,
-                max_duration: duration,
+                duration: region_duration,
+                max_duration: data_duration,
             };
             let region_id = audio_track.add_region(audio_region);
 
@@ -167,7 +167,8 @@ impl EditorUi {
 
             // Set the name of the region to the file name or fallback to the default name
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(&track_id) {
-                let region_meta = RegionMeta::new(region_name, start, duration, Some(duration));
+                let region_meta =
+                    RegionMeta::new(region_name, start, region_duration, Some(data_duration));
                 track_meta.add_region(region_id, region_meta);
             }
 
