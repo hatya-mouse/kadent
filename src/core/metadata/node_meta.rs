@@ -1,12 +1,12 @@
+use crate::core::kasl_node::KaslNode;
 use eframe::egui;
 use kadent_engine::node::{
     Node,
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
 };
+use serde::{Deserialize, Serialize};
 
-use crate::core::kasl_node::KaslNode;
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) enum NodeType {
     NoteInput = 0,
     AudioInput = 1,

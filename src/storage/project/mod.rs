@@ -2,26 +2,39 @@ mod error;
 mod init;
 mod new_project;
 mod open_project;
-mod trait_impl;
-mod traits;
+mod stored;
 
 pub(crate) use init::init_kasl_nodes;
 pub(crate) use new_project::create_new_project;
 pub(crate) use open_project::open_project_to_ctx;
-pub(crate) use trait_impl::load_proj_res::LoadProjResult;
-pub(crate) use trait_impl::project_meta::StoredTrackMeta;
-pub(crate) use traits::{AsBytes, FromBytes, safe_read};
+pub(crate) use stored::StoredTrackMeta;
 
 use crate::{
     core::metadata::ProjectMeta,
-    storage::project::{error::LoadError, trait_impl::project_meta::StoredProjMeta},
+    storage::project::{
+        error::LoadError,
+        stored::{StoredProjMeta, StoredProject},
+    },
 };
 use kadent_engine::mixer::Project;
+use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::{Read, Write},
     path::{Path, PathBuf},
 };
+
+pub(crate) struct LoadProjResult {
+    pub(crate) project: Project,
+    pub(crate) project_meta: StoredProjMeta,
+}
+
+/// The full payload written after the "KADENT" + version header.
+#[derive(Serialize, Deserialize)]
+struct StoredProjectFile {
+    project_meta: StoredProjMeta,
+    project: StoredProject,
+}
 
 /// Saves the given project to the given path. Returns an error if the file cannot be created or written to.
 ///
@@ -49,19 +62,14 @@ pub(crate) fn save_project(
         file.write_all(&minor_ver.to_le_bytes())?;
         file.write_all(&patch_ver.to_le_bytes())?;
 
-        // Write the project metadata
-        let stored_project_meta = StoredProjMeta::from_project_meta(project_meta);
-        let mut project_meta_bytes = Vec::new();
-        stored_project_meta.as_bytes(&mut project_meta_bytes);
-        // Write the length of the project metadata before the project metadata itself
-        file.write_all(&(project_meta_bytes.len() as u64).to_le_bytes())?;
-        file.write_all(&project_meta_bytes)?;
-
-        // Write the project
-        let mut project_bytes = Vec::new();
-        project.as_bytes(&mut project_bytes);
-
-        file.write_all(&project_bytes)?;
+        // Serialize the metadata and the project together with postcard
+        let stored = StoredProjectFile {
+            project_meta: StoredProjMeta::from_project_meta(project_meta),
+            project: StoredProject::from_project(project),
+        };
+        let payload = postcard::to_allocvec(&stored)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        file.write_all(&payload)?;
         file.flush()?;
     }
 
@@ -111,11 +119,15 @@ pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     // let file_minor_ver = u32::from_le_bytes(minor_bytes);
     // let file_patch_ver = u32::from_le_bytes(patch_bytes);
 
-    // Read the rest of the file and parse the project
-    let mut project_bytes = Vec::new();
-    file.read_to_end(&mut project_bytes)
-        .map_err(LoadError::IoError)?;
-    LoadProjResult::from_bytes(&project_bytes)
+    // Read the rest of the file and parse the payload with postcard
+    let mut payload = Vec::new();
+    file.read_to_end(&mut payload).map_err(LoadError::IoError)?;
+    let stored: StoredProjectFile = postcard::from_bytes(&payload).map_err(LoadError::Postcard)?;
+
+    Ok(LoadProjResult {
+        project: stored.project.to_project(),
+        project_meta: stored.project_meta,
+    })
 }
 
 pub(crate) fn get_project_dir(project_path: &Path) -> PathBuf {

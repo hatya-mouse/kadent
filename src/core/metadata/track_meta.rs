@@ -77,7 +77,7 @@ impl TrackMeta {
 
             Self {
                 name: track_meta.name.clone(),
-                color: track_meta.color,
+                color: track_meta.color(),
                 track_type: TrackType::Audio,
                 regions,
                 graph: track_meta.node_graph.to_graph_meta(),
@@ -103,7 +103,7 @@ impl TrackMeta {
 
             Self {
                 name: track_meta.name.clone(),
-                color: track_meta.color,
+                color: track_meta.color(),
                 track_type: TrackType::Note,
                 regions,
                 graph: track_meta.node_graph.to_graph_meta(),
