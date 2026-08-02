@@ -3,6 +3,7 @@
 use crate::ui::{theme, workspaces::EditorUi};
 use eframe::egui;
 use kadent_engine::{
+    data_types::Ticks,
     mixer::TrackID,
     track::{RegionID, note_track::NoteTrack},
 };
@@ -34,14 +35,11 @@ impl EditorUi {
         // Also calculate the y position per pitch
         let y_per_pitch = rect_height / 128.0;
 
-        // Calculate the visible tick range based on the region's start and duration
-        let region_end = region.start + region.duration;
-
         let painter = ui.painter_at(*region_rect);
 
         // Draw each note in the region
         for note in region.notes.values() {
-            if note.start < region.start || note.start >= region_end {
+            if note.start < Ticks(0) || note.start >= region.duration {
                 // Skip notes that are outside the visible range
                 continue;
             }
