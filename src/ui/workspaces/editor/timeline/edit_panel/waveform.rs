@@ -7,10 +7,7 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{
     mixer::TrackID,
-    track::{
-        RegionID,
-        audio_track::{AudioRegion, AudioTrack},
-    },
+    track::{RegionID, audio_track::AudioTrack},
 };
 
 /// Space between waveform and top/bottom of the region
@@ -18,7 +15,9 @@ const WAVEFORM_Y_CLEARANCE: f32 = 4.0;
 
 impl EditorUi {
     // Generates waveforms for each region in the timeline.
-    pub(in crate::ui::workspaces::editor) fn generate_waveforms(&mut self) {
+    pub(crate) fn generate_waveforms(&mut self) {
+        self.ui_state.timeline_state.waveforms.clear();
+
         let mut commands = Vec::new();
         for (track_id, track_meta) in &self.proj_ctx.project_meta.tracks {
             if track_meta.track_type == TrackType::Audio {
@@ -57,11 +56,10 @@ impl EditorUi {
         region_id: RegionID,
         region_rect: &egui::Rect,
     ) {
-        let Some(region) = self
+        let Some(region_meta) = self
             .proj_ctx
-            .project
+            .project_meta
             .get_track(&track_id)
-            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
             .and_then(|t| t.get_region(&region_id))
         else {
             return;
@@ -71,18 +69,18 @@ impl EditorUi {
             .proj_ctx
             .project
             .tempo_map
-            .ticks_to_samples(region.start);
+            .ticks_to_samples(region_meta.start);
         let region_end_samples = self
             .proj_ctx
             .project
             .tempo_map
-            .ticks_to_samples(region.start + region.duration);
+            .ticks_to_samples(region_meta.start + region_meta.duration);
         let region_samples = region_end_samples.saturating_sub(region_start_samples);
         let samples_per_pixel = region_samples as f32 / rect_width;
 
         // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
         if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
-            self.draw_raw_waveform_in(ui, samples_per_pixel, region, region_rect);
+            self.draw_raw_waveform_in(ui, &track_id, &region_id, samples_per_pixel, region_rect);
             return;
         }
 
@@ -164,10 +162,21 @@ impl EditorUi {
     fn draw_raw_waveform_in(
         &self,
         ui: &egui::Ui,
+        track_id: &TrackID,
+        region_id: &RegionID,
         samples_per_pixel: f32,
-        region: &AudioRegion,
         region_rect: &egui::Rect,
     ) {
+        let Some(region) = self
+            .proj_ctx
+            .project
+            .get_track(track_id)
+            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+            .and_then(|t| t.get_region(region_id))
+        else {
+            return;
+        };
+
         let visible_rect = region_rect.intersect(ui.clip_rect());
         if visible_rect.width() <= 0.0 {
             return;

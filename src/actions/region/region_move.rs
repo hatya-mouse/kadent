@@ -108,13 +108,28 @@ impl EditorUi {
                 && self.proj_ctx.project_meta.get_track(new_track_id).is_some()
                 && let Some(original_track_meta) =
                     self.proj_ctx.project_meta.get_track_mut(original_track_id)
+                // Remove the region from the old track...
                 && let Some(mut region_meta) = original_track_meta.remove_region(region_id)
             {
+                // ...and move the region in the region meta to the new track
                 region_meta.move_region(new_start);
                 if let Some(new_track_meta) = self.proj_ctx.project_meta.get_track_mut(new_track_id)
                 {
                     new_track_meta.add_region(new_region_id, region_meta);
                     self.ui_state.select_region(*new_track_id, new_region_id);
+                }
+
+                // Finally move the calculated waveform data to the new track
+                if let Some(waveform) = self
+                    .ui_state
+                    .timeline_state
+                    .waveforms
+                    .remove(&(*original_track_id, *region_id))
+                {
+                    self.ui_state
+                        .timeline_state
+                        .waveforms
+                        .insert((*new_track_id, new_region_id), waveform);
                 }
             }
         } else {

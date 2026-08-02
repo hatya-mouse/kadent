@@ -86,6 +86,9 @@ impl EditorUi {
 
         // Notify the audio thread of the project change
         self.modified_project();
+
+        // Generate waveforms for all audio regions in the project
+        self.generate_waveforms();
     }
 
     pub(super) fn set_project_range(&mut self, start: Ticks, duration: Ticks) {

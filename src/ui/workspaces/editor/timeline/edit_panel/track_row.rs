@@ -94,7 +94,15 @@ impl EditorUi {
                 continue;
             };
 
-            let draw_rect = region_rect.translate(egui::vec2(0.0, y_offset));
+            // Recalculate the region rect with new position and size if it was dragged
+            let new_region_x =
+                row_rect.min.x + TIMELINE_LEFT_PADDING + region_meta.start.0 as f32 * ppt;
+            let new_region_width = (region_meta.duration.0 as f32 * ppt).max(8.0);
+            let new_region_rect = egui::Rect::from_min_size(
+                egui::pos2(new_region_x, row_rect.min.y + 2.0),
+                egui::vec2(new_region_width, row_rect.height() - 4.0),
+            );
+            let draw_rect = new_region_rect.translate(egui::vec2(0.0, y_offset));
 
             // Draw on the foreground layer unclipped so that the region is not clipped
             let region_painter = if y_offset != 0.0 {
