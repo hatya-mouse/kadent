@@ -9,7 +9,6 @@ pub(crate) use commands::{
     BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult, DecodedAudio,
     WaveformLod,
 };
-pub(crate) use waveform::SMALL_BLOCK_SIZE;
 
 use crate::{
     background_thread::{

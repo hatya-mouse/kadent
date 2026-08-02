@@ -70,7 +70,7 @@ impl TrackMeta {
                         stored_region_meta.name.clone(),
                         audio_region.start,
                         audio_region.duration,
-                        None,
+                        Some(audio_region.max_duration),
                     ),
                 );
             }

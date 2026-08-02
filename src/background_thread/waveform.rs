@@ -1,8 +1,7 @@
-use crate::background_thread::commands::{WaveformLod, WaveformPeaks};
-
-pub(crate) const SMALL_BLOCK_SIZE: usize = 64;
-const MEDIUM_BLOCK_SIZE: usize = 1024;
-const LARGE_BLOCK_SIZE: usize = 8192;
+use crate::{
+    background_thread::commands::{WaveformLod, WaveformPeaks},
+    consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
+};
 
 /// Computes min/max peaks at three fixed resolutions from interleaved multi-channel samples.
 pub(super) fn run_generate_waveform(samples: &[f32], channels: u16) -> WaveformLod {

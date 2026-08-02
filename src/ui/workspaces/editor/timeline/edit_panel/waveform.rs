@@ -1,5 +1,6 @@
 use crate::{
-    background_thread::{BackgroundThreadCommand, SMALL_BLOCK_SIZE},
+    background_thread::BackgroundThreadCommand,
+    consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
     core::metadata::TrackType,
     ui::{theme, workspaces::EditorUi},
 };
@@ -66,11 +67,22 @@ impl EditorUi {
             return;
         };
         let rect_width = region_rect.width();
-        let samples_per_pixel = region.frames as f32 / rect_width;
+        let region_start_samples = self
+            .proj_ctx
+            .project
+            .tempo_map
+            .ticks_to_samples(region.start);
+        let region_end_samples = self
+            .proj_ctx
+            .project
+            .tempo_map
+            .ticks_to_samples(region.start + region.duration);
+        let region_samples = region_end_samples.saturating_sub(region_start_samples);
+        let samples_per_pixel = region_samples as f32 / rect_width;
 
         // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
         if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
-            self.draw_raw_waveform_in(ui, region, region_rect);
+            self.draw_raw_waveform_in(ui, samples_per_pixel, region, region_rect);
             return;
         }
 
@@ -87,13 +99,18 @@ impl EditorUi {
         let large_len = waveform_lod.large.peaks.len();
         let medium_len = waveform_lod.medium.peaks.len();
 
-        let peaks = if rect_width < large_len as f32 {
-            &waveform_lod.large.peaks
+        let (peaks_full, block_size) = if rect_width < large_len as f32 {
+            (&waveform_lod.large.peaks, LARGE_BLOCK_SIZE)
         } else if rect_width < medium_len as f32 {
-            &waveform_lod.medium.peaks
+            (&waveform_lod.medium.peaks, MEDIUM_BLOCK_SIZE)
         } else {
-            &waveform_lod.small.peaks
+            (&waveform_lod.small.peaks, SMALL_BLOCK_SIZE)
         };
+
+        let visible_peak_count =
+            ((region_samples as f32 / block_size as f32).ceil() as usize).min(peaks_full.len());
+        let peaks = &peaks_full[..visible_peak_count];
+
         if peaks.is_empty() {
             return;
         }
@@ -125,11 +142,10 @@ impl EditorUi {
             }
 
             // Find the min and max peaks in the range for this pixel
-            let (min, max) = peaks[start_index..end_index]
-                .iter()
-                .fold((0.0f32, 0.0f32), |(min, max), &(low, high)| {
-                    (min.min(low), max.max(high))
-                });
+            let (min, max) = peaks[start_index..end_index].iter().fold(
+                (f32::INFINITY, f32::NEG_INFINITY),
+                |(min, max), &(low, high)| (min.min(low), max.max(high)),
+            );
 
             // Then calculate the start and end y positions for the line segment to draw
             let x = region_rect.left() + pixel as f32;
@@ -145,7 +161,13 @@ impl EditorUi {
         ));
     }
 
-    fn draw_raw_waveform_in(&self, ui: &egui::Ui, region: &AudioRegion, region_rect: &egui::Rect) {
+    fn draw_raw_waveform_in(
+        &self,
+        ui: &egui::Ui,
+        samples_per_pixel: f32,
+        region: &AudioRegion,
+        region_rect: &egui::Rect,
+    ) {
         let visible_rect = region_rect.intersect(ui.clip_rect());
         if visible_rect.width() <= 0.0 {
             return;
@@ -157,21 +179,18 @@ impl EditorUi {
         let channels = region.channels.max(1) as usize;
 
         // Find the start and end x positions for rendering the waveform
-        let start_x = visible_rect.left();
-        let end_x = visible_rect.right();
-        let samples_per_px = region.frames as f32 / region_rect.width();
+        let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
+        let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
 
-        let mut points = Vec::new();
-        let mut x = start_x;
-        while x < end_x {
-            let frame = ((x - region_rect.left()) * samples_per_px) as usize;
+        let mut points = Vec::with_capacity(end_pixel - start_pixel);
+        for pixel in start_pixel..end_pixel {
+            let frame = (pixel as f32 * samples_per_pixel) as usize;
             if frame >= region.frames {
                 break;
             }
-            // Get the sample value for the current frame and channel
+            let x = region_rect.left() + pixel as f32;
             let sample = region.data[frame * channels];
             points.push(egui::pos2(x, y_center - sample * half_height));
-            x += 1.0;
         }
 
         painter.add(egui::Shape::line(

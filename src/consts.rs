@@ -11,3 +11,10 @@ pub(crate) const PROJECT_FILE_EXTENSION: &str = "kdp";
 pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";
 /// The maximum number of recent projects shown in the splash screen.
 pub(crate) const RECENT_PROJCETS_MAX_NUM: usize = 20;
+
+/// The small block size to get the peaks when generating waveform.
+pub(crate) const SMALL_BLOCK_SIZE: usize = 64;
+/// The medium block size to get the peaks when generating waveform.
+pub(crate) const MEDIUM_BLOCK_SIZE: usize = 1024;
+/// The large block size to get the peaks when generating waveform.
+pub(crate) const LARGE_BLOCK_SIZE: usize = 8192;
