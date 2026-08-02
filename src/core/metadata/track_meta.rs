@@ -30,8 +30,8 @@ impl TrackType {
 impl Display for TrackType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TrackType::Audio => write!(f, "Audio"),
-            TrackType::Note => write!(f, "Note"),
+            TrackType::Audio => write!(f, "audio"),
+            TrackType::Note => write!(f, "note"),
         }
     }
 }
