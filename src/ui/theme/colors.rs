@@ -155,16 +155,12 @@ pub(crate) fn panel_collapse_overlay() -> Color32 {
 
 // --- RULER ---
 
-pub(crate) fn ruler_tick(dark_mode: bool) -> Color32 {
-    primary_fg(dark_mode).gamma_multiply(0.45)
-}
-
 pub(crate) fn ruler_label(dark_mode: bool) -> Color32 {
     primary_fg(dark_mode).gamma_multiply(0.75)
 }
 
 pub(crate) fn range_outside_overlay() -> Color32 {
-    Color32::from_black_alpha(128)
+    Color32::from_black_alpha(60)
 }
 
 // --- NODE GRAPH ---

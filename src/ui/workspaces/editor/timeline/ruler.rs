@@ -97,7 +97,7 @@ impl EditorUi {
         let right_beat = ((ruler_screen_rect.max.x - origin_x) / ppb).ceil() as i32;
         let first_label_beat = (left_beat / beats_per_label) * beats_per_label;
 
-        let tick_color = theme::ruler_tick(dark_mode);
+        let tick_color = theme::border_color(dark_mode);
         let text_color = theme::ruler_label(dark_mode);
 
         // Major ticks and labels

@@ -135,7 +135,9 @@ impl EditorUi {
                 theme::region_text(),
             );
 
-            self.draw_waveform_in(ui, *track_id, region_id, &draw_rect);
+            if track_meta.track_type == TrackType::Audio {
+                self.draw_waveform_in(ui, *track_id, region_id, &draw_rect);
+            }
         }
     }
 

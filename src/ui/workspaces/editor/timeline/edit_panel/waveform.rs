@@ -66,18 +66,25 @@ impl EditorUi {
         else {
             return;
         };
+        let Some(region) = self
+            .proj_ctx
+            .project
+            .get_track(&track_id)
+            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+            .and_then(|t| t.get_region(&region_id))
+        else {
+            return;
+        };
         let rect_width = region_rect.width();
-        let region_start_samples = self
-            .proj_ctx
-            .project
-            .tempo_map
-            .ticks_to_samples(region_meta.start);
-        let region_end_samples = self
-            .proj_ctx
-            .project
-            .tempo_map
-            .ticks_to_samples(region_meta.start + region_meta.duration);
-        let region_samples = region_end_samples.saturating_sub(region_start_samples);
+
+        // `region.data`/waveform peaks are stored at the region's own native sample rate, independent of the project's audio_ctx sample rate,
+        // so we use region's max_duration to calculate the number of samples that should be displayed in the region's width
+        let region_samples = if region.max_duration.0 > 0 {
+            (region.frames as f64 * region_meta.duration.0 as f64 / region.max_duration.0 as f64)
+                as usize
+        } else {
+            0
+        };
         let samples_per_pixel = region_samples as f32 / rect_width;
 
         // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
