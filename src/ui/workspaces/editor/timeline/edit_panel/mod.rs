@@ -6,9 +6,7 @@ use crate::ui::{
     theme,
     workspaces::{
         EditorUi,
-        editor::timeline::{
-            TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB, TIMELINE_RIGHT_PADDING,
-        },
+        editor::timeline::{TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
     },
     zoom::zoom_scroll_offset,
 };
@@ -24,24 +22,7 @@ impl EditorUi {
         let track_height = self.ui_state.timeline_state.track_height;
 
         // Ensure the scroll area extends past the project range end (or last region end)
-        let ppt = self.ui_state.timeline_state.pixels_per_beat
-            / self.ui_state.audio_ctx.resolution as f32;
-        let range_end_ticks =
-            self.proj_ctx.project.range_start.0 + self.proj_ctx.project.range_duration.0;
-        let last_region_end = self
-            .proj_ctx
-            .project_meta
-            .track_order
-            .iter()
-            .filter_map(|id| self.proj_ctx.project_meta.get_track(id))
-            .flat_map(|t| t.regions.values())
-            .map(|r| r.start.0 + r.duration.0)
-            .max()
-            .unwrap_or(0);
-        let content_end_ticks = range_end_ticks.max(last_region_end);
-        ui.set_min_width(
-            TIMELINE_LEFT_PADDING + content_end_ticks as f32 * ppt + TIMELINE_RIGHT_PADDING,
-        );
+        ui.set_min_width(self.timeline_content_width());
 
         let available = ui.available_rect_before_wrap();
 

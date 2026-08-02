@@ -23,21 +23,26 @@ impl EditorUi {
         let track_list_width = self.ui_state.timeline_state.track_list_width;
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-        let timeline_scroll_key = ui.id().with("timeline_scroll");
         let follow_playhead_key = ui.id().with("follow_playhead");
+        let timeline_scroll_key = ui.id().with("timeline_scroll");
 
+        let mut follow_playhead =
+            ui.data(|data| data.get_temp(follow_playhead_key).unwrap_or(false));
         let mut timeline_scroll = ui.data(|data| {
             data.get_temp(timeline_scroll_key)
                 .unwrap_or(TIMELINE_LEFT_PADDING)
         });
-        let mut follow_playhead =
-            ui.data(|data| data.get_temp(follow_playhead_key).unwrap_or(false));
 
         // While following, keep the playhead centered in the visible track area
+        let visible_width = (ui.available_width() - track_list_width).max(0.0);
         if follow_playhead && self.ui_state.is_playing {
-            let visible_width = (ui.available_width() - track_list_width).max(0.0);
             timeline_scroll = self.follow_playhead_scroll_offset(visible_width);
         }
+
+        // Clamp the timeline_scroll by zero and the end of the timeline content width
+        // so that it never scrolls past the scrollable area
+        let max_scroll = (self.timeline_content_width() - visible_width).max(0.0);
+        timeline_scroll = timeline_scroll.clamp(0.0, max_scroll);
 
         egui::Panel::top(ui.id().with("ruler"))
             .frame(egui::Frame::new())
@@ -151,13 +156,39 @@ impl EditorUi {
     }
 
     /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport
-    /// of the given visible width.
+    /// of the given visible width, clamped so it never scrolls past the scrollable content.
     fn follow_playhead_scroll_offset(&self, visible_width: f32) -> f32 {
         let ppt = self.ui_state.timeline_state.pixels_per_beat
             / self.ui_state.audio_ctx.resolution as f32;
         let playhead_content_x =
             TIMELINE_LEFT_PADDING + self.ui_state.playhead_ticks.0 as f32 * ppt;
         let visible_half_width = visible_width * 0.5;
-        (playhead_content_x - visible_half_width).max(0.0)
+
+        playhead_content_x - visible_half_width
+    }
+
+    /// Calculates the width of the entire timeline based on the current pixels-per-beat and project range.
+    ///
+    /// ```
+    /// |<--                             timeline_content_width                         -->|
+    /// |<-- TIMELINE_LEFT_PADDING -->[<-- Project Range -->]<-- TIMELINE_RIGHT_PADDING -->|
+    /// ```
+    pub(super) fn timeline_content_width(&self) -> f32 {
+        let ppt = self.ui_state.timeline_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
+        let range_end_ticks =
+            self.proj_ctx.project.range_start.0 + self.proj_ctx.project.range_duration.0;
+        let last_region_end = self
+            .proj_ctx
+            .project_meta
+            .track_order
+            .iter()
+            .filter_map(|id| self.proj_ctx.project_meta.get_track(id))
+            .flat_map(|t| t.regions.values())
+            .map(|r| r.start.0 + r.duration.0)
+            .max()
+            .unwrap_or(0);
+        let content_end_ticks = range_end_ticks.max(last_region_end);
+        TIMELINE_LEFT_PADDING + content_end_ticks as f32 * ppt + TIMELINE_RIGHT_PADDING
     }
 }
