@@ -15,7 +15,7 @@ mod toolbar;
 
 use crate::{
     actions::EditorAction,
-    background_thread::{BackgroundThreadHandle, spawn_background_thread},
+    background_thread::{BackgroundThreadCommand, BackgroundThreadHandle, spawn_background_thread},
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
@@ -91,6 +91,9 @@ impl EditorUi {
 
         // Load the project structure and cache it
         editor_ui.push_action(EditorAction::UpdateDirCache);
+
+        // For each audio region, generate the waveforms
+        editor_ui.generate_waveforms();
 
         editor_ui
     }
@@ -191,5 +194,9 @@ impl EditorUi {
 
     fn push_action(&mut self, action: EditorAction) {
         self.pending_actions.push_back(action);
+    }
+
+    pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
+        self.background_handle.command_tx.send(command).ok();
     }
 }

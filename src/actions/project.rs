@@ -22,30 +22,24 @@ pub(crate) struct FileNode {
 impl EditorUi {
     pub(super) fn save_all(&mut self) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Save);
-        self.background_handle
-            .command_tx
-            .send(BackgroundThreadCommand::SaveProject {
-                path: self.proj_ctx.project_path.to_path_buf(),
-                project: Box::new(self.proj_ctx.project.clone()),
-                project_meta: Box::new(self.proj_ctx.project_meta.clone()),
-                code_buffers: self
-                    .ui_state
-                    .code_editor_state
-                    .code_buffers
-                    .values()
-                    .flatten()
-                    .cloned()
-                    .collect(),
-            })
-            .ok();
+        self.push_background_job(BackgroundThreadCommand::SaveProject {
+            path: self.proj_ctx.project_path.to_path_buf(),
+            project: Box::new(self.proj_ctx.project.clone()),
+            project_meta: Box::new(self.proj_ctx.project_meta.clone()),
+            code_buffers: self
+                .ui_state
+                .code_editor_state
+                .code_buffers
+                .values()
+                .flatten()
+                .cloned()
+                .collect(),
+        });
     }
 
     pub(super) fn open_project(&mut self, proj_path: PathBuf) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Open);
-        self.background_handle
-            .command_tx
-            .send(BackgroundThreadCommand::OpenProject { path: proj_path })
-            .ok();
+        self.push_background_job(BackgroundThreadCommand::OpenProject { path: proj_path });
     }
 
     pub(super) fn export_project(&mut self, path: &Path) {
@@ -66,16 +60,13 @@ impl EditorUi {
 
     pub(super) fn import_audio_file(&mut self, path: &Path, start: Ticks) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Import);
-        self.background_handle
-            .command_tx
-            .send(BackgroundThreadCommand::ImportAudio {
-                file_name: path
-                    .file_name()
-                    .map(|os_str| os_str.to_string_lossy().to_string()),
-                start,
-                path: path.to_path_buf(),
-            })
-            .ok();
+        self.push_background_job(BackgroundThreadCommand::ImportAudio {
+            file_name: path
+                .file_name()
+                .map(|os_str| os_str.to_string_lossy().to_string()),
+            start,
+            path: path.to_path_buf(),
+        });
     }
 
     pub(super) fn update_dir_cache(&mut self) {

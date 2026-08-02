@@ -19,8 +19,7 @@ pub(crate) struct WaveformPeaks {
     pub peaks: Vec<(f32, f32)>,
 }
 
-/// Precomputed waveform peaks at three fixed resolutions, so drawing can pick whichever tier is
-/// closest to the current zoom level without touching the raw sample data at draw time.
+/// Precomputed waveform peaks at three fixed resolutions.
 pub(crate) struct WaveformLod {
     pub small: WaveformPeaks,
     pub medium: WaveformPeaks,

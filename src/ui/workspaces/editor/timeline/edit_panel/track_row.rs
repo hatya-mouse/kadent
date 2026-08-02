@@ -127,7 +127,7 @@ impl EditorUi {
                 theme::region_text(),
             );
 
-            self.draw_waveform_in(*track_id, region_id, &draw_rect);
+            self.draw_waveform_in(ui, *track_id, region_id, &draw_rect);
         }
     }
 

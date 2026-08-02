@@ -7,8 +7,9 @@ mod waveform;
 
 pub(crate) use commands::{
     BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult, DecodedAudio,
-    WaveformLod, WaveformPeaks,
+    WaveformLod,
 };
+pub(crate) use waveform::SMALL_BLOCK_SIZE;
 
 use crate::{
     background_thread::{

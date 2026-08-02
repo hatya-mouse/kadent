@@ -282,14 +282,11 @@ impl EditorUi {
                         return;
                     };
 
-                    self.background_handle
-                        .command_tx
-                        .send(BackgroundThreadCommand::WriteWav {
-                            path: export_path,
-                            samples,
-                            audio_ctx: self.ui_state.audio_ctx.clone(),
-                        })
-                        .ok();
+                    self.push_background_job(BackgroundThreadCommand::WriteWav {
+                        path: export_path,
+                        samples,
+                        audio_ctx: self.ui_state.audio_ctx.clone(),
+                    });
                 }
                 Err(_) => {
                     self.pending_export_path.take();

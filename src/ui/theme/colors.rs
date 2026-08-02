@@ -204,6 +204,10 @@ pub(crate) const fn default_track_color() -> Color32 {
     Color32::from_rgb(100, 150, 220)
 }
 
+pub(crate) const fn waveform_color() -> Color32 {
+    Color32::from_rgb(255, 255, 255)
+}
+
 // --- PEAK HOLD ---
 
 pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {

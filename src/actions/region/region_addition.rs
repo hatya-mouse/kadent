@@ -1,5 +1,5 @@
 use crate::{
-    background_thread::DecodedAudio,
+    background_thread::{BackgroundThreadCommand, DecodedAudio},
     core::metadata::{RegionMeta, TrackType},
     ui::{theme, workspaces::EditorUi},
 };
@@ -141,7 +141,7 @@ impl EditorUi {
 
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             let audio_region = AudioRegion {
-                data: decoded.data,
+                data: decoded.data.clone(),
                 frames: decoded.frames,
                 sample_rate: decoded.sample_rate,
                 channels: decoded.channels,
@@ -162,6 +162,14 @@ impl EditorUi {
             }
 
             self.modified_project();
+
+            // Send the background thread a message to calculate the waveform of the audio region
+            self.push_background_job(BackgroundThreadCommand::GenerateWaveform {
+                track_id,
+                region_id,
+                samples: decoded.data,
+                channels: decoded.channels,
+            });
         }
     }
 

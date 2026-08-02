@@ -1,14 +1,76 @@
-use crate::ui::workspaces::EditorUi;
+use crate::{
+    background_thread::{BackgroundThreadCommand, SMALL_BLOCK_SIZE},
+    core::metadata::TrackType,
+    ui::{theme, workspaces::EditorUi},
+};
 use eframe::egui;
-use kadent_engine::{mixer::TrackID, track::RegionID};
+use kadent_engine::{
+    mixer::TrackID,
+    track::{RegionID, audio_track::AudioTrack},
+};
+
+/// Space between waveform and top/bottom of the region
+const WAVEFORM_Y_CLEARANCE: f32 = 4.0;
 
 impl EditorUi {
+    // Generates waveforms for each region in the timeline.
+    pub(in crate::ui::workspaces::editor) fn generate_waveforms(&mut self) {
+        let mut commands = Vec::new();
+        for (track_id, track_meta) in &self.proj_ctx.project_meta.tracks {
+            if track_meta.track_type == TrackType::Audio {
+                let Some(track) = self
+                    .proj_ctx
+                    .project
+                    .get_track(track_id)
+                    .and_then(|track| track.as_any().downcast_ref::<AudioTrack>())
+                else {
+                    continue;
+                };
+                for region_id in track_meta.regions.keys() {
+                    let Some(region) = track.get_region(region_id) else {
+                        continue;
+                    };
+                    commands.push(BackgroundThreadCommand::GenerateWaveform {
+                        track_id: *track_id,
+                        region_id: *region_id,
+                        samples: region.data.clone(),
+                        channels: region.channels,
+                    });
+                }
+            }
+        }
+
+        // Send the commands to the background thread for processing
+        for command in commands {
+            self.push_background_job(command);
+        }
+    }
+
     pub(super) fn draw_waveform_in(
         &mut self,
+        ui: &egui::Ui,
         track_id: TrackID,
         region_id: RegionID,
-        rect: &egui::Rect,
+        region_rect: &egui::Rect,
     ) {
+        let Some(region) = self
+            .proj_ctx
+            .project
+            .get_track(&track_id)
+            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+            .and_then(|t| t.get_region(&region_id))
+        else {
+            return;
+        };
+        let rect_width = region_rect.width();
+        let samples_per_pixel = region.frames as f32 / rect_width;
+
+        // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
+        if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
+            self.draw_raw_waveform_in(ui, track_id, region_id, region_rect);
+            return;
+        }
+
         let Some(waveform_lod) = self
             .ui_state
             .timeline_state
@@ -17,5 +79,115 @@ impl EditorUi {
         else {
             return;
         };
+
+        // Select the most suitable LOD based on the current zoom level
+        let large_len = waveform_lod.large.peaks.len();
+        let medium_len = waveform_lod.medium.peaks.len();
+
+        let peaks = if rect_width < large_len as f32 {
+            &waveform_lod.large.peaks
+        } else if rect_width < medium_len as f32 {
+            &waveform_lod.medium.peaks
+        } else {
+            &waveform_lod.small.peaks
+        };
+        if peaks.is_empty() {
+            return;
+        }
+
+        // Set up a painter and draw the waveform
+        let painter = ui.painter_at(*region_rect);
+
+        let y_center = region_rect.center().y;
+        let half_height = region_rect.height() / 2.0 - WAVEFORM_Y_CLEARANCE;
+
+        // Render only the visible portion of the waveform to optimize performance
+        let visible_rect = region_rect.intersect(ui.clip_rect());
+        if visible_rect.width() <= 0.0 {
+            return;
+        }
+
+        // Calculate how many peaks are in the single pixel width
+        let peaks_per_pixel = (peaks.len() as f32 / rect_width).max(1.0);
+        // Then calculate the start and end pixel positions for rendering
+        let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
+        let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
+
+        for pixel in start_pixel..end_pixel {
+            let start_index = ((pixel as f32 * peaks_per_pixel) as usize).min(peaks.len());
+            let end_index = (((pixel + 1) as f32 * peaks_per_pixel) as usize).min(peaks.len());
+            if start_index >= end_index {
+                continue;
+            }
+
+            // Find the min and max peaks in the range for this pixel
+            let (min, max) = peaks[start_index..end_index]
+                .iter()
+                .fold((0.0f32, 0.0f32), |(min, max), &(low, high)| {
+                    (min.min(low), max.max(high))
+                });
+
+            // Then calculate the start and end y positions for the line segment to draw
+            let x = region_rect.left() + pixel as f32;
+            let y_top = y_center - max * half_height;
+            let y_bottom = y_center - min * half_height;
+
+            // Draw the line for the current pixel
+            painter.line_segment(
+                [egui::Pos2::new(x, y_top), egui::Pos2::new(x, y_bottom)],
+                egui::Stroke::new(1.0, theme::waveform_color()),
+            );
+        }
+    }
+
+    fn draw_raw_waveform_in(
+        &self,
+        ui: &egui::Ui,
+        track_id: TrackID,
+        region_id: RegionID,
+        region_rect: &egui::Rect,
+    ) {
+        let Some(region) = self
+            .proj_ctx
+            .project
+            .get_track(&track_id)
+            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+            .and_then(|t| t.get_region(&region_id))
+        else {
+            return;
+        };
+
+        let visible_rect = region_rect.intersect(ui.clip_rect());
+        if visible_rect.width() <= 0.0 {
+            return;
+        }
+
+        let painter = ui.painter_at(*region_rect);
+        let y_center = region_rect.center().y;
+        let half_height = region_rect.height() / 2.0 - WAVEFORM_Y_CLEARANCE;
+        let channels = region.channels.max(1) as usize;
+
+        // Find the start and end x positions for rendering the waveform
+        let start_x = visible_rect.left();
+        let end_x = visible_rect.right();
+        let samples_per_px = region.frames as f32 / region_rect.width();
+
+        let mut points = Vec::new();
+        let mut x = start_x;
+        while x < end_x {
+            let frame = ((x - region_rect.left()) * samples_per_px) as usize;
+            if frame >= region.frames {
+                break;
+            }
+            // Get the sample value for the current frame and channel
+            let sample = region.data[frame * channels];
+            points.push(egui::pos2(x, y_center - sample * half_height));
+            x += 1.0;
+        }
+
+        painter.add(egui::Shape::line(
+            points,
+            egui::Stroke::new(1.0, theme::waveform_color()),
+        ));
     }
 }
