@@ -1,5 +1,6 @@
-use super::{HEADER_HEIGHT, NODE_WIDTH, PORT_ROW_HEIGHT};
+use super::{NODE_WIDTH, PORT_ROW_HEIGHT};
 use crate::{
+    consts::PANEL_HEADER_HEIGHT,
     core::metadata::GraphMeta,
     ui::{
         theme,
@@ -68,7 +69,7 @@ fn output_port_pos(
     egui::pos2(
         screen_min.x + NODE_WIDTH,
         screen_min.y
-            + HEADER_HEIGHT
+            + PANEL_HEADER_HEIGHT
             + NODE_PADDING
             + PORT_ROW_HEIGHT * port_idx as f32
             + PORT_ROW_HEIGHT / 2.0,
@@ -85,7 +86,7 @@ fn input_port_pos(
     egui::pos2(
         screen_min.x,
         screen_min.y
-            + HEADER_HEIGHT
+            + PANEL_HEADER_HEIGHT
             + NODE_PADDING
             + PORT_ROW_HEIGHT * port_idx as f32
             + PORT_ROW_HEIGHT / 2.0,

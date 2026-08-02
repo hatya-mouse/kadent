@@ -22,7 +22,6 @@ use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 // --- NODE LAYOUT CONSTANTS ---
 pub(super) const NODE_WIDTH: f32 = 180.0;
-pub(super) const HEADER_HEIGHT: f32 = 28.0;
 pub(super) const PORT_ROW_HEIGHT: f32 = 22.0;
 pub(super) const PORT_RADIUS: f32 = 8.0;
 /// Padding on top and bottom of the node body.

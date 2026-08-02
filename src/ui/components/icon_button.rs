@@ -35,24 +35,34 @@ pub(crate) fn toolbar_icon_button_colored(
 }
 
 pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::Response {
-    let response = ui.add_sized(
-        [28.0, 24.0],
-        egui::Button::image(
-            image
-                .fit_to_exact_size(egui::vec2(20.0, 20.0))
-                .tint(theme::primary_fg(ui.visuals().dark_mode)),
-        )
-        .fill(egui::Color32::TRANSPARENT)
-        .corner_radius(CORNER_RADIUS),
-    );
+    ui.scope(|ui| {
+        ui.visuals_mut().widgets.inactive.weak_bg_fill = egui::Color32::TRANSPARENT;
+        ui.visuals_mut().widgets.inactive.bg_stroke = egui::Stroke::NONE;
+        ui.visuals_mut().widgets.hovered.weak_bg_fill = theme::icon_button_hovered();
+        ui.visuals_mut().widgets.hovered.bg_stroke = egui::Stroke::NONE;
+        ui.visuals_mut().widgets.active.weak_bg_fill = theme::icon_button_active();
+        ui.visuals_mut().widgets.active.bg_stroke = egui::Stroke::NONE;
 
-    if response.is_pointer_button_down_on() {
-        ui.painter()
-            .rect_filled(response.rect, CORNER_RADIUS, theme::icon_button_active());
-    } else if response.hovered() {
-        ui.painter()
-            .rect_filled(response.rect, CORNER_RADIUS, theme::icon_button_hovered());
-    }
+        let response = ui.add_sized(
+            [28.0, 24.0],
+            egui::Button::image(
+                image
+                    .fit_to_exact_size(egui::vec2(20.0, 20.0))
+                    .tint(theme::primary_fg(ui.visuals().dark_mode)),
+            )
+            .fill(egui::Color32::TRANSPARENT)
+            .corner_radius(CORNER_RADIUS),
+        );
 
-    response
+        if response.is_pointer_button_down_on() {
+            ui.painter()
+                .rect_filled(response.rect, CORNER_RADIUS, theme::icon_button_active());
+        } else if response.hovered() {
+            ui.painter()
+                .rect_filled(response.rect, CORNER_RADIUS, theme::icon_button_hovered());
+        }
+
+        response
+    })
+    .inner
 }

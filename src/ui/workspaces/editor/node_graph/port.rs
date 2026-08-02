@@ -1,5 +1,5 @@
-use super::{HEADER_HEIGHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
-use crate::ui::theme;
+use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
+use crate::{consts::PANEL_HEADER_HEIGHT, ui::theme};
 use eframe::egui;
 
 /// Returns which port on the node contains `mouse_pos`, or `None`.
@@ -68,7 +68,7 @@ pub(super) fn draw_ports(
 
 pub(super) fn calc_port_y(node_rect: egui::Rect, port_index: usize) -> f32 {
     node_rect.min.y
-        + HEADER_HEIGHT
+        + PANEL_HEADER_HEIGHT
         + NODE_PADDING
         + PORT_ROW_HEIGHT * port_index as f32
         + PORT_ROW_HEIGHT / 2.0

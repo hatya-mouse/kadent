@@ -1,17 +1,20 @@
 mod edit_panel;
+mod ruler;
 mod track_list;
 
-use crate::ui::{theme, workspaces::EditorUi};
+use crate::{
+    consts::PANEL_HEADER_HEIGHT,
+    ui::{components::icon_button::small_icon_button, theme, workspaces::EditorUi},
+};
 use eframe::egui;
 
-pub(crate) const RULER_HEIGHT: f32 = 20.0;
 pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 /// Extra pixels of empty space inserted before zero beat.
 pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
 /// Extra pixels of empty space appended after the last region or project range end.
 pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
 /// The maximum pixels per beat.
-pub(crate) const TIMELINE_MAX_PPB: f32 = 1000.0;
+pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;
 /// The minimum pixels per beat.
 pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
 
@@ -21,24 +24,41 @@ impl EditorUi {
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
         let timeline_scroll_key = ui.id().with("timeline_scroll");
-        let timeline_scroll = ui.data(|data| {
+        let follow_playhead_key = ui.id().with("follow_playhead");
+
+        let mut timeline_scroll = ui.data(|data| {
             data.get_temp(timeline_scroll_key)
                 .unwrap_or(TIMELINE_LEFT_PADDING)
         });
+        let mut follow_playhead =
+            ui.data(|data| data.get_temp(follow_playhead_key).unwrap_or(false));
+
+        // While following, keep the playhead centered in the visible track area
+        if follow_playhead && self.ui_state.is_playing {
+            let visible_width = (ui.available_width() - track_list_width).max(0.0);
+            timeline_scroll = self.follow_playhead_scroll_offset(visible_width);
+        }
 
         egui::Panel::top(ui.id().with("ruler"))
             .frame(egui::Frame::new())
             .show_inside(ui, |ui| {
                 let panel_rect = ui.available_rect_before_wrap();
+
+                let corner_rect = egui::Rect::from_min_size(
+                    panel_rect.min,
+                    egui::vec2(track_list_width, PANEL_HEADER_HEIGHT),
+                );
+                self.follow_playhead_button(ui, corner_rect, &mut follow_playhead);
+
                 let ruler_screen_rect = egui::Rect::from_min_max(
                     egui::pos2(panel_rect.min.x + track_list_width, panel_rect.min.y),
-                    egui::pos2(panel_rect.max.x, panel_rect.min.y + RULER_HEIGHT),
+                    egui::pos2(panel_rect.max.x, panel_rect.min.y + PANEL_HEADER_HEIGHT),
                 );
                 self.beat_ruler(ui, ruler_screen_rect, timeline_scroll);
 
                 let vertical_separator_rect = egui::Rect::from_min_size(
                     egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
-                    egui::vec2(2.0, RULER_HEIGHT),
+                    egui::vec2(2.0, PANEL_HEADER_HEIGHT),
                 );
                 ui.painter().rect_filled(
                     vertical_separator_rect,
@@ -46,6 +66,8 @@ impl EditorUi {
                     theme::separator(ui.visuals().dark_mode),
                 );
             });
+
+        ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
 
         egui::CentralPanel::default()
             .frame(egui::Frame::new())
@@ -71,8 +93,9 @@ impl EditorUi {
                                 ui.set_min_height(panel_rect.height());
                                 self.track_edit_panel(ui, timeline_scroll)
                             });
+
                         // If a zoom gesture requested a specific scroll offset this frame, use
-                        // that instead of the ScrollArea's own (zoom-unaware) native offset.
+                        // that instead of the ScrollArea's own offset
                         let final_offset =
                             scroll_output.inner.unwrap_or(scroll_output.state.offset.x);
                         ui.data_mut(|data| data.insert_temp(timeline_scroll_key, final_offset));
@@ -101,5 +124,40 @@ impl EditorUi {
                     });
                 });
             });
+    }
+
+    /// Draws the follow-playhead toggle in the corner cell above the track list, toggling
+    /// `follow_playhead` when clicked.
+    fn follow_playhead_button(
+        &self,
+        ui: &mut egui::Ui,
+        corner_rect: egui::Rect,
+        follow_playhead: &mut bool,
+    ) {
+        ui.scope_builder(egui::UiBuilder::new().max_rect(corner_rect), |ui| {
+            ui.centered_and_justified(|ui| {
+                let icon = egui::include_image!("../../../../../assets/icons/crosshair.svg");
+                let response = small_icon_button(ui, egui::Image::new(icon));
+                if response.clicked() {
+                    *follow_playhead = !*follow_playhead;
+                }
+                if *follow_playhead {
+                    ui.painter()
+                        .rect_filled(response.rect, 6.0, theme::icon_button_active());
+                }
+                response.on_hover_text("Follow playhead");
+            });
+        });
+    }
+
+    /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport
+    /// of the given visible width.
+    fn follow_playhead_scroll_offset(&self, visible_width: f32) -> f32 {
+        let ppt = self.ui_state.timeline_state.pixels_per_beat
+            / self.ui_state.audio_ctx.resolution as f32;
+        let playhead_content_x =
+            TIMELINE_LEFT_PADDING + self.ui_state.playhead_ticks.0 as f32 * ppt;
+        let visible_half_width = visible_width * 0.5;
+        (playhead_content_x - visible_half_width).max(0.0)
     }
 }

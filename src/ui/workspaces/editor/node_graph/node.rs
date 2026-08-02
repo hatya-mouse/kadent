@@ -1,9 +1,12 @@
-use super::{HEADER_HEIGHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
-use crate::ui::{
-    theme,
-    workspaces::{
-        EditorUi,
-        editor::node_graph::port::{calc_port_y, draw_ports},
+use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
+use crate::{
+    consts::PANEL_HEADER_HEIGHT,
+    ui::{
+        theme,
+        workspaces::{
+            EditorUi,
+            editor::node_graph::port::{calc_port_y, draw_ports},
+        },
     },
 };
 use eframe::egui::{self, Sense};
@@ -51,11 +54,11 @@ impl EditorUi {
         // pos is in canvas space; view_transform converts it to screen space.
         let row_count = input_names.len().max(output_names.len()).max(1);
         let node_height =
-            HEADER_HEIGHT + NODE_PADDING + PORT_ROW_HEIGHT * row_count as f32 + NODE_PADDING;
+            PANEL_HEADER_HEIGHT + NODE_PADDING + PORT_ROW_HEIGHT * row_count as f32 + NODE_PADDING;
         let node_rect =
             egui::Rect::from_min_size(pos + view_transform, egui::vec2(NODE_WIDTH, node_height));
         let header_rect =
-            egui::Rect::from_min_size(node_rect.min, egui::vec2(NODE_WIDTH, HEADER_HEIGHT));
+            egui::Rect::from_min_size(node_rect.min, egui::vec2(NODE_WIDTH, PANEL_HEADER_HEIGHT));
 
         let dark_mode = ui.visuals().dark_mode;
         let painter = ui.painter();
