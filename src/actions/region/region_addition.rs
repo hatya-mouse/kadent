@@ -1,5 +1,5 @@
 use crate::{
-    background_thread::{BackgroundThreadCommand, DecodedAudio},
+    background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, DecodedAudio},
     core::metadata::{RegionMeta, TrackType},
     ui::{theme, workspaces::EditorUi},
 };
@@ -164,6 +164,8 @@ impl EditorUi {
             self.modified_project();
 
             // Send the background thread a message to calculate the waveform of the audio region
+            self.ui_state.status_bar_state.current_task =
+                Some(BackgroundTaskStatus::GenerateWaveform);
             self.push_background_job(BackgroundThreadCommand::GenerateWaveform {
                 track_id,
                 region_id,

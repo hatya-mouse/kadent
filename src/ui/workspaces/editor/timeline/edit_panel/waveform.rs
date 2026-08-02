@@ -1,5 +1,5 @@
 use crate::{
-    background_thread::BackgroundThreadCommand,
+    background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
     core::metadata::TrackType,
     ui::{theme, workspaces::EditorUi},
@@ -33,6 +33,8 @@ impl EditorUi {
                     let Some(region) = track.get_region(region_id) else {
                         continue;
                     };
+                    self.ui_state.status_bar_state.current_task =
+                        Some(BackgroundTaskStatus::GenerateWaveform);
                     commands.push(BackgroundThreadCommand::GenerateWaveform {
                         track_id: *track_id,
                         region_id: *region_id,
