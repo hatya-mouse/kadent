@@ -103,20 +103,22 @@ impl EditorUi {
                 }
             }
 
-            // Also move track in the region meta
-            if let Some(original_audio_track_meta) =
-                self.proj_ctx.project_meta.get_track_mut(original_track_id)
+            // Also move track in the region meta. Confirm the destination exists *before*
+            // removing the region meta from the source, so a failed lookup can never lose data.
+            if self
+                .proj_ctx
+                .project_meta
+                .get_track(new_track_id)
+                .is_some()
+                && let Some(original_track_meta) =
+                    self.proj_ctx.project_meta.get_track_mut(original_track_id)
+                && let Some(mut region_meta) = original_track_meta.remove_region(region_id)
             {
-                let Some(mut region_meta) = original_audio_track_meta.remove_region(region_id)
-                else {
-                    return;
-                };
-
-                if let Some(new_audio_track_meta) =
+                region_meta.move_region(new_start);
+                if let Some(new_track_meta) =
                     self.proj_ctx.project_meta.get_track_mut(new_track_id)
                 {
-                    region_meta.move_region(new_start);
-                    new_audio_track_meta.add_region(*region_id, region_meta);
+                    new_track_meta.add_region(*region_id, region_meta);
                 }
             }
         } else {
