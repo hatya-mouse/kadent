@@ -16,6 +16,7 @@ use crate::{
                 },
             },
         },
+        zoom::zoom_scroll_offset,
     },
 };
 use eframe::egui;
@@ -352,8 +353,9 @@ impl EditorUi {
         // Shift the scroll offset by however much the position of `ticks_at_cursor` moved due to
         // the zoom change, so it stays under the cursor
         let resolution = self.ui_state.audio_ctx.resolution as f32;
-        let delta_offset = ticks_at_cursor.0 as f32 * (new_ppb - old_ppb) / resolution;
-        Some((scroll_offset + delta_offset).max(0.0))
+        let beats_at_cursor = ticks_at_cursor.0 as f32 / resolution;
+        let new_offset = zoom_scroll_offset(scroll_offset, beats_at_cursor, old_ppb, new_ppb);
+        Some(new_offset.max(0.0))
     }
 
     pub(super) fn x_to_ticks(&self, x: f32, row_rect: egui::Rect) -> Ticks {

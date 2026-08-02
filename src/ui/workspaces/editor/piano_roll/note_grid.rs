@@ -3,6 +3,7 @@ use crate::{
     ui::{
         theme,
         workspaces::{EditorUi, editor::state::Modification},
+        zoom::zoom_scroll_offset,
     },
 };
 use eframe::egui;
@@ -60,81 +61,92 @@ impl EditorUi {
 
         let notes = region.notes.clone();
 
-        // Draw the notes
-        let scroll_area = egui::ScrollArea::both().show(ui, |ui| {
-            // Allocate a painter
-            let (response, painter) = ui.allocate_painter(
-                egui::vec2(scroll_content_width, scroll_content_height),
-                egui::Sense::click(),
-            );
-            let offset = response.rect.min;
-
-            // Draw the note grid
-            self.draw_note_grid(
-                ui,
-                &painter,
-                offset,
-                scroll_content_width,
-                scroll_content_height,
-            );
-
-            for (note_id, note) in notes {
-                // Calculate the note rect
-                let note_x = offset.x + note.start.0 as f32 * ppt;
-                let note_y =
-                    offset.y + (128.0 - note.pitch) * self.ui_state.piano_roll_state.note_height;
-                let note_width = note.duration.0 as f32 * ppt;
-                let note_rect = egui::Rect::from_min_size(
-                    egui::pos2(note_x, note_y),
-                    egui::vec2(note_width, self.ui_state.piano_roll_state.note_height),
-                );
-
-                // Create a rect on the right side of the note to drag and resize the note
-                let draggable_width = 5.0;
-                let resize_rect = egui::Rect::from_min_size(
-                    egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
-                    egui::vec2(
-                        draggable_width,
-                        self.ui_state.piano_roll_state.note_height - 4.0,
-                    ),
-                );
-
-                // Handle note gestures
-                self.note_controls(
-                    ui,
-                    (&track_id, &region_id, &note_id),
-                    &note,
-                    note_rect,
-                    resize_rect,
-                );
-
-                // Highlight the selected note
-                let stroke = if self.ui_state.selection.note_id() == Some(note_id) {
-                    egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
-                } else {
-                    theme::border(ui.visuals().dark_mode)
-                };
-
-                // Draw the note
-                painter.rect(
-                    note_rect,
-                    2.0,
-                    track_color,
-                    stroke,
-                    egui::StrokeKind::Inside,
-                );
-            }
+        let note_grid_scroll_key = ui.id().with("note_grid_scroll");
+        let note_grid_scroll = ui.data(|data| {
+            data.get_temp(note_grid_scroll_key)
+                .unwrap_or(egui::Vec2::ZERO)
         });
 
-        // Handle zoom and track adding gestures
-        self.note_grid_gestures(
-            ui,
-            note_grid_rect,
-            scroll_content_height,
-            scroll_area.state.offset,
-            &track_id,
-            &region_id,
-        );
+        // Draw the notes
+        let scroll_output = egui::ScrollArea::both()
+            .scroll_offset(note_grid_scroll)
+            .show(ui, |ui| {
+                // Allocate a painter
+                let (response, painter) = ui.allocate_painter(
+                    egui::vec2(scroll_content_width, scroll_content_height),
+                    egui::Sense::click(),
+                );
+                let offset = response.rect.min;
+
+                // Draw the note grid
+                self.draw_note_grid(
+                    ui,
+                    &painter,
+                    offset,
+                    scroll_content_width,
+                    scroll_content_height,
+                );
+
+                for (note_id, note) in notes {
+                    // Calculate the note rect
+                    let note_x = offset.x + note.start.0 as f32 * ppt;
+                    let note_y = offset.y
+                        + (128.0 - note.pitch) * self.ui_state.piano_roll_state.note_height;
+                    let note_width = note.duration.0 as f32 * ppt;
+                    let note_rect = egui::Rect::from_min_size(
+                        egui::pos2(note_x, note_y),
+                        egui::vec2(note_width, self.ui_state.piano_roll_state.note_height),
+                    );
+
+                    // Create a rect on the right side of the note to drag and resize the note
+                    let draggable_width = 5.0;
+                    let resize_rect = egui::Rect::from_min_size(
+                        egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
+                        egui::vec2(
+                            draggable_width,
+                            self.ui_state.piano_roll_state.note_height - 4.0,
+                        ),
+                    );
+
+                    // Handle note gestures
+                    self.note_controls(
+                        ui,
+                        (&track_id, &region_id, &note_id),
+                        &note,
+                        note_rect,
+                        resize_rect,
+                    );
+
+                    // Highlight the selected note
+                    let stroke = if self.ui_state.selection.note_id() == Some(note_id) {
+                        egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
+                    } else {
+                        theme::border(ui.visuals().dark_mode)
+                    };
+
+                    // Draw the note
+                    painter.rect(
+                        note_rect,
+                        2.0,
+                        track_color,
+                        stroke,
+                        egui::StrokeKind::Inside,
+                    );
+                }
+
+                // Handle zoom and track adding gestures
+                self.note_grid_gestures(
+                    ui,
+                    note_grid_rect,
+                    scroll_content_height,
+                    note_grid_scroll,
+                    &track_id,
+                    &region_id,
+                )
+            });
+
+        let final_offset = scroll_output.inner.unwrap_or(scroll_output.state.offset);
+        ui.data_mut(|data| data.insert_temp(note_grid_scroll_key, final_offset));
     }
 
     fn draw_note_grid(
@@ -231,6 +243,8 @@ impl EditorUi {
         }
     }
 
+    // Handle gestures on the note grid, such as adding notes and zooming,
+    // and returns the new scroll offset to preserve the scroll position after zooming.
     fn note_grid_gestures(
         &mut self,
         ui: &mut egui::Ui,
@@ -239,7 +253,7 @@ impl EditorUi {
         scroll_amount: egui::Vec2,
         track_id: &TrackID,
         region_id: &RegionID,
-    ) {
+    ) -> Option<egui::Vec2> {
         let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
 
         if response.double_clicked() {
@@ -267,23 +281,47 @@ impl EditorUi {
                 // Play the note for feedback
                 self.play_note_feedback(pitch.round() as u8, 255u8);
             }
-        } else if response.hovered() {
-            let zoom_delta = ui.input(|i| i.zoom_delta());
+            return None;
+        } else if !response.hovered() {
+            return None;
+        }
 
-            // Only zoom to adjust note height, and press shift in the meantime to adjust pixels per beat
-            if zoom_delta != 1.0 {
-                let shift = ui.input(|i| i.modifiers.shift);
+        let zoom_delta = ui.input(|i| i.zoom_delta());
+        if zoom_delta == 1.0 {
+            return None;
+        }
+        let cursor_pos = ui.input(|i| i.pointer.hover_pos())?;
 
-                if shift {
-                    let pixels_per_beat =
-                        self.ui_state.piano_roll_state.pixels_per_beat * zoom_delta;
-                    self.ui_state.piano_roll_state.pixels_per_beat =
-                        pixels_per_beat.clamp(10.0, 500.0);
-                } else {
-                    let note_height = self.ui_state.piano_roll_state.note_height * zoom_delta;
-                    self.ui_state.piano_roll_state.note_height = note_height.clamp(5.0, 30.0);
-                }
-            }
+        // Only zoom to adjust pixels per beat, and press shift to adjust the note height
+        let shift = ui.input(|i| i.modifiers.shift);
+
+        if shift {
+            let rows_from_top_at_cursor = (scroll_amount.y + cursor_pos.y - note_grid_rect.min.y)
+                / self.ui_state.piano_roll_state.note_height;
+
+            let old_note_height = self.ui_state.piano_roll_state.note_height;
+            let new_note_height = (old_note_height * zoom_delta).clamp(5.0, 30.0);
+            self.ui_state.piano_roll_state.note_height = new_note_height;
+
+            let new_scroll_y = zoom_scroll_offset(
+                scroll_amount.y,
+                rows_from_top_at_cursor,
+                old_note_height,
+                new_note_height,
+            );
+            Some(egui::vec2(scroll_amount.x, new_scroll_y.max(0.0)))
+        } else {
+            // Horizontal zoom (pixels per beat), centered on the cursor
+            let beats_at_cursor = (scroll_amount.x + cursor_pos.x - note_grid_rect.min.x)
+                / self.ui_state.piano_roll_state.pixels_per_beat;
+
+            let old_ppb = self.ui_state.piano_roll_state.pixels_per_beat;
+            let new_ppb = (old_ppb * zoom_delta).clamp(10.0, 500.0);
+            self.ui_state.piano_roll_state.pixels_per_beat = new_ppb;
+
+            let new_scroll_x =
+                zoom_scroll_offset(scroll_amount.x, beats_at_cursor, old_ppb, new_ppb);
+            Some(egui::vec2(new_scroll_x.max(0.0), scroll_amount.y))
         }
     }
 
