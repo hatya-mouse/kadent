@@ -24,41 +24,63 @@ use std::{
 };
 
 /// Saves the given project to the given path. Returns an error if the file cannot be created or written to.
+///
+/// Writes to a temporary file first and renames it over `path` at the end, so a crash or a
+/// forced quit mid-write can never leave a half-written project file at `path`.
 pub(crate) fn save_project(
     path: &Path,
     project: &Project,
     project_meta: &ProjectMeta,
 ) -> std::io::Result<()> {
-    let mut file = File::create(path)?;
+    let tmp_path = temp_path_for(path);
 
-    // Write the project data to the file
-    // First write "KADENT" to check if the file is a Kadent Project file
-    file.write_all("KADENT".as_bytes())?;
+    {
+        let mut file = File::create(&tmp_path)?;
 
-    // Then write the version of Kadent
-    let major_ver: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
-    let minor_ver: u32 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
-    let patch_ver: u32 = env!("CARGO_PKG_VERSION_PATCH").parse().unwrap();
-    file.write_all(&major_ver.to_le_bytes())?;
-    file.write_all(&minor_ver.to_le_bytes())?;
-    file.write_all(&patch_ver.to_le_bytes())?;
+        // Write the project data to the file
+        // First write "KADENT" to check if the file is a Kadent Project file when opened
+        file.write_all("KADENT".as_bytes())?;
 
-    // Write the project metadata
-    let stored_project_meta = StoredProjMeta::from_project_meta(project_meta);
-    let mut project_meta_bytes = Vec::new();
-    stored_project_meta.as_bytes(&mut project_meta_bytes);
-    // Write the length of the project metadata before writing the project metadata itself
-    file.write_all(&(project_meta_bytes.len() as u64).to_le_bytes())?;
-    file.write_all(&project_meta_bytes)?;
+        // Then write the version of Kadent
+        let major_ver: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
+        let minor_ver: u32 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
+        let patch_ver: u32 = env!("CARGO_PKG_VERSION_PATCH").parse().unwrap();
+        file.write_all(&major_ver.to_le_bytes())?;
+        file.write_all(&minor_ver.to_le_bytes())?;
+        file.write_all(&patch_ver.to_le_bytes())?;
 
-    // Write the project
-    let mut project_bytes = Vec::new();
-    project.as_bytes(&mut project_bytes);
+        // Write the project metadata
+        let stored_project_meta = StoredProjMeta::from_project_meta(project_meta);
+        let mut project_meta_bytes = Vec::new();
+        stored_project_meta.as_bytes(&mut project_meta_bytes);
+        // Write the length of the project metadata before the project metadata itself
+        file.write_all(&(project_meta_bytes.len() as u64).to_le_bytes())?;
+        file.write_all(&project_meta_bytes)?;
 
-    file.write_all(&project_bytes)?;
-    file.flush()?;
+        // Write the project
+        let mut project_bytes = Vec::new();
+        project.as_bytes(&mut project_bytes);
+
+        file.write_all(&project_bytes)?;
+        file.flush()?;
+    }
+
+    // Atomically replace the real project file only once the temp file is fully written
+    // so that the project file is not incompletely written even if the program is quit mid-write
+    std::fs::rename(&tmp_path, path)?;
 
     Ok(())
+}
+
+/// Returns a sibling path with `.tmp` appended to the file name, used as the staging file for
+/// an atomic save.
+fn temp_path_for(path: &Path) -> PathBuf {
+    let mut file_name = path
+        .file_name()
+        .map(|n| n.to_os_string())
+        .unwrap_or_default();
+    file_name.push(".tmp");
+    path.with_file_name(file_name)
 }
 
 /// Loads a project file from the given path. Returns an error if the file is not a Kadent Project file or if the file is corrupted.
