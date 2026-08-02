@@ -53,6 +53,7 @@ impl EditorUi {
                         BackgroundTaskStatus::Open => "Opening Project...",
                         BackgroundTaskStatus::Export => "Exporting Project...",
                         BackgroundTaskStatus::Import => "Importing File...",
+                        BackgroundTaskStatus::GenerateWaveform => "Generating Waveform...",
                     },
                 );
             }

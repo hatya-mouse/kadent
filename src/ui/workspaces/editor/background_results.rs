@@ -46,6 +46,16 @@ impl EditorUi {
                         self.show_temp_status("Failed to import audio", theme::error_fg());
                     }
                 },
+                BackgroundThreadResult::GeneratedWaveform {
+                    track_id,
+                    region_id,
+                    waveform,
+                } => {
+                    self.ui_state
+                        .timeline_state
+                        .waveforms
+                        .insert((track_id, region_id), waveform);
+                }
             }
         }
     }

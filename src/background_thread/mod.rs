@@ -3,15 +3,18 @@
 mod audio_import;
 mod commands;
 mod project;
+mod waveform;
 
 pub(crate) use commands::{
     BackgroundTaskStatus, BackgroundThreadCommand, BackgroundThreadResult, DecodedAudio,
+    WaveformLod, WaveformPeaks,
 };
 
 use crate::{
     background_thread::{
         audio_import::run_decode_wav,
         project::{run_save_project, run_write_wav},
+        waveform::run_generate_waveform,
     },
     storage::project::open_project_to_ctx,
 };
@@ -71,6 +74,19 @@ fn background_thread(
                     file_name,
                     start,
                     result,
+                }
+            }
+            BackgroundThreadCommand::GenerateWaveform {
+                track_id,
+                region_id,
+                samples,
+                channels,
+            } => {
+                let waveform = run_generate_waveform(&samples, channels);
+                BackgroundThreadResult::GeneratedWaveform {
+                    track_id,
+                    region_id,
+                    waveform,
                 }
             }
         };

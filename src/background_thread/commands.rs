@@ -1,7 +1,8 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
 use kadent_engine::{
     data_types::{AudioContext, Ticks},
-    mixer::Project,
+    mixer::{Project, TrackID},
+    track::RegionID,
 };
 use std::path::PathBuf;
 
@@ -10,6 +11,20 @@ pub(crate) struct DecodedAudio {
     pub frames: usize,
     pub sample_rate: u32,
     pub channels: u16,
+}
+
+/// Min/max peaks for a single waveform LOD tier. `peaks[i] = (min, max)` sample value within
+/// the i-th block of the region's audio data, downsampled to a fixed block size for this tier.
+pub(crate) struct WaveformPeaks {
+    pub peaks: Vec<(f32, f32)>,
+}
+
+/// Precomputed waveform peaks at three fixed resolutions, so drawing can pick whichever tier is
+/// closest to the current zoom level without touching the raw sample data at draw time.
+pub(crate) struct WaveformLod {
+    pub small: WaveformPeaks,
+    pub medium: WaveformPeaks,
+    pub large: WaveformPeaks,
 }
 
 pub(crate) enum BackgroundThreadCommand {
@@ -32,6 +47,12 @@ pub(crate) enum BackgroundThreadCommand {
         start: Ticks,
         path: PathBuf,
     },
+    GenerateWaveform {
+        track_id: TrackID,
+        region_id: RegionID,
+        samples: Vec<f32>,
+        channels: u16,
+    },
 }
 
 pub(crate) enum BackgroundThreadResult {
@@ -43,6 +64,11 @@ pub(crate) enum BackgroundThreadResult {
         start: Ticks,
         result: hound::Result<DecodedAudio>,
     },
+    GeneratedWaveform {
+        track_id: TrackID,
+        region_id: RegionID,
+        waveform: WaveformLod,
+    },
 }
 
 pub(crate) enum BackgroundTaskStatus {
@@ -50,4 +76,5 @@ pub(crate) enum BackgroundTaskStatus {
     Open,
     Export,
     Import,
+    GenerateWaveform,
 }

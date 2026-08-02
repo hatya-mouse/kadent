@@ -30,15 +30,6 @@ impl EditorUi {
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
             return;
         };
-        let Some(duration) = &self
-            .proj_ctx
-            .project_meta
-            .get_track(track_id)
-            .map(|track| &track.regions)
-            .and_then(|regions| calculate_region_placement(regions, start, duration))
-        else {
-            return;
-        };
 
         // Cast the track to AudioTrack
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
@@ -55,14 +46,14 @@ impl EditorUi {
                 channels as u16,
                 base_bpm,
                 start,
-                *duration,
+                duration,
             );
             let max_duration = audio_region.max_duration;
             let region_id = audio_track.add_region(audio_region);
 
             // Add a region to the project meta
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) {
-                let region_meta = RegionMeta::new(name, start, *duration, Some(max_duration));
+                let region_meta = RegionMeta::new(name, start, duration, Some(max_duration));
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -84,26 +75,17 @@ impl EditorUi {
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
             return;
         };
-        let Some(duration) = &self
-            .proj_ctx
-            .project_meta
-            .get_track(track_id)
-            .map(|track| &track.regions)
-            .and_then(|regions| calculate_region_placement(regions, start, duration))
-        else {
-            return;
-        };
 
         // Cast the track to AudioTrack
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<NoteTrack>() {
             // Create a region and add it to the audio track
-            let note_region = NoteRegion::new(start, *duration);
+            let note_region = NoteRegion::new(start, duration);
             let region_id = audio_track.add_region(note_region);
 
             // Add a region to the project meta
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) {
                 // Note region can be resized as you want
-                let region_meta = RegionMeta::new(name, start, *duration, None);
+                let region_meta = RegionMeta::new(name, start, duration, None);
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -118,6 +100,8 @@ impl EditorUi {
         start: Ticks,
         decoded: DecodedAudio,
     ) {
+        let min_duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
+
         // Calculate the length of the audio region to add
         let current_bpm = {
             let events = &self.proj_ctx.project.tempo_map.events;
@@ -146,7 +130,9 @@ impl EditorUi {
             .project_meta
             .get_track(&track_id)
             .map(|t| &t.regions)
-            .and_then(|regions| calculate_region_placement(regions, start, data_duration))
+            .and_then(|regions| {
+                calculate_region_placement(regions, start, data_duration, Some(min_duration))
+            })
         else {
             return;
         };
@@ -206,6 +192,7 @@ fn calculate_region_placement(
     regions: &HashMap<RegionID, RegionMeta>,
     start: Ticks,
     desired_duration: Ticks,
+    min_duration: Option<Ticks>,
 ) -> Option<Ticks> {
     // Do not add region if the start beat has already been occupied
     let start_blocked = regions
@@ -224,5 +211,5 @@ fn calculate_region_placement(
         .min_by(|a, b| a.partial_cmp(b).unwrap())
         .unwrap_or(desired_duration);
 
-    Some(clamped_duration)
+    Some(clamped_duration.max(min_duration.unwrap_or(Ticks(1))))
 }

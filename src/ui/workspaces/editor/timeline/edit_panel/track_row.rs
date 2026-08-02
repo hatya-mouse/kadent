@@ -126,6 +126,8 @@ impl EditorUi {
                 egui::FontId::proportional(11.0),
                 theme::region_text(),
             );
+
+            self.draw_waveform_in(*track_id, region_id, &draw_rect);
         }
     }
 

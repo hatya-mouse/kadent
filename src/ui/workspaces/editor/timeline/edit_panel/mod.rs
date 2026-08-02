@@ -1,5 +1,6 @@
 mod audio_drop;
 mod track_row;
+mod waveform;
 
 use crate::{
     actions::EditorAction,
