@@ -5,6 +5,7 @@ mod port;
 
 use crate::{
     actions::EditorAction,
+    consts::PANEL_HEADER_MARGIN,
     ui::{
         components::panel_header::panel_header,
         theme,
@@ -32,7 +33,7 @@ pub(super) const EDGE_WIDTH: f32 = 4.0;
 impl EditorUi {
     pub fn node_graph(&mut self, ui: &mut egui::Ui) {
         // Draw the node graph header
-        panel_header(ui, |ui| {
+        panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             self.draw_node_graph_header(ui);
         });
 

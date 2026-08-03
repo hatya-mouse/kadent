@@ -1,6 +1,9 @@
-use crate::ui::{
-    components::{icon_button::small_icon_button, panel_header::panel_header},
-    workspaces::EditorUi,
+use crate::{
+    consts::PANEL_HEADER_MARGIN,
+    ui::{
+        components::{icon_button::small_icon_button, panel_header::panel_header},
+        workspaces::EditorUi,
+    },
 };
 use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::highlight_with;
@@ -32,7 +35,7 @@ impl EditorUi {
             .unwrap_or_default();
 
         let mut close_clicked = false;
-        panel_header(ui, |ui| {
+        panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             ui.label(&file_name);
             if small_icon_button(
                 ui,

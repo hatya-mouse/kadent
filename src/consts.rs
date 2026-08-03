@@ -1,5 +1,7 @@
 //! Defines constant values used across the application.
 
+use eframe::egui;
+
 /// The name of the Kadent data directory.
 pub(crate) const KADENT_DATA_DIR_NAME: &str = "Kadent";
 /// The name of the application.
@@ -20,4 +22,6 @@ pub(crate) const MEDIUM_BLOCK_SIZE: usize = 1024;
 pub(crate) const LARGE_BLOCK_SIZE: usize = 8192;
 
 /// The recommended height of the header inside each panels.
-pub(crate) const PANEL_HEADER_HEIGHT: f32 = 28.0;
+pub(crate) const PANEL_HEADER_HEIGHT: f32 = 36.0;
+/// The default margin of the panel header.
+pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 4);
