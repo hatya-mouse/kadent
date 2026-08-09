@@ -22,8 +22,8 @@ impl EditorUi {
         name: String,
         start: Ticks,
     ) {
-        let sample_rate = self.ui_state.audio_ctx.sample_rate;
-        let channels = self.ui_state.audio_ctx.channels;
+        let sample_rate = self.proj_ctx.project_meta.export_ctx.sample_rate;
+        let channels = self.proj_ctx.project_meta.export_ctx.channels;
         let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
 
         // Get the target track

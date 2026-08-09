@@ -5,7 +5,7 @@ pub(crate) use error::KaslNodeError;
 pub(crate) use syntax::kasl_syntax_set;
 
 use kadent_engine::{
-    data_types::{AudioContext, TypeInfo},
+    data_types::{AudioContext, PlaybackContext, TypeInfo},
     graph::error::NodeError,
     node::Node,
 };
@@ -56,7 +56,7 @@ impl KaslNode {
         self.project_dir = Some(dir);
     }
 
-    pub fn compile(&mut self) -> Result<(), KaslNodeError> {
+    pub fn compile(&mut self, playback_ctx: &PlaybackContext) -> Result<(), KaslNodeError> {
         // Clean up the old states
         self.deallocate_states();
         // Drop the old backend and the program
@@ -90,11 +90,11 @@ impl KaslNode {
             var is_active = false
             var gain = 0.0
         }}"#,
-                self.audio_ctx.channels,
-                self.audio_ctx.sample_rate,
-                self.audio_ctx.max_voices,
-                self.audio_ctx.buffer_size,
-                self.audio_ctx.channels,
+                playback_ctx.channels,
+                playback_ctx.sample_rate,
+                playback_ctx.max_voices,
+                playback_ctx.buffer_size,
+                playback_ctx.channels,
             ),
         );
 
@@ -142,12 +142,12 @@ impl KaslNode {
         // Move the compiler to KaslNode to preserve the compiled program until next compile
         self.backend = Some(backend);
         // Update the types
-        self.update_type_infos();
+        self.update_type_info(playback_ctx);
 
         Ok(())
     }
 
-    fn update_type_infos(&mut self) {
+    fn update_type_info(&mut self, playback_ctx: &PlaybackContext) {
         // Create TypeInfo for input types and output types
         self.input_types = self
             .blueprint
@@ -158,7 +158,7 @@ impl KaslNode {
                     .iter()
                     .map(|item| {
                         TypeInfo::new(
-                            (item.actual_size as usize) * self.audio_ctx.buffer_size,
+                            (item.actual_size as usize) * playback_ctx.buffer_size,
                             item.align as usize,
                         )
                     })
@@ -174,7 +174,7 @@ impl KaslNode {
                     .iter()
                     .map(|item| {
                         TypeInfo::new(
-                            (item.actual_size as usize) * self.audio_ctx.buffer_size,
+                            (item.actual_size as usize) * playback_ctx.buffer_size,
                             item.align as usize,
                         )
                     })
@@ -269,13 +269,13 @@ impl Node for KaslNode {
 
     fn update(&mut self, audio_ctx: &AudioContext) {
         self.audio_ctx = audio_ctx.clone();
-        self.update_type_infos();
     }
 
-    fn prepare(&mut self) -> Result<(), Box<dyn NodeError>> {
+    fn prepare(&mut self, playback_ctx: &PlaybackContext) -> Result<(), Box<dyn NodeError>> {
         self.is_first_process = true;
+        self.update_type_info(playback_ctx);
 
-        let result = self.compile();
+        let result = self.compile(playback_ctx);
         match &result {
             Ok(_) => (),
             Err(records) => eprintln!("KaslNode::prepare: compile FAILED: {:?}", records),
@@ -283,7 +283,12 @@ impl Node for KaslNode {
         result.map_err(|error| -> Box<dyn NodeError> { Box::new(error) })
     }
 
-    fn process(&mut self, inputs: &[*const u8], outputs: &[*mut u8], audio_ctx: &AudioContext) {
+    fn process(
+        &mut self,
+        inputs: &[*const u8],
+        outputs: &[*mut u8],
+        playback_ctx: &PlaybackContext,
+    ) {
         let inputs: Vec<*const ()> = inputs.iter().map(|p| *p as *const ()).collect();
         let outputs: Vec<*mut ()> = outputs.iter().map(|p| *p as *mut ()).collect();
 
@@ -300,7 +305,7 @@ impl Node for KaslNode {
                 &outputs,
                 &self.states,
                 if self.is_first_process { 1 } else { 0 },
-                audio_ctx.buffer_size as i32,
+                playback_ctx.buffer_size as i32,
             );
         }
 

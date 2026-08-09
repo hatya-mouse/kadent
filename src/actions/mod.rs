@@ -285,7 +285,7 @@ impl EditorUi {
                     self.push_background_job(BackgroundThreadCommand::WriteWav {
                         path: export_path,
                         samples,
-                        audio_ctx: self.ui_state.audio_ctx.clone(),
+                        export_ctx: self.proj_ctx.project_meta.export_ctx.clone(),
                     });
                 }
                 Err(_) => {

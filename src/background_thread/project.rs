@@ -1,5 +1,5 @@
 use crate::{core::metadata::ProjectMeta, storage::project::save_project};
-use kadent_engine::{data_types::AudioContext, mixer::Project};
+use kadent_engine::{data_types::PlaybackContext, mixer::Project};
 use std::path::{Path, PathBuf};
 
 pub(super) fn run_save_project(
@@ -24,11 +24,11 @@ fn save_programs(code_buffers: &[(PathBuf, String)]) -> std::io::Result<()> {
 pub(super) fn run_write_wav(
     path: &Path,
     samples: &[f32],
-    audio_ctx: &AudioContext,
+    export_ctx: &PlaybackContext,
 ) -> hound::Result<()> {
     let spec = hound::WavSpec {
-        channels: audio_ctx.channels as u16,
-        sample_rate: audio_ctx.sample_rate as u32,
+        channels: export_ctx.channels as u16,
+        sample_rate: export_ctx.sample_rate as u32,
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };

@@ -9,7 +9,10 @@ pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
 use crate::storage::project::LoadProjResult;
-use kadent_engine::{data_types::Ticks, mixer::TrackID};
+use kadent_engine::{
+    data_types::{PlaybackContext, Ticks},
+    mixer::TrackID,
+};
 use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone)]
@@ -19,6 +22,7 @@ pub(crate) struct ProjectMeta {
     pub kasl_search_paths: Vec<String>,
     pub range_start: Ticks,
     pub range_duration: Ticks,
+    pub export_ctx: PlaybackContext,
 }
 
 #[derive(Debug)]

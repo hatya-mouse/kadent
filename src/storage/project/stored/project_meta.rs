@@ -1,5 +1,5 @@
 use crate::{core::metadata::ProjectMeta, storage::project::stored::track_meta::StoredTrackMeta};
-use kadent_engine::mixer::TrackID;
+use kadent_engine::{data_types::PlaybackContext, mixer::TrackID};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -7,6 +7,7 @@ use std::collections::HashMap;
 pub(crate) struct StoredProjMeta {
     pub track_metas: HashMap<TrackID, StoredTrackMeta>,
     pub kasl_search_paths: Vec<String>,
+    pub export_ctx: PlaybackContext,
 }
 
 impl StoredProjMeta {
@@ -20,6 +21,7 @@ impl StoredProjMeta {
         Self {
             track_metas,
             kasl_search_paths: project_meta.kasl_search_paths.clone(),
+            export_ctx: project_meta.export_ctx.clone(),
         }
     }
 }

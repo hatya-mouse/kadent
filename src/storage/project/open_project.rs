@@ -24,6 +24,7 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<EditorContext
                     &mut proj_res.project,
                     &project_meta.kasl_search_paths,
                     &project_dir,
+                    &project_meta.export_ctx,
                 );
 
                 let audio_ctx = proj_res.project.audio_ctx.clone();

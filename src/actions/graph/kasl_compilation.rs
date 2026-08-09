@@ -14,7 +14,8 @@ impl EditorUi {
             return;
         };
 
-        if let Err(err) = kasl_node.compile() {
+        let export_ctx = &self.proj_ctx.project_meta.export_ctx;
+        if let Err(err) = kasl_node.compile(export_ctx) {
             eprintln!("Error compiling KaslNode: {}", err);
         } else {
             self.modified_project();

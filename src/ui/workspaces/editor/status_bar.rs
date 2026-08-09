@@ -21,10 +21,6 @@ const TEMP_STATUS_OUT: f32 = 0.5;
 impl EditorUi {
     pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
-            let audio_ctx = &self.ui_state.audio_ctx;
-            self.status_text(ui, &format!("Sample Rate {}", audio_ctx.sample_rate));
-            self.status_text(ui, &format!("Buffer Size {}", audio_ctx.buffer_size));
-
             if let Some(track_id) = self.ui_state.selection.track_id()
                 && let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id)
             {

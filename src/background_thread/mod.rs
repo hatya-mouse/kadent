@@ -62,8 +62,8 @@ fn background_thread(
             BackgroundThreadCommand::WriteWav {
                 path,
                 samples,
-                audio_ctx,
-            } => BackgroundThreadResult::WroteWav(run_write_wav(&path, &samples, &audio_ctx)),
+                export_ctx,
+            } => BackgroundThreadResult::WroteWav(run_write_wav(&path, &samples, &export_ctx)),
             BackgroundThreadCommand::ImportAudio {
                 file_name,
                 start,

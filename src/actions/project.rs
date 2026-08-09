@@ -52,9 +52,10 @@ impl EditorUi {
         self.pending_export_path = Some(path.to_path_buf());
         // Request generation the f32 samples for the entire project
         let project = self.proj_ctx.project.clone();
+        let export_ctx = self.proj_ctx.project_meta.export_ctx.clone();
         self.thread_handle
             .audio_command_tx
-            .send(AudioCommand::ExportAudio(Box::new(project)))
+            .send(AudioCommand::ExportAudio(Box::new(project), export_ctx))
             .unwrap();
     }
 

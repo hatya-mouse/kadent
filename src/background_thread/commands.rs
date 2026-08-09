@@ -1,6 +1,6 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
 use kadent_engine::{
-    data_types::{AudioContext, Ticks},
+    data_types::{PlaybackContext, Ticks},
     mixer::{Project, TrackID},
     track::RegionID,
 };
@@ -39,7 +39,7 @@ pub(crate) enum BackgroundThreadCommand {
     WriteWav {
         path: PathBuf,
         samples: Vec<f32>,
-        audio_ctx: AudioContext,
+        export_ctx: PlaybackContext,
     },
     ImportAudio {
         file_name: Option<String>,

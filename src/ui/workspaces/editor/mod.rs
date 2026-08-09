@@ -57,8 +57,8 @@ pub struct EditorUi {
 impl EditorUi {
     pub fn new(editor_ctx: EditorContext) -> EditorUi {
         let (thread_handle, midi_producer) = AudioThread::spawn(
-            editor_ctx.audio_ctx.clone(),
             editor_ctx.proj_ctx.project.clone(),
+            editor_ctx.proj_ctx.project_meta.export_ctx.clone(),
         );
         let background_handle = spawn_background_thread();
         let midi_command_tx = spawn_midi_thread(midi_producer);
