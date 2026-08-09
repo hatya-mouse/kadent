@@ -1,5 +1,8 @@
 use crate::{
-    consts::PROJECT_FILE_EXTENSION,
+    consts::{
+        DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_MAX_VOICES, DEFAULT_SAMPLE_RATE,
+        PROJECT_FILE_EXTENSION,
+    },
     core::{
         metadata::ProjectMeta,
         project_ctx::{EditorContext, ProjectContext},
@@ -31,15 +34,17 @@ pub(crate) fn create_new_project(
 
     // 3. Create an empty project file
     let audio_ctx = AudioContext { resolution: 480 };
+    let export_ctx = PlaybackContext {
+        channels: DEFAULT_CHANNELS,
+        sample_rate: DEFAULT_SAMPLE_RATE,
+        buffer_size: DEFAULT_BUFFER_SIZE,
+        max_voices: DEFAULT_MAX_VOICES,
+    };
+
     let project = Project::new(audio_ctx.clone(), 120.0, Ticks(0), Ticks(3840));
     let project_meta = ProjectMeta {
         kasl_search_paths: EditorUi::system_kasl_search_paths(),
-        export_ctx: PlaybackContext {
-            channels: 2,
-            sample_rate: 48000,
-            buffer_size: 512,
-            max_voices: 32,
-        },
+        export_ctx,
         ..Default::default()
     };
     save_project(&project_path, &project, &project_meta)?;

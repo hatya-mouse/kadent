@@ -1,4 +1,5 @@
 use crate::ui::workspaces::EditorUi;
+use kadent_engine::data_types::Ticks;
 use ringbuf::traits::Consumer;
 use std::{sync::atomic::Ordering, time::Instant};
 
@@ -12,17 +13,8 @@ const PEAK_HOLD_TIME: f32 = 0.5;
 
 impl EditorUi {
     pub fn calculate_playhead(&mut self) {
-        let playhead_sample = self.thread_handle.playhead.load(Ordering::Acquire);
-
-        // Calculate if the playhead sample has changed
-        if self.ui_state.last_playhead != playhead_sample {
-            self.ui_state.playhead_ticks = self
-                .proj_ctx
-                .project
-                .tempo_map
-                .samples_to_ticks(playhead_sample);
-            self.ui_state.last_playhead = playhead_sample;
-        }
+        self.ui_state.playhead_ticks =
+            Ticks(self.thread_handle.playhead_ticks.load(Ordering::Acquire));
     }
 
     pub fn process_vu_value(&mut self) {

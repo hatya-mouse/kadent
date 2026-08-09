@@ -21,8 +21,6 @@ impl StoredTempoMap {
     pub fn to_tempo_map(&self, audio_ctx: &AudioContext) -> TempoMap {
         let mut tempo_map = TempoMap::new(audio_ctx.clone(), 120.0);
         tempo_map.events = self.events.clone();
-        // Recalculates sample_offset/samples_per_tick_fp for every event from the restored
-        // ticks/bpm values.
         tempo_map.set_audio_ctx(audio_ctx.clone());
         tempo_map
     }

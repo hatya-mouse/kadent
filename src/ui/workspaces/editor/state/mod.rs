@@ -106,8 +106,6 @@ pub(crate) struct EditorUiState {
     pub is_playing: bool,
     /// The current playhead position, in beats.
     pub playhead_ticks: Ticks,
-    /// The latest playhead samples received from the audio thread.
-    pub last_playhead: usize,
 
     /// An instant to track the last edited time for project updating.
     pub last_edit_time: Option<Instant>,

@@ -8,7 +8,10 @@ pub(crate) use node_meta::{NodeMeta, NodeType};
 pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
-use crate::storage::project::LoadProjResult;
+use crate::{
+    consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_MAX_VOICES, DEFAULT_SAMPLE_RATE},
+    storage::project::LoadProjResult,
+};
 use kadent_engine::{
     data_types::{PlaybackContext, Ticks},
     mixer::TrackID,
@@ -32,10 +35,28 @@ pub enum ProjectMetaLoadingError {
 
 impl ProjectMeta {
     pub fn from_load_res(proj_res: &LoadProjResult) -> Result<Self, ProjectMetaLoadingError> {
+        let export_ctx = proj_res.project_meta.export_ctx.clone();
+        // If the export context is corrupted, use default values instead
+        let export_ctx = if export_ctx.channels == 0
+            || export_ctx.sample_rate == 0
+            || export_ctx.buffer_size == 0
+            || export_ctx.max_voices == 0
+        {
+            PlaybackContext {
+                channels: DEFAULT_CHANNELS,
+                sample_rate: DEFAULT_SAMPLE_RATE,
+                buffer_size: DEFAULT_BUFFER_SIZE,
+                max_voices: DEFAULT_MAX_VOICES,
+            }
+        } else {
+            export_ctx
+        };
+
         let mut new_meta = ProjectMeta {
             kasl_search_paths: proj_res.project_meta.kasl_search_paths.clone(),
             range_start: proj_res.project.range_start,
             range_duration: proj_res.project.range_duration,
+            export_ctx,
             ..Default::default()
         };
 
