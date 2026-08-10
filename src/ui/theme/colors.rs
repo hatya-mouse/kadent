@@ -60,6 +60,14 @@ pub(crate) const fn selected_bg() -> Color32 {
     Color32::from_rgb(33, 140, 255)
 }
 
+pub(crate) fn scroll_bar_bg(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_white_alpha(100)
+    } else {
+        Color32::from_black_alpha(60)
+    }
+}
+
 // --- BUTTON ---
 
 pub(crate) fn button_bg(dark_mode: bool) -> Color32 {
@@ -153,16 +161,6 @@ pub(crate) fn panel_collapse_overlay() -> Color32 {
     Color32::from_rgba_unmultiplied(200, 60, 60, 80)
 }
 
-// --- RULER ---
-
-pub(crate) fn ruler_label(dark_mode: bool) -> Color32 {
-    primary_fg(dark_mode).gamma_multiply(0.75)
-}
-
-pub(crate) fn range_outside_overlay() -> Color32 {
-    Color32::from_black_alpha(60)
-}
-
 // --- NODE GRAPH ---
 
 pub(crate) const fn node_port_input() -> Color32 {
@@ -202,6 +200,16 @@ pub(crate) const fn default_track_color() -> Color32 {
 
 pub(crate) const fn waveform_color() -> Color32 {
     Color32::from_rgb(255, 255, 255)
+}
+
+// --- RULER ---
+
+pub(crate) fn ruler_label(dark_mode: bool) -> Color32 {
+    primary_fg(dark_mode).gamma_multiply(0.75)
+}
+
+pub(crate) fn range_outside_overlay() -> Color32 {
+    Color32::from_black_alpha(60)
 }
 
 // --- PEAK HOLD ---

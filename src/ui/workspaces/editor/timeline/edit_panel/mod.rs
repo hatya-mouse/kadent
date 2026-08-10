@@ -18,12 +18,13 @@ impl EditorUi {
     pub(crate) fn track_edit_panel(
         &mut self,
         ui: &mut egui::Ui,
-        scroll_offset: f32,
+        scroll_x: f32,
+        timeline_width: f32,
     ) -> Option<f32> {
         let track_height = self.ui_state.timeline_state.track_height;
 
         // Ensure the scroll area extends past the project range end (or last region end)
-        ui.set_min_width(self.timeline_content_width());
+        ui.set_min_width(timeline_width);
 
         let available = ui.available_rect_before_wrap();
 
@@ -53,7 +54,7 @@ impl EditorUi {
         self.playhead(ui, available);
 
         // Handle pinch / zoom gesture for timeline zoooooming
-        let scroll_override = self.handle_timeline_zoom(ui, available, scroll_offset);
+        let scroll_override = self.handle_timeline_zoom(ui, available, scroll_x);
 
         // Handle dragged or dropped file
         self.try_resolve_audio_drop();
@@ -83,7 +84,7 @@ impl EditorUi {
         &mut self,
         ui: &mut egui::Ui,
         editor_rect: egui::Rect,
-        scroll_offset: f32,
+        scroll_x: f32,
     ) -> Option<f32> {
         let editor_res = ui.allocate_rect(editor_rect, egui::Sense::hover());
         if !editor_res.hovered() {
@@ -106,7 +107,7 @@ impl EditorUi {
         // the zoom change, so it stays under the cursor
         let resolution = self.ui_state.audio_ctx.resolution as f32;
         let beats_at_cursor = ticks_at_cursor.0 as f32 / resolution;
-        let new_offset = zoom_scroll_offset(scroll_offset, beats_at_cursor, old_ppb, new_ppb);
+        let new_offset = zoom_scroll_offset(scroll_x, beats_at_cursor, old_ppb, new_ppb);
         Some(new_offset.max(0.0))
     }
 
