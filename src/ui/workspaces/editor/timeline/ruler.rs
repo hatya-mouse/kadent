@@ -52,7 +52,7 @@ impl EditorUi {
         if let Some(pos) = hover_pos
             && ruler_screen_rect.contains(pos)
         {
-            ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+            ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
         }
 
         if seeking {

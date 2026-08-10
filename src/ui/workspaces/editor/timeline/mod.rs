@@ -10,7 +10,7 @@ use crate::{
         workspaces::EditorUi,
     },
 };
-use eframe::egui;
+use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
 pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 /// Extra pixels of empty space inserted before zero beat.
@@ -95,6 +95,7 @@ impl EditorUi {
                         let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
 
                         let scroll_output = egui::ScrollArea::horizontal()
+                            .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
                             .horizontal_scroll_offset(timeline_scroll)
                             .show(ui, |ui| {
                                 ui.set_min_height(panel_rect.height());
