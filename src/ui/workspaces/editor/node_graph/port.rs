@@ -71,5 +71,5 @@ pub(super) fn calc_port_y(node_rect: egui::Rect, port_index: usize) -> f32 {
         + PANEL_HEADER_HEIGHT
         + NODE_PADDING
         + PORT_ROW_HEIGHT * port_index as f32
-        + PORT_ROW_HEIGHT / 2.0
+        + PORT_ROW_HEIGHT * 0.5
 }

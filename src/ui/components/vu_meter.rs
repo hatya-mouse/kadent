@@ -23,7 +23,7 @@ pub(crate) fn vu_meter(
 
     for (row, value) in channels.iter().enumerate() {
         let row_rect = egui::Rect::from_min_size(
-            rect.min + egui::vec2(0.0, row_height * row as f32 + METER_GAP / 2.0),
+            rect.min + egui::vec2(0.0, row_height * row as f32 + METER_GAP * 0.5),
             // Leave space for the corner radius on the right side
             egui::vec2(
                 (size.x - corner_radius as f32) * value.clamp(0.0, 1.0),

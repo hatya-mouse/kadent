@@ -20,7 +20,7 @@ impl SplashUi {
             let full_width = ui.available_width();
             let full_height = ui.available_height();
 
-            ui.add_space(full_height / 2.0 - CONTENT_HEIGHT / 2.0);
+            ui.add_space(full_height * 0.5 - CONTENT_HEIGHT * 0.5);
 
             let logo_image = egui::Image::new(if ui.visuals().dark_mode {
                 egui::include_image!("../../../../assets/logo/kadent_logo_black_on_white.png")

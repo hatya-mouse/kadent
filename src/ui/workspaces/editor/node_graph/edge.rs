@@ -72,7 +72,7 @@ fn output_port_pos(
             + NODE_HEADER_HEGIHT
             + NODE_PADDING
             + PORT_ROW_HEIGHT * port_idx as f32
-            + PORT_ROW_HEIGHT / 2.0,
+            + PORT_ROW_HEIGHT * 0.5,
     )
 }
 
@@ -89,6 +89,6 @@ fn input_port_pos(
             + PANEL_HEADER_HEIGHT
             + NODE_PADDING
             + PORT_ROW_HEIGHT * port_idx as f32
-            + PORT_ROW_HEIGHT / 2.0,
+            + PORT_ROW_HEIGHT * 0.5,
     )
 }

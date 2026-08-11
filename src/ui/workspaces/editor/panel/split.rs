@@ -32,7 +32,7 @@ pub(super) fn render_split(
 }
 
 fn split_rects(rect: Rect, dir: SplitDir, ratio: f32) -> (Rect, Rect, Rect) {
-    let half = DIVIDER_SIZE / 2.0;
+    let half = DIVIDER_SIZE * 0.5;
     match dir {
         SplitDir::Vertical => {
             let x = rect.min.x + rect.width() * ratio;

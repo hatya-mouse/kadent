@@ -7,19 +7,23 @@ mod track_list;
 use crate::ui::{components::panel_header::panel_header, theme, workspaces::EditorUi};
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
+/// The minimum width of the track list panel, in pixels.
 pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
+/// The maximum width of the track list panel, in pixels.
+pub(crate) const MAX_TRACK_LIST_WIDTH: f32 = 800.0;
 /// Extra pixels of empty space inserted before zero beat.
 pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
 /// Extra pixels of empty space appended after the last region or project range end.
 pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
-/// The maximum pixels per beat.
-pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;
 /// The minimum pixels per beat.
 pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
+/// The maximum pixels per beat.
+pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;
 
 impl EditorUi {
     pub fn timeline(&mut self, ui: &mut egui::Ui) {
         let track_list_width = self.ui_state.timeline_state.track_list_width;
+        let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
         let follow_playhead_key = ui.id().with("follow_playhead");
@@ -33,7 +37,7 @@ impl EditorUi {
         });
 
         // While following, keep the playhead centered in the visible track area
-        let visible_width = (ui.available_width() - track_list_width).max(0.0);
+        let visible_width = (panel_width - track_list_width).max(0.0);
         if follow_playhead && self.ui_state.is_playing {
             timeline_scroll = self.follow_playhead_scroll_offset(visible_width);
         }
@@ -96,7 +100,8 @@ impl EditorUi {
                             self.ui_state.timeline_state.track_list_width =
                                 (self.ui_state.timeline_state.track_list_width
                                     + divider_resp.drag_delta().x)
-                                    .max(MIN_TRACK_LIST_WIDTH);
+                                    .min(panel_width * 0.5)
+                                    .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
                         }
                         if divider_resp.hovered() {
                             ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);

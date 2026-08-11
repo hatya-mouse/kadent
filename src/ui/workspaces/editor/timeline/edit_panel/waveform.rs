@@ -118,7 +118,7 @@ impl EditorUi {
         let painter = ui.painter_at(*region_rect);
 
         let y_center = region_rect.center().y;
-        let half_height = region_rect.height() / 2.0 - WAVEFORM_Y_CLEARANCE;
+        let half_height = region_rect.height() * 0.5 - WAVEFORM_Y_CLEARANCE;
 
         // Render only the visible portion of the waveform to optimize performance
         let visible_rect = region_rect.intersect(ui.clip_rect());
@@ -186,7 +186,7 @@ impl EditorUi {
 
         let painter = ui.painter_at(*region_rect);
         let y_center = region_rect.center().y;
-        let half_height = region_rect.height() / 2.0 - WAVEFORM_Y_CLEARANCE;
+        let half_height = region_rect.height() * 0.5 - WAVEFORM_Y_CLEARANCE;
         let channels = region.channels.max(1) as usize;
 
         // Find the start and end x positions for rendering the waveform
