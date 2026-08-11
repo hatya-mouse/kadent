@@ -1,7 +1,7 @@
 use crate::ui::{theme, workspaces::EditorUi};
 use eframe::egui;
 
-const MINIMUM_HANDLE_WIDTH: f32 = 8.0;
+const MINIMUM_HANDLE_WIDTH: f32 = 12.0;
 
 impl EditorUi {
     /// Draws a scroll bar of the timeline and returns the new scroll position if the scroll bar handle is dragged.
@@ -21,16 +21,23 @@ impl EditorUi {
             .hline(x_range, scroll_bar_rect.max.y, theme::border(dark_mode));
 
         // Draw the scroll bar handle
-        let visible_ratio = visible_width / timeline_width;
-        let scroll_ratio = scroll_x / timeline_width;
-        let handle_width = (visible_ratio * scroll_bar_rect.width())
-            .max(MINIMUM_HANDLE_WIDTH)
-            .min(scroll_bar_rect.width());
-        let max_left_x = (scroll_bar_rect.max.x - handle_width).max(scroll_bar_rect.min.x);
-        let handle_left_x = (scroll_bar_rect.min.x
-            + scroll_ratio * (scroll_bar_rect.width() - handle_width))
-            .clamp(scroll_bar_rect.min.x, max_left_x);
+        let inv_timeline = if timeline_width > 0.0 {
+            1.0 / timeline_width
+        } else {
+            0.0
+        };
+        let visible_ratio = visible_width * inv_timeline;
+        let scroll_ratio = scroll_x * inv_timeline;
+
+        let track_width = scroll_bar_rect.width().max(MINIMUM_HANDLE_WIDTH);
+        // Calculate the handle width and position based on the visible ratio and scroll ratio
+        let handle_width = (visible_ratio * track_width).clamp(MINIMUM_HANDLE_WIDTH, track_width);
+        // The maximum left position of the handle to be
+        let max_left_x = track_width - handle_width;
+        let handle_left_x =
+            scroll_bar_rect.min.x + (scroll_ratio * track_width).clamp(0.0, max_left_x);
         let handle_right_x = handle_left_x + handle_width;
+
         let handle_rect = egui::Rect::from_min_max(
             egui::pos2(handle_left_x, scroll_bar_rect.min.y),
             egui::pos2(handle_right_x, scroll_bar_rect.max.y),

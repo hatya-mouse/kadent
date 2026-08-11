@@ -22,13 +22,15 @@ use eframe::egui;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 // --- NODE LAYOUT CONSTANTS ---
-pub(super) const NODE_WIDTH: f32 = 180.0;
-pub(super) const PORT_ROW_HEIGHT: f32 = 22.0;
-pub(super) const PORT_RADIUS: f32 = 8.0;
+const NODE_WIDTH: f32 = 180.0;
+const PORT_ROW_HEIGHT: f32 = 22.0;
+const PORT_RADIUS: f32 = 8.0;
 /// Padding on top and bottom of the node body.
-pub(super) const NODE_PADDING: f32 = 4.0;
+const NODE_PADDING: f32 = 4.0;
 /// Thinkness of the edge lines.
-pub(super) const EDGE_WIDTH: f32 = 4.0;
+const EDGE_WIDTH: f32 = 4.0;
+// Height of the node header, which is the same as the height of the node title bar.
+const NODE_HEADER_HEGIHT: f32 = 24.0;
 
 impl EditorUi {
     pub fn node_graph(&mut self, ui: &mut egui::Ui) {

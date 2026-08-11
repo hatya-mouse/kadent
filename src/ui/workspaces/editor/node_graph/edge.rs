@@ -4,7 +4,7 @@ use crate::{
     core::metadata::GraphMeta,
     ui::{
         theme,
-        workspaces::editor::node_graph::{EDGE_WIDTH, NODE_PADDING},
+        workspaces::editor::node_graph::{EDGE_WIDTH, NODE_HEADER_HEGIHT, NODE_PADDING},
     },
 };
 use eframe::egui;
@@ -69,7 +69,7 @@ fn output_port_pos(
     egui::pos2(
         screen_min.x + NODE_WIDTH,
         screen_min.y
-            + PANEL_HEADER_HEIGHT
+            + NODE_HEADER_HEGIHT
             + NODE_PADDING
             + PORT_ROW_HEIGHT * port_idx as f32
             + PORT_ROW_HEIGHT / 2.0,
