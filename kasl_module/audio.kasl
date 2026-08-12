@@ -17,8 +17,8 @@ func zero_sample() -> Sample {{
 }}
 
 struct Event {{
-    // 0 = note off, 1 = note on
-    var type = 0
+    // -1 = not set, 0 = note off, 1 = note on
+    var type = -1
     // A MIDI note number.
     var pitch = 0.0
     // A MIDI velocity value.

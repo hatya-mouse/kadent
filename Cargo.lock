@@ -2367,7 +2367,7 @@ dependencies = [
 [[package]]
 name = "kadent_engine"
 version = "0.4.1"
-source = "git+https://github.com/hatya-mouse/kadent_engine#4e1645a55c70dc590d50b9bd1f332c137c55c598"
+source = "git+https://github.com/hatya-mouse/kadent_engine#01e6cf1e3a89a7264ba1e57d23e1928161f74c24"
 dependencies = [
  "cpal",
  "midir",
@@ -2380,9 +2380,9 @@ dependencies = [
 
 [[package]]
 name = "kasl"
-version = "0.2.34"
+version = "0.2.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf27f6f20360e8cf01367a814f24298367139eb3c8fb32d06cbdb1aa08bbe308"
+checksum = "c967851680df2aadd2eb5896a3576032fb8be0bf868869ea8dd6c6fcd9b53f6c"
 dependencies = [
  "kasl-core",
  "kasl-cranelift-backend",
@@ -2406,9 +2406,9 @@ dependencies = [
 
 [[package]]
 name = "kasl-cranelift-backend"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "492afa1dcf4dc09e0439777fe57193999f26717f1335dd7ae4147c5c4b860faf"
+checksum = "28b22ae406d86f700b735366d5efb93d9de36f543d93aa4231e12c205fea06f0"
 dependencies = [
  "cranelift",
  "cranelift-codegen",
@@ -2505,7 +2505,7 @@ dependencies = [
  "bitflags 2.13.1",
  "libc",
  "plain",
- "redox_syscall 0.9.1",
+ "redox_syscall 0.9.2",
 ]
 
 [[package]]
@@ -3711,9 +3711,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07507be7b4a5f9f26eeb41eeaebb1f5a7ff29dfb29739facc21d35bf8b11c21e"
+checksum = "f1c93da5bb2c5d4e6c0ef7abeead62c89169a0a4882bfb83ac892f2423aea2fe"
 dependencies = [
  "bitflags 2.13.1",
 ]

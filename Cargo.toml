@@ -8,7 +8,7 @@ dirs = "6.0.0"
 eframe = "0.34.3"
 egui_extras = { version = "0.34.3", features = ["all_loaders", "syntect"] }
 hound = "3.5.1"
-kasl = { version = "0.2.29", features = ["cranelift"] }
+kasl = { version = "0.2.35", features = ["cranelift"] }
 kadent_engine = { git = "https://github.com/hatya-mouse/kadent_engine" }
 midir = "0.11.0"
 rfd = "0.17.2"

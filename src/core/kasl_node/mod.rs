@@ -31,6 +31,11 @@ pub struct KaslNode {
     states: Vec<*mut ()>,
     program: Option<*const u8>,
     is_first_process: bool,
+
+    /// Source code of the last successful compile, used to skip recompiling.
+    last_source: Option<String>,
+    /// Playback context of the last successful compile.
+    last_playback_key: Option<(usize, u64, usize)>,
 }
 
 impl KaslNode {
@@ -54,7 +59,32 @@ impl KaslNode {
         self.project_dir = Some(dir);
     }
 
-    pub fn compile(&mut self, playback_ctx: &PlaybackContext) -> Result<(), KaslNodeError> {
+    pub fn compile(&mut self, playback_ctx: &PlaybackContext) -> Result<bool, KaslNodeError> {
+        // Read source code from disk at compile time
+        // If the file path is not set, there is nothing to compile
+        let (Some(project_dir), Some(file_path)) = (&self.project_dir, &self.file_path) else {
+            return Ok(false);
+        };
+
+        let code = match std::fs::read_to_string(project_dir.join(file_path)) {
+            Ok(code) => code,
+            Err(err) => return Err(KaslNodeError::FileRead(err)),
+        };
+
+        let playback_key = (
+            playback_ctx.channels,
+            playback_ctx.sample_rate,
+            playback_ctx.buffer_size,
+        );
+
+        // Skip recompiling if the source code and playback context are unchanged
+        if self.program.is_some()
+            && self.last_source.as_deref() == Some(code.as_str())
+            && self.last_playback_key == Some(playback_key)
+        {
+            return Ok(false);
+        }
+
         // Clean up the old states
         self.deallocate_states();
         // Drop the old backend and the program
@@ -71,17 +101,6 @@ impl KaslNode {
             playback_ctx.channels, playback_ctx.sample_rate, playback_ctx.buffer_size,
         );
         compiler.add_virtual_file(PathBuf::from("audio"), audio_module);
-
-        // Read source code from disk at compile time so changes are always picked up
-        let (Some(project_dir), Some(file_path)) = (&self.project_dir, &self.file_path) else {
-            // If the file path is not set, return
-            return Ok(());
-        };
-
-        let code = match std::fs::read_to_string(project_dir.join(file_path)) {
-            Ok(code) => code,
-            Err(err) => return Err(KaslNodeError::FileRead(err)),
-        };
 
         // Parse, build and compile the source codes
         compiler
@@ -118,7 +137,10 @@ impl KaslNode {
         // Update the types
         self.update_type_info();
 
-        Ok(())
+        self.last_source = Some(code);
+        self.last_playback_key = Some(playback_key);
+
+        Ok(true)
     }
 
     fn allocate_states(&mut self, blueprint: &IOBlueprint) {
@@ -232,14 +254,16 @@ impl Node for KaslNode {
     }
 
     fn prepare(&mut self, playback_ctx: &PlaybackContext) -> Result<(), Box<dyn NodeError>> {
-        self.is_first_process = true;
-
         let result = self.compile(playback_ctx);
         match &result {
-            Ok(_) => (),
+            // If the compilation is successful, set is_first_process to true if recompiled, otherwise false
+            // which prevents the program from resetting the states on the first process after recompilation
+            Ok(recompiled) => self.is_first_process = *recompiled,
             Err(records) => eprintln!("KaslNode::prepare: compile FAILED: {:?}", records),
         }
-        result.map_err(|error| -> Box<dyn NodeError> { Box::new(error) })
+        result
+            .map(|_| ())
+            .map_err(|error| -> Box<dyn NodeError> { Box::new(error) })
     }
 
     fn process(
@@ -293,6 +317,8 @@ impl Clone for KaslNode {
             states: Vec::new(),
             program: None,
             is_first_process: false,
+            last_source: None,
+            last_playback_key: None,
         }
     }
 }
