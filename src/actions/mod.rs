@@ -12,9 +12,7 @@ mod transport;
 pub(crate) use project::{FileNode, FileNodeKind};
 
 use crate::{
-    background_thread::BackgroundThreadCommand,
-    core::metadata::TrackType,
-    ui::{theme, workspaces::EditorUi},
+    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::workspaces::EditorUi,
 };
 use eframe::egui;
 use kadent_engine::{
@@ -289,8 +287,8 @@ impl EditorUi {
                     });
                 }
                 Err(_) => {
-                    self.pending_export_path.take();
-                    self.show_temp_status("Failed to export project", theme::error_fg());
+                    // self.pending_export_path.take();
+                    // self.show_temp_status("Failed to export project", theme::error_fg());
                 }
             }
         }

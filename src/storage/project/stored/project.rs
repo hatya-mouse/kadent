@@ -46,17 +46,9 @@ impl StoredProject {
         );
 
         for (id, stored_track) in &self.tracks {
-            project
-                .tracks
-                .insert(*id, stored_track.to_track(&self.audio_ctx));
+            project.tracks.insert(*id, stored_track.to_track());
         }
         restore_next_track_id(&mut project);
-
-        // Restore the audio context on every track
-        let audio_ctx = self.audio_ctx.clone();
-        for track in project.tracks.values_mut() {
-            track.set_audio_ctx(&audio_ctx);
-        }
 
         project
     }

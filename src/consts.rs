@@ -30,9 +30,6 @@ pub(crate) const DEFAULT_SAMPLE_RATE: u64 = 48000;
 /// The default audio buffer size used when creating a project or falling
 /// back from an invalid/corrupted `PlaybackContext`.
 pub(crate) const DEFAULT_BUFFER_SIZE: usize = 512;
-/// The default maximum voice count used when creating a project or
-/// falling back from an invalid/corrupted `PlaybackContext`.
-pub(crate) const DEFAULT_MAX_VOICES: usize = 32;
 
 /// The recommended height of the header inside each panels.
 pub(crate) const PANEL_HEADER_HEIGHT: f32 = 36.0;

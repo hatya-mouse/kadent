@@ -1,11 +1,8 @@
 use crate::storage::project::stored::graph::StoredGraph;
-use kadent_engine::{
-    data_types::AudioContext,
-    track::{
-        RegionID, Track,
-        audio_track::{AudioRegion, AudioTrack},
-        note_track::{NoteRegion, NoteTrack},
-    },
+use kadent_engine::track::{
+    RegionID, Track,
+    audio_track::{AudioRegion, AudioTrack},
+    note_track::{NoteRegion, NoteTrack},
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -30,10 +27,10 @@ impl StoredTrack {
         }
     }
 
-    pub fn to_track(&self, audio_ctx: &AudioContext) -> Box<dyn Track> {
+    pub fn to_track(&self) -> Box<dyn Track> {
         match self {
-            Self::Audio(stored) => Box::new(stored.to_audio_track(audio_ctx)),
-            Self::Note(stored) => Box::new(stored.to_note_track(audio_ctx)),
+            Self::Audio(stored) => Box::new(stored.to_audio_track()),
+            Self::Note(stored) => Box::new(stored.to_note_track()),
         }
     }
 }
@@ -55,8 +52,8 @@ impl StoredAudioTrack {
         }
     }
 
-    pub fn to_audio_track(&self, audio_ctx: &AudioContext) -> AudioTrack {
-        let mut track = AudioTrack::new(audio_ctx.clone());
+    pub fn to_audio_track(&self) -> AudioTrack {
+        let mut track = AudioTrack::new();
         track.set_graph(self.graph.to_graph());
         track.set_regions(self.regions.clone());
         restore_next_region_id(&mut track);
@@ -90,8 +87,8 @@ impl StoredNoteTrack {
         }
     }
 
-    pub fn to_note_track(&self, audio_ctx: &AudioContext) -> NoteTrack {
-        let mut track = NoteTrack::new(audio_ctx.clone());
+    pub fn to_note_track(&self) -> NoteTrack {
+        let mut track = NoteTrack::new();
         track.set_graph(self.graph.to_graph());
         track.set_regions(self.regions.clone());
         restore_next_region_id_note(&mut track);

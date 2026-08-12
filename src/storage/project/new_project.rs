@@ -1,8 +1,5 @@
 use crate::{
-    consts::{
-        DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_MAX_VOICES, DEFAULT_SAMPLE_RATE,
-        PROJECT_FILE_EXTENSION,
-    },
+    consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE, PROJECT_FILE_EXTENSION},
     core::{
         metadata::ProjectMeta,
         project_ctx::{EditorContext, ProjectContext},
@@ -38,7 +35,6 @@ pub(crate) fn create_new_project(
         channels: DEFAULT_CHANNELS,
         sample_rate: DEFAULT_SAMPLE_RATE,
         buffer_size: DEFAULT_BUFFER_SIZE,
-        max_voices: DEFAULT_MAX_VOICES,
     };
 
     let project = Project::new(audio_ctx.clone(), 120.0, Ticks(0), Ticks(3840));

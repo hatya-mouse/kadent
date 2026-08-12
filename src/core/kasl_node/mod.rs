@@ -5,7 +5,7 @@ pub(crate) use error::KaslNodeError;
 pub(crate) use syntax::kasl_syntax_set;
 
 use kadent_engine::{
-    data_types::{AudioContext, PlaybackContext, TypeInfo},
+    data_types::{PlaybackContext, TypeInfo},
     graph::error::NodeError,
     node::Node,
 };
@@ -27,8 +27,6 @@ pub struct KaslNode {
 
     input_types: Vec<TypeInfo>,
     output_types: Vec<TypeInfo>,
-
-    audio_ctx: AudioContext,
 
     states: Vec<*mut ()>,
     program: Option<*const u8>,
@@ -68,35 +66,11 @@ impl KaslNode {
         let mut compiler = KaslCompiler::default();
         // Add the search paths to the compiler
         compiler.set_search_paths(self.search_paths.iter().map(PathBuf::from).collect());
-        compiler.add_virtual_file(
-            PathBuf::from("audio"),
-            format!(
-                r#"
-        let channels = {}
-        let sample_rate = {}
-        let max_voices = {}
-        let buffer_size = {}
-
-        typealias Sample = [Float; {}]
-
-        func zero_sample() -> Sample {{
-            return [0.0; channels]
-        }}
-
-        struct Voice {{
-            var pitch = 0.0
-            var velocity = 0.0
-            var age = 0.0
-            var is_active = false
-            var gain = 0.0
-        }}"#,
-                playback_ctx.channels,
-                playback_ctx.sample_rate,
-                playback_ctx.max_voices,
-                playback_ctx.buffer_size,
-                playback_ctx.channels,
-            ),
+        let audio_module = format!(
+            include_str!("../../../kasl_module/audio.kasl"),
+            playback_ctx.channels, playback_ctx.sample_rate, playback_ctx.buffer_size,
         );
+        compiler.add_virtual_file(PathBuf::from("audio"), audio_module);
 
         // Read source code from disk at compile time so changes are always picked up
         let (Some(project_dir), Some(file_path)) = (&self.project_dir, &self.file_path) else {
@@ -142,45 +116,9 @@ impl KaslNode {
         // Move the compiler to KaslNode to preserve the compiled program until next compile
         self.backend = Some(backend);
         // Update the types
-        self.update_type_info(playback_ctx);
+        self.update_type_info();
 
         Ok(())
-    }
-
-    fn update_type_info(&mut self, playback_ctx: &PlaybackContext) {
-        // Create TypeInfo for input types and output types
-        self.input_types = self
-            .blueprint
-            .as_ref()
-            .map(|blueprint| {
-                blueprint
-                    .get_inputs()
-                    .iter()
-                    .map(|item| {
-                        TypeInfo::new(
-                            (item.actual_size as usize) * playback_ctx.buffer_size,
-                            item.align as usize,
-                        )
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-        self.output_types = self
-            .blueprint
-            .as_ref()
-            .map(|blueprint| {
-                blueprint
-                    .get_outputs()
-                    .iter()
-                    .map(|item| {
-                        TypeInfo::new(
-                            (item.actual_size as usize) * playback_ctx.buffer_size,
-                            item.align as usize,
-                        )
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
     }
 
     fn allocate_states(&mut self, blueprint: &IOBlueprint) {
@@ -267,13 +205,34 @@ impl Node for KaslNode {
         self.output_types.get(index)
     }
 
-    fn update(&mut self, audio_ctx: &AudioContext) {
-        self.audio_ctx = audio_ctx.clone();
+    fn update_type_info(&mut self) {
+        // Create TypeInfo for input types and output types
+        self.input_types = self
+            .blueprint
+            .as_ref()
+            .map(|blueprint| {
+                blueprint
+                    .get_inputs()
+                    .iter()
+                    .map(|item| TypeInfo::new(item.actual_size as usize, item.align as usize))
+                    .collect()
+            })
+            .unwrap_or_default();
+        self.output_types = self
+            .blueprint
+            .as_ref()
+            .map(|blueprint| {
+                blueprint
+                    .get_outputs()
+                    .iter()
+                    .map(|item| TypeInfo::new(item.actual_size as usize, item.align as usize))
+                    .collect()
+            })
+            .unwrap_or_default();
     }
 
     fn prepare(&mut self, playback_ctx: &PlaybackContext) -> Result<(), Box<dyn NodeError>> {
         self.is_first_process = true;
-        self.update_type_info(playback_ctx);
 
         let result = self.compile(playback_ctx);
         match &result {
@@ -331,7 +290,6 @@ impl Clone for KaslNode {
             project_dir: self.project_dir.clone(),
             input_types: self.input_types.clone(),
             output_types: self.output_types.clone(),
-            audio_ctx: self.audio_ctx.clone(),
             states: Vec::new(),
             program: None,
             is_first_process: false,

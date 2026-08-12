@@ -18,8 +18,8 @@ impl EditorUi {
     ) -> TrackID {
         // Create a track with the given type
         let track: Box<dyn Track> = match track_type {
-            TrackType::Audio => Box::new(AudioTrack::new(self.ui_state.audio_ctx.clone())),
-            TrackType::Note => Box::new(NoteTrack::new(self.ui_state.audio_ctx.clone())),
+            TrackType::Audio => Box::new(AudioTrack::new()),
+            TrackType::Note => Box::new(NoteTrack::new()),
         };
         // Add a track to the project
         let track_id = self.proj_ctx.project.add_track(track);

@@ -9,7 +9,7 @@ pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
 use crate::{
-    consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_MAX_VOICES, DEFAULT_SAMPLE_RATE},
+    consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE},
     storage::project::LoadProjResult,
 };
 use kadent_engine::{
@@ -40,13 +40,11 @@ impl ProjectMeta {
         let export_ctx = if export_ctx.channels == 0
             || export_ctx.sample_rate == 0
             || export_ctx.buffer_size == 0
-            || export_ctx.max_voices == 0
         {
             PlaybackContext {
                 channels: DEFAULT_CHANNELS,
                 sample_rate: DEFAULT_SAMPLE_RATE,
                 buffer_size: DEFAULT_BUFFER_SIZE,
-                max_voices: DEFAULT_MAX_VOICES,
             }
         } else {
             export_ctx
