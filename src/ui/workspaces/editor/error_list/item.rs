@@ -29,7 +29,12 @@ pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
 
 fn error_message(error: &AudioError) -> String {
     match error {
-        AudioError::GraphError(e) => graph_error_message(e),
+        AudioError::TrackPrepareFailed(track_id, e) => {
+            format!(
+                "Track {track_id:?} failed to prepare: {}",
+                graph_error_message(e)
+            )
+        }
         AudioError::PlayStreamError(e) => format!("Play stream error: {e}"),
         AudioError::CommandFailed(_) => "Audio command failed".to_string(),
     }

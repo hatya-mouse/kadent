@@ -56,10 +56,8 @@ pub struct EditorUi {
 
 impl EditorUi {
     pub fn new(editor_ctx: EditorContext) -> EditorUi {
-        let (thread_handle, midi_producer) = AudioThread::spawn(
-            editor_ctx.proj_ctx.project.clone(),
-            editor_ctx.proj_ctx.project_meta.export_ctx.clone(),
-        );
+        let (thread_handle, midi_producer) =
+            AudioThread::spawn(editor_ctx.proj_ctx.project_meta.export_ctx.clone());
         let background_handle = spawn_background_thread();
         let midi_command_tx = spawn_midi_thread(midi_producer);
 
@@ -91,6 +89,7 @@ impl EditorUi {
 
         // Load the project structure and cache it
         editor_ui.push_action(EditorAction::UpdateDirCache);
+        editor_ui.modified_project();
 
         // For each audio region, generate the waveforms
         editor_ui.generate_waveforms();

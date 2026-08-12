@@ -50,9 +50,9 @@ struct Allocator {{
         var i = 0
         loop max_events {{
             let event = slot.events[i]
-            if event.type == 0 {{
+            if event.type == 1 {{
                 self.allocate_voice(event.pitch, event.velocity)
-            }} else if event.type == 1 {{
+            }} else if event.type == 0 {{
                 self.release_voice(event.pitch)
             }}
             i = i + 1
@@ -99,7 +99,6 @@ struct Allocator {{
         loop max_voices {{
             if self.voices[i].is_active && self.voices[i].pitch == pitch {{
                 self.voices[i].is_active = false
-                return
             }}
             i = i + 1
         }}

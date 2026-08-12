@@ -1,0 +1,45 @@
+import std
+import math/float as f
+import convert as c
+import audio
+
+input event_slot = audio.EventSlot()
+output sample = audio.zero_sample()
+
+state allocator = audio.Allocator()
+
+let pi2 = 6.28318530
+let vib_rate = 6.0
+let vib_depth = 0.003
+let fm_ratio = 3.0
+let fm_depth = 0.3
+
+func main() {
+    allocator.update(event_slot)
+
+    var out = 0.0
+    var i = 0
+    loop audio.max_voices {
+        if allocator.voices[i].is_active {
+            let voice = allocator.voices[i]
+            let t = voice.age
+            let base_freq = 440.0 * f.pow(2.0, (voice.pitch - 69.0) / 12.0)
+
+            if base_freq > 500.0 {
+                let vib = f.fast_sin(pi2 * vib_rate * t) * vib_depth
+                let vib_freq = base_freq * (1.0 + vib)
+                let mod_sig = f.fast_sin(vib_freq * fm_ratio * t * pi2) * fm_depth
+                let carrier = f.sgn(f.fast_sin(vib_freq * t * pi2 + mod_sig))
+                out = out + carrier * voice.velocity * 0.3
+            } else {
+                let mod_sig = f.fast_sin(base_freq * fm_ratio * t * pi2) * fm_depth
+                let carrier = f.sgn(f.sin(base_freq * t * pi2 + mod_sig))
+                out = out + carrier * voice.velocity * 0.3
+            }
+        }
+        i = i + 1
+    }
+
+    sample[0] = out
+    sample[1] = out
+}
