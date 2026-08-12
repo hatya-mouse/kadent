@@ -1,5 +1,5 @@
 use crate::core::kasl_node::KaslNode;
-use kadent_engine::{data_types::PlaybackContext, mixer::Project};
+use kadent_engine::{data_types::PlaybackContext, graph::InputSource, mixer::Project};
 use std::path::Path;
 
 /// Initialize all KaslNodes in the project with their search paths and project directory,
@@ -28,13 +28,10 @@ pub(crate) fn init_kasl_nodes(
     // Drops any edges that reference ports no longer valid after a KASL source change.
     for track in project.tracks.values_mut() {
         let graph = track.get_graph_mut();
-        let edges: Vec<_> = graph.get_edges().clone();
-        for &edge in &edges {
-            graph.remove_edge(edge).ok();
-        }
-        for edge in edges {
-            if let Err(e) = graph.add_edge(edge) {
-                eprintln!("Dropping stale edge on load: {e:?}");
+        for (to, input_source) in graph.input_sources.clone() {
+            if let InputSource::Edge(from_node, from_output) = input_source {
+                graph.remove_edge(&to);
+                graph.add_edge((from_node, from_output), to).ok();
             }
         }
     }

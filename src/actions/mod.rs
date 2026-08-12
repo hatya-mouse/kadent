@@ -107,11 +107,11 @@ pub(crate) enum EditorAction {
     /// `(track_id, pos)`
     AddNode(TrackID, AddibleNodes, egui::Pos2),
     /// Remove an edge from the given track's node graph.
-    /// `(track_id, edge: (NodeID, usize, NodeID, usize))`
-    RemoveEdge(TrackID, (NodeID, usize, NodeID, usize)),
+    /// `(track_id, to: (NodeID, usize))`
+    RemoveEdge(TrackID, (NodeID, usize)),
     /// Add an edge to the given track's node graph.
-    /// `(track_id, edge: (NodeID, usize, NodeID, usize))
-    AddEdge(TrackID, (NodeID, usize, NodeID, usize)),
+    /// `(track_id, from: (NodeID, usize), to: (NodeID, usize))`
+    AddEdge(TrackID, (NodeID, usize), (NodeID, usize)),
     /// Compile a KASL program attached to the given node.
     /// `(track_id, node_id)`
     CompileKasl(TrackID, NodeID),
@@ -220,11 +220,11 @@ impl EditorUi {
                 EditorAction::AddNode(ref track_id, ref node_type, pos) => {
                     self.add_node(track_id, node_type, pos)
                 }
-                EditorAction::RemoveEdge(ref track_id, edge) => {
-                    self.remove_edge(track_id, edge);
+                EditorAction::RemoveEdge(ref track_id, to) => {
+                    self.remove_edge(track_id, &to);
                 }
-                EditorAction::AddEdge(ref track_id, edge) => {
-                    self.add_edge(track_id, edge);
+                EditorAction::AddEdge(ref track_id, from, to) => {
+                    self.add_edge(track_id, from, to);
                 }
                 EditorAction::CompileKasl(ref track_id, ref node_id) => {
                     self.compile_kasl_node(track_id, node_id)

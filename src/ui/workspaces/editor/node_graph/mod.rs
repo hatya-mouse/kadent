@@ -81,7 +81,7 @@ impl EditorUi {
                     .proj_ctx
                     .project
                     .get_track(&track_id)
-                    .map(|t| t.get_graph().get_edges().clone())
+                    .map(|t| t.get_graph().get_all_edges())
                     .unwrap_or_default();
 
                 // Copy ghost/dragged edge before borrowing project_meta below
@@ -161,12 +161,19 @@ impl EditorUi {
                 ) {
                     // Remove the dragged node from the project and add a new edge to the hovered port
                     if let Some(old_edge) = self.ui_state.node_graph_state.dragged_edge {
-                        self.push_action(EditorAction::RemoveEdge(*track_id, old_edge));
+                        self.push_action(EditorAction::RemoveEdge(
+                            *track_id,
+                            (old_edge.2, old_edge.3),
+                        ));
                     }
 
                     // Add the new edge to the project
                     let new_edge = (ghost_edge.0.0, ghost_edge.0.1, *node_id, port);
-                    self.push_action(EditorAction::AddEdge(*track_id, new_edge));
+                    self.push_action(EditorAction::AddEdge(
+                        *track_id,
+                        (new_edge.0, new_edge.1),
+                        (new_edge.2, new_edge.3),
+                    ));
 
                     // Mark that we've connected the dragged edge to input
                     has_connected_to_input = true;
@@ -179,7 +186,10 @@ impl EditorUi {
                 // If we didn't connect to an input, just remove the dragged edge from the project
                 // because it has released in empty space
                 if let Some(old_edge) = self.ui_state.node_graph_state.dragged_edge {
-                    self.push_action(EditorAction::RemoveEdge(*track_id, old_edge));
+                    self.push_action(EditorAction::RemoveEdge(
+                        *track_id,
+                        (old_edge.2, old_edge.3),
+                    ));
                 }
             }
         }

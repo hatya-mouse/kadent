@@ -196,7 +196,7 @@ impl EditorUi {
                 // Find the edge connected to this input port
                 let found = self.proj_ctx.project.get_track(track_id).and_then(|t| {
                     t.get_graph()
-                        .get_edges()
+                        .get_all_edges()
                         .iter()
                         .find(|(_, _, to_id, in_idx)| to_id == node_id && *in_idx == current_row)
                         .copied()
