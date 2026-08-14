@@ -4,22 +4,24 @@ use std::fmt::Display;
 pub enum PanelView {
     #[default]
     Timeline,
-    PianoRoll,
-    NodeGraph,
     Inspector,
-    ErrorList,
+    Automation,
+    NodeGraph,
+    PianoRoll,
     CodeEditor,
+    ErrorList,
 }
 
 impl Display for PanelView {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             PanelView::Timeline => write!(f, "Timeline"),
-            PanelView::PianoRoll => write!(f, "Piano Roll"),
-            PanelView::NodeGraph => write!(f, "Node Graph"),
             PanelView::Inspector => write!(f, "Inspector"),
-            PanelView::ErrorList => write!(f, "Error List"),
+            PanelView::Automation => write!(f, "Automation"),
+            PanelView::NodeGraph => write!(f, "Node Graph"),
+            PanelView::PianoRoll => write!(f, "Piano Roll"),
             PanelView::CodeEditor => write!(f, "Code Editor"),
+            PanelView::ErrorList => write!(f, "Error List"),
         }
     }
 }
@@ -28,11 +30,12 @@ impl PanelView {
     pub fn all() -> &'static [Self] {
         &[
             PanelView::Timeline,
-            PanelView::PianoRoll,
-            PanelView::NodeGraph,
             PanelView::Inspector,
-            PanelView::ErrorList,
+            PanelView::Automation,
+            PanelView::NodeGraph,
+            PanelView::PianoRoll,
             PanelView::CodeEditor,
+            PanelView::ErrorList,
         ]
     }
 }

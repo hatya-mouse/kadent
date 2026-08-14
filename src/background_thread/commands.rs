@@ -2,15 +2,15 @@ use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
 use kadent_engine::{
     data_types::{PlaybackContext, Ticks},
     mixer::{Project, TrackID},
-    track::RegionID,
+    track::{RegionID, audio_track::AudioSource},
 };
 use std::path::PathBuf;
 
 pub(crate) struct DecodedAudio {
-    pub data: Vec<f32>,
+    pub path: PathBuf,
     pub frames: usize,
-    pub sample_rate: u32,
-    pub channels: u16,
+    pub sample_rate: u64,
+    pub channels: usize,
 }
 
 /// Min/max peaks for a single waveform LOD tier. `peaks[i] = (min, max)` sample value within
@@ -49,8 +49,8 @@ pub(crate) enum BackgroundThreadCommand {
     GenerateWaveform {
         track_id: TrackID,
         region_id: RegionID,
-        samples: Vec<f32>,
-        channels: u16,
+        source: AudioSource,
+        channels: usize,
     },
 }
 

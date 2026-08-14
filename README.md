@@ -7,3 +7,10 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 - Build your own synthesizers and effects using KASL language!
 - Live performance with MIDI controller
 - Project save & load
+
+# Profiling
+
+```bash
+cargo build --profile profiling
+samply record ./target/profiling/kadent
+```

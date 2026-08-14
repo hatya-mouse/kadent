@@ -43,7 +43,7 @@ fn background_thread(
     command_rx: mpsc::Receiver<BackgroundThreadCommand>,
     result_tx: mpsc::Sender<BackgroundThreadResult>,
 ) {
-    for command in command_rx {
+    while let Ok(command) = command_rx.recv() {
         let result = match command {
             BackgroundThreadCommand::SaveProject {
                 path,
@@ -69,7 +69,7 @@ fn background_thread(
                 start,
                 path,
             } => {
-                let result = run_decode_wav(&path);
+                let result = run_decode_wav(path);
                 BackgroundThreadResult::ImportedAudio {
                     file_name,
                     start,
@@ -79,10 +79,10 @@ fn background_thread(
             BackgroundThreadCommand::GenerateWaveform {
                 track_id,
                 region_id,
-                samples,
+                source,
                 channels,
             } => {
-                let waveform = run_generate_waveform(&samples, channels);
+                let waveform = run_generate_waveform(&source, channels);
                 BackgroundThreadResult::GeneratedWaveform {
                     track_id,
                     region_id,

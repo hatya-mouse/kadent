@@ -1,26 +1,15 @@
 use crate::background_thread::DecodedAudio;
-use std::path::Path;
+use std::path::PathBuf;
 
-pub(super) fn run_decode_wav(path: &Path) -> hound::Result<DecodedAudio> {
-    let mut reader = hound::WavReader::open(path)?;
+pub(super) fn run_decode_wav(path: PathBuf) -> hound::Result<DecodedAudio> {
+    let reader = hound::WavReader::open(&path)?;
     let spec = reader.spec();
+    let frames = reader.len() as usize / spec.channels as usize;
 
-    let data: Vec<f32> = match spec.sample_format {
-        hound::SampleFormat::Float => reader.samples::<f32>().collect::<hound::Result<_>>()?,
-        hound::SampleFormat::Int => {
-            let max_amplitude = (1i64 << (spec.bits_per_sample - 1)) as f32;
-            reader
-                .samples::<i32>()
-                .map(|s| s.map(|v| v as f32 / max_amplitude))
-                .collect::<hound::Result<_>>()?
-        }
-    };
-
-    let frames = data.len() / spec.channels as usize;
     Ok(DecodedAudio {
-        data,
+        path,
         frames,
-        sample_rate: spec.sample_rate,
-        channels: spec.channels,
+        sample_rate: spec.sample_rate as u64,
+        channels: spec.channels as usize,
     })
 }

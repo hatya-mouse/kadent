@@ -2,19 +2,22 @@ use crate::{
     background_thread::commands::{WaveformLod, WaveformPeaks},
     consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
 };
+use kadent_engine::track::audio_track::AudioSource;
 
 /// Computes min/max peaks at three fixed resolutions from interleaved multi-channel samples.
-pub(super) fn run_generate_waveform(samples: &[f32], channels: u16) -> WaveformLod {
+pub(super) fn run_generate_waveform(source: &AudioSource, channels: usize) -> WaveformLod {
+    let samples = source.get_data().unwrap_or_default();
+
     WaveformLod {
-        small: compute_peaks(samples, channels, SMALL_BLOCK_SIZE),
-        medium: compute_peaks(samples, channels, MEDIUM_BLOCK_SIZE),
-        large: compute_peaks(samples, channels, LARGE_BLOCK_SIZE),
+        small: compute_peaks(&samples, channels, SMALL_BLOCK_SIZE),
+        medium: compute_peaks(&samples, channels, MEDIUM_BLOCK_SIZE),
+        large: compute_peaks(&samples, channels, LARGE_BLOCK_SIZE),
     }
 }
 
 /// Computes min/max peak values for a given block size from interleaved multi-channel samples.
-fn compute_peaks(samples: &[f32], channels: u16, block_size: usize) -> WaveformPeaks {
-    let channels = channels.max(1) as usize;
+fn compute_peaks(samples: &[f32], channels: usize, block_size: usize) -> WaveformPeaks {
+    let channels = channels.max(1);
     let frame_count = samples.len() / channels;
 
     let peaks = (0..frame_count)

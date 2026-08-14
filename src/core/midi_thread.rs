@@ -29,7 +29,7 @@ fn midi_thread(
     let prod = Arc::new(Mutex::new(midi_producer));
     let mut connection: Option<midir::MidiInputConnection<()>> = None;
 
-    for command in command_rx {
+    while let Ok(command) = command_rx.recv() {
         match command {
             MidiCommand::SetMidiPort(port) => {
                 connection.take();

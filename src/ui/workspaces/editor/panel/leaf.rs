@@ -50,15 +50,6 @@ pub(super) fn render_leaf(
         check_edge_drag(ui, rect)
     });
 
-    if ui.rect_contains_pointer(rect) {
-        ui.painter().rect_stroke(
-            rect,
-            0.0,
-            egui::Stroke::new(2.0, theme::border_color(ui.visuals().dark_mode)),
-            egui::StrokeKind::Inside,
-        );
-    }
-
     result.inner
 }
 
@@ -99,6 +90,7 @@ fn render_view_content(
         PanelView::NodeGraph => editor.node_graph(ui),
         PanelView::Inspector => editor.inspector(ui),
         PanelView::ErrorList => editor.error_list(ui),
+        PanelView::Automation => editor.automation(ui),
         PanelView::CodeEditor => editor.code_editor(ui, panel_id),
     }
 }

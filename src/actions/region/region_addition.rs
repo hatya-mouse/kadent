@@ -8,7 +8,7 @@ use kadent_engine::{
     mixer::TrackID,
     track::{
         RegionID,
-        audio_track::{AudioRegion, AudioTrack},
+        audio_track::{AudioDataInfo, AudioRegion, AudioSource, AudioTrack},
         note_track::{NoteRegion, NoteTrack},
     },
 };
@@ -41,10 +41,12 @@ impl EditorUi {
                 * 60
                 * sample_rate as usize;
             let audio_region = AudioRegion::zeros(
-                frames,
-                sample_rate as u32,
-                channels as u16,
-                base_bpm,
+                AudioDataInfo {
+                    channels,
+                    frames,
+                    sample_rate,
+                    bpm: base_bpm,
+                },
                 start,
                 duration,
             );
@@ -140,16 +142,18 @@ impl EditorUi {
         self.ui_state.status_bar_state.current_task = None;
 
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
-            let audio_region = AudioRegion {
-                data: decoded.data.clone(),
-                frames: decoded.frames,
-                sample_rate: decoded.sample_rate,
-                channels: decoded.channels,
-                base_bpm: current_bpm,
+            let source = AudioSource::Original(decoded.path);
+            let audio_region = AudioRegion::new(
+                source.clone(),
+                AudioDataInfo {
+                    channels: decoded.channels,
+                    frames: decoded.frames,
+                    sample_rate: decoded.sample_rate,
+                    bpm: current_bpm,
+                },
                 start,
-                duration: region_duration,
-                max_duration: data_duration,
-            };
+                region_duration,
+            );
             let region_id = audio_track.add_region(audio_region);
 
             self.ui_state.timeline_state.last_dropped_region = Some((track_id, region_id));
@@ -169,7 +173,7 @@ impl EditorUi {
             self.push_background_job(BackgroundThreadCommand::GenerateWaveform {
                 track_id,
                 region_id,
-                samples: decoded.data,
+                source,
                 channels: decoded.channels,
             });
         }

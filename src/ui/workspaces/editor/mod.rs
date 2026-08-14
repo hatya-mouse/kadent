@@ -1,3 +1,4 @@
+mod automation;
 mod background_results;
 mod code_editor;
 mod device_fetching;

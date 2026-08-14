@@ -38,8 +38,8 @@ impl EditorUi {
                     commands.push(BackgroundThreadCommand::GenerateWaveform {
                         track_id: *track_id,
                         region_id: *region_id,
-                        samples: region.data.clone(),
-                        channels: region.channels,
+                        source: region.data_source.clone(),
+                        channels: region.info.channels,
                     });
                 }
             }
@@ -72,18 +72,18 @@ impl EditorUi {
         // `region.data`/waveform peaks are stored at the region's own native sample rate, independent of the project's audio_ctx sample rate,
         // so we use region's max_duration to calculate the number of samples that should be displayed in the region's width
         let region_samples = if region.max_duration.0 > 0 {
-            (region.frames as f64 * region.duration.0 as f64 / region.max_duration.0 as f64)
+            (region.info.frames as f64 * region.duration.0 as f64 / region.max_duration.0 as f64)
                 as usize
         } else {
             0
         };
-        let samples_per_pixel = region_samples as f32 / rect_width;
 
-        // If the number of samples per pixel is less than a certain threshold, draw the raw waveform directly
-        if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
-            self.draw_raw_waveform_in(ui, &track_id, &region_id, samples_per_pixel, region_rect);
-            return;
-        }
+        // If samples per pixel is less than a certain threshold, draw the raw waveform directly
+        // let samples_per_pixel = region_samples as f32 / rect_width;
+        // if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
+        //     self.draw_raw_waveform_in(ui, &track_id, &region_id, samples_per_pixel, region_rect);
+        //     return;
+        // }
 
         let Some(waveform_lod) = self
             .ui_state
@@ -161,52 +161,52 @@ impl EditorUi {
         ));
     }
 
-    fn draw_raw_waveform_in(
-        &self,
-        ui: &egui::Ui,
-        track_id: &TrackID,
-        region_id: &RegionID,
-        samples_per_pixel: f32,
-        region_rect: &egui::Rect,
-    ) {
-        let Some(region) = self
-            .proj_ctx
-            .project
-            .get_track(track_id)
-            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
-            .and_then(|t| t.get_region(region_id))
-        else {
-            return;
-        };
+    // fn draw_raw_waveform_in(
+    //     &self,
+    //     ui: &egui::Ui,
+    //     track_id: &TrackID,
+    //     region_id: &RegionID,
+    //     samples_per_pixel: f32,
+    //     region_rect: &egui::Rect,
+    // ) {
+    //     let Some(region) = self
+    //         .proj_ctx
+    //         .project
+    //         .get_track(track_id)
+    //         .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+    //         .and_then(|t| t.get_region(region_id))
+    //     else {
+    //         return;
+    //     };
 
-        let visible_rect = region_rect.intersect(ui.clip_rect());
-        if visible_rect.width() <= 0.0 {
-            return;
-        }
+    //     let visible_rect = region_rect.intersect(ui.clip_rect());
+    //     if visible_rect.width() <= 0.0 {
+    //         return;
+    //     }
 
-        let painter = ui.painter_at(*region_rect);
-        let y_center = region_rect.center().y;
-        let half_height = region_rect.height() * 0.5 - WAVEFORM_Y_CLEARANCE;
-        let channels = region.channels.max(1) as usize;
+    //     let painter = ui.painter_at(*region_rect);
+    //     let y_center = region_rect.center().y;
+    //     let half_height = region_rect.height() * 0.5 - WAVEFORM_Y_CLEARANCE;
+    //     let channels = region.info.channels.max(1);
 
-        // Find the start and end x positions for rendering the waveform
-        let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
-        let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
+    //     // Find the start and end x positions for rendering the waveform
+    //     let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
+    //     let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
 
-        let mut points = Vec::with_capacity(end_pixel - start_pixel);
-        for pixel in start_pixel..end_pixel {
-            let frame = (pixel as f32 * samples_per_pixel) as usize;
-            if frame >= region.frames {
-                break;
-            }
-            let x = region_rect.left() + pixel as f32;
-            let sample = region.data[frame * channels];
-            points.push(egui::pos2(x, y_center - sample * half_height));
-        }
+    //     let mut points = Vec::with_capacity(end_pixel - start_pixel);
+    //     for pixel in start_pixel..end_pixel {
+    //         let frame = (pixel as f32 * samples_per_pixel) as usize;
+    //         if frame >= region.info.frames {
+    //             break;
+    //         }
+    //         let x = region_rect.left() + pixel as f32;
+    //         let sample = region.data[frame * channels];
+    //         points.push(egui::pos2(x, y_center - sample * half_height));
+    //     }
 
-        painter.add(egui::Shape::line(
-            points,
-            egui::Stroke::new(1.0, theme::waveform_color()),
-        ));
-    }
+    //     painter.add(egui::Shape::line(
+    //         points,
+    //         egui::Stroke::new(1.0, theme::waveform_color()),
+    //     ));
+    // }
 }
