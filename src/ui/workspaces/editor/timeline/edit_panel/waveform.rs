@@ -7,7 +7,9 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{
     mixer::TrackID,
+    timing::TimeBounds,
     track::{RegionID, audio_track::AudioTrack},
+    utils::{samples_per_tick, seconds_to_samples},
 };
 
 /// Space between waveform and top/bottom of the region
@@ -58,6 +60,23 @@ impl EditorUi {
         region_rect: &egui::Rect,
     ) {
         // Get the region and the waveform LOD data
+        let Some(region) = self
+            .proj_ctx
+            .project
+            .get_track(&track_id)
+            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
+            .and_then(|t| t.get_region(&region_id))
+        else {
+            return;
+        };
+        let Some(region_meta) = self
+            .proj_ctx
+            .project_meta
+            .get_track(&track_id)
+            .and_then(|t| t.regions.get(&region_id))
+        else {
+            return;
+        };
         let Some(waveform_lod) = self
             .ui_state
             .timeline_state
@@ -73,36 +92,44 @@ impl EditorUi {
         }
 
         // If samples per pixel is less than a certain threshold, draw the raw waveform directly
-        let region_samples = waveform_lod.data.info.frames;
-        let samples_per_pixel = region_samples as f32 / rect_width;
-        if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
-            self.draw_raw_waveform_in(ui, waveform_lod, samples_per_pixel, region_rect);
+        let full_data_frames = waveform_lod.data.info.frames;
+        let region_data_frames = calculate_data_frames(
+            &region_meta.bounds,
+            waveform_lod.data.info.sample_rate,
+            region.bpm,
+            self.ui_state.audio_ctx.resolution,
+        );
+        if region_data_frames == 0 {
+            return;
+        }
+
+        // Calculate the number of source frames per pixel to determine if we should draw the raw waveform or use LOD
+        let src_frames_per_pixel = region_data_frames as f32 / rect_width;
+        if src_frames_per_pixel < SMALL_BLOCK_SIZE as f32 {
+            self.draw_raw_waveform_in(
+                ui,
+                waveform_lod,
+                region.data_offset,
+                src_frames_per_pixel,
+                region_rect,
+            );
             return;
         }
 
         // Select the most suitable LOD based on the current zoom level
-        let large_len = waveform_lod.large.peaks.len();
-        let medium_len = waveform_lod.medium.peaks.len();
-
-        let (peaks_full, block_size) = if rect_width < large_len as f32 {
+        let (peaks_full, block_size) = if src_frames_per_pixel >= LARGE_BLOCK_SIZE as f32 {
             (&waveform_lod.large.peaks, LARGE_BLOCK_SIZE)
-        } else if rect_width < medium_len as f32 {
+        } else if src_frames_per_pixel >= MEDIUM_BLOCK_SIZE as f32 {
             (&waveform_lod.medium.peaks, MEDIUM_BLOCK_SIZE)
         } else {
             (&waveform_lod.small.peaks, SMALL_BLOCK_SIZE)
         };
-
-        let visible_peak_count =
-            ((region_samples as f32 / block_size as f32).ceil() as usize).min(peaks_full.len());
-        let peaks = &peaks_full[..visible_peak_count];
-
-        if peaks.is_empty() {
+        if peaks_full.is_empty() {
             return;
         }
 
         // Set up a painter and draw the waveform
         let painter = ui.painter_at(*region_rect);
-
         let y_center = region_rect.center().y;
         let half_height = region_rect.height() * 0.5 - WAVEFORM_Y_CLEARANCE;
 
@@ -112,30 +139,44 @@ impl EditorUi {
             return;
         }
 
-        // Calculate how many peaks are in the single pixel width
-        let peaks_per_pixel = (peaks.len() as f32 / rect_width).max(1.0);
-        // Then calculate the start and end pixel positions for rendering
+        // Calculate the start and end pixel positions for rendering
         let start_pixel = (visible_rect.left() - region_rect.left()).floor().max(0.0) as usize;
         let end_pixel = (visible_rect.right() - region_rect.left()).ceil() as usize;
 
         let mut points = Vec::with_capacity((end_pixel - start_pixel) * 2);
         for pixel in start_pixel..end_pixel {
-            let start_index = ((pixel as f32 * peaks_per_pixel) as usize).min(peaks.len());
-            let end_index = (((pixel + 1) as f32 * peaks_per_pixel) as usize).min(peaks.len());
-            if start_index >= end_index {
+            let pixel_start_frame =
+                region.data_offset + (pixel as f32 * src_frames_per_pixel) as usize;
+            let pixel_end_frame =
+                region.data_offset + ((pixel + 1) as f32 * src_frames_per_pixel) as usize;
+            if pixel_start_frame >= full_data_frames {
+                continue;
+            }
+
+            // Calculate the start and end indices for the peaks in the selected LOD
+            let start_peak_idx = (pixel_start_frame / block_size).min(peaks_full.len());
+            let end_peak_idx = pixel_end_frame
+                .div_ceil(block_size)
+                .min(peaks_full.len())
+                .max(start_peak_idx + 1);
+
+            if start_peak_idx >= peaks_full.len() {
+                break;
+            }
+
+            let slice = &peaks_full[start_peak_idx..end_peak_idx.min(peaks_full.len())];
+            if slice.is_empty() {
                 continue;
             }
 
             // Find the min and max peaks in the range for this pixel
-            let (min, max) = peaks[start_index..end_index].iter().fold(
+            let (min, max) = slice.iter().fold(
                 (f32::INFINITY, f32::NEG_INFINITY),
                 |(min, max), &(low, high)| (min.min(low), max.max(high)),
             );
 
             // Then calculate the start and end y positions for the line segment to draw
             let x = region_rect.left() + pixel as f32;
-
-            // Add line segments
             points.push(egui::pos2(x, y_center - max * half_height));
             points.push(egui::pos2(x, y_center - min * half_height));
         }
@@ -151,6 +192,7 @@ impl EditorUi {
         &self,
         ui: &egui::Ui,
         waveform_lod: &WaveformLod,
+        data_offset: usize,
         samples_per_pixel: f32,
         region_rect: &egui::Rect,
     ) {
@@ -170,8 +212,9 @@ impl EditorUi {
 
         let mut points = Vec::with_capacity(end_pixel - start_pixel);
         for pixel in start_pixel..end_pixel {
-            let frame = (pixel as f32 * samples_per_pixel) as usize;
+            let frame = data_offset + (pixel as f32 * samples_per_pixel) as usize;
             if frame >= waveform_lod.data.info.frames {
+                // Break when reached the end of the waveform data
                 break;
             }
             let x = region_rect.left() + pixel as f32;
@@ -182,9 +225,29 @@ impl EditorUi {
             points.push(egui::pos2(x, y_center - sample * half_height));
         }
 
-        painter.add(egui::Shape::line(
-            points,
-            egui::Stroke::new(1.0, theme::waveform_color()),
-        ));
+        if !points.is_empty() {
+            painter.add(egui::Shape::line(
+                points,
+                egui::Stroke::new(1.0, theme::waveform_color()),
+            ));
+        }
+    }
+}
+
+/// Calculates the number of source frames consumed within the given TimeBounds.
+pub fn calculate_data_frames(
+    bounds: &TimeBounds,
+    data_sample_rate: u64,
+    region_bpm: f64,
+    resolution: u64,
+) -> usize {
+    match *bounds {
+        TimeBounds::Musical { duration, .. } => {
+            let samples_per_tick = samples_per_tick(data_sample_rate, region_bpm, resolution);
+            (duration.0.max(0) as f64 * samples_per_tick).round() as usize
+        }
+        TimeBounds::Time {
+            duration_seconds, ..
+        } => seconds_to_samples(duration_seconds.max(0.0), data_sample_rate),
     }
 }
