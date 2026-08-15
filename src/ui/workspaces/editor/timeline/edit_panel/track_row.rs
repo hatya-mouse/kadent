@@ -60,7 +60,7 @@ impl EditorUi {
             let (region_start, region_end) = region_meta.bounds.tick_range(tempo_map);
             let region_duration = region_end - region_start;
 
-            // Calculate where to put the region
+            // Calculate where to put the region (for gesture hit testing)
             let x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_start.0 as f32 * ppt;
             let w = (region_duration.0 as f32 * ppt).max(8.0);
             let region_rect = egui::Rect::from_min_size(
@@ -75,6 +75,7 @@ impl EditorUi {
                 egui::vec2(draggable_width, row_rect.height() - 4.0),
             );
 
+            // Handle gestures on the region (dragging and resizing)
             let move_res = self.region_gestures(
                 ui,
                 track_id,
@@ -102,9 +103,14 @@ impl EditorUi {
                 continue;
             };
 
-            // Recalculate the region rect with new position and size if it was dragged
-            let new_region_x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_start.0 as f32 * ppt;
-            let new_region_width = (region_duration.0 as f32 * ppt).max(8.0);
+            // Calculate the region's position and size based on the updated bounds
+            let tempo_map = &self.proj_ctx.project.tempo_map;
+            let (current_start, current_end) = region_meta.bounds.tick_range(tempo_map);
+            let current_duration = current_end - current_start;
+
+            let new_region_x =
+                row_rect.min.x + TIMELINE_LEFT_PADDING + current_start.0 as f32 * ppt;
+            let new_region_width = (current_duration.0 as f32 * ppt).max(8.0);
             let new_region_rect = egui::Rect::from_min_size(
                 egui::pos2(new_region_x, row_rect.min.y + 2.0),
                 egui::vec2(new_region_width, row_rect.height() - 4.0),
@@ -145,7 +151,7 @@ impl EditorUi {
             if track_meta.track_type == TrackType::Audio {
                 self.draw_waveform_in(ui, *track_id, region_id, &draw_rect);
             } else {
-                self.draw_notes_in(ui, track_id, &region_id, &region_rect);
+                self.draw_notes_in(ui, track_id, &region_id, &draw_rect);
             }
         }
     }
