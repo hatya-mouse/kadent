@@ -3,8 +3,8 @@ use crate::{
     ui::{theme, workspaces::EditorUi},
 };
 use kadent_engine::{
-    data_types::Ticks,
     mixer::TrackID,
+    timing::{TimeBounds, TimePosition, Timebase},
     track::{RegionID, audio_track::AudioTrack, note_track::NoteTrack},
 };
 
@@ -14,9 +14,17 @@ impl EditorUi {
         original_track_id: &TrackID,
         region_id: &RegionID,
         new_track_id: &TrackID,
-        new_start: Ticks,
+        new_start: TimePosition,
     ) {
         // Move the region to the new start beats
+        let Some(original_track) = self.proj_ctx.project.get_track(original_track_id) else {
+            return;
+        };
+        let Some(original_bounds) = original_track.get_region_bounds(region_id) else {
+            return;
+        };
+        let new_bounds = self.create_bounds_from(original_bounds, new_start);
+
         let Some(original_track) = self.proj_ctx.project.get_track_mut(original_track_id) else {
             return;
         };
@@ -64,7 +72,7 @@ impl EditorUi {
                             original_track.as_any_mut().downcast_mut::<AudioTrack>()
                         && let Some(mut region) = original_audio_track.take_region(region_id)
                     {
-                        region.start = new_start;
+                        region.bounds = new_bounds.clone();
                         if let Some(new_audio_track) = self
                             .proj_ctx
                             .project
@@ -91,7 +99,7 @@ impl EditorUi {
                             original_track.as_any_mut().downcast_mut::<NoteTrack>()
                         && let Some(mut region) = original_note_track.take_region(region_id)
                     {
-                        region.start = new_start;
+                        region.bounds = new_bounds.clone();
                         if let Some(new_note_track) = self
                             .proj_ctx
                             .project
@@ -112,7 +120,7 @@ impl EditorUi {
                 && let Some(mut region_meta) = original_track_meta.remove_region(region_id)
             {
                 // ...and move the region in the region meta to the new track
-                region_meta.move_region(new_start);
+                region_meta.bounds = new_bounds;
                 if let Some(new_track_meta) = self.proj_ctx.project_meta.get_track_mut(new_track_id)
                 {
                     new_track_meta.add_region(new_region_id, region_meta);
@@ -138,11 +146,12 @@ impl EditorUi {
             else {
                 return;
             };
-            original_track.move_region(region_id, new_start);
+
+            original_track.set_region_bounds(region_id, new_bounds.clone());
 
             // Move the region in the region meta too
             if let Some(region_meta) = original_track_meta.get_region_mut(region_id) {
-                region_meta.move_region(new_start);
+                region_meta.bounds = new_bounds;
             }
         }
 
@@ -153,20 +162,59 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
-        new_duration: Ticks,
+        new_duration: TimePosition,
     ) {
+        let Some(original_bounds) = self
+            .proj_ctx
+            .project
+            .get_track(track_id)
+            .and_then(|t| t.get_region_bounds(region_id))
+        else {
+            return;
+        };
+
+        let tempo_map = &self.proj_ctx.project.tempo_map;
+        let new_bounds = match original_bounds.timebase() {
+            Timebase::Musical => TimeBounds::Musical {
+                start: original_bounds.start_tick(tempo_map),
+                duration: new_duration.to_ticks(tempo_map),
+            },
+            Timebase::Time => TimeBounds::Time {
+                start_seconds: original_bounds.start_seconds(tempo_map),
+                duration_seconds: new_duration.to_seconds(tempo_map),
+            },
+        };
+
         // Move the region to the new start beats
         if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
-            track.set_region_duration(region_id, new_duration);
+            track.set_region_bounds(region_id, new_bounds.clone());
         }
 
         // Set the region start beats in metadata
         if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id)
             && let Some(region_meta) = track_meta.get_region_mut(region_id)
         {
-            region_meta.set_duration(new_duration);
+            region_meta.bounds = new_bounds;
         }
 
         self.modified_project();
+    }
+
+    fn create_bounds_from(
+        &self,
+        original_bounds: &TimeBounds,
+        new_start: TimePosition,
+    ) -> TimeBounds {
+        let tempo_map = &self.proj_ctx.project.tempo_map;
+        match original_bounds.timebase() {
+            Timebase::Musical => TimeBounds::Musical {
+                start: new_start.to_ticks(tempo_map),
+                duration: original_bounds.duration_ticks(tempo_map),
+            },
+            Timebase::Time => TimeBounds::Time {
+                start_seconds: new_start.to_seconds(tempo_map),
+                duration_seconds: original_bounds.duration_seconds(tempo_map),
+            },
+        }
     }
 }

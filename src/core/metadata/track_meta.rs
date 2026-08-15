@@ -66,7 +66,7 @@ impl TrackMeta {
 
                 regions.insert(
                     *region_id,
-                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds),
+                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds.clone()),
                 );
             }
 
@@ -87,12 +87,7 @@ impl TrackMeta {
 
                 regions.insert(
                     *region_id,
-                    RegionMeta::new(
-                        stored_region_meta.name.clone(),
-                        audio_region.start,
-                        audio_region.duration,
-                        None,
-                    ),
+                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds.clone()),
                 );
             }
 

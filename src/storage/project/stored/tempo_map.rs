@@ -1,6 +1,6 @@
 use kadent_engine::{
     data_types::AudioContext,
-    mixer::{TempoEvent, TempoMap},
+    timing::{TempoEvent, TempoMap},
 };
 use serde::{Deserialize, Serialize};
 
@@ -19,9 +19,8 @@ impl StoredTempoMap {
     }
 
     pub fn to_tempo_map(&self, audio_ctx: &AudioContext) -> TempoMap {
-        let mut tempo_map = TempoMap::new(audio_ctx.clone(), 120.0);
+        let mut tempo_map = TempoMap::new(audio_ctx.resolution, 120.0);
         tempo_map.events = self.events.clone();
-        tempo_map.set_audio_ctx(audio_ctx.clone());
         tempo_map
     }
 }

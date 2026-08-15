@@ -1,5 +1,5 @@
 use crate::storage::project::stored::node::StoredNode;
-use kadent_engine::graph::{Graph, InputSource, automation::KeyframeManager, node_id::NodeID};
+use kadent_engine::graph::{Graph, InputSource, node_id::NodeID};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -9,7 +9,6 @@ use std::collections::HashMap;
 pub(crate) struct StoredGraph {
     pub nodes: HashMap<NodeID, StoredNode>,
     pub input_sources: HashMap<(NodeID, usize), InputSource>,
-    pub keyframe_manager: KeyframeManager,
     pub input_id: NodeID,
     pub output_id: NodeID,
 }
@@ -27,7 +26,6 @@ impl StoredGraph {
         Self {
             nodes,
             input_sources: graph.input_sources.clone(),
-            keyframe_manager: graph.keyframe_manager.clone(),
             input_id: graph.get_input_id(),
             output_id: graph.get_output_id(),
         }

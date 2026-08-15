@@ -9,7 +9,10 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::data_types::Ticks;
+use kadent_engine::{
+    data_types::Ticks,
+    timing::{TimeBounds, TimePosition},
+};
 
 impl EditorUi {
     pub(super) fn beat_ruler(
@@ -58,13 +61,14 @@ impl EditorUi {
         if seeking {
             if primary_down && let Some(pos) = hover_pos {
                 let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
-                self.ui_state.playhead_ticks = ticks;
+                self.ui_state.playhead_tick = ticks;
             }
 
             if primary_released {
                 if let Some(pos) = hover_pos {
                     let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
-                    self.push_action(EditorAction::Seek(ticks));
+                    let time = TimePosition::Musical(ticks);
+                    self.push_action(EditorAction::Seek(time));
                 }
                 ui.data_mut(|data| data.remove::<bool>(seek_key));
             }
@@ -149,9 +153,13 @@ impl EditorUi {
         origin_x: f32,
         ppt: f32,
     ) {
-        let range_start = self.proj_ctx.project_meta.range_start;
-        let range_duration = self.proj_ctx.project_meta.range_duration;
-        let range_end = range_start + range_duration;
+        let tempo_map = &self.proj_ctx.project.tempo_map;
+        let (range_start, range_end) = self
+            .proj_ctx
+            .project_meta
+            .export_range
+            .tick_range(tempo_map);
+        let range_duration = range_end - range_start;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
 
@@ -205,7 +213,10 @@ impl EditorUi {
 
             // Avoid negative duration by using saturating_sub
             let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
-            self.proj_ctx.project_meta.range_duration = new_duration;
+            self.proj_ctx
+                .project_meta
+                .export_range
+                .set_duration_ticks(new_duration, tempo_map);
 
             self.ui_state
                 .set_modification(Modification::ProjectRange(range_start, new_duration));
@@ -219,8 +230,10 @@ impl EditorUi {
             let start_delta = new_start.0 - range_start.0;
             let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
 
-            self.proj_ctx.project_meta.range_start = new_start;
-            self.proj_ctx.project_meta.range_duration = new_duration;
+            self.proj_ctx.project_meta.export_range = TimeBounds::Musical {
+                start: new_start,
+                duration: new_duration,
+            };
 
             self.ui_state
                 .set_modification(Modification::ProjectRange(new_start, new_duration));
@@ -229,8 +242,7 @@ impl EditorUi {
         // Confirm the change when the mouse is released
         if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
             self.push_action(EditorAction::SetProjectRange(
-                self.proj_ctx.project_meta.range_start,
-                self.proj_ctx.project_meta.range_duration,
+                self.proj_ctx.project_meta.export_range.clone(),
             ));
         }
     }

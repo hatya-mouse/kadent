@@ -1,7 +1,7 @@
 use crate::ui::workspaces::EditorUi;
 use kadent_engine::{
-    data_types::Ticks,
     thread::{AudioCommand, AudioError},
+    timing::TimePosition,
 };
 
 impl EditorUi {
@@ -33,8 +33,8 @@ impl EditorUi {
         }
     }
 
-    pub(super) fn seek(&mut self, target_ticks: Ticks) {
-        let command = AudioCommand::Seek(target_ticks);
+    pub(super) fn seek(&mut self, seek_position: TimePosition) {
+        let command = AudioCommand::Seek(seek_position);
         if self
             .thread_handle
             .audio_command_tx
@@ -42,8 +42,6 @@ impl EditorUi {
             .is_err()
         {
             self.errors.push(AudioError::CommandFailed(command));
-        } else {
-            self.ui_state.playhead_ticks = target_ticks;
         }
     }
 }

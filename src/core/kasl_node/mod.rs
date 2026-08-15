@@ -8,6 +8,7 @@ use kadent_engine::{
     data_types::{PlaybackContext, TypeInfo},
     graph::error::NodeError,
     node::Node,
+    timing::TempoMap,
 };
 use kasl::{
     core::{KaslCompiler, ast_nodes::scope_manager::IOBlueprint, run_buffer},
@@ -253,7 +254,11 @@ impl Node for KaslNode {
             .unwrap_or_default();
     }
 
-    fn prepare(&mut self, playback_ctx: &PlaybackContext) -> Result<(), Box<dyn NodeError>> {
+    fn prepare(
+        &mut self,
+        _tempo_map: &TempoMap,
+        playback_ctx: &PlaybackContext,
+    ) -> Result<(), Box<dyn NodeError>> {
         let result = self.compile(playback_ctx);
         match &result {
             // If the compilation is successful, set is_first_process to true if recompiled, otherwise false
@@ -270,6 +275,7 @@ impl Node for KaslNode {
         &mut self,
         inputs: &[*const u8],
         outputs: &[*mut u8],
+        _playhead: usize,
         playback_ctx: &PlaybackContext,
     ) {
         let inputs: Vec<*const ()> = inputs.iter().map(|p| *p as *const ()).collect();

@@ -34,7 +34,7 @@ impl EditorUi {
 
     fn playhead_beats(&mut self, ui: &mut egui::Ui) {
         let playhead_beats =
-            self.ui_state.playhead_ticks.0 as f32 / self.ui_state.audio_ctx.resolution as f32;
+            self.ui_state.playhead_tick.0 as f32 / self.ui_state.audio_ctx.resolution as f32;
         toolbar_group(ui, |ui| {
             ui.add_sized(
                 [200.0, 28.0],

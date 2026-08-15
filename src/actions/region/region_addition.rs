@@ -9,12 +9,10 @@ use kadent_engine::{
     mixer::TrackID,
     timing::TimeBounds,
     track::{
-        RegionID,
         audio_track::{AudioRegion, AudioTrack},
         note_track::{NoteRegion, NoteTrack},
     },
 };
-use std::collections::HashMap;
 
 impl EditorUi {
     /// Adds a new empty audio region to the given audio track.
@@ -83,21 +81,14 @@ impl EditorUi {
         start: Ticks,
         decoded: DecodedAudio,
     ) {
-        let min_duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
-
         // Calculate the length of the audio region to add
-        let current_bpm = {
-            let events = &self.proj_ctx.project.tempo_map.events;
-            let idx = events
-                .partition_point(|e| e.tick <= start)
-                .saturating_sub(1);
-            events[idx].bpm
-        };
+        let current_bpm = self.proj_ctx.project.tempo_map.bpm_at_tick(start);
         let duration_seconds = decoded.frames as f64 / decoded.sample_rate as f64;
-        let data_duration = Ticks(
-            (duration_seconds / 60.0 * current_bpm * self.ui_state.audio_ctx.resolution as f64)
-                .round() as i64,
-        );
+        let start_seconds = self.proj_ctx.project.tempo_map.ticks_to_seconds(start);
+        let bounds = TimeBounds::Time {
+            start_seconds,
+            duration_seconds,
+        };
 
         // Automatically choose the audio track to add the region to
         let region_name = file_name.unwrap_or("Imported File".to_string());
@@ -107,33 +98,19 @@ impl EditorUi {
         let Some(track) = self.proj_ctx.project.get_track_mut(&track_id) else {
             return;
         };
-        // Then calculate the duration of the region to prevent region overlapping
-        let Some(region_duration) = self
-            .proj_ctx
-            .project_meta
-            .get_track(&track_id)
-            .map(|t| &t.regions)
-            .and_then(|regions| {
-                calculate_region_placement(regions, start, data_duration, Some(min_duration))
-            })
-        else {
-            return;
-        };
 
         self.ui_state.status_bar_state.current_task = None;
 
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             let source = AudioSource::Original(decoded.path);
-            let audio_region =
-                AudioRegion::new(source.clone(), start, region_duration, current_bpm);
+            let audio_region = AudioRegion::new(source.clone(), bounds.clone(), 0, current_bpm);
             let region_id = audio_track.add_region(audio_region);
 
             self.ui_state.timeline_state.last_dropped_region = Some((track_id, region_id));
 
             // Set the name of the region to the file name or fallback to the default name
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(&track_id) {
-                let region_meta =
-                    RegionMeta::new(region_name, start, region_duration, Some(data_duration));
+                let region_meta = RegionMeta::new(region_name, bounds);
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -170,31 +147,4 @@ impl EditorUi {
             )
         }
     }
-}
-
-/// Returns None if start is already occupied, or Some(clamped_duration) otherwise.
-fn calculate_region_placement(
-    regions: &HashMap<RegionID, RegionMeta>,
-    start: Ticks,
-    desired_duration: Ticks,
-    min_duration: Option<Ticks>,
-) -> Option<Ticks> {
-    // Do not add region if the start beat has already been occupied
-    let start_blocked = regions
-        .values()
-        .any(|r| start.0 >= r.start.0 && start.0 < r.start.0 + r.duration.0);
-    if start_blocked {
-        return None;
-    }
-
-    // Clamp the region using the nearest region
-    let clamped_duration = regions
-        .values()
-        .filter(|r| r.start > start)
-        .map(|r| r.start - start)
-        .filter(|d| d < &desired_duration)
-        .min_by(|a, b| a.partial_cmp(b).unwrap())
-        .unwrap_or(desired_duration);
-
-    Some(clamped_duration.max(min_duration.unwrap_or(Ticks(1))))
 }

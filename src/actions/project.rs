@@ -3,7 +3,7 @@ use crate::{
     core::project_ctx::EditorContext,
     ui::{theme, workspaces::EditorUi},
 };
-use kadent_engine::{data_types::Ticks, thread::AudioCommand};
+use kadent_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -83,7 +83,7 @@ impl EditorUi {
         self.proj_ctx = editor_ctx.proj_ctx;
 
         // Seek to the start of the project after loading
-        self.seek(self.proj_ctx.project.range_start);
+        self.seek(self.proj_ctx.project.export_range.start_time());
 
         // Notify the audio thread of the project change
         self.modified_project();
@@ -92,9 +92,8 @@ impl EditorUi {
         self.generate_waveforms();
     }
 
-    pub(super) fn set_project_range(&mut self, start: Ticks, duration: Ticks) {
-        self.proj_ctx.project.range_start = start;
-        self.proj_ctx.project.range_duration = duration;
+    pub(super) fn set_project_range(&mut self, bounds: TimeBounds) {
+        self.proj_ctx.project.export_range = bounds;
         self.modified_project();
     }
 }

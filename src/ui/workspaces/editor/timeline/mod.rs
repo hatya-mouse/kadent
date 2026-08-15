@@ -127,8 +127,7 @@ impl EditorUi {
     fn follow_playhead_scroll_offset(&self, visible_width: f32) -> f32 {
         let ppt = self.ui_state.timeline_state.pixels_per_beat
             / self.ui_state.audio_ctx.resolution as f32;
-        let playhead_content_x =
-            TIMELINE_LEFT_PADDING + self.ui_state.playhead_ticks.0 as f32 * ppt;
+        let playhead_content_x = TIMELINE_LEFT_PADDING + self.ui_state.playhead_tick.0 as f32 * ppt;
         let visible_half_width = visible_width * 0.5;
 
         playhead_content_x - visible_half_width
@@ -143,8 +142,8 @@ impl EditorUi {
     pub(super) fn timeline_content_width(&self) -> f32 {
         let ppt = self.ui_state.timeline_state.pixels_per_beat
             / self.ui_state.audio_ctx.resolution as f32;
-        let range_end_ticks =
-            self.proj_ctx.project.range_start.0 + self.proj_ctx.project.range_duration.0;
+        let tempo_map = &self.proj_ctx.project.tempo_map;
+        let range_end_ticks = self.proj_ctx.project.export_range.end_tick(tempo_map).0;
         let last_region_end = self
             .proj_ctx
             .project_meta
@@ -152,7 +151,7 @@ impl EditorUi {
             .iter()
             .filter_map(|id| self.proj_ctx.project_meta.get_track(id))
             .flat_map(|t| t.regions.values())
-            .map(|r| r.start.0 + r.duration.0)
+            .map(|r| r.bounds.start_tick(tempo_map).0 + r.bounds.duration_ticks(tempo_map).0)
             .max()
             .unwrap_or(0);
         let content_end_ticks = range_end_ticks.max(last_region_end);

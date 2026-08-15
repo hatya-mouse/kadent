@@ -13,8 +13,8 @@ const PEAK_HOLD_TIME: f32 = 0.5;
 
 impl EditorUi {
     pub fn calculate_playhead(&mut self) {
-        self.ui_state.playhead_ticks =
-            Ticks(self.thread_handle.playhead_ticks.load(Ordering::Acquire));
+        self.ui_state.playhead_tick =
+            Ticks(self.thread_handle.playhead_tick.load(Ordering::Acquire));
     }
 
     pub fn process_vu_value(&mut self) {

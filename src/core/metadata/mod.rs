@@ -15,17 +15,32 @@ use crate::{
 use kadent_engine::{
     data_types::{PlaybackContext, Ticks},
     mixer::TrackID,
+    timing::TimeBounds,
 };
 use std::collections::HashMap;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct ProjectMeta {
     pub tracks: HashMap<TrackID, TrackMeta>,
     pub track_order: Vec<TrackID>,
     pub kasl_search_paths: Vec<String>,
-    pub range_start: Ticks,
-    pub range_duration: Ticks,
     pub export_ctx: PlaybackContext,
+    pub export_range: TimeBounds,
+}
+
+impl Default for ProjectMeta {
+    fn default() -> Self {
+        Self {
+            tracks: HashMap::new(),
+            track_order: Vec::new(),
+            kasl_search_paths: Vec::new(),
+            export_ctx: PlaybackContext::default(),
+            export_range: TimeBounds::Musical {
+                start: Ticks(0),
+                duration: Ticks(0),
+            },
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -52,9 +67,8 @@ impl ProjectMeta {
 
         let mut new_meta = ProjectMeta {
             kasl_search_paths: proj_res.project_meta.kasl_search_paths.clone(),
-            range_start: proj_res.project.range_start,
-            range_duration: proj_res.project.range_duration,
             export_ctx,
+            export_range: proj_res.project.export_range.clone(),
             ..Default::default()
         };
 

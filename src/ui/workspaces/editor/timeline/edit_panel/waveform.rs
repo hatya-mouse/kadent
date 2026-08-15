@@ -58,15 +58,6 @@ impl EditorUi {
         region_rect: &egui::Rect,
     ) {
         // Get the region and the waveform LOD data
-        let Some(region) = self
-            .proj_ctx
-            .project
-            .get_track(&track_id)
-            .and_then(|t| t.as_any().downcast_ref::<AudioTrack>())
-            .and_then(|t| t.get_region(&region_id))
-        else {
-            return;
-        };
         let Some(waveform_lod) = self
             .ui_state
             .timeline_state
@@ -82,6 +73,7 @@ impl EditorUi {
         }
 
         // If samples per pixel is less than a certain threshold, draw the raw waveform directly
+        let region_samples = waveform_lod.data.info.frames;
         let samples_per_pixel = region_samples as f32 / rect_width;
         if samples_per_pixel < SMALL_BLOCK_SIZE as f32 {
             self.draw_raw_waveform_in(ui, waveform_lod, samples_per_pixel, region_rect);

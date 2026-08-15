@@ -30,7 +30,8 @@ impl EditorUi {
         let Some(track) = self
             .proj_ctx
             .project
-            .get_track_mut(&track_id)
+            .tracks
+            .get_mut(&track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
         else {
             ui.label("Select a note region to edit");
@@ -54,7 +55,10 @@ impl EditorUi {
             / self.ui_state.audio_ctx.resolution as f32;
 
         // Calculate the total size of the scroll area content
-        let scroll_content_width = (region.duration.0 as f32 * ppt).max(note_grid_rect.width());
+        let region_duration = region
+            .bounds
+            .duration_ticks(&self.proj_ctx.project.tempo_map);
+        let scroll_content_width = (region_duration.0 as f32 * ppt).max(note_grid_rect.width());
         // Calculate the total height of the scroll area content (128 MIDI notes)
         let scroll_content_height =
             (128.0 * self.ui_state.piano_roll_state.note_height).max(note_grid_rect.height());

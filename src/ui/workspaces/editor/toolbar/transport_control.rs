@@ -22,7 +22,9 @@ impl EditorUi {
             )
             .clicked()
             {
-                self.push_action(EditorAction::Seek(self.proj_ctx.project.range_start));
+                self.push_action(EditorAction::Seek(
+                    self.proj_ctx.project_meta.export_range.start_time(),
+                ));
             }
 
             let play_button_color = if self.ui_state.is_playing {
@@ -62,7 +64,7 @@ impl EditorUi {
             .clicked()
             {
                 self.push_action(EditorAction::Seek(
-                    self.proj_ctx.project.range_start + self.proj_ctx.project.range_duration,
+                    self.proj_ctx.project_meta.export_range.end_time(),
                 ));
             }
         });

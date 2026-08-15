@@ -10,7 +10,12 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::{data_types::Ticks, mixer::TrackID, track::RegionID};
+use kadent_engine::{
+    data_types::Ticks,
+    mixer::TrackID,
+    timing::{TimeBounds, TimePosition},
+    track::RegionID,
+};
 
 impl EditorUi {
     pub(super) fn track_row(
@@ -51,10 +56,13 @@ impl EditorUi {
             else {
                 continue;
             };
+            let tempo_map = &self.proj_ctx.project.tempo_map;
+            let (region_start, region_end) = region_meta.bounds.tick_range(tempo_map);
+            let region_duration = region_end - region_start;
 
             // Calculate where to put the region
-            let x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_meta.start.0 as f32 * ppt;
-            let w = (region_meta.duration.0 as f32 * ppt).max(8.0);
+            let x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_start.0 as f32 * ppt;
+            let w = (region_duration.0 as f32 * ppt).max(8.0);
             let region_rect = egui::Rect::from_min_size(
                 egui::pos2(x, row_rect.min.y + 2.0),
                 egui::vec2(w, row_rect.height() - 4.0),
@@ -95,9 +103,8 @@ impl EditorUi {
             };
 
             // Recalculate the region rect with new position and size if it was dragged
-            let new_region_x =
-                row_rect.min.x + TIMELINE_LEFT_PADDING + region_meta.start.0 as f32 * ppt;
-            let new_region_width = (region_meta.duration.0 as f32 * ppt).max(8.0);
+            let new_region_x = row_rect.min.x + TIMELINE_LEFT_PADDING + region_start.0 as f32 * ppt;
+            let new_region_width = (region_duration.0 as f32 * ppt).max(8.0);
             let new_region_rect = egui::Rect::from_min_size(
                 egui::pos2(new_region_x, row_rect.min.y + 2.0),
                 egui::vec2(new_region_width, row_rect.height() - 4.0),
@@ -151,6 +158,8 @@ impl EditorUi {
                 .interact_pointer_pos()
                 .map(|pos| self.x_to_ticks(pos.x, row_rect))
                 .unwrap_or_default();
+            let duration = Ticks(1);
+            let bounds = TimeBounds::Musical { start, duration };
 
             let track_type = self
                 .proj_ctx
@@ -162,14 +171,14 @@ impl EditorUi {
                     self.push_action(EditorAction::AddAudioRegion(
                         *track_id,
                         "Region".to_string(),
-                        start,
+                        bounds,
                     ));
                 }
                 Some(TrackType::Note) => {
                     self.push_action(EditorAction::AddNoteRegion(
                         *track_id,
                         "Region".to_string(),
-                        start,
+                        bounds,
                     ));
                 }
                 None => (),
@@ -212,11 +221,18 @@ impl EditorUi {
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                let new_duration = (region.duration + delta_ticks).max(Ticks(0));
-                region.set_duration(new_duration);
+                let (region_start, region_end) =
+                    region.bounds.tick_range(&self.proj_ctx.project.tempo_map);
+                let region_duration = region_end - region_start;
+
+                let new_duration = (region_duration + delta_ticks).max(Ticks(0));
+                region.bounds = TimeBounds::Musical {
+                    start: region_start,
+                    duration: new_duration,
+                };
 
                 self.ui_state
-                    .set_modification(Modification::RegionRange(region.start, new_duration));
+                    .set_modification(Modification::RegionRange(region_start, new_duration));
             }
             return move_res;
         } else if resize_res.drag_stopped()
@@ -225,12 +241,16 @@ impl EditorUi {
                 .project_meta
                 .get_track(track_id)
                 .and_then(|track| track.get_region(region_id))
-                .map(|region| region.duration)
+                .map(|region| {
+                    region
+                        .bounds
+                        .duration_ticks(&self.proj_ctx.project.tempo_map)
+                })
         {
             self.push_action(EditorAction::SetRegionDuration(
                 *track_id,
                 *region_id,
-                new_duration,
+                TimePosition::Musical(new_duration),
             ));
             return move_res;
         }
@@ -249,11 +269,18 @@ impl EditorUi {
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                let new_start = (region.start + delta_ticks).max(Ticks(0));
-                region.move_region(new_start);
+                let (region_start, region_end) =
+                    region.bounds.tick_range(&self.proj_ctx.project.tempo_map);
+                let region_duration = region_end - region_start;
+
+                let new_start = (region_start + delta_ticks).max(Ticks(0));
+                region.bounds = TimeBounds::Musical {
+                    start: new_start,
+                    duration: region_duration,
+                };
 
                 self.ui_state
-                    .set_modification(Modification::RegionRange(new_start, region.duration));
+                    .set_modification(Modification::RegionRange(new_start, region_duration));
             }
         } else if move_res.drag_stopped()
             && let Some(new_start) = self
@@ -261,7 +288,7 @@ impl EditorUi {
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
-                .map(|region| region.start)
+                .map(|region| region.bounds.start_tick(&self.proj_ctx.project.tempo_map))
         {
             // Determine which track row the pointer was over when the drag ended,
             // falling back to the original track if it was released outside any row
@@ -274,7 +301,7 @@ impl EditorUi {
                 *track_id,
                 *region_id,
                 new_track_id,
-                new_start,
+                TimePosition::Musical(new_start),
             ));
         }
 

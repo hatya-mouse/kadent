@@ -20,6 +20,7 @@ use kadent_engine::{
     graph::node_id::NodeID,
     mixer::TrackID,
     thread::AudioResult,
+    timing::{TimeBounds, TimePosition},
     track::{
         RegionID,
         note_track::{Note, NoteID},
@@ -59,8 +60,8 @@ pub(crate) enum EditorAction {
     /// `(path, start)`
     ImportAudioFile(PathBuf, Ticks),
     /// Sets the range of the project to be exported.
-    /// `(start, duration)`
-    SetProjectRange(Ticks, Ticks),
+    /// `(bounds)`
+    SetProjectRange(TimeBounds),
 
     // --- STORAGE ---
     /// Updates the cache of the file tree.
@@ -72,8 +73,8 @@ pub(crate) enum EditorAction {
     /// Pause playing the project.
     Pause,
     /// Seek to the specific position in the project.
-    /// `(target_ticks)`
-    Seek(Ticks),
+    /// `(time)`
+    Seek(TimePosition),
 
     // --- TRACK ---
     /// Add a new track to the project.
@@ -85,17 +86,17 @@ pub(crate) enum EditorAction {
 
     // --- REGION ---
     /// Add a new audio region to the given audio track.
-    /// `(track_id, name, start)`
-    AddAudioRegion(TrackID, String, Ticks),
+    /// `(track_id, name, bounds)`
+    AddAudioRegion(TrackID, String, TimeBounds),
     /// Add a new note region to the given note track.
-    /// `(track_id, name, start)`
-    AddNoteRegion(TrackID, String, Ticks),
-    /// Move a region to a new start position in beats.
-    /// `(track_id, region_id, new_start)`
-    MoveRegion(TrackID, RegionID, TrackID, Ticks),
-    /// Set a duration of the given region.
+    /// `(track_id, name, bounds)`
+    AddNoteRegion(TrackID, String, TimeBounds),
+    /// Moves the region to the given start time and the track.
+    /// `(track_id, region_id, new_track_id, new_start)`
+    MoveRegion(TrackID, RegionID, TrackID, TimePosition),
+    /// Sets the duration of the region to the given one.
     /// `(track_id, region_id, new_duration)`
-    SetRegionDuration(TrackID, RegionID, Ticks),
+    SetRegionDuration(TrackID, RegionID, TimePosition),
     /// Remove a region from the given track.
     /// `(track_id, region_id)`
     RemoveRegion(TrackID, RegionID),
@@ -166,8 +167,8 @@ impl EditorUi {
                 EditorAction::ImportAudioFile(path, start) => {
                     self.import_audio_file(&path, start);
                 }
-                EditorAction::SetProjectRange(start, end) => {
-                    self.set_project_range(start, end);
+                EditorAction::SetProjectRange(bounds) => {
+                    self.set_project_range(bounds);
                 }
 
                 // --- STORAGE ---
@@ -182,8 +183,8 @@ impl EditorUi {
                 EditorAction::Pause => {
                     self.pause();
                 }
-                EditorAction::Seek(target_ticks) => {
-                    self.seek(target_ticks);
+                EditorAction::Seek(time) => {
+                    self.seek(time);
                 }
 
                 // --- TRACK ---
@@ -195,11 +196,11 @@ impl EditorUi {
                 }
 
                 // --- REGION ---
-                EditorAction::AddAudioRegion(ref track_id, name, start) => {
-                    self.add_audio_region(track_id, name, start)
+                EditorAction::AddAudioRegion(ref track_id, name, bounds) => {
+                    self.add_audio_region(track_id, name, bounds)
                 }
-                EditorAction::AddNoteRegion(ref track_id, name, start) => {
-                    self.add_note_region(track_id, name, start)
+                EditorAction::AddNoteRegion(ref track_id, name, bounds) => {
+                    self.add_note_region(track_id, name, bounds)
                 }
                 EditorAction::MoveRegion(
                     ref original_track_id,
@@ -207,9 +208,11 @@ impl EditorUi {
                     ref new_track_id,
                     new_start,
                 ) => self.move_region(original_track_id, region_id, new_track_id, new_start),
-                EditorAction::SetRegionDuration(ref track_id, ref region_id, new_duration) => {
-                    self.set_region_duration(track_id, region_id, new_duration)
-                }
+                EditorAction::SetRegionDuration(
+                    ref original_track_id,
+                    ref region_id,
+                    new_duration,
+                ) => self.set_region_duration(original_track_id, region_id, new_duration),
                 EditorAction::RemoveRegion(ref track_id, ref region_id) => {
                     self.remove_region(track_id, region_id)
                 }

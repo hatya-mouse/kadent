@@ -10,6 +10,7 @@ use crate::{
 use kadent_engine::{
     data_types::{AudioContext, PlaybackContext, Ticks},
     mixer::Project,
+    timing::TimeBounds,
 };
 use std::{io, path::PathBuf};
 
@@ -37,7 +38,14 @@ pub(crate) fn create_new_project(
         buffer_size: DEFAULT_BUFFER_SIZE,
     };
 
-    let project = Project::new(audio_ctx.clone(), 120.0, Ticks(0), Ticks(3840));
+    let project = Project::new(
+        audio_ctx.clone(),
+        120.0,
+        TimeBounds::Musical {
+            start: Ticks(0),
+            duration: Ticks(3840),
+        },
+    );
     let project_meta = ProjectMeta {
         kasl_search_paths: EditorUi::system_kasl_search_paths(),
         export_ctx,

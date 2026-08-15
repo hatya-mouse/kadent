@@ -31,7 +31,10 @@ impl EditorUi {
         let rect_height = region_rect.height();
 
         // Calculate the pixels per ticks based on the region's duration and the width of the region rectangle
-        let ppt = rect_width / region.duration.0 as f32;
+        let region_duration = region
+            .bounds
+            .duration_ticks(&self.proj_ctx.project.tempo_map);
+        let ppt = rect_width / region_duration.0 as f32;
         // Also calculate the y position per pitch
         let y_per_pitch = rect_height / 128.0;
 
@@ -39,7 +42,7 @@ impl EditorUi {
 
         // Draw each note in the region
         for note in region.notes.values() {
-            if note.start < Ticks(0) || note.start >= region.duration {
+            if note.start < Ticks(0) || note.start >= region_duration {
                 // Skip notes that are outside the visible range
                 continue;
             }

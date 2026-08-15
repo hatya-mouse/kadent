@@ -65,7 +65,7 @@ impl EditorUi {
 
     fn playhead(&mut self, ui: &mut egui::Ui, editor_rect: egui::Rect) {
         let playhead_x = self.ui_state.timeline_state.pixels_per_beat
-            * (self.ui_state.playhead_ticks.0 as f32 / self.ui_state.audio_ctx.resolution as f32);
+            * (self.ui_state.playhead_tick.0 as f32 / self.ui_state.audio_ctx.resolution as f32);
 
         // Create a new painter to draw on the foreground layer
         ui.painter().vline(

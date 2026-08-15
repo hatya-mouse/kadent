@@ -32,7 +32,7 @@ impl EditorUi {
         // We have already checked that last_audio_drop is Some, so we can safely unwrap it here
         self.push_action(EditorAction::ImportAudioFile(
             file_path,
-            self.ui_state.playhead_ticks,
+            self.ui_state.playhead_tick,
         ));
     }
 
