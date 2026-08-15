@@ -1,6 +1,6 @@
 use crate::ui::theme;
 use eframe::egui;
-use kadent_engine::{graph::error::GraphError, thread::AudioError};
+use kadent_engine::{graph::error::GraphError, thread::AudioError, track::error::TrackError};
 
 pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
     let message = error_message(error);
@@ -32,11 +32,19 @@ fn error_message(error: &AudioError) -> String {
         AudioError::TrackPrepareFailed(track_id, e) => {
             format!(
                 "Track {track_id:?} failed to prepare: {}",
-                graph_error_message(e)
+                track_error_message(e)
             )
         }
+        AudioError::ThreadSpawnFailed(e) => format!("Failed to spawn thread: {e}"),
         AudioError::PlayStreamError(e) => format!("Play stream error: {e}"),
         AudioError::CommandFailed(_) => "Audio command failed".to_string(),
+    }
+}
+
+fn track_error_message(error: &TrackError) -> String {
+    match error {
+        TrackError::GraphError(e) => graph_error_message(e),
+        TrackError::ThreadSpawnFailed(e) => format!("Failed to spawn thread: {e}"),
     }
 }
 

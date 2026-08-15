@@ -10,6 +10,5 @@ pub(super) fn run_decode_wav(path: PathBuf) -> hound::Result<DecodedAudio> {
         path,
         frames,
         sample_rate: spec.sample_rate as u64,
-        channels: spec.channels as usize,
     })
 }

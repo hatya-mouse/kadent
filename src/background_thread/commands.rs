@@ -1,8 +1,9 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
 use kadent_engine::{
+    audio_data::{AudioData, AudioSource},
     data_types::{PlaybackContext, Ticks},
     mixer::{Project, TrackID},
-    track::{RegionID, audio_track::AudioSource},
+    track::RegionID,
 };
 use std::path::PathBuf;
 
@@ -10,7 +11,6 @@ pub(crate) struct DecodedAudio {
     pub path: PathBuf,
     pub frames: usize,
     pub sample_rate: u64,
-    pub channels: usize,
 }
 
 /// Min/max peaks for a single waveform LOD tier. `peaks[i] = (min, max)` sample value within
@@ -21,6 +21,7 @@ pub(crate) struct WaveformPeaks {
 
 /// Precomputed waveform peaks at three fixed resolutions.
 pub(crate) struct WaveformLod {
+    pub data: AudioData,
     pub small: WaveformPeaks,
     pub medium: WaveformPeaks,
     pub large: WaveformPeaks,
@@ -50,7 +51,6 @@ pub(crate) enum BackgroundThreadCommand {
         track_id: TrackID,
         region_id: RegionID,
         source: AudioSource,
-        channels: usize,
     },
 }
 

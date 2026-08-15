@@ -80,9 +80,8 @@ fn background_thread(
                 track_id,
                 region_id,
                 source,
-                channels,
             } => {
-                let waveform = run_generate_waveform(&source, channels);
+                let waveform = run_generate_waveform(&source);
                 BackgroundThreadResult::GeneratedWaveform {
                     track_id,
                     region_id,

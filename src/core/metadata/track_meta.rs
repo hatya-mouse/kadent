@@ -66,12 +66,7 @@ impl TrackMeta {
 
                 regions.insert(
                     *region_id,
-                    RegionMeta::new(
-                        stored_region_meta.name.clone(),
-                        audio_region.start,
-                        audio_region.duration,
-                        Some(audio_region.max_duration),
-                    ),
+                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds),
                 );
             }
 

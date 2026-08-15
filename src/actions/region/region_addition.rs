@@ -4,11 +4,13 @@ use crate::{
     ui::{theme, workspaces::EditorUi},
 };
 use kadent_engine::{
+    audio_data::AudioSource,
     data_types::Ticks,
     mixer::TrackID,
+    timing::TimeBounds,
     track::{
         RegionID,
-        audio_track::{AudioDataInfo, AudioRegion, AudioSource, AudioTrack},
+        audio_track::{AudioRegion, AudioTrack},
         note_track::{NoteRegion, NoteTrack},
     },
 };
@@ -20,12 +22,8 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         name: String,
-        start: Ticks,
+        bounds: TimeBounds,
     ) {
-        let sample_rate = self.proj_ctx.project_meta.export_ctx.sample_rate;
-        let channels = self.proj_ctx.project_meta.export_ctx.channels;
-        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
-
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
             return;
@@ -35,27 +33,12 @@ impl EditorUi {
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             // Create a region and add it to the audio track
             let base_bpm = 120.0;
-            let frames = (duration.0 as f64
-                / (self.ui_state.audio_ctx.resolution as f64 * base_bpm))
-                as usize
-                * 60
-                * sample_rate as usize;
-            let audio_region = AudioRegion::zeros(
-                AudioDataInfo {
-                    channels,
-                    frames,
-                    sample_rate,
-                    bpm: base_bpm,
-                },
-                start,
-                duration,
-            );
-            let max_duration = audio_region.max_duration;
+            let audio_region = AudioRegion::zeros(bounds.clone(), base_bpm);
             let region_id = audio_track.add_region(audio_region);
 
             // Add a region to the project meta
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) {
-                let region_meta = RegionMeta::new(name, start, duration, Some(max_duration));
+                let region_meta = RegionMeta::new(name, bounds);
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -69,10 +52,8 @@ impl EditorUi {
         &mut self,
         track_id: &TrackID,
         name: String,
-        start: Ticks,
+        bounds: TimeBounds,
     ) {
-        let duration = Ticks(self.ui_state.audio_ctx.resolution as i64);
-
         // Get the target track
         let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
             return;
@@ -81,13 +62,13 @@ impl EditorUi {
         // Cast the track to AudioTrack
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<NoteTrack>() {
             // Create a region and add it to the audio track
-            let note_region = NoteRegion::new(start, duration);
+            let note_region = NoteRegion::new(bounds.clone());
             let region_id = audio_track.add_region(note_region);
 
             // Add a region to the project meta
             if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) {
                 // Note region can be resized as you want
-                let region_meta = RegionMeta::new(name, start, duration, None);
+                let region_meta = RegionMeta::new(name, bounds);
                 track_meta.add_region(region_id, region_meta);
             }
 
@@ -108,9 +89,9 @@ impl EditorUi {
         let current_bpm = {
             let events = &self.proj_ctx.project.tempo_map.events;
             let idx = events
-                .partition_point(|e| e.ticks() <= start)
+                .partition_point(|e| e.tick <= start)
                 .saturating_sub(1);
-            events[idx].bpm()
+            events[idx].bpm
         };
         let duration_seconds = decoded.frames as f64 / decoded.sample_rate as f64;
         let data_duration = Ticks(
@@ -143,17 +124,8 @@ impl EditorUi {
 
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             let source = AudioSource::Original(decoded.path);
-            let audio_region = AudioRegion::new(
-                source.clone(),
-                AudioDataInfo {
-                    channels: decoded.channels,
-                    frames: decoded.frames,
-                    sample_rate: decoded.sample_rate,
-                    bpm: current_bpm,
-                },
-                start,
-                region_duration,
-            );
+            let audio_region =
+                AudioRegion::new(source.clone(), start, region_duration, current_bpm);
             let region_id = audio_track.add_region(audio_region);
 
             self.ui_state.timeline_state.last_dropped_region = Some((track_id, region_id));
@@ -174,7 +146,6 @@ impl EditorUi {
                 track_id,
                 region_id,
                 source,
-                channels: decoded.channels,
             });
         }
     }
