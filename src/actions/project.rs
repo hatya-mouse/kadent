@@ -1,7 +1,7 @@
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     core::project_ctx::EditorContext,
-    ui::{theme, workspaces::EditorUi},
+    ui::{EditorUi, theme},
 };
 use kadent_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
 use std::path::{Path, PathBuf};

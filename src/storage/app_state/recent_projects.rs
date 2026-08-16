@@ -1,6 +1,6 @@
 use crate::{
     consts::{KADENT_DATA_DIR_NAME, RECENT_PROJCETS_MAX_NUM, RECENT_PROJCETS_PATH},
-    ui::workspaces::splash::state::RecentProjData,
+    ui::splash::state::RecentProjData,
 };
 use std::{
     fs::File,

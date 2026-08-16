@@ -1,4 +1,4 @@
-use crate::ui::workspaces::EditorUi;
+use crate::ui::EditorUi;
 use kadent_engine::{
     data_types::Ticks,
     mixer::TrackID,

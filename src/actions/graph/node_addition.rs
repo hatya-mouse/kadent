@@ -5,7 +5,7 @@ use crate::{
         metadata::{NodeMeta, NodeType},
     },
     storage::project::get_project_dir,
-    ui::workspaces::EditorUi,
+    ui::EditorUi,
 };
 use eframe::egui;
 use kadent_engine::mixer::TrackID;

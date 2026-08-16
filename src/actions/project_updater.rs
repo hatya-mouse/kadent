@@ -1,4 +1,4 @@
-use crate::ui::workspaces::EditorUi;
+use crate::ui::EditorUi;
 use std::time::Instant;
 
 impl EditorUi {

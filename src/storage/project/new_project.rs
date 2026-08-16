@@ -5,7 +5,7 @@ use crate::{
         project_ctx::{EditorContext, ProjectContext},
     },
     storage::project::save_project,
-    ui::workspaces::EditorUi,
+    ui::EditorUi,
 };
 use kadent_engine::{
     data_types::{AudioContext, PlaybackContext, Ticks},

@@ -1,0 +1,38 @@
+mod note_grid;
+mod utils;
+
+use crate::{
+    core::metadata::TrackType,
+    ui::{EditorUi, theme},
+};
+use eframe::egui;
+
+impl EditorUi {
+    pub fn piano_roll(&mut self, ui: &mut egui::Ui) {
+        let Some((track_id, region_id)) = self.ui_state.selection.track_and_region_id() else {
+            ui.label("Select a note region to edit");
+            return;
+        };
+
+        // Get the region
+        if self
+            .proj_ctx
+            .project_meta
+            .get_track(&track_id)
+            .is_none_or(|track| track.track_type != TrackType::Note)
+        {
+            ui.label("Select a note region to edit");
+            return;
+        }
+
+        let total_rect = ui.available_rect_before_wrap();
+
+        // Draw notes
+        let grid_rect = egui::Rect::from_min_max(total_rect.min, total_rect.max);
+        egui::Frame::new()
+            .fill(theme::secondary_bg(ui.visuals().dark_mode))
+            .show(ui, |ui| {
+                self.note_grid(ui, grid_rect, track_id, region_id);
+            });
+    }
+}

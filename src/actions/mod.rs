@@ -11,9 +11,7 @@ mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
 
-use crate::{
-    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::workspaces::EditorUi,
-};
+use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorUi};
 use eframe::egui;
 use kadent_engine::{
     data_types::Ticks,

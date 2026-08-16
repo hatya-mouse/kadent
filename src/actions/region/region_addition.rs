@@ -1,7 +1,7 @@
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, DecodedAudio},
     core::metadata::{RegionMeta, TrackType},
-    ui::{theme, workspaces::EditorUi},
+    ui::{EditorUi, theme},
 };
 use kadent_engine::{
     audio_data::AudioSource,

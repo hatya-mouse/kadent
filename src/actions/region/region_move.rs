@@ -1,6 +1,6 @@
 use crate::{
     core::metadata::TrackType,
-    ui::{theme, workspaces::EditorUi},
+    ui::{EditorUi, theme},
 };
 use kadent_engine::{
     mixer::TrackID,
