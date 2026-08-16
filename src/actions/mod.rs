@@ -11,7 +11,9 @@ mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
 
-use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorUi};
+use crate::{
+    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorState,
+};
 use eframe::egui;
 use kadent_engine::{
     data_types::Ticks,
@@ -146,7 +148,7 @@ pub(crate) enum EditorAction {
     DisarmTrack,
 }
 
-impl EditorUi {
+impl EditorState {
     /// Consume all pending actions and execute them in order.
     pub(crate) fn consume_actions(&mut self) {
         let pending_actions: Vec<EditorAction> = self.pending_actions.drain(..).collect();
@@ -289,7 +291,7 @@ impl EditorUi {
                 }
                 Err(_) => {
                     // self.pending_export_path.take();
-                    // self.show_temp_status("Failed to export project", theme::error_fg());
+                    // self.ui_state.status_bar_state.show_temp_status("Failed to export project", theme::error_fg());
                 }
             }
         }

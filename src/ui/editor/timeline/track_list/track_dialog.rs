@@ -9,12 +9,12 @@ use crate::{
             text_input::text_input,
         },
         theme,
-        {EditorUi, editor::state::DialogState},
+        {EditorState, editor::state::DialogState},
     },
 };
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub(crate) fn track_dialog(&mut self, ui: &egui::Ui) {
         let DialogState::AddTrack(mut state) =
             std::mem::replace(&mut self.ui_state.dialog_state, DialogState::None)

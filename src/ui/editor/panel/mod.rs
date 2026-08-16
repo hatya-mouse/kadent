@@ -2,7 +2,7 @@ mod leaf;
 mod split;
 
 use crate::ui::{
-    EditorUi,
+    EditorState,
     editor::state::{PanelNode, PanelView, SplitDir},
 };
 use eframe::egui;
@@ -14,33 +14,32 @@ struct SplitAction {
     new_panel_first: bool,
 }
 
-impl EditorUi {
-    /// Renders the panel layout by recursively drawing the each nodes.
-    pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
-        // Extract the layout tree to avoid a simultaneous borrow of self
-        let mut layout = std::mem::take(&mut self.ui_state.panel_layout);
-        render_node(ui, &mut layout, rect, self, ui.id().with("panel_root"));
+/// Renders the panel layout by recursively drawing the each nodes.
+pub(in crate::ui) fn render_panels(ui: &mut egui::Ui, state: &mut EditorState, rect: egui::Rect) {
+    // Extract the layout tree to avoid a simultaneous borrow of self
+    let mut layout = std::mem::take(&mut state.ui_state.panel_layout);
+    render_node(ui, state, &mut layout, rect, ui.id().with("panel_root"));
 
-        // Remove code buffers for panels that no longer exist in the layout tree
-        let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
-        self.ui_state
-            .code_editor_state
-            .code_buffers
-            .retain(|id, _| active_ids.contains(id));
+    // Remove code buffers for panels that no longer exist in the layout tree
+    let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
+    state
+        .ui_state
+        .code_editor_state
+        .code_buffers
+        .retain(|id, _| active_ids.contains(id));
 
-        self.ui_state.panel_layout = layout;
-    }
+    state.ui_state.panel_layout = layout;
 }
 
 fn render_node(
     ui: &mut egui::Ui,
+    state: &mut EditorState,
     node: &mut PanelNode,
     rect: egui::Rect,
-    editor: &mut EditorUi,
     node_id: egui::Id,
 ) {
     let split_action = match node {
-        PanelNode::Leaf(view) => leaf::render_leaf(ui, view, rect, editor, node_id),
+        PanelNode::Leaf(view) => leaf::render_leaf(ui, state, view, rect, node_id),
         _ => None,
     };
 
@@ -50,7 +49,7 @@ fn render_node(
             ratio,
             first,
             second,
-        } => split::render_split(ui, *dir, ratio, first, second, rect, editor, node_id),
+        } => split::render_split(ui, state, *dir, ratio, first, second, rect, node_id),
         _ => None,
     };
 

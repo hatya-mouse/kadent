@@ -1,6 +1,6 @@
 use crate::{
     core::metadata::{GraphMeta, TrackMeta, TrackType},
-    ui::EditorUi,
+    ui::EditorState,
 };
 use eframe::egui;
 use kadent_engine::{
@@ -8,7 +8,7 @@ use kadent_engine::{
     track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
 };
 
-impl EditorUi {
+impl EditorState {
     /// Adds a new track to the project and the project metadata.
     pub(crate) fn add_track(
         &mut self,

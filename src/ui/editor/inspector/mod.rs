@@ -7,7 +7,7 @@ use crate::{
     fonts::RichTextExt,
     ui::{
         theme,
-        {EditorUi, editor::state::Selection},
+        {EditorState, editor::state::Selection},
     },
 };
 use eframe::egui;
@@ -15,7 +15,7 @@ use std::hash::Hash;
 
 const HEADER_HEIGHT: f32 = 32.0;
 
-impl EditorUi {
+impl EditorState {
     pub fn inspector(&mut self, ui: &mut egui::Ui) {
         // Fill the background
         ui.painter().rect_filled(

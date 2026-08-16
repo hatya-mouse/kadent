@@ -1,8 +1,8 @@
-use crate::{core::midi_thread::MidiCommand, ui::EditorUi};
+use crate::{core::midi_thread::MidiCommand, ui::EditorState};
 use kadent_engine::{mixer::TrackID, thread::AudioCommand};
 use midir::MidiInputPort;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn set_midi_input_port(&mut self, midi_in_port: MidiInputPort) {
         self.ui_state.selected_midi_port = Some(midi_in_port.id());
         self.midi_command_tx

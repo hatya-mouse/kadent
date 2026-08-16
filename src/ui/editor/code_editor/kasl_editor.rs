@@ -1,14 +1,14 @@
 use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::{
-        EditorUi,
+        EditorState,
         components::{icon_button::small_icon_button, panel_header::panel_header},
     },
 };
 use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::highlight_with;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Show a placeholder when no file is open
         if !self

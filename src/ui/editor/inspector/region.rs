@@ -2,14 +2,14 @@ use crate::ui::{
     components::text_input::text_input,
     theme,
     {
-        EditorUi,
+        EditorState,
         editor::inspector::{inspector_item, inspector_section},
     },
 };
 use eframe::egui;
 use kadent_engine::{mixer::TrackID, track::RegionID};
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn region_inspector(
         &mut self,
         ui: &mut egui::Ui,

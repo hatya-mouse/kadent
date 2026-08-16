@@ -1,7 +1,7 @@
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     core::project_ctx::EditorContext,
-    ui::{EditorUi, theme},
+    ui::{EditorState, theme},
 };
 use kadent_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
 use std::path::{Path, PathBuf};
@@ -19,7 +19,7 @@ pub(crate) struct FileNode {
     pub kind: FileNodeKind,
 }
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn save_all(&mut self) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Save);
         self.push_background_job(BackgroundThreadCommand::SaveProject {
@@ -45,7 +45,9 @@ impl EditorUi {
     pub(super) fn export_project(&mut self, path: &Path) {
         // If the project is already being exported, show a message and return early
         if self.ui_state.pending_export_path.is_some() {
-            self.show_temp_status("Export already in progress", theme::error_fg());
+            self.ui_state
+                .status_bar_state
+                .show_temp_status("Export already in progress", theme::error_fg());
             return;
         }
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Export);

@@ -3,11 +3,11 @@ mod utils;
 
 use crate::{
     core::metadata::TrackType,
-    ui::{EditorUi, theme},
+    ui::{EditorState, theme},
 };
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub fn piano_roll(&mut self, ui: &mut egui::Ui) {
         let Some((track_id, region_id)) = self.ui_state.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");

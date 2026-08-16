@@ -1,10 +1,10 @@
 mod item;
 
-use crate::ui::{EditorUi, theme};
+use crate::ui::{EditorState, theme};
 use eframe::egui;
 use item::draw_error_item;
 
-impl EditorUi {
+impl EditorState {
     pub fn error_list(&mut self, ui: &mut egui::Ui) {
         ui.painter().rect_filled(
             ui.available_rect_before_wrap(),

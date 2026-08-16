@@ -1,10 +1,10 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use kadent_engine::{
     thread::{AudioCommand, AudioError},
     timing::TimePosition,
 };
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn play(&mut self) {
         let command = AudioCommand::Play;
         if self

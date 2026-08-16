@@ -1,10 +1,10 @@
 mod file_browser;
 mod kasl_editor;
 
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn code_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Ensure a buffer entry exists for this panel
         self.ui_state

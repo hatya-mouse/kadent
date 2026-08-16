@@ -2,7 +2,7 @@ use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
 use crate::ui::{
     theme,
     {
-        EditorUi,
+        EditorState,
         editor::node_graph::{
             NODE_HEADER_HEGIHT,
             port::{calc_port_y, draw_ports},
@@ -12,7 +12,7 @@ use crate::ui::{
 use eframe::egui::{self, Sense};
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn draw_node(
         &mut self,
         ui: &mut egui::Ui,

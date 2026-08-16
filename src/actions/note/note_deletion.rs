@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use kadent_engine::{
     mixer::TrackID,
     track::{
@@ -7,7 +7,7 @@ use kadent_engine::{
     },
 };
 
-impl EditorUi {
+impl EditorState {
     pub(in crate::actions) fn remove_note(
         &mut self,
         track_id: &TrackID,

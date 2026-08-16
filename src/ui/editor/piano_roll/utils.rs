@@ -1,8 +1,8 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use eframe::egui;
 use kadent_engine::data_types::Ticks;
 
-impl EditorUi {
+impl EditorState {
     pub(in crate::ui::editor) fn calc_note_position(
         &self,
         click_pos: egui::Pos2,

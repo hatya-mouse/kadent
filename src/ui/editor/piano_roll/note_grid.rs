@@ -3,7 +3,7 @@ use crate::{
     ui::{
         theme,
         zoom::zoom_scroll_offset,
-        {EditorUi, editor::state::Modification},
+        {EditorState, editor::state::Modification},
     },
 };
 use eframe::egui;
@@ -18,7 +18,7 @@ use kadent_engine::{
 
 const NOTE_GRID_FACTOR: f32 = 6.0;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn note_grid(
         &mut self,
         ui: &mut egui::Ui,

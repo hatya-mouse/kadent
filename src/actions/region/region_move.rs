@@ -1,6 +1,6 @@
 use crate::{
     core::metadata::TrackType,
-    ui::{EditorUi, theme},
+    ui::{EditorState, theme},
 };
 use kadent_engine::{
     mixer::TrackID,
@@ -8,7 +8,7 @@ use kadent_engine::{
     track::{RegionID, audio_track::AudioTrack, note_track::NoteTrack},
 };
 
-impl EditorUi {
+impl EditorState {
     pub(in crate::actions) fn move_region(
         &mut self,
         original_track_id: &TrackID,
@@ -52,7 +52,7 @@ impl EditorUi {
 
             // Check if the destination track is of the same type as the original track
             if original_track_meta.track_type != new_track_meta.track_type {
-                self.show_temp_status(
+                self.ui_state.status_bar_state.show_temp_status(
                     &format!(
                         "Cannot move {} region to {} track",
                         original_track_meta.track_type.fmt_lowercase(),

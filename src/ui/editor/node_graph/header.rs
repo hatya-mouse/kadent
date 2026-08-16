@@ -1,10 +1,10 @@
 use crate::{
     actions::{AddibleNodes, EditorAction},
-    ui::{EditorUi, components::icon_button::small_icon_button, theme},
+    ui::{EditorState, components::icon_button::small_icon_button, theme},
 };
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn draw_node_graph_header(&mut self, ui: &mut egui::Ui) {
         let mut node_to_add: Option<AddibleNodes> = None;
         let mut jump_to_random = false;

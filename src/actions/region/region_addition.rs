@@ -1,7 +1,7 @@
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, DecodedAudio},
     core::metadata::{RegionMeta, TrackType},
-    ui::{EditorUi, theme},
+    ui::{EditorState, theme},
 };
 use kadent_engine::{
     audio_data::AudioSource,
@@ -14,7 +14,7 @@ use kadent_engine::{
     },
 };
 
-impl EditorUi {
+impl EditorState {
     /// Adds a new empty audio region to the given audio track.
     pub(in crate::actions) fn add_audio_region(
         &mut self,

@@ -1,5 +1,5 @@
 use crate::ui::{
-    EditorUi,
+    EditorState,
     editor::inspector::{inspector_item, inspector_section},
     theme,
 };
@@ -9,7 +9,7 @@ use kadent_engine::{
     track::{RegionID, note_track::NoteID},
 };
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn note_inspector(
         &mut self,
         ui: &mut egui::Ui,

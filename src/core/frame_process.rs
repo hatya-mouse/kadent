@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use kadent_engine::data_types::Ticks;
 use ringbuf::traits::Consumer;
 use std::{sync::atomic::Ordering, time::Instant};
@@ -11,7 +11,7 @@ pub(crate) struct PeakHold {
 
 const PEAK_HOLD_TIME: f32 = 0.5;
 
-impl EditorUi {
+impl EditorState {
     pub fn calculate_playhead(&mut self) {
         self.ui_state.playhead_tick =
             Ticks(self.thread_handle.playhead_tick.load(Ordering::Acquire));

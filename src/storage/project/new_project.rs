@@ -5,7 +5,7 @@ use crate::{
         project_ctx::{EditorContext, ProjectContext},
     },
     storage::project::save_project,
-    ui::EditorUi,
+    ui::EditorState,
 };
 use kadent_engine::{
     data_types::{AudioContext, PlaybackContext, Ticks},
@@ -47,7 +47,7 @@ pub(crate) fn create_new_project(
         },
     );
     let project_meta = ProjectMeta {
-        kasl_search_paths: EditorUi::system_kasl_search_paths(),
+        kasl_search_paths: EditorState::system_kasl_search_paths(),
         export_ctx,
         ..Default::default()
     };

@@ -1,4 +1,4 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use kadent_engine::{
     data_types::Ticks,
     mixer::TrackID,
@@ -8,7 +8,7 @@ use kadent_engine::{
     },
 };
 
-impl EditorUi {
+impl EditorState {
     pub(in crate::actions) fn move_note(
         &mut self,
         track_id: &TrackID,

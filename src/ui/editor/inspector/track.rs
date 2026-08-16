@@ -6,7 +6,7 @@ use crate::{
         },
         theme,
         {
-            EditorUi,
+            EditorState,
             editor::inspector::{inspector_item, inspector_section},
         },
     },
@@ -14,7 +14,7 @@ use crate::{
 use eframe::egui;
 use kadent_engine::mixer::TrackID;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {
         inspector_section(ui, ("track_section", track_id), "Track", |ui| {
             let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id)

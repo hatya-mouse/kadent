@@ -1,6 +1,6 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn automation(&mut self, ui: &mut egui::Ui) {}
 }

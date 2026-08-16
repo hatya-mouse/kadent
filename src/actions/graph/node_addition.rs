@@ -5,12 +5,12 @@ use crate::{
         metadata::{NodeMeta, NodeType},
     },
     storage::project::get_project_dir,
-    ui::EditorUi,
+    ui::EditorState,
 };
 use eframe::egui;
 use kadent_engine::mixer::TrackID;
 
-impl EditorUi {
+impl EditorState {
     pub(in crate::actions) fn add_node(
         &mut self,
         track_id: &TrackID,

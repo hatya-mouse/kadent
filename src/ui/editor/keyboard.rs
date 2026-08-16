@@ -2,11 +2,11 @@
 
 use crate::{
     actions::EditorAction,
-    ui::{EditorUi, editor::state::Selection},
+    ui::{EditorState, editor::state::Selection},
 };
 use eframe::egui;
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn handle_keyboard(&mut self, ui: &egui::Ui) {
         // If other UI element has focus, I don't want to handle keybaord input here
         if ui.egui_wants_keyboard_input() {

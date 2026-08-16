@@ -1,8 +1,8 @@
-use crate::ui::EditorUi;
+use crate::ui::EditorState;
 use cpal::traits::HostTrait;
 use midir::MidiInput;
 
-impl EditorUi {
+impl EditorState {
     /// Fetches the audio devices from the host.
     pub(super) fn fetch_devices(&mut self) {
         // Fetch the available MIDI ports

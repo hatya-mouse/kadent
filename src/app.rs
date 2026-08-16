@@ -2,9 +2,7 @@ use crate::{
     consts::PROJECT_FILE_EXTENSION,
     core::project_ctx::EditorContext,
     storage::project::open_project_to_ctx,
-    ui::{
-        theme, {EditorUi, SplashUi},
-    },
+    ui::{EditorState, SplashUi, editor::editor_ui, theme},
 };
 use eframe::{self, egui};
 use std::path::PathBuf;
@@ -15,7 +13,7 @@ pub struct KadentApp {
 
 pub enum AppState {
     Splash(Box<SplashUi>),
-    Editor(Box<EditorUi>),
+    Editor(Box<EditorState>),
 }
 
 enum GetDroppedFileResult {
@@ -33,7 +31,7 @@ impl KadentApp {
             && let Some(editor_ctx) = open_project_to_ctx(initial_project)
         {
             return KadentApp {
-                state: AppState::Editor(Box::new(EditorUi::new(editor_ctx))),
+                state: AppState::Editor(Box::new(EditorState::new(editor_ctx))),
             };
         }
         KadentApp {
@@ -99,16 +97,16 @@ impl eframe::App for KadentApp {
                     .inner
                 {
                     // If the splash screen returned an editor context, switch to the editor UI
-                    self.state = AppState::Editor(Box::new(EditorUi::new(editor_ctx)));
+                    self.state = AppState::Editor(Box::new(EditorState::new(editor_ctx)));
                 }
 
                 if let Some(GetDroppedFileResult::Project(ctx)) = dropped_file {
-                    self.state = AppState::Editor(Box::new(EditorUi::new(*ctx)));
+                    self.state = AppState::Editor(Box::new(EditorState::new(*ctx)));
                 }
             }
             AppState::Editor(editor) => {
                 // If we're in the editor state, just show the editor UI
-                editor.editor_ui(ui, frame);
+                editor_ui(editor.as_mut(), ui, frame);
 
                 if let Some(GetDroppedFileResult::AudioFile(dropped_path)) = dropped_file {
                     editor.audio_dropped(dropped_path);

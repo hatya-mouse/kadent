@@ -8,7 +8,7 @@ use crate::{
         },
         theme,
         {
-            EditorUi,
+            EditorState,
             editor::inspector::{inspector_item, inspector_section},
         },
     },
@@ -16,7 +16,7 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn node_inspector(
         &mut self,
         ui: &mut egui::Ui,

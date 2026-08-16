@@ -1,9 +1,9 @@
-use crate::{core::midi_thread::MidiCommand, ui::EditorUi};
+use crate::{core::midi_thread::MidiCommand, ui::EditorState};
 use kadent_engine::data_types::MidiEvent;
 
 const PREVIEW_NOTE_DURATION: std::time::Duration = std::time::Duration::from_millis(500);
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn play_note_feedback(&mut self, pitch: u8, velocity: u8) {
         self.midi_command_tx
             .send(MidiCommand::SendEvent(MidiEvent::NoteOn {

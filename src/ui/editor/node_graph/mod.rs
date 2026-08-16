@@ -10,7 +10,7 @@ use crate::{
         components::panel_header::panel_header,
         theme,
         {
-            EditorUi,
+            EditorState,
             editor::node_graph::{
                 edge::{draw_edges, draw_ghost_edge},
                 port::find_hovered_input,
@@ -32,7 +32,7 @@ const EDGE_WIDTH: f32 = 4.0;
 // Height of the node header, which is the same as the height of the node title bar.
 const NODE_HEADER_HEGIHT: f32 = 24.0;
 
-impl EditorUi {
+impl EditorState {
     pub fn node_graph(&mut self, ui: &mut egui::Ui) {
         // Draw the node graph header
         panel_header(ui, PANEL_HEADER_MARGIN, |ui| {

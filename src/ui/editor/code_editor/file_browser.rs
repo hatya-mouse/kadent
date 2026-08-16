@@ -1,11 +1,11 @@
 use crate::{
     actions::{FileNode, FileNodeKind},
-    ui::{EditorUi, theme},
+    ui::{EditorState, theme},
 };
 use eframe::egui;
 use std::path::{Path, PathBuf};
 
-impl EditorUi {
+impl EditorState {
     pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Get the currently opened path for highlighting (empty path = nothing selected)
         let opened_path: PathBuf = self
