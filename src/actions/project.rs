@@ -44,12 +44,12 @@ impl EditorUi {
 
     pub(super) fn export_project(&mut self, path: &Path) {
         // If the project is already being exported, show a message and return early
-        if self.pending_export_path.is_some() {
+        if self.ui_state.pending_export_path.is_some() {
             self.show_temp_status("Export already in progress", theme::error_fg());
             return;
         }
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Export);
-        self.pending_export_path = Some(path.to_path_buf());
+        self.ui_state.pending_export_path = Some(path.to_path_buf());
         // Request generation the f32 samples for the entire project
         let project = self.proj_ctx.project.clone();
         let export_ctx = self.proj_ctx.project_meta.export_ctx.clone();

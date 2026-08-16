@@ -279,7 +279,7 @@ impl EditorUi {
         while let Ok(res) = self.thread_handle.result_rx.try_recv() {
             match res {
                 Ok(AudioResult::ExportedAudio(samples)) => {
-                    let Some(export_path) = self.pending_export_path.take() else {
+                    let Some(export_path) = self.ui_state.pending_export_path.take() else {
                         return;
                     };
 

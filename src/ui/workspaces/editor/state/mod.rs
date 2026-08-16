@@ -28,7 +28,7 @@ use kadent_engine::{
     track::{RegionID, note_track::NoteID},
 };
 use midir::{MidiInput, MidiInputPorts};
-use std::time::Instant;
+use std::{path::PathBuf, time::Instant};
 
 #[derive(Default)]
 pub(crate) enum Selection {
@@ -139,6 +139,10 @@ pub(crate) struct EditorUiState {
     pub default_output_device: Option<cpal::Device>,
     // The fetched audio output devices.
     pub output_devices: Vec<cpal::Device>,
+
+    // --- EXPORTING ---
+    /// The path to write the currently exported project to.
+    pub pending_export_path: Option<PathBuf>,
 
     // --- AUDIO CONTEXT ---
     /// The current audio context.

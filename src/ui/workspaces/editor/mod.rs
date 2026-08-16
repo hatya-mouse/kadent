@@ -31,7 +31,7 @@ use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use kadent_engine::thread::{AudioCommand, AudioError, AudioThread, AudioThreadHandle};
-use std::{collections::VecDeque, path::PathBuf, sync::mpsc, time::Duration};
+use std::{collections::VecDeque, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
 pub struct EditorUi {
@@ -49,8 +49,6 @@ pub struct EditorUi {
     pub ui_state: EditorUiState,
     /// Pending actions to be executed in the frame.
     pub pending_actions: VecDeque<EditorAction>,
-    /// The path to write the currently exported project to.
-    pub pending_export_path: Option<PathBuf>,
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
@@ -70,7 +68,6 @@ impl EditorUi {
             errors: Vec::new(),
             ui_state: EditorUiState::with_audio_ctx(editor_ctx.audio_ctx),
             pending_actions: VecDeque::new(),
-            pending_export_path: None,
             debug_mode: false,
         };
 
