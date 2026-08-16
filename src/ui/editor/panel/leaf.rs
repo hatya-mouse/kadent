@@ -2,6 +2,8 @@ use super::SplitAction;
 use crate::ui::{
     EditorState,
     editor::{
+        node_graph::node_graph,
+        piano_roll::piano_roll,
         state::{PanelView, SplitDir},
         timeline::timeline,
     },
@@ -87,8 +89,8 @@ fn render_view_content(
 ) {
     match view {
         PanelView::Timeline => timeline(ui, state),
-        PanelView::PianoRoll => state.piano_roll(ui),
-        PanelView::NodeGraph => state.node_graph(ui),
+        PanelView::PianoRoll => piano_roll(ui, state),
+        PanelView::NodeGraph => node_graph(ui, state),
         PanelView::Inspector => state.inspector(ui),
         PanelView::ErrorList => state.error_list(ui),
         PanelView::Automation => state.automation(ui),
