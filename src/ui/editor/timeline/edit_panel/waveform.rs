@@ -21,9 +21,10 @@ impl EditorUi {
         self.ui_state.timeline_state.waveforms.clear();
 
         let mut commands = Vec::new();
-        for (track_id, track_meta) in &self.proj_ctx.project_meta.tracks {
+        for (track_id, track_meta) in &self.ui_state.proj_ctx.project_meta.tracks {
             if track_meta.track_type == TrackType::Audio {
                 let Some(track) = self
+                    .ui_state
                     .proj_ctx
                     .project
                     .get_track(track_id)
@@ -61,6 +62,7 @@ impl EditorUi {
     ) {
         // Get the region and the waveform LOD data
         let Some(region) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track(&track_id)
@@ -70,6 +72,7 @@ impl EditorUi {
             return;
         };
         let Some(region_meta) = self
+            .ui_state
             .proj_ctx
             .project_meta
             .get_track(&track_id)

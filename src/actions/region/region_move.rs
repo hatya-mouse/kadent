@@ -17,7 +17,8 @@ impl EditorUi {
         new_start: TimePosition,
     ) {
         // Move the region to the new start beats
-        let Some(original_track) = self.proj_ctx.project.get_track(original_track_id) else {
+        let Some(original_track) = self.ui_state.proj_ctx.project.get_track(original_track_id)
+        else {
             return;
         };
         let Some(original_bounds) = original_track.get_region_bounds(region_id) else {
@@ -25,17 +26,27 @@ impl EditorUi {
         };
         let new_bounds = self.create_bounds_from(original_bounds, new_start);
 
-        let Some(original_track) = self.proj_ctx.project.get_track_mut(original_track_id) else {
+        let Some(original_track) = self
+            .ui_state
+            .proj_ctx
+            .project
+            .get_track_mut(original_track_id)
+        else {
             return;
         };
 
         if original_track_id != new_track_id {
             // Move the region to a new track
-            let Some(original_track_meta) = self.proj_ctx.project_meta.get_track(original_track_id)
+            let Some(original_track_meta) = self
+                .ui_state
+                .proj_ctx
+                .project_meta
+                .get_track(original_track_id)
             else {
                 return;
             };
-            let Some(new_track_meta) = self.proj_ctx.project_meta.get_track(new_track_id) else {
+            let Some(new_track_meta) = self.ui_state.proj_ctx.project_meta.get_track(new_track_id)
+            else {
                 return;
             };
 
@@ -62,18 +73,23 @@ impl EditorUi {
                         .downcast_ref::<AudioTrack>()
                         .is_some()
                         && self
+                            .ui_state
                             .proj_ctx
                             .project
                             .get_track(new_track_id)
                             .is_some_and(|t| t.as_any().downcast_ref::<AudioTrack>().is_some())
-                        && let Some(original_track) =
-                            self.proj_ctx.project.get_track_mut(original_track_id)
+                        && let Some(original_track) = self
+                            .ui_state
+                            .proj_ctx
+                            .project
+                            .get_track_mut(original_track_id)
                         && let Some(original_audio_track) =
                             original_track.as_any_mut().downcast_mut::<AudioTrack>()
                         && let Some(mut region) = original_audio_track.take_region(region_id)
                     {
                         region.bounds = new_bounds.clone();
                         if let Some(new_audio_track) = self
+                            .ui_state
                             .proj_ctx
                             .project
                             .get_track_mut(new_track_id)
@@ -89,18 +105,23 @@ impl EditorUi {
                         .downcast_ref::<NoteTrack>()
                         .is_some()
                         && self
+                            .ui_state
                             .proj_ctx
                             .project
                             .get_track(new_track_id)
                             .is_some_and(|t| t.as_any().downcast_ref::<NoteTrack>().is_some())
-                        && let Some(original_track) =
-                            self.proj_ctx.project.get_track_mut(original_track_id)
+                        && let Some(original_track) = self
+                            .ui_state
+                            .proj_ctx
+                            .project
+                            .get_track_mut(original_track_id)
                         && let Some(original_note_track) =
                             original_track.as_any_mut().downcast_mut::<NoteTrack>()
                         && let Some(mut region) = original_note_track.take_region(region_id)
                     {
                         region.bounds = new_bounds.clone();
                         if let Some(new_note_track) = self
+                            .ui_state
                             .proj_ctx
                             .project
                             .get_track_mut(new_track_id)
@@ -113,15 +134,19 @@ impl EditorUi {
             }
 
             if let Some(new_region_id) = new_region_id
-                && self.proj_ctx.project_meta.get_track(new_track_id).is_some()
+                && self.ui_state.proj_ctx.project_meta.get_track(new_track_id).is_some()
                 && let Some(original_track_meta) =
-                    self.proj_ctx.project_meta.get_track_mut(original_track_id)
+                    self.ui_state.proj_ctx.project_meta.get_track_mut(original_track_id)
                 // Remove the region from the old track...
                 && let Some(mut region_meta) = original_track_meta.remove_region(region_id)
             {
                 // ...and move the region in the region meta to the new track
                 region_meta.bounds = new_bounds;
-                if let Some(new_track_meta) = self.proj_ctx.project_meta.get_track_mut(new_track_id)
+                if let Some(new_track_meta) = self
+                    .ui_state
+                    .proj_ctx
+                    .project_meta
+                    .get_track_mut(new_track_id)
                 {
                     new_track_meta.add_region(new_region_id, region_meta);
                     self.ui_state.select_region(*new_track_id, new_region_id);
@@ -141,8 +166,11 @@ impl EditorUi {
                 }
             }
         } else {
-            let Some(original_track_meta) =
-                self.proj_ctx.project_meta.get_track_mut(original_track_id)
+            let Some(original_track_meta) = self
+                .ui_state
+                .proj_ctx
+                .project_meta
+                .get_track_mut(original_track_id)
             else {
                 return;
             };
@@ -165,6 +193,7 @@ impl EditorUi {
         new_duration: TimePosition,
     ) {
         let Some(original_bounds) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track(track_id)
@@ -173,7 +202,7 @@ impl EditorUi {
             return;
         };
 
-        let tempo_map = &self.proj_ctx.project.tempo_map;
+        let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
         let new_bounds = match original_bounds.timebase() {
             Timebase::Musical => TimeBounds::Musical {
                 start: original_bounds.start_tick(tempo_map),
@@ -186,12 +215,12 @@ impl EditorUi {
         };
 
         // Move the region to the new start beats
-        if let Some(track) = self.proj_ctx.project.get_track_mut(track_id) {
+        if let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) {
             track.set_region_bounds(region_id, new_bounds.clone());
         }
 
         // Set the region start beats in metadata
-        if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id)
+        if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id)
             && let Some(region_meta) = track_meta.get_region_mut(region_id)
         {
             region_meta.bounds = new_bounds;
@@ -205,7 +234,7 @@ impl EditorUi {
         original_bounds: &TimeBounds,
         new_start: TimePosition,
     ) -> TimeBounds {
-        let tempo_map = &self.proj_ctx.project.tempo_map;
+        let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
         match original_bounds.timebase() {
             Timebase::Musical => TimeBounds::Musical {
                 start: new_start.to_ticks(tempo_map),

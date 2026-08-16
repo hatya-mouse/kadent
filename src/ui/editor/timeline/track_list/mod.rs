@@ -18,8 +18,9 @@ impl EditorUi {
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
 
-            for track_id in self.proj_ctx.project_meta.track_order.clone() {
-                if let Some(track_meta) = self.proj_ctx.project_meta.tracks.get(&track_id) {
+            for track_id in self.ui_state.proj_ctx.project_meta.track_order.clone() {
+                if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.tracks.get(&track_id)
+                {
                     // Change the background color of the selected track based on whether the track is selected
                     let is_selected =
                         Some(&track_id) == self.ui_state.selection.track_id().as_ref();

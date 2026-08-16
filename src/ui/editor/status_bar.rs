@@ -22,7 +22,7 @@ impl EditorUi {
     pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
             if let Some(track_id) = self.ui_state.selection.track_id()
-                && let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id)
+                && let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(&track_id)
             {
                 self.status_text(ui, &format!("Selection: {}", track_meta.name));
 

@@ -15,6 +15,7 @@ pub(super) use status_bar_state::TempStatusNotification;
 
 use crate::{
     actions::FileNode,
+    core::project_ctx::ProjectContext,
     ui::editor::state::{
         code_editor_state::CodeEditorState, node_graph_state::NodeGraphState,
         piano_roll_state::PianoRollState, status_bar_state::StatusBarState,
@@ -25,6 +26,7 @@ use kadent_engine::{
     data_types::{AudioContext, Ticks},
     graph::node_id::NodeID,
     mixer::TrackID,
+    thread::AudioError,
     track::{RegionID, note_track::NoteID},
 };
 use midir::{MidiInput, MidiInputPorts};
@@ -82,7 +84,6 @@ impl Selection {
     }
 }
 
-#[derive(Default)]
 pub(crate) struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
@@ -140,6 +141,10 @@ pub(crate) struct EditorUiState {
     // The fetched audio output devices.
     pub output_devices: Vec<cpal::Device>,
 
+    // --- ERRORS ---
+    /// Errors to be shown.
+    pub errors: Vec<AudioError>,
+
     // --- EXPORTING ---
     /// The path to write the currently exported project to.
     pub pending_export_path: Option<PathBuf>,
@@ -147,13 +152,38 @@ pub(crate) struct EditorUiState {
     // --- AUDIO CONTEXT ---
     /// The current audio context.
     pub audio_ctx: AudioContext,
+    /// The current project context.
+    pub proj_ctx: ProjectContext,
 }
 
 impl EditorUiState {
-    pub fn with_audio_ctx(audio_ctx: AudioContext) -> Self {
+    pub fn new(audio_ctx: AudioContext, proj_ctx: ProjectContext) -> Self {
         EditorUiState {
+            panel_layout: PanelNode::default(),
+            toolbar_state: ToolbarState::default(),
+            dialog_state: DialogState::default(),
+            timeline_state: TimelineState::default(),
+            piano_roll_state: PianoRollState::default(),
+            node_graph_state: NodeGraphState::default(),
+            code_editor_state: CodeEditorState::default(),
+            status_bar_state: StatusBarState::default(),
+            is_playing: false,
+            playhead_tick: Ticks(0),
+            last_edit_time: None,
+            selection: Selection::None,
+            modification: Modification::None,
+            project_dir_cache: Vec::new(),
+            selected_midi_port: None,
+            midi_in: None,
+            midi_in_ports: MidiInputPorts::default(),
+            selected_output_device: None,
+            host: cpal::default_host(),
+            default_output_device: None,
+            output_devices: Vec::new(),
+            errors: Vec::new(),
+            pending_export_path: None,
             audio_ctx,
-            ..Default::default()
+            proj_ctx,
         }
     }
 

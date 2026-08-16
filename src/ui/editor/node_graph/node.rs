@@ -27,6 +27,7 @@ impl EditorUi {
         // Borrows end at the closing brace so we can take &mut self freely afterwards.
         let (input_names, output_names, pos, display_name) = {
             let Some(node) = self
+                .ui_state
                 .proj_ctx
                 .project
                 .get_track(&track_id)
@@ -35,6 +36,7 @@ impl EditorUi {
                 return;
             };
             let Some(meta) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track(&track_id)
@@ -130,6 +132,7 @@ impl EditorUi {
         if response.dragged()
             && self.ui_state.node_graph_state.ghost_edge.is_none()
             && let Some(meta) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
@@ -194,13 +197,20 @@ impl EditorUi {
             // If the drag has started, get the edge pointing toward the input port and create a ghost edge
             if port_resp.drag_started() {
                 // Find the edge connected to this input port
-                let found = self.proj_ctx.project.get_track(track_id).and_then(|t| {
-                    t.get_graph()
-                        .get_all_edges()
-                        .iter()
-                        .find(|(_, _, to_id, in_idx)| to_id == node_id && *in_idx == current_row)
-                        .copied()
-                });
+                let found = self
+                    .ui_state
+                    .proj_ctx
+                    .project
+                    .get_track(track_id)
+                    .and_then(|t| {
+                        t.get_graph()
+                            .get_all_edges()
+                            .iter()
+                            .find(|(_, _, to_id, in_idx)| {
+                                to_id == node_id && *in_idx == current_row
+                            })
+                            .copied()
+                    });
                 if let Some(edge) = found {
                     let (from_id, out_idx, _, _) = edge;
                     let mouse_pos = ui

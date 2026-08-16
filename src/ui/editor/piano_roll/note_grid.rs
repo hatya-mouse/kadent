@@ -28,6 +28,7 @@ impl EditorUi {
     ) {
         // Get the target region
         let Some(track) = self
+            .ui_state
             .proj_ctx
             .project
             .tracks
@@ -43,6 +44,7 @@ impl EditorUi {
 
         // Get the color of the track
         let Some(track_color) = self
+            .ui_state
             .proj_ctx
             .project_meta
             .get_track(&track_id)
@@ -57,7 +59,7 @@ impl EditorUi {
         // Calculate the total size of the scroll area content
         let region_duration = region
             .bounds
-            .duration_ticks(&self.proj_ctx.project.tempo_map);
+            .duration_ticks(&self.ui_state.proj_ctx.project.tempo_map);
         let scroll_content_width = (region_duration.0 as f32 * ppt).max(note_grid_rect.width());
         // Calculate the total height of the scroll area content (128 MIDI notes)
         let scroll_content_height =
@@ -358,6 +360,7 @@ impl EditorUi {
             );
 
             if let Some(region) = self
+                .ui_state
                 .proj_ctx
                 .project
                 .get_track_mut(note_id.0)
@@ -375,6 +378,7 @@ impl EditorUi {
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
+                .ui_state
                 .proj_ctx
                 .project
                 .get_track(note_id.0)
@@ -401,6 +405,7 @@ impl EditorUi {
                 .select_note(*note_id.0, *note_id.1, *note_id.2);
 
             if let Some(region) = self
+                .ui_state
                 .proj_ctx
                 .project
                 .get_track_mut(note_id.0)
@@ -420,6 +425,7 @@ impl EditorUi {
             }
         } else if move_res.drag_stopped() {
             let committed = self
+                .ui_state
                 .proj_ctx
                 .project
                 .get_track(note_id.0)

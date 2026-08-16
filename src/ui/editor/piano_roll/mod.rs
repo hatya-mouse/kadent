@@ -16,6 +16,7 @@ impl EditorUi {
 
         // Get the region
         if self
+            .ui_state
             .proj_ctx
             .project_meta
             .get_track(&track_id)

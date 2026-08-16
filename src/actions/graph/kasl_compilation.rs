@@ -4,7 +4,7 @@ use crate::{core::kasl_node::KaslNode, ui::EditorUi};
 
 impl EditorUi {
     pub(in crate::actions) fn compile_kasl_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
-        let Some(track) = self.proj_ctx.project.get_track_mut(track_id) else {
+        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
             return;
         };
         let Some(node) = track.get_graph_mut().get_node_mut(node_id) else {
@@ -14,7 +14,7 @@ impl EditorUi {
             return;
         };
 
-        let export_ctx = &self.proj_ctx.project_meta.export_ctx;
+        let export_ctx = &self.ui_state.proj_ctx.project_meta.export_ctx;
         if let Err(err) = kasl_node.compile(export_ctx) {
             eprintln!("Error compiling KaslNode: {}", err);
         } else {

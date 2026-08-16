@@ -18,7 +18,7 @@ impl EditorUi {
     }
 
     pub fn process_vu_value(&mut self) {
-        let channels = self.proj_ctx.project_meta.export_ctx.channels;
+        let channels = self.ui_state.proj_ctx.project_meta.export_ctx.channels;
         self.ui_state
             .toolbar_state
             .last_vu_value

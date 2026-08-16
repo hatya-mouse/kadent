@@ -18,6 +18,7 @@ impl EditorUi {
     ) {
         // Set the note's start time
         if let Some(region) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track_mut(track_id)
@@ -38,6 +39,7 @@ impl EditorUi {
         new_pitch: f32,
     ) {
         if let Some(region) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track_mut(track_id)
@@ -58,6 +60,7 @@ impl EditorUi {
     ) {
         // Set the note's duration
         if let Some(region) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track_mut(track_id)

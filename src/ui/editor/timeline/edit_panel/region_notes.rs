@@ -19,6 +19,7 @@ impl EditorUi {
         region_rect: &egui::Rect,
     ) {
         let Some(region) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track(track_id)
@@ -33,7 +34,7 @@ impl EditorUi {
         // Calculate the pixels per ticks based on the region's duration and the width of the region rectangle
         let region_duration = region
             .bounds
-            .duration_ticks(&self.proj_ctx.project.tempo_map);
+            .duration_ticks(&self.ui_state.proj_ctx.project.tempo_map);
         let ppt = rect_width / region_duration.0 as f32;
         // Also calculate the y position per pitch
         let y_per_pitch = rect_height / 128.0;

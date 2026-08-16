@@ -142,14 +142,21 @@ impl EditorUi {
     pub(super) fn timeline_content_width(&self) -> f32 {
         let ppt = self.ui_state.timeline_state.pixels_per_beat
             / self.ui_state.audio_ctx.resolution as f32;
-        let tempo_map = &self.proj_ctx.project.tempo_map;
-        let range_end_ticks = self.proj_ctx.project.export_range.end_tick(tempo_map).0;
+        let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
+        let range_end_ticks = self
+            .ui_state
+            .proj_ctx
+            .project
+            .export_range
+            .end_tick(tempo_map)
+            .0;
         let last_region_end = self
+            .ui_state
             .proj_ctx
             .project_meta
             .track_order
             .iter()
-            .filter_map(|id| self.proj_ctx.project_meta.get_track(id))
+            .filter_map(|id| self.ui_state.proj_ctx.project_meta.get_track(id))
             .flat_map(|t| t.regions.values())
             .map(|r| r.bounds.start_tick(tempo_map).0 + r.bounds.duration_ticks(tempo_map).0)
             .max()

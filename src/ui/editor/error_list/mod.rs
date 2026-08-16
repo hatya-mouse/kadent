@@ -16,7 +16,7 @@ impl EditorUi {
             .auto_shrink(false)
             .show(ui, |ui| {
                 ui.spacing_mut().item_spacing.y = 0.0;
-                for error in &self.errors {
+                for error in &self.ui_state.errors {
                     draw_error_item(ui, error);
                 }
             });

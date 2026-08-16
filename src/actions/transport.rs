@@ -13,7 +13,9 @@ impl EditorUi {
             .send(command.clone())
             .is_err()
         {
-            self.errors.push(AudioError::CommandFailed(command));
+            self.ui_state
+                .errors
+                .push(AudioError::CommandFailed(command));
         } else {
             self.ui_state.is_playing = true;
         }
@@ -27,7 +29,9 @@ impl EditorUi {
             .send(command.clone())
             .is_err()
         {
-            self.errors.push(AudioError::CommandFailed(command));
+            self.ui_state
+                .errors
+                .push(AudioError::CommandFailed(command));
         } else {
             self.ui_state.is_playing = false;
         }
@@ -41,7 +45,9 @@ impl EditorUi {
             .send(command.clone())
             .is_err()
         {
-            self.errors.push(AudioError::CommandFailed(command));
+            self.ui_state
+                .errors
+                .push(AudioError::CommandFailed(command));
         }
     }
 }

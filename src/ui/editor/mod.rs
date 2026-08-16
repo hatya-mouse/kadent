@@ -20,7 +20,7 @@ use crate::{
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
-        project_ctx::{EditorContext, ProjectContext},
+        project_ctx::EditorContext,
     },
     ui::{
         editor::state::{EditorUiState, Modification},
@@ -30,7 +30,7 @@ use crate::{
 use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
-use kadent_engine::thread::{AudioCommand, AudioError, AudioThread, AudioThreadHandle};
+use kadent_engine::thread::{AudioCommand, AudioThread, AudioThreadHandle};
 use std::{collections::VecDeque, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
@@ -41,10 +41,6 @@ pub struct EditorUi {
     pub background_handle: BackgroundThreadHandle,
     /// A channel to send MIDI commands to the MIDI thread.
     pub midi_command_tx: mpsc::Sender<MidiCommand>,
-    /// The current project context.
-    pub proj_ctx: ProjectContext,
-    /// Errors to be shown.
-    pub errors: Vec<AudioError>,
     /// UI states to store the current UI state.
     pub ui_state: EditorUiState,
     /// Pending actions to be executed in the frame.
@@ -64,9 +60,7 @@ impl EditorUi {
             thread_handle,
             background_handle,
             midi_command_tx,
-            proj_ctx: editor_ctx.proj_ctx,
-            errors: Vec::new(),
-            ui_state: EditorUiState::with_audio_ctx(editor_ctx.audio_ctx),
+            ui_state: EditorUiState::new(editor_ctx.audio_ctx, editor_ctx.proj_ctx),
             pending_actions: VecDeque::new(),
             debug_mode: false,
         };
@@ -162,7 +156,7 @@ impl EditorUi {
             self.ui_state.last_edit_time = None;
 
             // Clone the project and send it to the audio thread
-            let project = self.proj_ctx.project.clone();
+            let project = self.ui_state.proj_ctx.project.clone();
             if let Err(err) = self
                 .thread_handle
                 .audio_command_tx

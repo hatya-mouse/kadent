@@ -23,7 +23,11 @@ impl EditorUi {
             .clicked()
             {
                 self.push_action(EditorAction::Seek(
-                    self.proj_ctx.project_meta.export_range.start_time(),
+                    self.ui_state
+                        .proj_ctx
+                        .project_meta
+                        .export_range
+                        .start_time(),
                 ));
             }
 
@@ -60,7 +64,7 @@ impl EditorUi {
             .clicked()
             {
                 self.push_action(EditorAction::Seek(
-                    self.proj_ctx.project_meta.export_range.end_time(),
+                    self.ui_state.proj_ctx.project_meta.export_range.end_time(),
                 ));
             }
         });

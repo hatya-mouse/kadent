@@ -41,7 +41,7 @@ impl EditorUi {
         // Jump to a random node's position
         if jump_to_random
             && let Some(track_id) = self.ui_state.selection.track_id()
-            && let Some(track_meta) = self.proj_ctx.project_meta.get_track(&track_id)
+            && let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(&track_id)
             && let Some(node_meta) = track_meta.graph.nodes.values().next()
         {
             self.ui_state.node_graph_state.jump_to_pos = Some(node_meta.pos);

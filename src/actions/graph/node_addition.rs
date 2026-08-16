@@ -24,12 +24,19 @@ impl EditorUi {
 
     pub(in crate::actions) fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         let mut kasl_node = KaslNode::new();
-        let project_dir = get_project_dir(&self.proj_ctx.project_path);
-        kasl_node.set_search_paths(self.proj_ctx.project_meta.kasl_search_paths.clone());
+        let project_dir = get_project_dir(&self.ui_state.proj_ctx.project_path);
+        kasl_node.set_search_paths(
+            self.ui_state
+                .proj_ctx
+                .project_meta
+                .kasl_search_paths
+                .clone(),
+        );
         kasl_node.set_project_dir(project_dir);
 
         // Add the node to the project
         let Some(node_id) = self
+            .ui_state
             .proj_ctx
             .project
             .get_track_mut(track_id)
@@ -39,7 +46,7 @@ impl EditorUi {
         };
 
         // Also add the node to the project meta with the given position
-        if let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) {
+        if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id) {
             track_meta.graph.set_node_meta(
                 node_id,
                 NodeMeta::new(NodeType::Kasl, "KASL Node".to_string(), pos),

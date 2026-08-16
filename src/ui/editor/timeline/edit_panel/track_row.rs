@@ -37,7 +37,7 @@ impl EditorUi {
         content_top: f32,
     ) {
         // Get the track metadata
-        let Some(track_meta) = self.proj_ctx.project_meta.get_track(track_id) else {
+        let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(track_id) else {
             return;
         };
 
@@ -49,6 +49,7 @@ impl EditorUi {
         for region_id in region_ids {
             // Get the region metadata
             let Some(region_meta) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track(track_id)
@@ -56,7 +57,7 @@ impl EditorUi {
             else {
                 continue;
             };
-            let tempo_map = &self.proj_ctx.project.tempo_map;
+            let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
             let (region_start, region_end) = region_meta.bounds.tick_range(tempo_map);
             let region_duration = region_end - region_start;
 
@@ -96,7 +97,7 @@ impl EditorUi {
             };
 
             // Draw the region box and the name
-            let Some(track_meta) = self.proj_ctx.project_meta.get_track(track_id) else {
+            let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(track_id) else {
                 continue;
             };
             let Some(region_meta) = track_meta.regions.get(&region_id) else {
@@ -104,7 +105,7 @@ impl EditorUi {
             };
 
             // Calculate the region's position and size based on the updated bounds
-            let tempo_map = &self.proj_ctx.project.tempo_map;
+            let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
             let (current_start, current_end) = region_meta.bounds.tick_range(tempo_map);
             let current_duration = current_end - current_start;
 
@@ -168,6 +169,7 @@ impl EditorUi {
             let bounds = TimeBounds::Musical { start, duration };
 
             let track_type = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track(track_id)
@@ -222,13 +224,15 @@ impl EditorUi {
                 (resize_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64,
             );
             if let Some(region) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                let (region_start, region_end) =
-                    region.bounds.tick_range(&self.proj_ctx.project.tempo_map);
+                let (region_start, region_end) = region
+                    .bounds
+                    .tick_range(&self.ui_state.proj_ctx.project.tempo_map);
                 let region_duration = region_end - region_start;
 
                 let new_duration = (region_duration + delta_ticks).max(Ticks(0));
@@ -243,6 +247,7 @@ impl EditorUi {
             return move_res;
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track(track_id)
@@ -250,7 +255,7 @@ impl EditorUi {
                 .map(|region| {
                     region
                         .bounds
-                        .duration_ticks(&self.proj_ctx.project.tempo_map)
+                        .duration_ticks(&self.ui_state.proj_ctx.project.tempo_map)
                 })
         {
             self.push_action(EditorAction::SetRegionDuration(
@@ -270,13 +275,15 @@ impl EditorUi {
             let delta_ticks =
                 Ticks((move_res.drag_delta().x * self.ui_state.timeline_ticks_per_pixel()) as i64);
             if let Some(region) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
             {
-                let (region_start, region_end) =
-                    region.bounds.tick_range(&self.proj_ctx.project.tempo_map);
+                let (region_start, region_end) = region
+                    .bounds
+                    .tick_range(&self.ui_state.proj_ctx.project.tempo_map);
                 let region_duration = region_end - region_start;
 
                 let new_start = (region_start + delta_ticks).max(Ticks(0));
@@ -290,11 +297,16 @@ impl EditorUi {
             }
         } else if move_res.drag_stopped()
             && let Some(new_start) = self
+                .ui_state
                 .proj_ctx
                 .project_meta
                 .get_track_mut(track_id)
                 .and_then(|track| track.get_region_mut(region_id))
-                .map(|region| region.bounds.start_tick(&self.proj_ctx.project.tempo_map))
+                .map(|region| {
+                    region
+                        .bounds
+                        .start_tick(&self.ui_state.proj_ctx.project.tempo_map)
+                })
         {
             // Determine which track row the pointer was over when the drag ended,
             // falling back to the original track if it was released outside any row

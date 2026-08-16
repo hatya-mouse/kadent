@@ -23,9 +23,9 @@ impl EditorUi {
     pub(super) fn save_all(&mut self) {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Save);
         self.push_background_job(BackgroundThreadCommand::SaveProject {
-            path: self.proj_ctx.project_path.to_path_buf(),
-            project: Box::new(self.proj_ctx.project.clone()),
-            project_meta: Box::new(self.proj_ctx.project_meta.clone()),
+            path: self.ui_state.proj_ctx.project_path.to_path_buf(),
+            project: Box::new(self.ui_state.proj_ctx.project.clone()),
+            project_meta: Box::new(self.ui_state.proj_ctx.project_meta.clone()),
             code_buffers: self
                 .ui_state
                 .code_editor_state
@@ -51,8 +51,8 @@ impl EditorUi {
         self.ui_state.status_bar_state.current_task = Some(BackgroundTaskStatus::Export);
         self.ui_state.pending_export_path = Some(path.to_path_buf());
         // Request generation the f32 samples for the entire project
-        let project = self.proj_ctx.project.clone();
-        let export_ctx = self.proj_ctx.project_meta.export_ctx.clone();
+        let project = self.ui_state.proj_ctx.project.clone();
+        let export_ctx = self.ui_state.proj_ctx.project_meta.export_ctx.clone();
         self.thread_handle
             .audio_command_tx
             .send(AudioCommand::ExportAudio(Box::new(project), export_ctx))
@@ -71,7 +71,7 @@ impl EditorUi {
     }
 
     pub(super) fn update_dir_cache(&mut self) {
-        if let Some(project_dir_path) = self.proj_ctx.project_path.parent()
+        if let Some(project_dir_path) = self.ui_state.proj_ctx.project_path.parent()
             && project_dir_path.is_dir()
         {
             self.ui_state.project_dir_cache = recursively_create_graph(project_dir_path);
@@ -80,10 +80,10 @@ impl EditorUi {
 
     /// Set the editor context and update the project context accordingly.
     pub(crate) fn set_editor_ctx(&mut self, editor_ctx: EditorContext) {
-        self.proj_ctx = editor_ctx.proj_ctx;
+        self.ui_state.proj_ctx = editor_ctx.proj_ctx;
 
         // Seek to the start of the project after loading
-        self.seek(self.proj_ctx.project.export_range.start_time());
+        self.seek(self.ui_state.proj_ctx.project.export_range.start_time());
 
         // Notify the audio thread of the project change
         self.modified_project();
@@ -93,7 +93,7 @@ impl EditorUi {
     }
 
     pub(super) fn set_project_range(&mut self, bounds: TimeBounds) {
-        self.proj_ctx.project.export_range = bounds;
+        self.ui_state.proj_ctx.project.export_range = bounds;
         self.modified_project();
     }
 }

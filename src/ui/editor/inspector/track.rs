@@ -17,7 +17,8 @@ use kadent_engine::mixer::TrackID;
 impl EditorUi {
     pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {
         inspector_section(ui, ("track_section", track_id), "Track", |ui| {
-            let Some(track_meta) = self.proj_ctx.project_meta.get_track_mut(track_id) else {
+            let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id)
+            else {
                 return;
             };
 
