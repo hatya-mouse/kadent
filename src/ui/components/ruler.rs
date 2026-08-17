@@ -115,18 +115,53 @@ fn beat_ruler(
     let dark_mode = ui.visuals().dark_mode;
 
     // --- Gesture handling ---
-    let seek_key = ui.id().with("ruler_seeking");
+    let (hover_pos, press_origin, primary_pressed, primary_down, primary_released) =
+        ui.input(|i| {
+            (
+                i.pointer.hover_pos(),
+                i.pointer.press_origin(),
+                i.pointer.primary_pressed(),
+                i.pointer.primary_down(),
+                i.pointer.primary_released(),
+            )
+        });
+
+    let seek_key = ui
+        .id()
+        .with("ruler_seeking")
+        .with((ruler_rect.min.x as i32, ruler_rect.min.y as i32));
     let seeking: bool = ui.data(|data| data.get_temp(seek_key).unwrap_or(false));
 
-    let response = ui.allocate_rect(ruler_rect, egui::Sense::drag());
-    if let Some(pos) = response.hover_pos() {
-        if response.dragged() {
-            ruler_res.seek_to = Some(Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0)));
-            ui.data_mut(|data| data.insert_temp(seek_key, true));
-        } else if seeking && !response.dragged() {
-            ruler_res.seek_to = Some(Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0)));
-            ruler_res.drag_ended = true;
-            ui.data_mut(|data| data.insert_temp(seek_key, false));
+    if primary_pressed
+        && let Some(origin) = press_origin
+        && ruler_rect.contains(origin)
+    {
+        ui.data_mut(|data| data.insert_temp(seek_key, true));
+    }
+
+    if let Some(pos) = hover_pos
+        && ruler_rect.contains(pos)
+    {
+        ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+    }
+
+    if seeking {
+        if primary_down && let Some(pos) = hover_pos {
+            let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
+            ruler_res.seek_to = Some(ticks);
+        }
+
+        if primary_released {
+            if let Some(pos) = hover_pos {
+                let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
+                ruler_res.seek_to = Some(ticks);
+                ruler_res.drag_ended = true;
+            }
+            ui.data_mut(|data| data.remove::<bool>(seek_key));
+        }
+
+        if !primary_down {
+            ui.data_mut(|data| data.remove::<bool>(seek_key));
         }
     }
 
