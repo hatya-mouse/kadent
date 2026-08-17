@@ -126,10 +126,7 @@ fn beat_ruler(
             )
         });
 
-    let seek_key = ui
-        .id()
-        .with("ruler_seeking")
-        .with((ruler_rect.min.x as i32, ruler_rect.min.y as i32));
+    let seek_key = ui.make_persistent_id("ruler_seeking");
     let seeking: bool = ui.data(|data| data.get_temp(seek_key).unwrap_or(false));
 
     if primary_pressed

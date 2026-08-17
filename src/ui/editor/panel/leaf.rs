@@ -121,7 +121,7 @@ fn check_single_edge(ui: &mut egui::Ui, rect: Rect, edge: Edge) -> Option<SplitA
         ui.ctx().set_cursor_icon(edge_cursor(edge));
     }
 
-    let accum_key = id.with("accum");
+    let accum_key = ui.make_persistent_id("accum");
     let prev: f32 = ui.data(|d| d.get_temp(accum_key).unwrap_or(0.0));
 
     if resp.dragged() {

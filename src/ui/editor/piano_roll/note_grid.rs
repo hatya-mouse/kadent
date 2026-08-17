@@ -1,9 +1,7 @@
 use crate::{
     actions::EditorAction,
-    consts::PANEL_HEADER_HEIGHT,
     ui::{
         EditorState,
-        components::ruler::ruler_and_scroll_bar,
         editor::state::{Modification, TimelineCoord},
         theme,
         zoom::zoom_scroll_offset,
@@ -24,181 +22,97 @@ const NOTE_GRID_FACTOR: f32 = 6.0;
 pub(super) fn note_grid(
     ui: &mut egui::Ui,
     state: &mut EditorState,
-    rect: egui::Rect,
+    timeline_coord: &TimelineCoord,
+    note_grid_rect: egui::Rect,
+    scroll_content_size: egui::Vec2,
     track_id: TrackID,
     region_id: RegionID,
-) {
+) -> Option<TimelineCoord> {
     // Get the target region
-    let Some(track) = state
+    let track = state
         .ui_state
         .proj_ctx
         .project
         .tracks
         .get_mut(&track_id)
-        .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-    else {
-        ui.label("Select a note region to edit");
-        return;
-    };
-    let Some(region) = track.get_region_mut(&region_id) else {
-        return;
-    };
+        .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())?;
+    let region = track.get_region_mut(&region_id)?;
 
     // Get the color of the track
-    let Some(track_color) = state
+    let track_color = state
         .ui_state
         .proj_ctx
         .project_meta
         .get_track(&track_id)
-        .map(|track| track.color)
-    else {
-        return;
-    };
-
-    // Get the timeline coordinate and calculate other variables
-    let ruler_bottom_y = rect.min.y + PANEL_HEADER_HEIGHT;
-    let ruler_screen_rect = rect.with_max_y(ruler_bottom_y);
-    let note_grid_rect = rect.with_min_y(ruler_bottom_y);
-
-    let timeline_coord_key = ui.id().with("timeline_coord");
-    let timeline_coord: TimelineCoord = ui.data(|data| {
-        data.get_temp(timeline_coord_key)
-            .unwrap_or(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
-    });
+        .map(|track| track.color)?;
 
     let ppb = timeline_coord.ppb;
-    let note_height = timeline_coord.y_zoom;
-    let scroll_amount = timeline_coord.scroll;
     let ppt = ppb / state.ui_state.audio_ctx.resolution as f32;
+    let note_height = timeline_coord.y_zoom;
 
-    // Calculate the total size of the scroll area content
-    let region_duration = region
-        .bounds
-        .duration_ticks(&state.ui_state.proj_ctx.project.tempo_map);
-    let last_note_end = region
-        .notes
-        .values()
-        .map(|note| (note.start + note.duration).0)
-        .max()
-        .unwrap_or(0);
-    let content_end_ticks = region_duration.0.max(last_note_end);
-    let scroll_content_width = (content_end_ticks as f32 * ppt).max(note_grid_rect.width());
+    // Allocate a painter
+    let (response, painter) = ui.allocate_painter(scroll_content_size, egui::Sense::click());
+    let offset = response.rect.min;
 
-    // Calculate the total height of the scroll area content (128 MIDI notes)
-    let scroll_content_height = (128.0 * note_height).max(note_grid_rect.height());
+    // Draw the note grid
+    draw_note_grid(ui, &painter, timeline_coord, offset, scroll_content_size);
 
     let notes = region.notes.clone();
+    for (note_id, note) in notes {
+        // Calculate the note rect
+        let note_x = offset.x + note.start.0 as f32 * ppt;
+        let note_y = offset.y + (128.0 - note.pitch) * note_height;
+        let note_width = note.duration.0 as f32 * ppt;
+        let note_rect = egui::Rect::from_min_size(
+            egui::pos2(note_x, note_y),
+            egui::vec2(note_width, note_height),
+        );
 
-    // Show the ruler at the top of the note grid
-    let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
+        // Create a rect on the right side of the note to drag and resize the note
+        let draggable_width = 5.0;
+        let resize_rect = egui::Rect::from_min_size(
+            egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
+            egui::vec2(draggable_width, note_height - 4.0),
+        );
+
+        // Handle note gestures
+        note_controls(
+            ui,
+            state,
+            timeline_coord,
+            (&track_id, &region_id, &note_id),
+            &note,
+            note_rect,
+            resize_rect,
+        );
+
+        // Highlight the selected note
+        let stroke = if state.ui_state.selection.note_id() == Some(note_id) {
+            egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
+        } else {
+            theme::border(ui.visuals().dark_mode)
+        };
+
+        // Draw the note
+        painter.rect(
+            note_rect,
+            2.0,
+            track_color,
+            stroke,
+            egui::StrokeKind::Inside,
+        );
+    }
+
+    // Handle zoom and note adding gestures
+    note_grid_gestures(
         ui,
-        ruler_screen_rect,
-        &timeline_coord,
-        state.ui_state.audio_ctx.resolution,
-        scroll_content_width,
-        ruler_screen_rect.width(),
-    );
-    state.apply_ruler_res(&ruler_res);
-
-    // Draw the notes
-    let scroll_output = egui::ScrollArea::both()
-        .scroll_offset(scroll_amount)
-        .show(ui, |ui| {
-            // Allocate a painter
-            let (response, painter) = ui.allocate_painter(
-                egui::vec2(scroll_content_width, scroll_content_height),
-                egui::Sense::click(),
-            );
-            let offset = response.rect.min;
-
-            // Draw the note grid
-            draw_note_grid(
-                ui,
-                &painter,
-                &timeline_coord,
-                offset,
-                scroll_content_width,
-                scroll_content_height,
-            );
-
-            for (note_id, note) in notes {
-                // Calculate the note rect
-                let note_x = offset.x + note.start.0 as f32 * ppt;
-                let note_y = offset.y + (128.0 - note.pitch) * note_height;
-                let note_width = note.duration.0 as f32 * ppt;
-                let note_rect = egui::Rect::from_min_size(
-                    egui::pos2(note_x, note_y),
-                    egui::vec2(note_width, note_height),
-                );
-
-                // Create a rect on the right side of the note to drag and resize the note
-                let draggable_width = 5.0;
-                let resize_rect = egui::Rect::from_min_size(
-                    egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
-                    egui::vec2(draggable_width, note_height - 4.0),
-                );
-
-                // Handle note gestures
-                note_controls(
-                    ui,
-                    state,
-                    &timeline_coord,
-                    (&track_id, &region_id, &note_id),
-                    &note,
-                    note_rect,
-                    resize_rect,
-                );
-
-                // Highlight the selected note
-                let stroke = if state.ui_state.selection.note_id() == Some(note_id) {
-                    egui::Stroke::new(2.0, theme::region_selected(ui.visuals().dark_mode))
-                } else {
-                    theme::border(ui.visuals().dark_mode)
-                };
-
-                // Draw the note
-                painter.rect(
-                    note_rect,
-                    2.0,
-                    track_color,
-                    stroke,
-                    egui::StrokeKind::Inside,
-                );
-            }
-
-            // Handle zoom and note adding gestures
-            note_grid_gestures(
-                ui,
-                state,
-                note_grid_rect,
-                scroll_content_height,
-                &timeline_coord,
-                &track_id,
-                &region_id,
-            )
-        });
-
-    // Prioritize scroll bar click over the scroll area's own offset
-    let scroll_timeline_coord = scroll_output
-        .inner
-        .unwrap_or_else(|| timeline_coord.clone());
-    let mut new_timeline_coord = match new_scroll_x {
-        Some(new_scroll_x) => {
-            timeline_coord.with_scroll(egui::vec2(new_scroll_x, timeline_coord.scroll.y))
-        }
-        None => scroll_timeline_coord,
-    };
-
-    // Clamp the scroll by zero and the end of the content so that it never exceeds the content
-    // especially when zooming out
-    let max_scroll_x = (scroll_content_width - note_grid_rect.width()).max(0.0);
-    let max_scroll_y = (scroll_content_height - note_grid_rect.height()).max(0.0);
-    new_timeline_coord.scroll = egui::vec2(
-        new_timeline_coord.scroll.x.clamp(0.0, max_scroll_x),
-        new_timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
-    );
-
-    ui.data_mut(|data| data.insert_temp(timeline_coord_key, new_timeline_coord));
+        state,
+        note_grid_rect,
+        scroll_content_size.y,
+        timeline_coord,
+        &track_id,
+        &region_id,
+    )
 }
 
 fn draw_note_grid(
@@ -206,8 +120,7 @@ fn draw_note_grid(
     painter: &egui::Painter,
     timeline_coord: &TimelineCoord,
     offset: egui::Pos2,
-    scroll_content_width: f32,
-    scroll_content_height: f32,
+    scroll_content_size: egui::Vec2,
 ) {
     let grid_color_note = theme::border_color(ui.visuals().dark_mode);
     let grid_color_octave = ui.visuals().window_stroke().color;
@@ -222,13 +135,13 @@ fn draw_note_grid(
 
         if is_octave_boundary {
             painter.hline(
-                offset.x..=(offset.x + scroll_content_width),
+                offset.x..=(offset.x + scroll_content_size.x),
                 y,
                 egui::Stroke::new(1.0, grid_color_octave),
             );
         } else if show_per_note_grid {
             painter.hline(
-                offset.x..=(offset.x + scroll_content_width),
+                offset.x..=(offset.x + scroll_content_size.y),
                 y,
                 egui::Stroke::new(0.5, grid_color_note),
             );
@@ -238,8 +151,7 @@ fn draw_note_grid(
     note_grid_ruler(
         painter,
         timeline_coord,
-        scroll_content_width,
-        scroll_content_height,
+        scroll_content_size,
         offset,
         grid_color_note,
     );
@@ -248,8 +160,7 @@ fn draw_note_grid(
 fn note_grid_ruler(
     painter: &egui::Painter,
     timeline_coord: &TimelineCoord,
-    scroll_content_width: f32,
-    scroll_content_height: f32,
+    scroll_content_size: egui::Vec2,
     offset: egui::Pos2,
     grid_color_note: egui::Color32,
 ) {
@@ -270,8 +181,8 @@ fn note_grid_ruler(
         ((raw_interval + 31) / 32) * 32
     };
 
-    let total_beats = (scroll_content_width / ppb).ceil() as i32;
-    let y_range = egui::Rangef::new(offset.y, offset.y + scroll_content_height);
+    let total_beats = (scroll_content_size.x / ppb).ceil() as i32;
+    let y_range = egui::Rangef::new(offset.y, offset.y + scroll_content_size.y);
 
     // Major beat lines
     let mut beat = 0;

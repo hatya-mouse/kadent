@@ -24,9 +24,9 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
     let panel_width = ui.available_width();
     ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-    let follow_playhead_key = ui.id().with("follow_playhead");
-    let track_list_width_key = ui.id().with("track_list_width");
-    let timeline_coord_key = ui.id().with("timeline_coord");
+    let follow_playhead_key = ui.make_persistent_id("follow_playhead");
+    let track_list_width_key = ui.make_persistent_id("track_list_width");
+    let timeline_coord_key = ui.make_persistent_id("timeline_coord");
 
     let mut follow_playhead =
         ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
@@ -54,9 +54,8 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
     let max_scroll = (timeline_width - visible_width).max(0.0);
     timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 
-    let mut new_scroll_x = None;
-    panel_header(ui, egui::Margin::ZERO, |ui| {
-        new_scroll_x = ruler_area(
+    let new_scroll_x = panel_header(ui, egui::Margin::ZERO, |ui| {
+        ruler_area(
             ui,
             state,
             &timeline_coord,
@@ -64,8 +63,9 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
             timeline_width,
             track_list_width,
             &mut follow_playhead,
-        );
-    });
+        )
+    })
+    .inner;
 
     egui::CentralPanel::default()
         .frame(egui::Frame::new())
