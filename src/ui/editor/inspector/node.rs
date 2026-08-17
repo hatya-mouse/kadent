@@ -16,70 +16,70 @@ use crate::{
 use eframe::egui;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-impl EditorState {
-    pub(super) fn node_inspector(
-        &mut self,
-        ui: &mut egui::Ui,
-        track_id: &TrackID,
-        node_id: &NodeID,
-    ) {
-        inspector_section(ui, ("node_section", track_id, node_id), "Node", |ui| {
-            let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id)
-            else {
-                return;
-            };
-            let Some(node_meta) = track_meta.graph.get_node_meta_mut(node_id) else {
-                return;
-            };
+pub(super) fn node_inspector(
+    ui: &mut egui::Ui,
+    state: &mut EditorState,
+    track_id: &TrackID,
+    node_id: &NodeID,
+) {
+    inspector_section(ui, ("node_section", track_id, node_id), "Node", |ui| {
+        let Some(track_meta) = state.ui_state.proj_ctx.project_meta.get_track_mut(track_id) else {
+            return;
+        };
+        let Some(node_meta) = track_meta.graph.get_node_meta_mut(node_id) else {
+            return;
+        };
 
-            inspector_item(ui, "Name", |ui| {
-                text_input(ui, &mut node_meta.display_name);
-            });
-
-            self.node_unique_inspector(ui, track_id, node_id);
-
-            if self.debug_mode {
-                ui.separator();
-                inspector_item(ui, "Track ID", |ui| {
-                    ui.label(
-                        egui::RichText::new(format!("{}", track_id.0))
-                            .size(theme::normal_font_size()),
-                    );
-                });
-                inspector_item(ui, "Node ID", |ui| {
-                    ui.label(
-                        egui::RichText::new(format!("{}", node_id.0))
-                            .size(theme::normal_font_size()),
-                    );
-                });
-            }
+        inspector_item(ui, "Name", |ui| {
+            text_input(ui, &mut node_meta.display_name);
         });
-    }
 
-    fn node_unique_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID, node_id: &NodeID) {
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
-            return;
-        };
-        let Some(node) = track.get_graph_mut().get_node_mut(node_id) else {
-            return;
-        };
+        node_unique_inspector(ui, state, track_id, node_id);
 
-        if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
-            inspector_item(ui, "KASL Path", |ui| {
-                text_input_with_callback(
-                    ui,
-                    kasl_node.get_file_path().cloned().unwrap_or_default(),
-                    |new_path| {
-                        kasl_node.set_file_path(new_path.clone());
-                    },
+        if state.debug_mode {
+            ui.separator();
+            inspector_item(ui, "Track ID", |ui| {
+                ui.label(
+                    egui::RichText::new(format!("{}", track_id.0)).size(theme::normal_font_size()),
                 );
             });
-
-            inspector_item(ui, "Compile", |ui| {
-                if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
-                    self.push_action(EditorAction::CompileKasl(*track_id, *node_id));
-                }
+            inspector_item(ui, "Node ID", |ui| {
+                ui.label(
+                    egui::RichText::new(format!("{}", node_id.0)).size(theme::normal_font_size()),
+                );
             });
         }
+    });
+}
+
+fn node_unique_inspector(
+    ui: &mut egui::Ui,
+    state: &mut EditorState,
+    track_id: &TrackID,
+    node_id: &NodeID,
+) {
+    let Some(track) = state.ui_state.proj_ctx.project.get_track_mut(track_id) else {
+        return;
+    };
+    let Some(node) = track.get_graph_mut().get_node_mut(node_id) else {
+        return;
+    };
+
+    if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
+        inspector_item(ui, "KASL Path", |ui| {
+            text_input_with_callback(
+                ui,
+                kasl_node.get_file_path().cloned().unwrap_or_default(),
+                |new_path| {
+                    kasl_node.set_file_path(new_path.clone());
+                },
+            );
+        });
+
+        inspector_item(ui, "Compile", |ui| {
+            if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
+                state.push_action(EditorAction::CompileKasl(*track_id, *node_id));
+            }
+        });
     }
 }

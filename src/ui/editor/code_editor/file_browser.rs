@@ -5,36 +5,34 @@ use crate::{
 use eframe::egui;
 use std::path::{Path, PathBuf};
 
-impl EditorState {
-    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
-        // Get the currently opened path for highlighting (empty path = nothing selected)
-        let opened_path: PathBuf = self
+pub(super) fn file_browser(ui: &mut egui::Ui, state: &mut EditorState, panel_id: egui::Id) {
+    // Get the currently opened path for highlighting (empty path = nothing selected)
+    let opened_path: PathBuf = state
+        .ui_state
+        .code_editor_state
+        .code_buffers
+        .get(&panel_id)
+        .and_then(|b| b.as_ref())
+        .map(|(path, _)| path.clone())
+        .unwrap_or_default();
+
+    let selected_file = ui
+        .scope(|ui| {
+            *ui.style_mut() = theme::menu_style(ui);
+            dir_children(ui, &state.ui_state.project_dir_cache, &opened_path)
+        })
+        .inner;
+
+    // Read the content at the path to the buffer
+    if let Some(path) = selected_file
+        && let Ok(content) = std::fs::read_to_string(&path)
+        && let Some(buffer) = state
             .ui_state
             .code_editor_state
             .code_buffers
-            .get(&panel_id)
-            .and_then(|b| b.as_ref())
-            .map(|(path, _)| path.clone())
-            .unwrap_or_default();
-
-        let selected_file = ui
-            .scope(|ui| {
-                *ui.style_mut() = theme::menu_style(ui);
-                dir_children(ui, &self.ui_state.project_dir_cache, &opened_path)
-            })
-            .inner;
-
-        // Read the content at the path to the buffer
-        if let Some(path) = selected_file
-            && let Ok(content) = std::fs::read_to_string(&path)
-            && let Some(buffer) = self
-                .ui_state
-                .code_editor_state
-                .code_buffers
-                .get_mut(&panel_id)
-        {
-            *buffer = Some((path, content));
-        }
+            .get_mut(&panel_id)
+    {
+        *buffer = Some((path, content));
     }
 }
 

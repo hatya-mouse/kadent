@@ -2,6 +2,10 @@ use super::SplitAction;
 use crate::ui::{
     EditorState,
     editor::{
+        automation::automation,
+        code_editor::code_editor,
+        error_list::error_list,
+        inspector::inspector,
         node_graph::node_graph,
         piano_roll::piano_roll,
         state::{PanelView, SplitDir},
@@ -91,10 +95,10 @@ fn render_view_content(
         PanelView::Timeline => timeline(ui, state),
         PanelView::PianoRoll => piano_roll(ui, state),
         PanelView::NodeGraph => node_graph(ui, state),
-        PanelView::Inspector => state.inspector(ui),
-        PanelView::ErrorList => state.error_list(ui),
-        PanelView::Automation => state.automation(ui),
-        PanelView::CodeEditor => state.code_editor(ui, panel_id),
+        PanelView::Inspector => inspector(ui, state),
+        PanelView::ErrorList => error_list(ui, state),
+        PanelView::Automation => automation(ui, state),
+        PanelView::CodeEditor => code_editor(ui, state, panel_id),
     }
 }
 
