@@ -1,6 +1,5 @@
 mod edit_panel;
 mod ruler_area;
-mod scroll_bar;
 mod track_list;
 
 use crate::{

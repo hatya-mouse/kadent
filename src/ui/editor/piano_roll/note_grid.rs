@@ -1,7 +1,9 @@
 use crate::{
     actions::EditorAction,
+    consts::PANEL_HEADER_HEIGHT,
     ui::{
         EditorState,
+        components::ruler::ruler_and_scroll_bar,
         editor::state::{EditorUiState, Modification},
         theme,
         zoom::zoom_scroll_offset,
@@ -22,10 +24,14 @@ const NOTE_GRID_FACTOR: f32 = 6.0;
 pub(super) fn note_grid(
     ui: &mut egui::Ui,
     state: &mut EditorState,
-    note_grid_rect: egui::Rect,
+    rect: egui::Rect,
     track_id: TrackID,
     region_id: RegionID,
 ) {
+    let ruler_bottom_y = rect.min.y + PANEL_HEADER_HEIGHT;
+    let ruler_screen_rect = rect.with_max_y(ruler_bottom_y);
+    let note_grid_rect = rect.with_min_y(ruler_bottom_y);
+
     // Get the target region
     let Some(track) = state
         .ui_state
@@ -60,7 +66,14 @@ pub(super) fn note_grid(
     let region_duration = region
         .bounds
         .duration_ticks(&state.ui_state.proj_ctx.project.tempo_map);
-    let scroll_content_width = (region_duration.0 as f32 * ppt).max(note_grid_rect.width());
+    let last_note_end = region
+        .notes
+        .values()
+        .map(|note| (note.start + note.duration).0)
+        .max()
+        .unwrap_or(0);
+    let content_end_ticks = region_duration.0.max(last_note_end);
+    let scroll_content_width = (content_end_ticks as f32 * ppt).max(note_grid_rect.width());
     // Calculate the total height of the scroll area content (128 MIDI notes)
     let scroll_content_height =
         (128.0 * state.ui_state.piano_roll_state.note_height).max(note_grid_rect.height());
@@ -72,6 +85,27 @@ pub(super) fn note_grid(
         data.get_temp(note_grid_scroll_key)
             .unwrap_or(egui::Vec2::ZERO)
     });
+
+    // Clamp the scroll by zero and the end of the content so that it never exceeds the content
+    // especially when zooming out
+    let max_scroll_x = (scroll_content_width - note_grid_rect.width()).max(0.0);
+    let max_scroll_y = (scroll_content_height - note_grid_rect.height()).max(0.0);
+    let note_grid_scroll = egui::vec2(
+        note_grid_scroll.x.clamp(0.0, max_scroll_x),
+        note_grid_scroll.y.clamp(0.0, max_scroll_y),
+    );
+
+    // Show the ruler at the top of the note grid
+    let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
+        ui,
+        ruler_screen_rect,
+        state.ui_state.audio_ctx.resolution,
+        state.ui_state.piano_roll_state.pixels_per_beat,
+        ruler_screen_rect.width(),
+        scroll_content_width,
+        note_grid_scroll.x,
+    );
+    state.apply_ruler_res(&ruler_res);
 
     // Draw the notes
     let scroll_output = egui::ScrollArea::both()
@@ -142,7 +176,7 @@ pub(super) fn note_grid(
                 );
             }
 
-            // Handle zoom and track adding gestures
+            // Handle zoom and note adding gestures
             note_grid_gestures(
                 ui,
                 state,
@@ -155,6 +189,9 @@ pub(super) fn note_grid(
         });
 
     let final_offset = scroll_output.inner.unwrap_or(scroll_output.state.offset);
+
+    // Prioritize scroll bar click over the scroll area's own offset
+    let final_offset = egui::vec2(new_scroll_x.unwrap_or(final_offset.x), final_offset.y);
     ui.data_mut(|data| data.insert_temp(note_grid_scroll_key, final_offset));
 }
 

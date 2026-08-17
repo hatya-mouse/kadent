@@ -46,6 +46,8 @@ pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 
 
 // --- TIMELINE ---
 
+/// The height of the timeline scroll bar.
+pub(crate) const SCROLL_BAR_HEIGHT: f32 = 12.0;
 /// The minimum width of the track list panel, in pixels.
 pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 /// The maximum width of the track list panel, in pixels.

@@ -25,6 +25,7 @@ use crate::{
         project_ctx::EditorContext,
     },
     ui::{
+        components::ruler::RulerResponse,
         editor::{
             panel::render_panels, state::EditorUiState, status_bar::status_bar, toolbar::toolbar,
         },
@@ -34,7 +35,10 @@ use crate::{
 use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
-use kadent_engine::thread::{AudioCommand, AudioThread, AudioThreadHandle};
+use kadent_engine::{
+    thread::{AudioCommand, AudioThread, AudioThreadHandle},
+    timing::TimePosition,
+};
 use std::{collections::VecDeque, sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
@@ -193,5 +197,15 @@ impl EditorState {
 
     pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
         self.background_handle.command_tx.send(command).ok();
+    }
+
+    fn apply_ruler_res(&mut self, ruler_res: &RulerResponse) {
+        if let Some(target_tick) = ruler_res.seek_to {
+            self.ui_state.playhead_tick = target_tick;
+
+            if ruler_res.drag_ended {
+                self.push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));
+            }
+        }
     }
 }
