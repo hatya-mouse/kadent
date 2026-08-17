@@ -874,9 +874,9 @@ dependencies = [
 
 [[package]]
 name = "cpal"
-version = "0.18.1"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f77b11176c37874be37e8d691c946e31b2b8c357abce9526f6a99eb469e1028"
+checksum = "6f02e8d0327b42d3e2e4ab2119af397344eb9fc54a34bf0ddeaa1277af8681f1"
 dependencies = [
  "alsa",
  "block2 0.6.2",
@@ -2368,7 +2368,7 @@ dependencies = [
 [[package]]
 name = "kadent_engine"
 version = "0.4.3"
-source = "git+https://github.com/hatya-mouse/kadent_engine#de4a690d8bdd840eb0b4142be711d4e70cd2c1e4"
+source = "git+https://github.com/hatya-mouse/kadent_engine#0f2df8b1fec108f9657c70cd0acb80f6cfa928e9"
 dependencies = [
  "cpal",
  "hound",
@@ -6070,9 +6070,9 @@ dependencies = [
 
 [[package]]
 name = "zvariant_utils"
-version = "4.0.0"
+version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "629d80ece222cad20fe0e8741be493c4ab166acf3b85341bdc2cdbcfd8f3c2d6"
+checksum = "6b84ebb462416c27cdb97f2e7f5f0ccc844da1fe2ecc7121e1b690b41318bf42"
 dependencies = [
  "proc-macro2",
  "quote",

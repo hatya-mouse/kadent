@@ -14,6 +14,8 @@ mod status_bar;
 mod timeline;
 mod toolbar;
 
+pub(super) use state::Modification;
+
 use crate::{
     actions::EditorAction,
     background_thread::{BackgroundThreadCommand, BackgroundThreadHandle, spawn_background_thread},
@@ -24,10 +26,7 @@ use crate::{
     },
     ui::{
         editor::{
-            panel::render_panels,
-            state::{EditorUiState, Modification},
-            status_bar::status_bar,
-            toolbar::toolbar,
+            panel::render_panels, state::EditorUiState, status_bar::status_bar, toolbar::toolbar,
         },
         theme,
     },
@@ -188,7 +187,7 @@ impl EditorState {
         paths
     }
 
-    fn push_action(&mut self, action: EditorAction) {
+    pub(super) fn push_action(&mut self, action: EditorAction) {
         self.pending_actions.push_back(action);
     }
 

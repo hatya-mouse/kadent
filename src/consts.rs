@@ -2,6 +2,8 @@
 
 use eframe::egui;
 
+// --- APP INFO & DATA PATH ---
+
 /// The name of the Kadent data directory.
 pub(crate) const KADENT_DATA_DIR_NAME: &str = "Kadent";
 /// The name of the application.
@@ -14,12 +16,16 @@ pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";
 /// The maximum number of recent projects shown in the splash screen.
 pub(crate) const RECENT_PROJCETS_MAX_NUM: usize = 20;
 
+// --- WAVEFORM LOD ---
+
 /// The small block size to get the peaks when generating waveform.
 pub(crate) const SMALL_BLOCK_SIZE: usize = 64;
 /// The medium block size to get the peaks when generating waveform.
 pub(crate) const MEDIUM_BLOCK_SIZE: usize = 1024;
 /// The large block size to get the peaks when generating waveform.
 pub(crate) const LARGE_BLOCK_SIZE: usize = 8192;
+
+// --- AUDIO ---
 
 /// The default number of output channels used when creating a project
 /// or falling back from an invalid/corrupted `PlaybackContext`.
@@ -31,7 +37,24 @@ pub(crate) const DEFAULT_SAMPLE_RATE: u64 = 48000;
 /// back from an invalid/corrupted `PlaybackContext`.
 pub(crate) const DEFAULT_BUFFER_SIZE: usize = 512;
 
+// --- PANEL ---
+
 /// The recommended height of the header inside each panels.
 pub(crate) const PANEL_HEADER_HEIGHT: f32 = 36.0;
 /// The default margin of the panel header.
 pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 4);
+
+// --- TIMELINE ---
+
+/// The minimum width of the track list panel, in pixels.
+pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
+/// The maximum width of the track list panel, in pixels.
+pub(crate) const MAX_TRACK_LIST_WIDTH: f32 = 800.0;
+/// Extra pixels of empty space inserted before zero beat.
+pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
+/// Extra pixels of empty space appended after the last region or project range end.
+pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
+/// The minimum pixels per beat.
+pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
+/// The maximum pixels per beat.
+pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;

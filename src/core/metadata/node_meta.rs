@@ -12,6 +12,7 @@ pub(crate) enum NodeType {
     AudioInput = 1,
     AudioOutput = 2,
     Kasl = 3,
+    Automation = 4,
 }
 
 impl From<u8> for NodeType {
@@ -21,6 +22,7 @@ impl From<u8> for NodeType {
             1 => NodeType::AudioInput,
             2 => NodeType::AudioOutput,
             3 => NodeType::Kasl,
+            4 => NodeType::Automation,
             _ => panic!("Unknown node type"),
         }
     }
@@ -33,6 +35,7 @@ impl std::fmt::Display for NodeType {
             NodeType::AudioInput => write!(f, "Audio Input"),
             NodeType::AudioOutput => write!(f, "Audio Output"),
             NodeType::Kasl => write!(f, "KASL"),
+            NodeType::Automation => write!(f, "Automation"),
         }
     }
 }

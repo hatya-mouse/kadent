@@ -3,17 +3,20 @@ mod region_notes;
 mod track_row;
 mod waveform;
 
-use crate::ui::{
-    EditorState,
-    editor::{
-        state::EditorUiState,
-        timeline::{
-            TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB,
-            edit_panel::{audio_drop::show_dragged_hint, track_row::track_row},
+use crate::{
+    consts::{TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
+    ui::{
+        EditorState,
+        editor::{
+            state::EditorUiState,
+            timeline::{
+                TIMELINE_LEFT_PADDING,
+                edit_panel::{audio_drop::show_dragged_hint, track_row::track_row},
+            },
         },
+        theme,
+        zoom::zoom_scroll_offset,
     },
-    theme,
-    zoom::zoom_scroll_offset,
 };
 use eframe::egui;
 use kadent_engine::{data_types::Ticks, mixer::TrackID};

@@ -1,34 +1,25 @@
 mod edit_panel;
-mod ruler;
 mod ruler_area;
 mod scroll_bar;
 mod track_list;
 
-use crate::ui::{
-    EditorState,
-    components::panel_header::panel_header,
-    editor::{
-        state::EditorUiState,
-        timeline::{
-            edit_panel::track_edit_panel, ruler_area::ruler_area, track_list::track_list_panel,
-        },
+use crate::{
+    consts::{
+        MAX_TRACK_LIST_WIDTH, MIN_TRACK_LIST_WIDTH, TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING,
     },
-    theme,
+    ui::{
+        EditorState,
+        components::panel_header::panel_header,
+        editor::{
+            state::EditorUiState,
+            timeline::{
+                edit_panel::track_edit_panel, ruler_area::ruler_area, track_list::track_list_panel,
+            },
+        },
+        theme,
+    },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
-
-/// The minimum width of the track list panel, in pixels.
-pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
-/// The maximum width of the track list panel, in pixels.
-pub(crate) const MAX_TRACK_LIST_WIDTH: f32 = 800.0;
-/// Extra pixels of empty space inserted before zero beat.
-pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
-/// Extra pixels of empty space appended after the last region or project range end.
-pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
-/// The minimum pixels per beat.
-pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
-/// The maximum pixels per beat.
-pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;
 
 pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
     let track_list_width = state.ui_state.timeline_state.track_list_width;

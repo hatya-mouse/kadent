@@ -32,17 +32,19 @@ use std::path::PathBuf;
 #[derive(Clone)]
 pub(crate) enum AddibleNodes {
     Kasl,
+    Automation,
 }
 
 impl AddibleNodes {
     pub(crate) fn name(&self) -> &str {
         match self {
             AddibleNodes::Kasl => "KASL Node",
+            AddibleNodes::Automation => "Automation Node",
         }
     }
 
     pub(crate) fn all() -> Vec<AddibleNodes> {
-        vec![AddibleNodes::Kasl]
+        vec![AddibleNodes::Kasl, AddibleNodes::Automation]
     }
 }
 
