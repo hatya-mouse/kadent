@@ -4,16 +4,18 @@ use crate::{
     actions::EditorAction,
     core::metadata::TrackType,
     ui::{
+        EditorState,
+        editor::state::{AddTrackState, DialogState, TimelineCoord},
         theme,
-        {
-            EditorState,
-            editor::state::{AddTrackState, DialogState},
-        },
     },
 };
 use eframe::egui::{self, include_image};
 
-pub(super) fn track_list_panel(ui: &mut egui::Ui, state: &mut EditorState) {
+pub(super) fn track_list_panel(
+    ui: &mut egui::Ui,
+    state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
+) {
     ui.vertical(|ui| {
         ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
 
@@ -33,7 +35,7 @@ pub(super) fn track_list_panel(ui: &mut egui::Ui, state: &mut EditorState) {
 
                         // Draw track color
                         let (rect, _) = ui.allocate_exact_size(
-                            egui::vec2(4.0, state.ui_state.timeline_state.track_height),
+                            egui::vec2(4.0, timeline_coord.y_zoom),
                             egui::Sense::hover(),
                         );
                         ui.painter().rect_filled(rect, 0.0, track_meta.color);

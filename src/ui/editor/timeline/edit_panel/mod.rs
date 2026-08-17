@@ -8,7 +8,7 @@ use crate::{
     ui::{
         EditorState,
         editor::{
-            state::EditorUiState,
+            state::{EditorUiState, TimelineCoord},
             timeline::{
                 TIMELINE_LEFT_PADDING,
                 edit_panel::{audio_drop::show_dragged_hint, track_row::track_row},
@@ -24,10 +24,10 @@ use kadent_engine::{data_types::Ticks, mixer::TrackID};
 pub(crate) fn track_edit_panel(
     ui: &mut egui::Ui,
     state: &mut EditorState,
-    scroll_x: f32,
+    timeline_coord: &mut TimelineCoord,
     timeline_width: f32,
 ) -> Option<f32> {
-    let track_height = state.ui_state.timeline_state.track_height;
+    let track_height = timeline_coord.y_zoom;
 
     // Ensure the scroll area extends past the project range end (or last region end)
     ui.set_min_width(timeline_width);
@@ -43,7 +43,14 @@ pub(crate) fn track_edit_panel(
             egui::vec2(available.width(), track_height),
         );
 
-        track_row(ui, state, track_id, row_rect, available.min.y);
+        track_row(
+            ui,
+            state,
+            timeline_coord,
+            track_id,
+            row_rect,
+            available.min.y,
+        );
 
         // Draw a separator
         ui.painter().hline(
@@ -57,10 +64,10 @@ pub(crate) fn track_edit_panel(
     }
 
     // Draw the playhead
-    playhead(ui, &state.ui_state, available);
+    playhead(ui, &state.ui_state, timeline_coord, available);
 
     // Handle pinch / zoom gesture for timeline zoooooming
-    let scroll_override = handle_timeline_zoom(ui, &mut state.ui_state, available, scroll_x);
+    let scroll_override = handle_timeline_zoom(ui, &mut state.ui_state, timeline_coord, available);
 
     // Handle dragged or dropped file
     state.try_resolve_audio_drop();
@@ -69,8 +76,13 @@ pub(crate) fn track_edit_panel(
     scroll_override
 }
 
-fn playhead(ui: &mut egui::Ui, ui_state: &EditorUiState, editor_rect: egui::Rect) {
-    let playhead_x = ui_state.timeline_state.pixels_per_beat
+fn playhead(
+    ui: &mut egui::Ui,
+    ui_state: &EditorUiState,
+    timeline_coord: &TimelineCoord,
+    editor_rect: egui::Rect,
+) {
+    let playhead_x = timeline_coord.ppb
         * (ui_state.playhead_tick.0 as f32 / ui_state.audio_ctx.resolution as f32);
 
     // Create a new painter to draw on the foreground layer
@@ -89,9 +101,11 @@ fn playhead(ui: &mut egui::Ui, ui_state: &EditorUiState, editor_rect: egui::Rect
 fn handle_timeline_zoom(
     ui: &mut egui::Ui,
     ui_state: &mut EditorUiState,
+    timeline_coord: &mut TimelineCoord,
     editor_rect: egui::Rect,
-    scroll_x: f32,
 ) -> Option<f32> {
+    let scroll_x = timeline_coord.scroll.x;
+
     let editor_res = ui.allocate_rect(editor_rect, egui::Sense::hover());
     if !editor_res.hovered() {
         return None;
@@ -103,11 +117,16 @@ fn handle_timeline_zoom(
     let cursor_x = ui.input(|i| i.pointer.hover_pos())?.x;
 
     // Ticks under the cursor before changing the zoom level
-    let ticks_at_cursor = x_to_ticks(ui_state, cursor_x, editor_rect);
+    let ticks_at_cursor = x_to_ticks(
+        timeline_coord,
+        ui_state.audio_ctx.resolution,
+        cursor_x,
+        editor_rect,
+    );
 
-    let old_ppb = ui_state.timeline_state.pixels_per_beat;
+    let old_ppb = timeline_coord.ppb;
     let new_ppb = (old_ppb * zoom_delta).clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
-    ui_state.timeline_state.pixels_per_beat = new_ppb;
+    timeline_coord.ppb = new_ppb;
 
     // Shift the scroll offset by however much the position of `ticks_at_cursor` moved due to
     // the zoom change, so it stays under the cursor
@@ -117,17 +136,25 @@ fn handle_timeline_zoom(
     Some(new_offset.max(0.0))
 }
 
-fn x_to_ticks(ui_state: &EditorUiState, x: f32, row_rect: egui::Rect) -> Ticks {
-    Ticks(
-        ((x - row_rect.min.x - TIMELINE_LEFT_PADDING) * ui_state.timeline_ticks_per_pixel()) as i64,
-    )
-    .max(Ticks(0))
+fn x_to_ticks(
+    timeline_coord: &TimelineCoord,
+    resolution: u64,
+    x: f32,
+    row_rect: egui::Rect,
+) -> Ticks {
+    Ticks(((x - row_rect.min.x - TIMELINE_LEFT_PADDING) * timeline_coord.tpp(resolution)) as i64)
+        .max(Ticks(0))
 }
 
 /// Converts a screen-space y position to the track it falls into,
 /// given the y position of the top of the track list content area.
-fn y_to_track_id(ui_state: &EditorUiState, y: f32, content_top: f32) -> Option<TrackID> {
-    let track_height = ui_state.timeline_state.track_height;
+fn y_to_track_id(
+    ui_state: &EditorUiState,
+    timeline_coord: &TimelineCoord,
+    y: f32,
+    content_top: f32,
+) -> Option<TrackID> {
+    let track_height = timeline_coord.y_zoom;
     if y < content_top || track_height <= 0.0 {
         return None;
     }

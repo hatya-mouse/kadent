@@ -4,7 +4,7 @@ use crate::{
     ui::{
         EditorState,
         components::{icon_button::small_icon_button, ruler::ruler_and_scroll_bar},
-        editor::Modification,
+        editor::{Modification, state::TimelineCoord},
         theme,
     },
 };
@@ -15,7 +15,7 @@ use kadent_engine::{data_types::Ticks, timing::TimeBounds};
 pub(super) fn ruler_area(
     ui: &mut egui::Ui,
     state: &mut EditorState,
-    scroll_x: f32,
+    timeline_coord: &TimelineCoord,
     visible_width: f32,
     timeline_width: f32,
     track_list_width: f32,
@@ -36,17 +36,22 @@ pub(super) fn ruler_area(
     let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
         ui,
         area_rect,
+        timeline_coord,
         state.ui_state.audio_ctx.resolution,
-        state.ui_state.timeline_state.pixels_per_beat,
-        visible_width,
         timeline_width,
-        scroll_x,
+        visible_width,
     );
     state.apply_ruler_res(&ruler_res);
 
     // Add draggable project range indicator
     let ruler_rect = area_rect.with_min_y(area_rect.min.y + SCROLL_BAR_HEIGHT);
-    project_range_indicator(ui, state, ruler_rect, scroll_x);
+    project_range_indicator(
+        ui,
+        state,
+        timeline_coord,
+        ruler_rect,
+        timeline_coord.scroll.x,
+    );
 
     let vertical_separator_rect = egui::Rect::from_min_size(
         egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
@@ -86,10 +91,11 @@ fn follow_playhead_button(ui: &mut egui::Ui, corner_rect: egui::Rect, follow_pla
 fn project_range_indicator(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     ruler_screen_rect: egui::Rect,
     scroll_x: f32,
 ) {
-    let ppb = state.ui_state.timeline_state.pixels_per_beat;
+    let ppb = timeline_coord.ppb;
     let ppt = ppb / state.ui_state.audio_ctx.resolution as f32;
     let tempo_map = &state.ui_state.proj_ctx.project.tempo_map;
     let origin_x = ruler_screen_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;

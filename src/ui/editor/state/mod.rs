@@ -5,6 +5,7 @@ mod node_graph_state;
 mod panel_layout;
 mod piano_roll_state;
 mod status_bar_state;
+mod timeline_coord;
 mod timeline_state;
 mod toolbar_state;
 
@@ -15,6 +16,7 @@ pub(crate) use node_graph_state::NodeGraphState;
 pub(crate) use panel_layout::{PanelNode, PanelView, SplitDir};
 pub(crate) use piano_roll_state::PianoRollState;
 pub(crate) use status_bar_state::StatusBarState;
+pub(crate) use timeline_coord::TimelineCoord;
 pub(crate) use timeline_state::TimelineState;
 pub(crate) use toolbar_state::ToolbarState;
 
@@ -207,16 +209,6 @@ impl EditorUiState {
     /// Deselects the currently selected content.
     pub fn deselect_all(&mut self) {
         self.selection = Selection::None;
-    }
-
-    /// Gets the ticks per pixel in the timeline.
-    pub fn timeline_ticks_per_pixel(&self) -> f32 {
-        self.audio_ctx.resolution as f32 / self.timeline_state.pixels_per_beat
-    }
-
-    /// Gets the ticks per pixel in the piano roll.
-    pub fn piano_roll_ticks_per_pixel(&self) -> f32 {
-        self.audio_ctx.resolution as f32 / self.piano_roll_state.pixels_per_beat
     }
 
     /// Sets the modification state to the given one.

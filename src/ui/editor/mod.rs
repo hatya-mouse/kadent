@@ -9,7 +9,7 @@ mod node_graph;
 mod panel;
 mod piano_roll;
 mod preview_notes;
-mod state;
+pub mod state;
 mod status_bar;
 mod timeline;
 mod toolbar;

@@ -4,7 +4,7 @@ use crate::{
     ui::{
         EditorState,
         editor::{
-            state::Modification,
+            state::{Modification, TimelineCoord},
             timeline::{
                 TIMELINE_LEFT_PADDING,
                 edit_panel::{
@@ -27,17 +27,19 @@ use kadent_engine::{
 pub(super) fn track_row(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     track_id: &TrackID,
     row_rect: egui::Rect,
     content_top: f32,
 ) {
-    draw_regions(ui, state, track_id, row_rect, content_top);
-    track_row_gestures(ui, state, track_id, row_rect);
+    draw_regions(ui, state, timeline_coord, track_id, row_rect, content_top);
+    track_row_gestures(ui, state, timeline_coord, track_id, row_rect);
 }
 
 fn draw_regions(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     track_id: &TrackID,
     row_rect: egui::Rect,
     content_top: f32,
@@ -47,8 +49,7 @@ fn draw_regions(
         return;
     };
 
-    let ppt =
-        state.ui_state.timeline_state.pixels_per_beat / state.ui_state.audio_ctx.resolution as f32;
+    let ppt = timeline_coord.ppt(state.ui_state.audio_ctx.resolution);
     let region_ids: Vec<RegionID> = track_meta.regions.keys().copied().collect();
 
     // Loop through the regions in the track and draw them
@@ -86,6 +87,7 @@ fn draw_regions(
         let move_res = region_gestures(
             ui,
             state,
+            timeline_coord,
             track_id,
             &region_id,
             region_rect,
@@ -166,6 +168,7 @@ fn draw_regions(
 fn track_row_gestures(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     track_id: &TrackID,
     row_rect: egui::Rect,
 ) {
@@ -174,7 +177,14 @@ fn track_row_gestures(
     if response.double_clicked() {
         let start = response
             .interact_pointer_pos()
-            .map(|pos| x_to_ticks(&state.ui_state, pos.x, row_rect))
+            .map(|pos| {
+                x_to_ticks(
+                    timeline_coord,
+                    state.ui_state.audio_ctx.resolution,
+                    pos.x,
+                    row_rect,
+                )
+            })
             .unwrap_or_default();
         let duration = Ticks(1);
         let bounds = TimeBounds::Musical { start, duration };
@@ -210,12 +220,16 @@ fn track_row_gestures(
 fn region_gestures(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     track_id: &TrackID,
     region_id: &RegionID,
     region_rect: egui::Rect,
     resize_rect: egui::Rect,
     content_top: f32,
 ) -> egui::Response {
+    let resolution = state.ui_state.audio_ctx.resolution;
+    let tpp = timeline_coord.tpp(resolution);
+
     // Get gestures on the region
     let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
     let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
@@ -231,8 +245,7 @@ fn region_gestures(
         state.push_action(EditorAction::ArmTrack(*track_id));
 
         // Calculate the new duration from the drag amount
-        let delta_ticks =
-            Ticks((resize_res.drag_delta().x * state.ui_state.timeline_ticks_per_pixel()) as i64);
+        let delta_ticks = Ticks((resize_res.drag_delta().x * tpp) as i64);
         if let Some(region) = state
             .ui_state
             .proj_ctx
@@ -283,8 +296,7 @@ fn region_gestures(
         state.ui_state.select_region(*track_id, *region_id);
         state.push_action(EditorAction::ArmTrack(*track_id));
 
-        let delta_ticks =
-            Ticks((move_res.drag_delta().x * state.ui_state.timeline_ticks_per_pixel()) as i64);
+        let delta_ticks = Ticks((move_res.drag_delta().x * tpp) as i64);
         if let Some(region) = state
             .ui_state
             .proj_ctx
@@ -324,7 +336,7 @@ fn region_gestures(
         // falling back to the original track if it was released outside any row
         let new_track_id = move_res
             .interact_pointer_pos()
-            .and_then(|pos| y_to_track_id(&state.ui_state, pos.y, content_top))
+            .and_then(|pos| y_to_track_id(&state.ui_state, timeline_coord, pos.y, content_top))
             .unwrap_or(*track_id);
 
         state.push_action(EditorAction::MoveRegion(

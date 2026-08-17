@@ -10,7 +10,7 @@ use crate::{
         EditorState,
         components::panel_header::panel_header,
         editor::{
-            state::EditorUiState,
+            state::{EditorUiState, TimelineCoord},
             timeline::{
                 edit_panel::track_edit_panel, ruler_area::ruler_area, track_list::track_list_panel,
             },
@@ -26,32 +26,38 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
     ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
     let follow_playhead_key = ui.id().with("follow_playhead");
-    let timeline_scroll_key = ui.id().with("timeline_scroll");
+    let timeline_coord_key = ui.id().with("timeline_coord");
 
-    let mut follow_playhead = ui.data(|data| data.get_temp(follow_playhead_key).unwrap_or(false));
-    let mut timeline_scroll = ui.data(|data| {
-        data.get_temp(timeline_scroll_key)
-            .unwrap_or(TIMELINE_LEFT_PADDING)
+    let mut follow_playhead =
+        ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
+    let mut timeline_coord = ui.data(|data| {
+        data.get_temp(timeline_coord_key)
+            .unwrap_or(TimelineCoord::new(
+                80.0,
+                50.0,
+                egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
+            ))
     });
 
     // While following, keep the playhead centered in the visible track area
     let visible_width = (panel_width - track_list_width).max(0.0);
     if follow_playhead && state.ui_state.is_playing {
-        timeline_scroll = follow_playhead_scroll_offset(&state.ui_state, visible_width);
+        timeline_coord.scroll.x =
+            follow_playhead_scroll_offset(&state.ui_state, &timeline_coord, visible_width);
     }
 
     // Clamp the timeline_scroll by zero and the end of the timeline content width
     // so that it never scrolls past the scrollable area
-    let timeline_width = timeline_content_width(&state.ui_state);
+    let timeline_width = timeline_content_width(&state.ui_state, &timeline_coord);
     let max_scroll = (timeline_width - visible_width).max(0.0);
-    timeline_scroll = timeline_scroll.clamp(0.0, max_scroll);
+    timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 
     let mut new_scroll_x = None;
     panel_header(ui, egui::Margin::ZERO, |ui| {
         new_scroll_x = ruler_area(
             ui,
             state,
-            timeline_scroll,
+            &timeline_coord,
             visible_width,
             timeline_width,
             track_list_width,
@@ -67,7 +73,7 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
             let panel_rect = ui.available_rect_before_wrap();
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    track_list_panel(ui, state);
+                    track_list_panel(ui, state, &timeline_coord);
 
                     // Add a divider and make it draggable
                     let divider_rect = egui::Rect::from_min_size(
@@ -81,10 +87,10 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
 
                     let scroll_output = egui::ScrollArea::horizontal()
                         .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                        .horizontal_scroll_offset(timeline_scroll)
+                        .horizontal_scroll_offset(timeline_coord.scroll.x)
                         .show(ui, |ui| {
                             ui.set_min_height(panel_rect.height());
-                            track_edit_panel(ui, state, timeline_scroll, timeline_width)
+                            track_edit_panel(ui, state, &mut timeline_coord, timeline_width)
                         });
 
                     // If the timeline is scrolled via the top scroll bar, prefer the `new_scroll_x`
@@ -92,7 +98,8 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
                     // that instead of the ScrollArea's own offset
                     let final_offset = new_scroll_x
                         .unwrap_or(scroll_output.inner.unwrap_or(scroll_output.state.offset.x));
-                    ui.data_mut(|data| data.insert_temp(timeline_scroll_key, final_offset));
+                    timeline_coord.scroll.x = final_offset;
+                    ui.data_mut(|data| data.insert_temp(timeline_coord_key, timeline_coord));
 
                     // Handle dragging the divider and draw the divider
                     if divider_resp.dragged() {
@@ -123,8 +130,12 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
 
 /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport
 /// of the given visible width, clamped so it never scrolls past the scrollable content.
-fn follow_playhead_scroll_offset(ui_state: &EditorUiState, visible_width: f32) -> f32 {
-    let ppt = ui_state.timeline_state.pixels_per_beat / ui_state.audio_ctx.resolution as f32;
+fn follow_playhead_scroll_offset(
+    ui_state: &EditorUiState,
+    timeline_coord: &TimelineCoord,
+    visible_width: f32,
+) -> f32 {
+    let ppt = timeline_coord.ppt(ui_state.audio_ctx.resolution);
     let playhead_content_x = TIMELINE_LEFT_PADDING + ui_state.playhead_tick.0 as f32 * ppt;
     let visible_half_width = visible_width * 0.5;
 
@@ -137,8 +148,11 @@ fn follow_playhead_scroll_offset(ui_state: &EditorUiState, visible_width: f32) -
 /// |<--                             timeline_content_width                         -->|
 /// |<-- TIMELINE_LEFT_PADDING -->[<-- Project Range -->]<-- TIMELINE_RIGHT_PADDING -->|
 /// ```
-pub(super) fn timeline_content_width(ui_state: &EditorUiState) -> f32 {
-    let ppt = ui_state.timeline_state.pixels_per_beat / ui_state.audio_ctx.resolution as f32;
+pub(super) fn timeline_content_width(
+    ui_state: &EditorUiState,
+    timeline_coord: &TimelineCoord,
+) -> f32 {
+    let ppt = timeline_coord.ppt(ui_state.audio_ctx.resolution);
     let tempo_map = &ui_state.proj_ctx.project.tempo_map;
     let range_end_ticks = ui_state.proj_ctx.project.export_range.end_tick(tempo_map).0;
     let last_region_end = ui_state

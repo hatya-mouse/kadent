@@ -4,7 +4,7 @@ use crate::{
     ui::{
         EditorState,
         components::ruler::ruler_and_scroll_bar,
-        editor::state::{EditorUiState, Modification},
+        editor::state::{Modification, TimelineCoord},
         theme,
         zoom::zoom_scroll_offset,
     },
@@ -28,10 +28,6 @@ pub(super) fn note_grid(
     track_id: TrackID,
     region_id: RegionID,
 ) {
-    let ruler_bottom_y = rect.min.y + PANEL_HEADER_HEIGHT;
-    let ruler_screen_rect = rect.with_max_y(ruler_bottom_y);
-    let note_grid_rect = rect.with_min_y(ruler_bottom_y);
-
     // Get the target region
     let Some(track) = state
         .ui_state
@@ -59,8 +55,21 @@ pub(super) fn note_grid(
         return;
     };
 
-    let ppt = state.ui_state.piano_roll_state.pixels_per_beat
-        / state.ui_state.audio_ctx.resolution as f32;
+    // Get the timeline coordinate and calculate other variables
+    let ruler_bottom_y = rect.min.y + PANEL_HEADER_HEIGHT;
+    let ruler_screen_rect = rect.with_max_y(ruler_bottom_y);
+    let note_grid_rect = rect.with_min_y(ruler_bottom_y);
+
+    let timeline_coord_key = ui.id().with("timeline_coord");
+    let timeline_coord: TimelineCoord = ui.data(|data| {
+        data.get_temp(timeline_coord_key)
+            .unwrap_or(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
+    });
+
+    let ppb = timeline_coord.ppb;
+    let note_height = timeline_coord.y_zoom;
+    let scroll_amount = timeline_coord.scroll;
+    let ppt = ppb / state.ui_state.audio_ctx.resolution as f32;
 
     // Calculate the total size of the scroll area content
     let region_duration = region
@@ -74,42 +83,26 @@ pub(super) fn note_grid(
         .unwrap_or(0);
     let content_end_ticks = region_duration.0.max(last_note_end);
     let scroll_content_width = (content_end_ticks as f32 * ppt).max(note_grid_rect.width());
+
     // Calculate the total height of the scroll area content (128 MIDI notes)
-    let scroll_content_height =
-        (128.0 * state.ui_state.piano_roll_state.note_height).max(note_grid_rect.height());
+    let scroll_content_height = (128.0 * note_height).max(note_grid_rect.height());
 
     let notes = region.notes.clone();
-
-    let note_grid_scroll_key = ui.id().with("note_grid_scroll");
-    let note_grid_scroll = ui.data(|data| {
-        data.get_temp(note_grid_scroll_key)
-            .unwrap_or(egui::Vec2::ZERO)
-    });
-
-    // Clamp the scroll by zero and the end of the content so that it never exceeds the content
-    // especially when zooming out
-    let max_scroll_x = (scroll_content_width - note_grid_rect.width()).max(0.0);
-    let max_scroll_y = (scroll_content_height - note_grid_rect.height()).max(0.0);
-    let note_grid_scroll = egui::vec2(
-        note_grid_scroll.x.clamp(0.0, max_scroll_x),
-        note_grid_scroll.y.clamp(0.0, max_scroll_y),
-    );
 
     // Show the ruler at the top of the note grid
     let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
         ui,
         ruler_screen_rect,
+        &timeline_coord,
         state.ui_state.audio_ctx.resolution,
-        state.ui_state.piano_roll_state.pixels_per_beat,
-        ruler_screen_rect.width(),
         scroll_content_width,
-        note_grid_scroll.x,
+        ruler_screen_rect.width(),
     );
     state.apply_ruler_res(&ruler_res);
 
     // Draw the notes
     let scroll_output = egui::ScrollArea::both()
-        .scroll_offset(note_grid_scroll)
+        .scroll_offset(scroll_amount)
         .show(ui, |ui| {
             // Allocate a painter
             let (response, painter) = ui.allocate_painter(
@@ -121,8 +114,8 @@ pub(super) fn note_grid(
             // Draw the note grid
             draw_note_grid(
                 ui,
-                &state.ui_state,
                 &painter,
+                &timeline_coord,
                 offset,
                 scroll_content_width,
                 scroll_content_height,
@@ -131,28 +124,25 @@ pub(super) fn note_grid(
             for (note_id, note) in notes {
                 // Calculate the note rect
                 let note_x = offset.x + note.start.0 as f32 * ppt;
-                let note_y =
-                    offset.y + (128.0 - note.pitch) * state.ui_state.piano_roll_state.note_height;
+                let note_y = offset.y + (128.0 - note.pitch) * note_height;
                 let note_width = note.duration.0 as f32 * ppt;
                 let note_rect = egui::Rect::from_min_size(
                     egui::pos2(note_x, note_y),
-                    egui::vec2(note_width, state.ui_state.piano_roll_state.note_height),
+                    egui::vec2(note_width, note_height),
                 );
 
                 // Create a rect on the right side of the note to drag and resize the note
                 let draggable_width = 5.0;
                 let resize_rect = egui::Rect::from_min_size(
                     egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
-                    egui::vec2(
-                        draggable_width,
-                        state.ui_state.piano_roll_state.note_height - 4.0,
-                    ),
+                    egui::vec2(draggable_width, note_height - 4.0),
                 );
 
                 // Handle note gestures
                 note_controls(
                     ui,
                     state,
+                    &timeline_coord,
                     (&track_id, &region_id, &note_id),
                     &note,
                     note_rect,
@@ -182,23 +172,39 @@ pub(super) fn note_grid(
                 state,
                 note_grid_rect,
                 scroll_content_height,
-                note_grid_scroll,
+                &timeline_coord,
                 &track_id,
                 &region_id,
             )
         });
 
-    let final_offset = scroll_output.inner.unwrap_or(scroll_output.state.offset);
-
     // Prioritize scroll bar click over the scroll area's own offset
-    let final_offset = egui::vec2(new_scroll_x.unwrap_or(final_offset.x), final_offset.y);
-    ui.data_mut(|data| data.insert_temp(note_grid_scroll_key, final_offset));
+    let scroll_timeline_coord = scroll_output
+        .inner
+        .unwrap_or_else(|| timeline_coord.clone());
+    let mut new_timeline_coord = match new_scroll_x {
+        Some(new_scroll_x) => {
+            timeline_coord.with_scroll(egui::vec2(new_scroll_x, timeline_coord.scroll.y))
+        }
+        None => scroll_timeline_coord,
+    };
+
+    // Clamp the scroll by zero and the end of the content so that it never exceeds the content
+    // especially when zooming out
+    let max_scroll_x = (scroll_content_width - note_grid_rect.width()).max(0.0);
+    let max_scroll_y = (scroll_content_height - note_grid_rect.height()).max(0.0);
+    new_timeline_coord.scroll = egui::vec2(
+        new_timeline_coord.scroll.x.clamp(0.0, max_scroll_x),
+        new_timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
+    );
+
+    ui.data_mut(|data| data.insert_temp(timeline_coord_key, new_timeline_coord));
 }
 
 fn draw_note_grid(
     ui: &mut egui::Ui,
-    ui_state: &EditorUiState,
     painter: &egui::Painter,
+    timeline_coord: &TimelineCoord,
     offset: egui::Pos2,
     scroll_content_width: f32,
     scroll_content_height: f32,
@@ -206,7 +212,7 @@ fn draw_note_grid(
     let grid_color_note = theme::border_color(ui.visuals().dark_mode);
     let grid_color_octave = ui.visuals().window_stroke().color;
 
-    let note_height = ui_state.piano_roll_state.note_height;
+    let note_height = timeline_coord.y_zoom;
     // Only show per note grid lines if the note height is large enough
     let show_per_note_grid = note_height >= NOTE_GRID_FACTOR;
 
@@ -231,7 +237,7 @@ fn draw_note_grid(
 
     note_grid_ruler(
         painter,
-        ui_state,
+        timeline_coord,
         scroll_content_width,
         scroll_content_height,
         offset,
@@ -241,14 +247,14 @@ fn draw_note_grid(
 
 fn note_grid_ruler(
     painter: &egui::Painter,
-    ui_state: &EditorUiState,
+    timeline_coord: &TimelineCoord,
     scroll_content_width: f32,
     scroll_content_height: f32,
     offset: egui::Pos2,
     grid_color_note: egui::Color32,
 ) {
     // Vertical beat grid lines, interval adapts to zoom level
-    let ppb = ui_state.piano_roll_state.pixels_per_beat;
+    let ppb = timeline_coord.ppb;
     let raw_interval = (30.0_f32 / ppb).ceil() as i32;
     let beats_per_line = if raw_interval <= 1 {
         1
@@ -291,16 +297,20 @@ fn note_grid_ruler(
 }
 
 // Handle gestures on the note grid, such as adding notes and zooming,
-// and returns the new scroll offset to preserve the scroll position after zooming.
+// and returns the new scroll timeline coordinate that preserves the scroll position after zooming.
 fn note_grid_gestures(
     ui: &mut egui::Ui,
     state: &mut EditorState,
     note_grid_rect: egui::Rect,
     scroll_content_height: f32,
-    scroll_amount: egui::Vec2,
+    timeline_coord: &TimelineCoord,
     track_id: &TrackID,
     region_id: &RegionID,
-) -> Option<egui::Vec2> {
+) -> Option<TimelineCoord> {
+    let resolution = state.ui_state.audio_ctx.resolution;
+    let ppb = timeline_coord.ppb;
+    let note_height = timeline_coord.y_zoom;
+    let scroll_amount = timeline_coord.scroll;
     let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
 
     if response.double_clicked() {
@@ -308,9 +318,10 @@ fn note_grid_gestures(
         if let Some(click_pos) = response.interact_pointer_pos() {
             // Calculate the note start beats and the pitch
             let (start, pitch) = calc_note_position(
-                &state.ui_state,
+                timeline_coord.tpp(resolution),
                 click_pos,
                 note_grid_rect,
+                note_height,
                 scroll_content_height,
                 scroll_amount,
             );
@@ -344,42 +355,42 @@ fn note_grid_gestures(
     let shift = ui.input(|i| i.modifiers.shift);
 
     if shift {
-        let rows_from_top_at_cursor = (scroll_amount.y + cursor_pos.y - note_grid_rect.min.y)
-            / state.ui_state.piano_roll_state.note_height;
-
-        let old_note_height = state.ui_state.piano_roll_state.note_height;
-        let new_note_height = (old_note_height * zoom_delta).clamp(5.0, 30.0);
-        state.ui_state.piano_roll_state.note_height = new_note_height;
-
+        let rows_from_top_at_cursor =
+            (scroll_amount.y + cursor_pos.y - note_grid_rect.min.y) / note_height;
+        let new_note_height = (note_height * zoom_delta).clamp(5.0, 30.0);
         let new_scroll_y = zoom_scroll_offset(
-            scroll_amount.y,
+            timeline_coord.scroll.y,
             rows_from_top_at_cursor,
-            old_note_height,
+            note_height,
             new_note_height,
         );
-        Some(egui::vec2(scroll_amount.x, new_scroll_y.max(0.0)))
+
+        Some(timeline_coord.with_zoom_and_scroll(
+            new_note_height,
+            egui::vec2(scroll_amount.x, new_scroll_y.max(0.0)),
+        ))
     } else {
         // Horizontal zoom (pixels per beat), centered on the cursor
-        let beats_at_cursor = (scroll_amount.x + cursor_pos.x - note_grid_rect.min.x)
-            / state.ui_state.piano_roll_state.pixels_per_beat;
+        let beats_at_cursor = (scroll_amount.x + cursor_pos.x - note_grid_rect.min.x) / ppb;
+        let new_ppb = (ppb * zoom_delta).clamp(10.0, 500.0);
+        let new_scroll_x = zoom_scroll_offset(scroll_amount.x, beats_at_cursor, ppb, new_ppb);
 
-        let old_ppb = state.ui_state.piano_roll_state.pixels_per_beat;
-        let new_ppb = (old_ppb * zoom_delta).clamp(10.0, 500.0);
-        state.ui_state.piano_roll_state.pixels_per_beat = new_ppb;
-
-        let new_scroll_x = zoom_scroll_offset(scroll_amount.x, beats_at_cursor, old_ppb, new_ppb);
-        Some(egui::vec2(new_scroll_x.max(0.0), scroll_amount.y))
+        Some(timeline_coord.with_ppb_and_scroll(new_ppb, egui::vec2(new_scroll_x, scroll_amount.y)))
     }
 }
 
 fn note_controls(
     ui: &mut egui::Ui,
     state: &mut EditorState,
+    timeline_coord: &TimelineCoord,
     note_id: (&TrackID, &RegionID, &NoteID),
     note: &Note,
     note_rect: egui::Rect,
     resize_rect: egui::Rect,
 ) {
+    let note_height = timeline_coord.y_zoom;
+    let resolution = state.ui_state.audio_ctx.resolution;
+
     // Get gestures on the note
     let move_res = ui.allocate_rect(note_rect, egui::Sense::drag());
     let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
@@ -398,7 +409,7 @@ fn note_controls(
 
         // Calculate the new duration from the drag amount
         let delta_ticks =
-            Ticks((resize_res.drag_delta().x * state.ui_state.piano_roll_ticks_per_pixel()) as i64);
+            Ticks((resize_res.drag_delta().x * timeline_coord.tpp(resolution)) as i64);
 
         if let Some(region) = state
             .ui_state
@@ -437,9 +448,8 @@ fn note_controls(
     }
 
     if move_res.dragged() {
-        let delta_ticks =
-            Ticks((move_res.drag_delta().x * state.ui_state.piano_roll_ticks_per_pixel()) as i64);
-        let delta_pitch = -move_res.drag_delta().y / state.ui_state.piano_roll_state.note_height;
+        let delta_ticks = Ticks((move_res.drag_delta().x * timeline_coord.tpp(resolution)) as i64);
+        let delta_pitch = -move_res.drag_delta().y / note_height;
 
         state
             .ui_state
@@ -492,18 +502,16 @@ fn note_controls(
 }
 
 pub(in crate::ui::editor) fn calc_note_position(
-    ui_state: &EditorUiState,
+    tpp: f32,
     click_pos: egui::Pos2,
     note_grid_rect: egui::Rect,
+    note_height: f32,
     scroll_content_height: f32,
     scroll_amount: egui::Vec2,
 ) -> (Ticks, f32) {
-    let start = Ticks(
-        ((scroll_amount.x + click_pos.x - note_grid_rect.min.x)
-            * ui_state.piano_roll_ticks_per_pixel()) as i64,
-    );
+    let start = Ticks(((scroll_amount.x + click_pos.x - note_grid_rect.min.x) * tpp) as i64);
     let pitch = ((scroll_content_height - scroll_amount.y - click_pos.y + note_grid_rect.min.y)
-        / ui_state.piano_roll_state.note_height)
+        / note_height)
         .ceil();
 
     (start, pitch)

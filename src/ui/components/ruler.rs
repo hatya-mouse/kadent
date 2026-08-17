@@ -1,6 +1,6 @@
 use crate::{
     consts::{SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
-    ui::theme,
+    ui::{editor::state::TimelineCoord, theme},
 };
 use eframe::egui;
 use kadent_engine::data_types::Ticks;
@@ -18,19 +18,30 @@ pub struct RulerResponse {
 pub(crate) fn ruler_and_scroll_bar(
     ui: &mut egui::Ui,
     rect: egui::Rect,
+    timeline_coord: &TimelineCoord,
     resolution: u64,
-    pixels_per_beat: f32,
-    visible_width: f32,
     timeline_width: f32,
-    scroll_x: f32,
+    visible_width: f32,
 ) -> (Option<f32>, RulerResponse) {
     // Top half: shows the scroll bar for scrolling the entire timeline horizontally
     // Bottom half: shows the beat rule
     let scroll_bar_bottom_y = rect.min.y + SCROLL_BAR_HEIGHT;
     let scroll_bar_rect = rect.with_max_y(scroll_bar_bottom_y);
     let ruler_rect = rect.with_min_y(scroll_bar_bottom_y);
-    let new_scroll_x = scroll_bar(ui, scroll_bar_rect, scroll_x, visible_width, timeline_width);
-    let ruler_res = beat_ruler(ui, resolution, pixels_per_beat, ruler_rect, scroll_x);
+    let new_scroll_x = scroll_bar(
+        ui,
+        scroll_bar_rect,
+        timeline_coord.scroll.x,
+        visible_width,
+        timeline_width,
+    );
+    let ruler_res = beat_ruler(
+        ui,
+        resolution,
+        timeline_coord.ppb,
+        ruler_rect,
+        timeline_coord.scroll.x,
+    );
 
     (new_scroll_x, ruler_res)
 }
