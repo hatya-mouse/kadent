@@ -21,15 +21,17 @@ use crate::{
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
 pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
-    let track_list_width = state.ui_state.timeline_state.track_list_width;
     let panel_width = ui.available_width();
     ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
     let follow_playhead_key = ui.id().with("follow_playhead");
+    let track_list_width_key = ui.id().with("track_list_width");
     let timeline_coord_key = ui.id().with("timeline_coord");
 
     let mut follow_playhead =
         ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
+    let mut track_list_width =
+        ui.data_mut(|data| data.get_temp(track_list_width_key).unwrap_or(200.0));
     let mut timeline_coord = ui.data(|data| {
         data.get_temp(timeline_coord_key)
             .unwrap_or(TimelineCoord::new(
@@ -65,15 +67,13 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
         );
     });
 
-    ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
-
     egui::CentralPanel::default()
         .frame(egui::Frame::new())
         .show_inside(ui, |ui| {
             let panel_rect = ui.available_rect_before_wrap();
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    track_list_panel(ui, state, &timeline_coord);
+                    track_list_panel(ui, state, &timeline_coord, track_list_width);
 
                     // Add a divider and make it draggable
                     let divider_rect = egui::Rect::from_min_size(
@@ -103,11 +103,9 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
 
                     // Handle dragging the divider and draw the divider
                     if divider_resp.dragged() {
-                        state.ui_state.timeline_state.track_list_width =
-                            (state.ui_state.timeline_state.track_list_width
-                                + divider_resp.drag_delta().x)
-                                .min(panel_width * 0.5)
-                                .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
+                        track_list_width = (track_list_width + divider_resp.drag_delta().x)
+                            .min(panel_width * 0.5)
+                            .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
                     }
                     if divider_resp.hovered() {
                         ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
@@ -126,6 +124,9 @@ pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
                 });
             });
         });
+
+    ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
+    ui.data_mut(|data| data.insert_temp(track_list_width_key, track_list_width));
 }
 
 /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport

@@ -15,6 +15,7 @@ pub(super) fn track_list_panel(
     ui: &mut egui::Ui,
     state: &mut EditorState,
     timeline_coord: &TimelineCoord,
+    track_list_width: f32,
 ) {
     ui.vertical(|ui| {
         ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
@@ -31,7 +32,7 @@ pub(super) fn track_list_panel(
 
                 let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        ui.set_min_width(state.ui_state.timeline_state.track_list_width);
+                        ui.set_min_width(track_list_width);
 
                         // Draw track color
                         let (rect, _) = ui.allocate_exact_size(
@@ -65,8 +66,7 @@ pub(super) fn track_list_panel(
         // "Add Track" button
         let mut frame = egui::Frame::new().inner_margin(egui::Margin::symmetric(8, 4));
 
-        let desired_width = state.ui_state.timeline_state.track_list_width;
-        let button_size = egui::vec2(desired_width, 28.0);
+        let button_size = egui::vec2(track_list_width, 28.0);
 
         let response = ui
             .allocate_ui(button_size, |ui| {
@@ -82,7 +82,7 @@ pub(super) fn track_list_panel(
 
                 frame.show(ui, |ui| {
                     // Subtract the desired width by 16px due to the inner margin of the frame
-                    ui.set_min_width((desired_width - 16.0).max(0.0));
+                    ui.set_min_width((track_list_width - 16.0).max(0.0));
 
                     ui.horizontal_centered(|ui| {
                         ui.spacing_mut().item_spacing = egui::vec2(4.0, 0.0);
