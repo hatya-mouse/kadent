@@ -1,9 +1,6 @@
 use crate::ui::{
     EditorState,
-    editor::{
-        panel::render_node,
-        state::{PanelNode, SplitDir},
-    },
+    editor::state::{PanelNode, SplitDir},
     theme,
 };
 use eframe::egui::{self, CursorIcon, Rect};
@@ -11,25 +8,27 @@ use eframe::egui::{self, CursorIcon, Rect};
 const DIVIDER_SIZE: f32 = 4.0;
 const MIN_COLLAPSE_SIZE: f32 = 60.0;
 
-/// Returns Some(keep_first) when a panel should be collapsed on drag release.
-pub(super) fn render_split(
-    ui: &mut egui::Ui,
-    state: &mut EditorState,
-    dir: SplitDir,
-    ratio: &mut f32,
-    first: &mut PanelNode,
-    second: &mut PanelNode,
-    rect: Rect,
-    node_id: egui::Id,
-) -> Option<bool> {
-    let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
-    if panel_size(dir, first_rect) >= 1.0 {
-        render_node(ui, state, first, first_rect, node_id.with("first"));
+impl EditorState {
+    /// Returns Some(keep_first) when a panel should be collapsed on drag release.
+    pub(super) fn render_split(
+        &mut self,
+        ui: &mut egui::Ui,
+        dir: SplitDir,
+        ratio: &mut f32,
+        first: &mut PanelNode,
+        second: &mut PanelNode,
+        rect: Rect,
+        node_id: egui::Id,
+    ) -> Option<bool> {
+        let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
+        if panel_size(dir, first_rect) >= 1.0 {
+            self.render_node(ui, first, first_rect, node_id.with("first"));
+        }
+        if panel_size(dir, second_rect) >= 1.0 {
+            self.render_node(ui, second, second_rect, node_id.with("second"));
+        }
+        render_divider(ui, div_rect, dir, ratio, rect)
     }
-    if panel_size(dir, second_rect) >= 1.0 {
-        render_node(ui, state, second, second_rect, node_id.with("second"));
-    }
-    render_divider(ui, div_rect, dir, ratio, rect)
 }
 
 fn split_rects(rect: Rect, dir: SplitDir, ratio: f32) -> (Rect, Rect, Rect) {

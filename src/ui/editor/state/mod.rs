@@ -87,19 +87,19 @@ pub(crate) struct EditorUiState {
     /// Panel layout tree.
     pub panel_layout: PanelNode,
 
-    /// The current toolbar state.
+    /// The current toolbar self.
     pub toolbar_state: ToolbarState,
-    /// The current dialog state.
+    /// The current dialog self.
     pub dialog_state: DialogState,
-    /// The current timeline state.
+    /// The current timeline self.
     pub timeline_state: TimelineState,
-    /// The current piano roll state.
+    /// The current piano roll self.
     pub piano_roll_state: PianoRollState,
-    /// The current node graph state.
+    /// The current node graph self.
     pub node_graph_state: NodeGraphState,
-    /// The current code editor state.
+    /// The current code editor self.
     pub code_editor_state: CodeEditorState,
-    /// The current status bar state.
+    /// The current status bar self.
     pub status_bar_state: StatusBarState,
 
     /// Whether the audio is playing.

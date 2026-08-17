@@ -9,124 +9,120 @@ use crate::{
     ui::{
         EditorState,
         components::panel_header::panel_header,
-        editor::{
-            state::{EditorUiState, TimelineCoord},
-            timeline::{
-                edit_panel::track_edit_panel, ruler_area::ruler_area, track_list::track_list_panel,
-            },
-        },
+        editor::state::{EditorUiState, TimelineCoord},
         theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
-pub fn timeline(ui: &mut egui::Ui, state: &mut EditorState) {
-    let panel_width = ui.available_width();
-    ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
+impl EditorState {
+    pub fn timeline(&mut self, ui: &mut egui::Ui) {
+        let panel_width = ui.available_width();
+        ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-    let follow_playhead_key = ui.make_persistent_id("follow_playhead");
-    let track_list_width_key = ui.make_persistent_id("track_list_width");
-    let timeline_coord_key = ui.make_persistent_id("timeline_coord");
+        let follow_playhead_key = ui.make_persistent_id("follow_playhead");
+        let track_list_width_key = ui.make_persistent_id("track_list_width");
+        let timeline_coord_key = ui.make_persistent_id("timeline_coord");
 
-    let mut follow_playhead =
-        ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
-    let mut track_list_width =
-        ui.data_mut(|data| data.get_temp(track_list_width_key).unwrap_or(200.0));
-    let mut timeline_coord = ui.data(|data| {
-        data.get_temp(timeline_coord_key)
-            .unwrap_or(TimelineCoord::new(
-                80.0,
-                50.0,
-                egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
-            ))
-    });
-
-    // While following, keep the playhead centered in the visible track area
-    let visible_width = (panel_width - track_list_width).max(0.0);
-    if follow_playhead && state.ui_state.is_playing {
-        timeline_coord.scroll.x =
-            follow_playhead_scroll_offset(&state.ui_state, &timeline_coord, visible_width);
-    }
-
-    // Clamp the timeline_scroll by zero and the end of the timeline content width
-    // so that it never scrolls past the scrollable area
-    let timeline_width = timeline_content_width(&state.ui_state, &timeline_coord);
-    let max_scroll = (timeline_width - visible_width).max(0.0);
-    timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
-
-    let new_scroll_x = panel_header(ui, egui::Margin::ZERO, |ui| {
-        ruler_area(
-            ui,
-            state,
-            &timeline_coord,
-            visible_width,
-            timeline_width,
-            track_list_width,
-            &mut follow_playhead,
-        )
-    })
-    .inner;
-
-    egui::CentralPanel::default()
-        .frame(egui::Frame::new())
-        .show_inside(ui, |ui| {
-            let panel_rect = ui.available_rect_before_wrap();
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    track_list_panel(ui, state, &timeline_coord, track_list_width);
-
-                    // Add a divider and make it draggable
-                    let divider_rect = egui::Rect::from_min_size(
-                        egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
-                        egui::vec2(2.0, panel_rect.height()),
-                    );
-
-                    // Just allocate rect for the divider
-                    // Draw divider later to avoid ScrollArea overlapping the divider
-                    let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
-
-                    let scroll_output = egui::ScrollArea::horizontal()
-                        .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                        .horizontal_scroll_offset(timeline_coord.scroll.x)
-                        .show(ui, |ui| {
-                            ui.set_min_height(panel_rect.height());
-                            track_edit_panel(ui, state, &mut timeline_coord, timeline_width)
-                        });
-
-                    // If the timeline is scrolled via the top scroll bar, prefer the `new_scroll_x`
-                    // If a zoom gesture requested a specific scroll offset this frame, use
-                    // that instead of the ScrollArea's own offset
-                    let final_offset = new_scroll_x
-                        .unwrap_or(scroll_output.inner.unwrap_or(scroll_output.state.offset.x));
-                    timeline_coord.scroll.x = final_offset;
-                    ui.data_mut(|data| data.insert_temp(timeline_coord_key, timeline_coord));
-
-                    // Handle dragging the divider and draw the divider
-                    if divider_resp.dragged() {
-                        track_list_width = (track_list_width + divider_resp.drag_delta().x)
-                            .min(panel_width * 0.5)
-                            .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
-                    }
-                    if divider_resp.hovered() {
-                        ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
-                        ui.painter().rect_filled(
-                            divider_rect,
-                            0.0,
-                            theme::separator_hovered(ui.visuals().dark_mode),
-                        );
-                    } else {
-                        ui.painter().rect_filled(
-                            divider_rect,
-                            0.0,
-                            theme::separator(ui.visuals().dark_mode),
-                        );
-                    }
-                });
-            });
+        let mut follow_playhead =
+            ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
+        let mut track_list_width =
+            ui.data_mut(|data| data.get_temp(track_list_width_key).unwrap_or(200.0));
+        let mut timeline_coord = ui.data(|data| {
+            data.get_temp(timeline_coord_key)
+                .unwrap_or(TimelineCoord::new(
+                    80.0,
+                    50.0,
+                    egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
+                ))
         });
 
-    ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
-    ui.data_mut(|data| data.insert_temp(track_list_width_key, track_list_width));
+        // While following, keep the playhead centered in the visible track area
+        let visible_width = (panel_width - track_list_width).max(0.0);
+        if follow_playhead && self.ui_state.is_playing {
+            timeline_coord.scroll.x =
+                follow_playhead_scroll_offset(&self.ui_state, &timeline_coord, visible_width);
+        }
+
+        // Clamp the timeline_scroll by zero and the end of the timeline content width
+        // so that it never scrolls past the scrollable area
+        let timeline_width = timeline_content_width(&self.ui_state, &timeline_coord);
+        let max_scroll = (timeline_width - visible_width).max(0.0);
+        timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
+
+        let new_scroll_x = panel_header(ui, egui::Margin::ZERO, |ui| {
+            self.ruler_area(
+                ui,
+                &timeline_coord,
+                visible_width,
+                timeline_width,
+                track_list_width,
+                &mut follow_playhead,
+            )
+        })
+        .inner;
+
+        egui::CentralPanel::default()
+            .frame(egui::Frame::new())
+            .show_inside(ui, |ui| {
+                let panel_rect = ui.available_rect_before_wrap();
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        self.track_list_panel(ui, &timeline_coord, track_list_width);
+
+                        // Add a divider and make it draggable
+                        let divider_rect = egui::Rect::from_min_size(
+                            egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
+                            egui::vec2(2.0, panel_rect.height()),
+                        );
+
+                        // Just allocate rect for the divider
+                        // Draw divider later to avoid ScrollArea overlapping the divider
+                        let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
+
+                        let scroll_output = egui::ScrollArea::horizontal()
+                            .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
+                            .horizontal_scroll_offset(timeline_coord.scroll.x)
+                            .show(ui, |ui| {
+                                ui.set_min_height(panel_rect.height());
+                                self.track_edit_panel(ui, &mut timeline_coord, timeline_width)
+                            });
+
+                        // If the timeline is scrolled via the top scroll bar, prefer the `new_scroll_x`
+                        // If a zoom gesture requested a specific scroll offset this frame, use
+                        // that instead of the ScrollArea's own offset
+                        let final_offset = new_scroll_x
+                            .unwrap_or(scroll_output.inner.unwrap_or(scroll_output.state.offset.x));
+                        timeline_coord.scroll.x = final_offset;
+                        ui.data_mut(|data| data.insert_temp(timeline_coord_key, timeline_coord));
+
+                        // Handle dragging the divider and draw the divider
+                        if divider_resp.dragged() {
+                            track_list_width = (track_list_width + divider_resp.drag_delta().x)
+                                .min(panel_width * 0.5)
+                                .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
+                        }
+                        if divider_resp.hovered() {
+                            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                            ui.painter().rect_filled(
+                                divider_rect,
+                                0.0,
+                                theme::separator_hovered(ui.visuals().dark_mode),
+                            );
+                        } else {
+                            ui.painter().rect_filled(
+                                divider_rect,
+                                0.0,
+                                theme::separator(ui.visuals().dark_mode),
+                            );
+                        }
+                    });
+                });
+            });
+
+        ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
+        ui.data_mut(|data| data.insert_temp(track_list_width_key, track_list_width));
+    }
 }
 
 /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport

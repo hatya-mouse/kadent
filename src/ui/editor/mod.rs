@@ -24,13 +24,7 @@ use crate::{
         midi_thread::{MidiCommand, spawn_midi_thread},
         project_ctx::EditorContext,
     },
-    ui::{
-        components::ruler::RulerResponse,
-        editor::{
-            panel::render_panels, state::EditorUiState, status_bar::status_bar, toolbar::toolbar,
-        },
-        theme,
-    },
+    ui::{components::ruler::RulerResponse, editor::state::EditorUiState, theme},
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
@@ -49,7 +43,7 @@ pub struct EditorState {
     pub background_handle: BackgroundThreadHandle,
     /// A channel to send MIDI commands to the MIDI thread.
     pub midi_command_tx: mpsc::Sender<MidiCommand>,
-    /// UI states to store the current UI state.
+    /// UI states to store the current UI self.
     pub ui_state: EditorUiState,
     /// Pending actions to be executed in the frame.
     pub pending_actions: VecDeque<EditorAction>,
@@ -57,65 +51,65 @@ pub struct EditorState {
     pub debug_mode: bool,
 }
 
-pub(crate) fn editor_ui(state: &mut EditorState, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-    state.ui_state.code_editor_state.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
-
-    state.calculate_playhead();
-    state.process_vu_value();
-    state.update_preview_notes();
-    state.handle_keyboard(ui);
-
-    egui::Panel::top(ui.id().with("toolbar"))
-        .frame(
-            egui::Frame::new()
-                .fill(theme::tertiary_bg(ui.visuals().dark_mode))
-                .inner_margin(egui::Margin::symmetric(12, 0)),
-        )
-        .exact_size(44.0)
-        .show_inside(ui, |ui| {
-            toolbar(ui, state);
-        });
-
-    // The status bar should display the modification state from the last frame
-    egui::Panel::bottom(ui.id().with("status_bar"))
-        .frame(
-            egui::Frame::new()
-                .fill(theme::tertiary_bg(ui.visuals().dark_mode))
-                .inner_margin(egui::Margin::symmetric(12, 0)),
-        )
-        .exact_size(32.0)
-        .show_inside(ui, |ui| {
-            status_bar(ui, state);
-        });
-
-    // Reset the modification state from the last frame
-    state.ui_state.set_modification(Modification::None);
-
-    egui::CentralPanel::default()
-        .frame(
-            egui::Frame::new()
-                .fill(theme::primary_bg(ui.visuals().dark_mode))
-                .inner_margin(0),
-        )
-        .show_inside(ui, |ui| {
-            let rect = ui.available_rect_before_wrap();
-            render_panels(ui, state, rect);
-        });
-
-    state.track_dialog(ui);
-    state.update_project();
-
-    // Request a repaint to update the playhead and the VU meter
-    ui.ctx().request_repaint_after(Duration::from_millis(16));
-
-    // Execute all pending actions
-    state.consume_actions();
-    state.process_audio_thread_result();
-    // Process the result of the background thread
-    state.process_background_results();
-}
-
 impl EditorState {
+    pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui) {
+        self.ui_state.code_editor_state.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
+
+        self.calculate_playhead();
+        self.process_vu_value();
+        self.update_preview_notes();
+        self.handle_keyboard(ui);
+
+        egui::Panel::top(ui.id().with("toolbar"))
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::tertiary_bg(ui.visuals().dark_mode))
+                    .inner_margin(egui::Margin::symmetric(12, 0)),
+            )
+            .exact_size(44.0)
+            .show_inside(ui, |ui| {
+                self.toolbar(ui);
+            });
+
+        // The status bar should display the modification state from the last frame
+        egui::Panel::bottom(ui.id().with("status_bar"))
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::tertiary_bg(ui.visuals().dark_mode))
+                    .inner_margin(egui::Margin::symmetric(12, 0)),
+            )
+            .exact_size(32.0)
+            .show_inside(ui, |ui| {
+                self.status_bar(ui);
+            });
+
+        // Reset the modification state from the last frame
+        self.ui_state.set_modification(Modification::None);
+
+        egui::CentralPanel::default()
+            .frame(
+                egui::Frame::new()
+                    .fill(theme::primary_bg(ui.visuals().dark_mode))
+                    .inner_margin(0),
+            )
+            .show_inside(ui, |ui| {
+                let rect = ui.available_rect_before_wrap();
+                self.render_panels(ui, rect);
+            });
+
+        self.track_dialog(ui);
+        self.update_project();
+
+        // Request a repaint to update the playhead and the VU meter
+        ui.ctx().request_repaint_after(Duration::from_millis(16));
+
+        // Execute all pending actions
+        self.consume_actions();
+        self.process_audio_thread_result();
+        // Process the result of the background thread
+        self.process_background_results();
+    }
+
     pub fn new(editor_ctx: EditorContext) -> EditorState {
         let (thread_handle, midi_producer) =
             AudioThread::spawn(editor_ctx.proj_ctx.project_meta.export_ctx.clone());

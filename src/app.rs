@@ -2,7 +2,7 @@ use crate::{
     consts::PROJECT_FILE_EXTENSION,
     core::project_ctx::EditorContext,
     storage::project::open_project_to_ctx,
-    ui::{EditorState, SplashUi, editor::editor_ui, theme},
+    ui::{EditorState, SplashUi, theme},
 };
 use eframe::{self, egui};
 use std::path::PathBuf;
@@ -79,7 +79,7 @@ impl KadentApp {
 }
 
 impl eframe::App for KadentApp {
-    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let dropped_file = self.get_dropped_file(ui);
         let hovered_file = self.get_hovered_audio_file(ui);
 
@@ -106,7 +106,7 @@ impl eframe::App for KadentApp {
             }
             AppState::Editor(editor) => {
                 // If we're in the editor state, just show the editor UI
-                editor_ui(editor.as_mut(), ui, frame);
+                editor.editor_ui(ui);
 
                 if let Some(GetDroppedFileResult::AudioFile(dropped_path)) = dropped_file {
                     editor.audio_dropped(dropped_path);

@@ -11,112 +11,117 @@ use crate::{
 };
 use eframe::egui::{self, include_image};
 
-pub(super) fn track_list_panel(
-    ui: &mut egui::Ui,
-    state: &mut EditorState,
-    timeline_coord: &TimelineCoord,
-    track_list_width: f32,
-) {
-    ui.vertical(|ui| {
-        ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
+impl EditorState {
+    pub(super) fn track_list_panel(
+        &mut self,
+        ui: &mut egui::Ui,
+        timeline_coord: &TimelineCoord,
+        track_list_width: f32,
+    ) {
+        ui.vertical(|ui| {
+            ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
 
-        for track_id in state.ui_state.proj_ctx.project_meta.track_order.clone() {
-            if let Some(track_meta) = state.ui_state.proj_ctx.project_meta.tracks.get(&track_id) {
-                // Change the background color of the selected track based on whether the track is selected
-                let is_selected = Some(&track_id) == state.ui_state.selection.track_id().as_ref();
-                let bg_color = if is_selected {
-                    theme::secondary_bg(ui.visuals().dark_mode)
-                } else {
-                    egui::Color32::TRANSPARENT
-                };
+            for track_id in self.ui_state.proj_ctx.project_meta.track_order.clone() {
+                if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.tracks.get(&track_id)
+                {
+                    // Change the background color of the selected track based on whether the track is selected
+                    let is_selected =
+                        Some(&track_id) == self.ui_state.selection.track_id().as_ref();
+                    let bg_color = if is_selected {
+                        theme::secondary_bg(ui.visuals().dark_mode)
+                    } else {
+                        egui::Color32::TRANSPARENT
+                    };
 
-                let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.set_min_width(track_list_width);
+                    let track_frame = egui::Frame::new().fill(bg_color).show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            ui.set_min_width(track_list_width);
 
-                        // Draw track color
-                        let (rect, _) = ui.allocate_exact_size(
-                            egui::vec2(4.0, timeline_coord.y_zoom),
-                            egui::Sense::hover(),
-                        );
-                        ui.painter().rect_filled(rect, 0.0, track_meta.color);
+                            // Draw track color
+                            let (rect, _) = ui.allocate_exact_size(
+                                egui::vec2(4.0, timeline_coord.y_zoom),
+                                egui::Sense::hover(),
+                            );
+                            ui.painter().rect_filled(rect, 0.0, track_meta.color);
 
-                        // Name of the track
-                        ui.label(
-                            egui::RichText::new(&track_meta.name)
-                                .size(theme::normal_font_size())
-                                .color(theme::primary_fg(ui.visuals().dark_mode)),
-                        );
+                            // Name of the track
+                            ui.label(
+                                egui::RichText::new(&track_meta.name)
+                                    .size(theme::normal_font_size())
+                                    .color(theme::primary_fg(ui.visuals().dark_mode)),
+                            );
+                        });
                     });
-                });
 
-                // Select the track on click
-                let response = ui.allocate_rect(track_frame.response.rect, egui::Sense::click());
-                ui.painter().line_segment(
-                    [response.rect.left_bottom(), response.rect.right_bottom()],
-                    theme::border(ui.visuals().dark_mode),
-                );
-                if response.clicked() {
-                    state.ui_state.select_track(track_id);
-                    state.push_action(EditorAction::ArmTrack(track_id));
+                    // Select the track on click
+                    let response =
+                        ui.allocate_rect(track_frame.response.rect, egui::Sense::click());
+                    ui.painter().line_segment(
+                        [response.rect.left_bottom(), response.rect.right_bottom()],
+                        theme::border(ui.visuals().dark_mode),
+                    );
+                    if response.clicked() {
+                        self.ui_state.select_track(track_id);
+                        self.push_action(EditorAction::ArmTrack(track_id));
+                    }
                 }
             }
-        }
 
-        // "Add Track" button
-        let mut frame = egui::Frame::new().inner_margin(egui::Margin::symmetric(8, 4));
+            // "Add Track" button
+            let mut frame = egui::Frame::new().inner_margin(egui::Margin::symmetric(8, 4));
 
-        let button_size = egui::vec2(track_list_width, 28.0);
+            let button_size = egui::vec2(track_list_width, 28.0);
 
-        let response = ui
-            .allocate_ui(button_size, |ui| {
-                // Show the background color when hovered
-                let resp = ui.interact(
-                    ui.max_rect(),
-                    ui.id().with("add_track_button"),
-                    egui::Sense::click(),
-                );
-                if resp.hovered() {
-                    frame = frame.fill(theme::card_button_hovered(ui.visuals().dark_mode));
-                }
+            let response = ui
+                .allocate_ui(button_size, |ui| {
+                    // Show the background color when hovered
+                    let resp = ui.interact(
+                        ui.max_rect(),
+                        ui.id().with("add_track_button"),
+                        egui::Sense::click(),
+                    );
+                    if resp.hovered() {
+                        frame = frame.fill(theme::card_button_hovered(ui.visuals().dark_mode));
+                    }
 
-                frame.show(ui, |ui| {
-                    // Subtract the desired width by 16px due to the inner margin of the frame
-                    ui.set_min_width((track_list_width - 16.0).max(0.0));
+                    frame.show(ui, |ui| {
+                        // Subtract the desired width by 16px due to the inner margin of the frame
+                        ui.set_min_width((track_list_width - 16.0).max(0.0));
 
-                    ui.horizontal_centered(|ui| {
-                        ui.spacing_mut().item_spacing = egui::vec2(4.0, 0.0);
+                        ui.horizontal_centered(|ui| {
+                            ui.spacing_mut().item_spacing = egui::vec2(4.0, 0.0);
 
-                        ui.add(
-                            egui::Image::new(include_image!(
-                                "../../../../../assets/icons/plus.svg"
-                            ))
-                            .fit_to_exact_size(egui::vec2(20.0, 20.0))
-                            .tint(theme::primary_fg(ui.visuals().dark_mode)),
-                        );
-                        ui.label(
-                            egui::RichText::new("Add Track")
-                                .size(theme::normal_font_size())
-                                .color(theme::primary_fg(ui.visuals().dark_mode)),
-                        );
+                            ui.add(
+                                egui::Image::new(include_image!(
+                                    "../../../../../assets/icons/plus.svg"
+                                ))
+                                .fit_to_exact_size(egui::vec2(20.0, 20.0))
+                                .tint(theme::primary_fg(ui.visuals().dark_mode)),
+                            );
+                            ui.label(
+                                egui::RichText::new("Add Track")
+                                    .size(theme::normal_font_size())
+                                    .color(theme::primary_fg(ui.visuals().dark_mode)),
+                            );
+                        });
                     });
+
+                    resp
+                })
+                .inner;
+
+            // Draw separator line for the "Add Track" button
+            ui.painter().line_segment(
+                [response.rect.left_bottom(), response.rect.right_bottom()],
+                theme::border(ui.visuals().dark_mode),
+            );
+
+            if response.clicked() {
+                self.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
+                    selected_track_type: TrackType::Audio,
+                    name: String::new(),
                 });
-
-                resp
-            })
-            .inner;
-
-        // Draw separator line for the "Add Track" button
-        ui.painter().line_segment(
-            [response.rect.left_bottom(), response.rect.right_bottom()],
-            theme::border(ui.visuals().dark_mode),
-        );
-
-        if response.clicked() {
-            state.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
-                selected_track_type: TrackType::Audio,
-                name: String::new(),
-            });
-        }
-    });
+            }
+        });
+    }
 }

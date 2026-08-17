@@ -1,236 +1,232 @@
 use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
 use crate::ui::{
     EditorState,
-    editor::{
-        node_graph::{
-            NODE_HEADER_HEGIHT,
-            port::{calc_port_y, draw_ports},
-        },
-        state::EditorUiState,
+    editor::node_graph::{
+        NODE_HEADER_HEGIHT,
+        port::{calc_port_y, draw_ports},
     },
     theme,
 };
 use eframe::egui::{self, Sense};
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
-pub(super) fn draw_node(
-    ui: &mut egui::Ui,
-    state: &mut EditorState,
-    node_id: &NodeID,
-    view_transform: egui::Vec2,
-) {
-    let Some(track_id) = state.ui_state.selection.track_id() else {
-        return;
-    };
-
-    // Gather display data from the node and its meta.
-    // Borrows end at the closing brace so we can take &mut self freely afterwards.
-    let (input_names, output_names, pos, display_name) = {
-        let Some(node) = state
-            .ui_state
-            .proj_ctx
-            .project
-            .get_track(&track_id)
-            .and_then(|t| t.get_graph().get_node(node_id))
-        else {
+impl EditorState {
+    pub(super) fn draw_node(
+        &mut self,
+        ui: &mut egui::Ui,
+        node_id: &NodeID,
+        view_transform: egui::Vec2,
+    ) {
+        let Some(track_id) = self.ui_state.selection.track_id() else {
             return;
         };
-        let Some(meta) = state
-            .ui_state
-            .proj_ctx
-            .project_meta
-            .get_track(&track_id)
-            .and_then(|t| t.graph.get_node_meta(node_id))
-        else {
-            return;
+
+        // Gather display data from the node and its meta.
+        // Borrows end at the closing brace so we can take &mut self freely afterwards.
+        let (input_names, output_names, pos, display_name) = {
+            let Some(node) = self
+                .ui_state
+                .proj_ctx
+                .project
+                .get_track(&track_id)
+                .and_then(|t| t.get_graph().get_node(node_id))
+            else {
+                return;
+            };
+            let Some(meta) = self
+                .ui_state
+                .proj_ctx
+                .project_meta
+                .get_track(&track_id)
+                .and_then(|t| t.graph.get_node_meta(node_id))
+            else {
+                return;
+            };
+            (
+                node.get_input_names(),
+                node.get_output_names(),
+                meta.pos,
+                meta.display_name.clone(),
+            )
         };
-        (
-            node.get_input_names(),
-            node.get_output_names(),
-            meta.pos,
-            meta.display_name.clone(),
-        )
-    };
 
-    // Calculate node geometry.
-    // pos is in canvas space; view_transform converts it to screen space.
-    let row_count = input_names.len().max(output_names.len()).max(1);
-    let node_height =
-        NODE_HEADER_HEGIHT + NODE_PADDING + PORT_ROW_HEIGHT * row_count as f32 + NODE_PADDING;
-    let node_rect =
-        egui::Rect::from_min_size(pos + view_transform, egui::vec2(NODE_WIDTH, node_height));
-    let header_rect =
-        egui::Rect::from_min_size(node_rect.min, egui::vec2(NODE_WIDTH, NODE_HEADER_HEGIHT));
+        // Calculate node geometry.
+        // pos is in canvas space; view_transform converts it to screen space.
+        let row_count = input_names.len().max(output_names.len()).max(1);
+        let node_height =
+            NODE_HEADER_HEGIHT + NODE_PADDING + PORT_ROW_HEIGHT * row_count as f32 + NODE_PADDING;
+        let node_rect =
+            egui::Rect::from_min_size(pos + view_transform, egui::vec2(NODE_WIDTH, node_height));
+        let header_rect =
+            egui::Rect::from_min_size(node_rect.min, egui::vec2(NODE_WIDTH, NODE_HEADER_HEGIHT));
 
-    let dark_mode = ui.visuals().dark_mode;
-    let painter = ui.painter();
+        let dark_mode = ui.visuals().dark_mode;
+        let painter = ui.painter();
 
-    // Draw the node background
-    let node_stroke = if state.ui_state.selection.node_id() == Some(*node_id) {
-        egui::Stroke::new(2.0, theme::region_selected(dark_mode))
-    } else {
-        theme::border(dark_mode)
-    };
-    painter.rect(
-        node_rect,
-        egui::CornerRadius::same(6),
-        theme::secondary_bg(dark_mode),
-        node_stroke,
-        egui::StrokeKind::Outside,
-    );
+        // Draw the node background
+        let node_stroke = if self.ui_state.selection.node_id() == Some(*node_id) {
+            egui::Stroke::new(2.0, theme::region_selected(dark_mode))
+        } else {
+            theme::border(dark_mode)
+        };
+        painter.rect(
+            node_rect,
+            egui::CornerRadius::same(6),
+            theme::secondary_bg(dark_mode),
+            node_stroke,
+            egui::StrokeKind::Outside,
+        );
 
-    // Draw the header background and its bottom border
-    painter.rect_filled(
-        header_rect,
-        egui::CornerRadius {
-            nw: 6,
-            ne: 6,
-            sw: 0,
-            se: 0,
-        },
-        theme::tertiary_bg(dark_mode),
-    );
-    painter.line_segment(
-        [header_rect.left_bottom(), header_rect.right_bottom()],
-        theme::border(dark_mode),
-    );
+        // Draw the header background and its bottom border
+        painter.rect_filled(
+            header_rect,
+            egui::CornerRadius {
+                nw: 6,
+                ne: 6,
+                sw: 0,
+                se: 0,
+            },
+            theme::tertiary_bg(dark_mode),
+        );
+        painter.line_segment(
+            [header_rect.left_bottom(), header_rect.right_bottom()],
+            theme::border(dark_mode),
+        );
 
-    // Draw the node name in the header
-    painter.text(
-        header_rect.center(),
-        egui::Align2::CENTER_CENTER,
-        display_name.as_str(),
-        egui::FontId::proportional(13.0),
-        theme::primary_fg(dark_mode),
-    );
+        // Draw the node name in the header
+        painter.text(
+            header_rect.center(),
+            egui::Align2::CENTER_CENTER,
+            display_name.as_str(),
+            egui::FontId::proportional(13.0),
+            theme::primary_fg(dark_mode),
+        );
 
-    // Draw the input/output ports
-    draw_ports(painter, node_rect, &input_names, &output_names, dark_mode);
+        // Draw the input/output ports
+        draw_ports(painter, node_rect, &input_names, &output_names, dark_mode);
 
-    // Handle node gestures (click to select, drag to move)
-    let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
-    apply_node_gesture(&mut state.ui_state, response, node_id, &track_id);
+        // Handle node gestures (click to select, drag to move)
+        let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
+        self.apply_node_gesture(response, node_id, &track_id);
 
-    // Handle output port drag to create ghost edges (allocated after node so ports take priority)
-    handle_output_port_drags(
-        ui,
-        &mut state.ui_state,
-        node_id,
-        node_rect,
-        output_names.len(),
-    );
-    // Handle input port drag to re-route existing edges
-    handle_input_port_drags(
-        ui,
-        &mut state.ui_state,
-        node_id,
-        &track_id,
-        node_rect,
-        input_names.len(),
-    );
-}
-
-fn apply_node_gesture(
-    ui_state: &mut EditorUiState,
-    response: egui::Response,
-    node_id: &NodeID,
-    track_id: &TrackID,
-) {
-    // Click or drag to select the node
-    if response.clicked() || response.dragged() {
-        ui_state.select_node(*track_id, *node_id);
+        // Handle output port drag to create ghost edges (allocated after node so ports take priority)
+        self.handle_output_port_drags(ui, node_id, node_rect, output_names.len());
+        // Handle input port drag to re-route existing edges
+        self.handle_input_port_drags(ui, node_id, &track_id, node_rect, input_names.len());
     }
 
-    // Drag to move the node; suppress when a ghost edge drag is in progress
-    if response.dragged()
-        && ui_state.node_graph_state.ghost_edge.is_none()
-        && let Some(meta) = ui_state
-            .proj_ctx
-            .project_meta
-            .get_track_mut(track_id)
-            .and_then(|t| t.graph.get_node_meta_mut(node_id))
-    {
-        meta.pos += response.drag_delta();
-    }
-}
-
-fn handle_output_port_drags(
-    ui: &mut egui::Ui,
-    ui_state: &mut EditorUiState,
-    node_id: &NodeID,
-    node_rect: egui::Rect,
-    output_count: usize,
-) {
-    for current_row in 0..output_count {
-        let (port_center, port_resp) =
-            edge_drag_hitbox(ui, node_rect, current_row, node_rect.max.x);
-
-        // Change the cursor to a crosshair when hovering the output port
-        if port_resp.hovered() {
-            ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+    fn apply_node_gesture(
+        &mut self,
+        response: egui::Response,
+        node_id: &NodeID,
+        track_id: &TrackID,
+    ) {
+        // Click or drag to select the node
+        if response.clicked() || response.dragged() {
+            self.ui_state.select_node(*track_id, *node_id);
         }
 
-        // If the drag has started, create a new ghost edge starting from this port
-        if port_resp.drag_started() {
-            let mouse_pos = ui
-                .input(|inp| inp.pointer.hover_pos())
-                .unwrap_or(port_center);
-            ui_state.node_graph_state.ghost_edge = Some(((*node_id, current_row), mouse_pos));
-        }
-
-        // Update the position of the ghost edge
-        if port_resp.dragged()
-            && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-            && let Some(ghost) = &mut ui_state.node_graph_state.ghost_edge
+        // Drag to move the node; suppress when a ghost edge drag is in progress
+        if response.dragged()
+            && self.ui_state.node_graph_state.ghost_edge.is_none()
+            && let Some(meta) = self
+                .ui_state
+                .proj_ctx
+                .project_meta
+                .get_track_mut(track_id)
+                .and_then(|t| t.graph.get_node_meta_mut(node_id))
         {
-            ghost.1 = pos;
+            meta.pos += response.drag_delta();
         }
     }
-}
 
-fn handle_input_port_drags(
-    ui: &mut egui::Ui,
-    ui_state: &mut EditorUiState,
-    node_id: &NodeID,
-    track_id: &TrackID,
-    node_rect: egui::Rect,
-    input_count: usize,
-) {
-    for current_row in 0..input_count {
-        let (port_center, port_resp) =
-            edge_drag_hitbox(ui, node_rect, current_row, node_rect.min.x);
+    fn handle_output_port_drags(
+        &mut self,
+        ui: &mut egui::Ui,
+        node_id: &NodeID,
+        node_rect: egui::Rect,
+        output_count: usize,
+    ) {
+        for current_row in 0..output_count {
+            let (port_center, port_resp) =
+                edge_drag_hitbox(ui, node_rect, current_row, node_rect.max.x);
 
-        // Change the cursor to a crosshair when hovering the input port
-        if port_resp.hovered() {
-            ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
-        }
+            // Change the cursor to a crosshair when hovering the output port
+            if port_resp.hovered() {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+            }
 
-        // If the drag has started, get the edge pointing toward the input port and create a ghost edge
-        if port_resp.drag_started() {
-            // Find the edge connected to this input port
-            let found = ui_state.proj_ctx.project.get_track(track_id).and_then(|t| {
-                t.get_graph()
-                    .get_all_edges()
-                    .iter()
-                    .find(|(_, _, to_id, in_idx)| to_id == node_id && *in_idx == current_row)
-                    .copied()
-            });
-            if let Some(edge) = found {
-                let (from_id, out_idx, _, _) = edge;
+            // If the drag has started, create a new ghost edge starting from this port
+            if port_resp.drag_started() {
                 let mouse_pos = ui
                     .input(|inp| inp.pointer.hover_pos())
                     .unwrap_or(port_center);
-                ui_state.node_graph_state.ghost_edge = Some(((from_id, out_idx), mouse_pos));
-                ui_state.node_graph_state.dragged_edge = Some(edge);
+                self.ui_state.node_graph_state.ghost_edge =
+                    Some(((*node_id, current_row), mouse_pos));
+            }
+
+            // Update the position of the ghost edge
+            if port_resp.dragged()
+                && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
+                && let Some(ghost) = &mut self.ui_state.node_graph_state.ghost_edge
+            {
+                ghost.1 = pos;
             }
         }
+    }
 
-        // Update the position of the ghost edge
-        if port_resp.dragged()
-            && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-            && let Some(ghost) = &mut ui_state.node_graph_state.ghost_edge
-        {
-            ghost.1 = pos;
+    fn handle_input_port_drags(
+        &mut self,
+        ui: &mut egui::Ui,
+        node_id: &NodeID,
+        track_id: &TrackID,
+        node_rect: egui::Rect,
+        input_count: usize,
+    ) {
+        for current_row in 0..input_count {
+            let (port_center, port_resp) =
+                edge_drag_hitbox(ui, node_rect, current_row, node_rect.min.x);
+
+            // Change the cursor to a crosshair when hovering the input port
+            if port_resp.hovered() {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+            }
+
+            // If the drag has started, get the edge pointing toward the input port and create a ghost edge
+            if port_resp.drag_started() {
+                // Find the edge connected to this input port
+                let found = self
+                    .ui_state
+                    .proj_ctx
+                    .project
+                    .get_track(track_id)
+                    .and_then(|t| {
+                        t.get_graph()
+                            .get_all_edges()
+                            .iter()
+                            .find(|(_, _, to_id, in_idx)| {
+                                to_id == node_id && *in_idx == current_row
+                            })
+                            .copied()
+                    });
+                if let Some(edge) = found {
+                    let (from_id, out_idx, _, _) = edge;
+                    let mouse_pos = ui
+                        .input(|inp| inp.pointer.hover_pos())
+                        .unwrap_or(port_center);
+                    self.ui_state.node_graph_state.ghost_edge =
+                        Some(((from_id, out_idx), mouse_pos));
+                    self.ui_state.node_graph_state.dragged_edge = Some(edge);
+                }
+            }
+
+            // Update the position of the ghost edge
+            if port_resp.dragged()
+                && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
+                && let Some(ghost) = &mut self.ui_state.node_graph_state.ghost_edge
+            {
+                ghost.1 = pos;
+            }
         }
     }
 }

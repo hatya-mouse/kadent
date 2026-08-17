@@ -14,7 +14,7 @@ const PROJECT_LIST_THRESHOLD: f32 = 240.0;
 
 /// The splash screen of Kadent.
 pub struct SplashUi {
-    /// The current splash UI state.
+    /// The current splash UI self.
     splash_state: SplashUiState,
     /// The version text displayed in the splash screen.
     version_string: String,

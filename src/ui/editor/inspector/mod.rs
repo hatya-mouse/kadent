@@ -5,60 +5,52 @@ mod track;
 
 use crate::{
     fonts::RichTextExt,
-    ui::{
-        EditorState,
-        editor::{
-            inspector::{
-                node::node_inspector, note::note_inspector, region::region_inspector,
-                track::track_inspector,
-            },
-            state::Selection,
-        },
-        theme,
-    },
+    ui::{EditorState, editor::state::Selection, theme},
 };
 use eframe::egui;
 use std::hash::Hash;
 
 const HEADER_HEIGHT: f32 = 32.0;
 
-pub fn inspector(ui: &mut egui::Ui, state: &mut EditorState) {
-    // Fill the background
-    ui.painter().rect_filled(
-        ui.max_rect(),
-        0.0,
-        theme::secondary_bg(ui.visuals().dark_mode),
-    );
+impl EditorState {
+    pub fn inspector(&mut self, ui: &mut egui::Ui) {
+        // Fill the background
+        ui.painter().rect_filled(
+            ui.max_rect(),
+            0.0,
+            theme::secondary_bg(ui.visuals().dark_mode),
+        );
 
-    egui::ScrollArea::vertical()
-        .auto_shrink(false)
-        .show(ui, |ui| match state.ui_state.selection {
-            Selection::Track(track_id) => {
-                track_inspector(ui, state, &track_id);
-            }
-            Selection::Region(track_id, region_id) => {
-                track_inspector(ui, state, &track_id);
-                region_inspector(ui, state, &track_id, &region_id);
-            }
-            Selection::Note(track_id, region_id, note_id) => {
-                track_inspector(ui, state, &track_id);
-                region_inspector(ui, state, &track_id, &region_id);
-                note_inspector(ui, state, &track_id, &region_id, &note_id);
-            }
-            Selection::Node(track_id, node_id) => {
-                track_inspector(ui, state, &track_id);
-                node_inspector(ui, state, &track_id, &node_id);
-            }
-            Selection::None => {
-                ui.centered_and_justified(|ui| {
-                    ui.label(
-                        egui::RichText::new("No selection")
-                            .size(theme::normal_font_size())
-                            .color(theme::secondary_fg(ui.visuals().dark_mode)),
-                    );
-                });
-            }
-        });
+        egui::ScrollArea::vertical()
+            .auto_shrink(false)
+            .show(ui, |ui| match self.ui_state.selection {
+                Selection::Track(track_id) => {
+                    self.track_inspector(ui, &track_id);
+                }
+                Selection::Region(track_id, region_id) => {
+                    self.track_inspector(ui, &track_id);
+                    self.region_inspector(ui, &track_id, &region_id);
+                }
+                Selection::Note(track_id, region_id, note_id) => {
+                    self.track_inspector(ui, &track_id);
+                    self.region_inspector(ui, &track_id, &region_id);
+                    self.note_inspector(ui, &track_id, &region_id, &note_id);
+                }
+                Selection::Node(track_id, node_id) => {
+                    self.track_inspector(ui, &track_id);
+                    self.node_inspector(ui, &track_id, &node_id);
+                }
+                Selection::None => {
+                    ui.centered_and_justified(|ui| {
+                        ui.label(
+                            egui::RichText::new("No selection")
+                                .size(theme::normal_font_size())
+                                .color(theme::secondary_fg(ui.visuals().dark_mode)),
+                        );
+                    });
+                }
+            });
+    }
 }
 
 fn inspector_section(

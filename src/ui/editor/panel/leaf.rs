@@ -1,16 +1,7 @@
 use super::SplitAction;
 use crate::ui::{
     EditorState,
-    editor::{
-        automation::automation,
-        code_editor::code_editor,
-        error_list::error_list,
-        inspector::inspector,
-        node_graph::node_graph,
-        piano_roll::piano_roll,
-        state::{PanelView, SplitDir},
-        timeline::timeline,
-    },
+    editor::state::{PanelView, SplitDir},
     theme,
 };
 use eframe::egui::{self, CursorIcon, Rect, UiBuilder, style::StyleModifier};
@@ -26,38 +17,52 @@ enum Edge {
     Bottom,
 }
 
-pub(super) fn render_leaf(
-    ui: &mut egui::Ui,
-    state: &mut EditorState,
-    view: &mut PanelView,
-    rect: Rect,
-    panel_id: egui::Id,
-) -> Option<SplitAction> {
-    let salt = (rect.min.x as i32, rect.min.y as i32);
+impl EditorState {
+    pub(super) fn render_leaf(
+        &mut self,
+        ui: &mut egui::Ui,
+        view: &mut PanelView,
+        rect: Rect,
+        panel_id: egui::Id,
+    ) -> Option<SplitAction> {
+        let salt = (rect.min.x as i32, rect.min.y as i32);
 
-    // Use a scoped child UI with a unique ID derived from the panel position
-    // This ensures scroll state and widget IDs are independent per panel
-    let result = ui.scope_builder(UiBuilder::new().id_salt(salt).max_rect(rect), |ui| {
-        ui.set_clip_rect(rect);
+        // Use a scoped child UI with a unique ID derived from the panel position
+        // This ensures scroll state and widget IDs are independent per panel
+        let result = ui.scope_builder(UiBuilder::new().id_salt(salt).max_rect(rect), |ui| {
+            ui.set_clip_rect(rect);
 
-        // Remove the spacing between header and content
-        ui.spacing_mut().item_spacing.y = 0.0;
+            // Remove the spacing between header and content
+            ui.spacing_mut().item_spacing.y = 0.0;
 
-        render_header(ui, view);
+            render_header(ui, view);
 
-        // Clip the content to the area below the header
-        // Without this, painter-based content (node graph, piano roll) would draw
-        // over the header because the outer clip rect covers the full panel
-        let content_rect = ui.available_rect_before_wrap();
-        ui.scope_builder(UiBuilder::new().max_rect(content_rect), |ui| {
-            ui.set_clip_rect(content_rect);
-            render_view_content(ui, state, view, panel_id);
+            // Clip the content to the area below the header
+            // Without this, painter-based content (node graph, piano roll) would draw
+            // over the header because the outer clip rect covers the full panel
+            let content_rect = ui.available_rect_before_wrap();
+            ui.scope_builder(UiBuilder::new().max_rect(content_rect), |ui| {
+                ui.set_clip_rect(content_rect);
+                self.render_view_content(ui, view, panel_id);
+            });
+
+            check_edge_drag(ui, rect)
         });
 
-        check_edge_drag(ui, rect)
-    });
+        result.inner
+    }
 
-    result.inner
+    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, panel_id: egui::Id) {
+        match view {
+            PanelView::Timeline => self.timeline(ui),
+            PanelView::PianoRoll => self.piano_roll(ui),
+            PanelView::NodeGraph => self.node_graph(ui),
+            PanelView::Inspector => self.inspector(ui),
+            PanelView::ErrorList => self.error_list(ui),
+            PanelView::Automation => self.automation(ui),
+            PanelView::CodeEditor => self.code_editor(ui, panel_id),
+        }
+    }
 }
 
 fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
@@ -83,23 +88,6 @@ fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
     // Adjust the y coordinate to align with the bottom edge of the header frame
     ui.painter()
         .line_segment([rect.left_bottom(), rect.right_bottom()], stroke);
-}
-
-fn render_view_content(
-    ui: &mut egui::Ui,
-    state: &mut EditorState,
-    view: &PanelView,
-    panel_id: egui::Id,
-) {
-    match view {
-        PanelView::Timeline => timeline(ui, state),
-        PanelView::PianoRoll => piano_roll(ui, state),
-        PanelView::NodeGraph => node_graph(ui, state),
-        PanelView::Inspector => inspector(ui, state),
-        PanelView::ErrorList => error_list(ui, state),
-        PanelView::Automation => automation(ui, state),
-        PanelView::CodeEditor => code_editor(ui, state, panel_id),
-    }
 }
 
 fn check_edge_drag(ui: &mut egui::Ui, rect: Rect) -> Option<SplitAction> {
