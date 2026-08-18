@@ -1,10 +1,10 @@
+mod layout;
 mod leaf;
 mod split;
 
-use crate::ui::{
-    EditorState,
-    editor::state::{PanelNode, PanelView, SplitDir},
-};
+pub(crate) use layout::{PanelNode, PanelView, SplitDir};
+
+use crate::ui::EditorState;
 use eframe::egui;
 use std::collections::HashSet;
 
@@ -23,7 +23,8 @@ impl EditorState {
 
         // Remove code buffers for panels that no longer exist in the layout tree
         let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
-        self.views.code_editor
+        self.views
+            .code_editor
             .code_buffers
             .retain(|id, _| active_ids.contains(id));
 

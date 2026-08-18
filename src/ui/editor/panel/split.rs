@@ -1,6 +1,6 @@
 use crate::ui::{
     EditorState,
-    editor::state::{PanelNode, SplitDir},
+    editor::{PanelNode, SplitDir},
     theme,
 };
 use eframe::egui::{self, CursorIcon, Rect};

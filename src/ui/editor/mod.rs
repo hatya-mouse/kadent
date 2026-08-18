@@ -9,6 +9,7 @@ mod status_bar;
 mod toolbar;
 mod views;
 
+pub(crate) use panel::{PanelNode, PanelView, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::{StatusBarState, StatusHint};
 pub(crate) use views::{CodeEditorState, NodeGraphState, PianoRollState, TimelineState};
@@ -23,9 +24,7 @@ use crate::{
     ui::editor::actions::EditorAction,
     ui::{
         components::ruler::RulerResponse,
-        editor::state::{
-            ActionDispatcher, AudioDeviceManager, MidiDeviceManager, PanelNode, TransportState,
-        },
+        editor::state::{ActionDispatcher, AudioDeviceManager, MidiDeviceManager, TransportState},
         theme,
     },
 };
