@@ -7,11 +7,12 @@ use crate::{
 };
 use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::highlight_with;
+use uuid::Uuid;
 
 impl EditorState {
-    pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
+    pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, id: Uuid) {
         // Show a placeholder when no file is open
-        if !self.views.code_editor.code_buffers.contains_key(&panel_id) {
+        if !self.views.code_editor.code_buffers.contains_key(&id) {
             ui.centered_and_justified(|ui| {
                 ui.label("Select a file to edit");
             });
@@ -23,7 +24,7 @@ impl EditorState {
             .views
             .code_editor
             .code_buffers
-            .get(&panel_id)
+            .get(&id)
             .and_then(|b| b.as_ref())
             .and_then(|(path, _)| path.file_name())
             .map(|n| n.to_string_lossy().into_owned())
@@ -43,14 +44,14 @@ impl EditorState {
         });
 
         if close_clicked {
-            if let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&panel_id) {
+            if let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&id) {
                 *buffer = None;
             }
             return;
         }
 
         // Get a mutable reference to the code buffer for this panel
-        let Some(Some((_, code))) = self.views.code_editor.code_buffers.get_mut(&panel_id) else {
+        let Some(Some((_, code))) = self.views.code_editor.code_buffers.get_mut(&id) else {
             return;
         };
 

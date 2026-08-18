@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use uuid::Uuid;
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum PanelView {
     #[default]
@@ -50,7 +52,7 @@ pub enum SplitDir {
 
 #[derive(Clone, Debug)]
 pub enum PanelNode {
-    Leaf(PanelView),
+    Leaf(PanelView, Uuid),
     Split {
         dir: SplitDir,
         /// Fraction [0.1, 0.9] of total size allocated to `first`.
@@ -62,6 +64,6 @@ pub enum PanelNode {
 
 impl Default for PanelNode {
     fn default() -> Self {
-        PanelNode::Leaf(PanelView::Timeline)
+        PanelNode::Leaf(PanelView::Timeline, Uuid::new_v4())
     }
 }

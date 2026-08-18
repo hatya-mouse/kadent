@@ -18,14 +18,13 @@ impl EditorState {
         first: &mut PanelNode,
         second: &mut PanelNode,
         rect: Rect,
-        node_id: egui::Id,
     ) -> Option<bool> {
         let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
         if panel_size(dir, first_rect) >= 1.0 {
-            self.render_node(ui, first, first_rect, node_id.with("first"));
+            self.render_node(ui, first, first_rect);
         }
         if panel_size(dir, second_rect) >= 1.0 {
-            self.render_node(ui, second, second_rect, node_id.with("second"));
+            self.render_node(ui, second, second_rect);
         }
         render_divider(ui, div_rect, dir, ratio, rect)
     }

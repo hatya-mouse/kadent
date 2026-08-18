@@ -3,6 +3,7 @@ mod leaf;
 mod split;
 
 pub(crate) use layout::{PanelNode, PanelView, SplitDir};
+use uuid::Uuid;
 
 use crate::ui::EditorState;
 use eframe::egui;
@@ -19,10 +20,10 @@ impl EditorState {
     pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
         // Extract the layout tree to avoid a simultaneous borrow of self
         let mut layout = std::mem::take(&mut self.layout);
-        self.render_node(ui, &mut layout, rect, ui.id().with("panel_root"));
+        self.render_node(ui, &mut layout, rect);
 
         // Remove code buffers for panels that no longer exist in the layout tree
-        let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
+        let active_ids = collect_panel_ids(&layout);
         self.views
             .code_editor
             .code_buffers
@@ -31,15 +32,9 @@ impl EditorState {
         self.layout = layout;
     }
 
-    fn render_node(
-        &mut self,
-        ui: &mut egui::Ui,
-        node: &mut PanelNode,
-        rect: egui::Rect,
-        node_id: egui::Id,
-    ) {
+    fn render_node(&mut self, ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect) {
         let split_action = match node {
-            PanelNode::Leaf(view) => self.render_leaf(ui, view, rect, node_id),
+            PanelNode::Leaf(view, id) => self.render_leaf(ui, view, *id, rect),
             _ => None,
         };
 
@@ -49,24 +44,24 @@ impl EditorState {
                 ratio,
                 first,
                 second,
-            } => self.render_split(ui, *dir, ratio, first, second, rect, node_id),
+            } => self.render_split(ui, *dir, ratio, first, second, rect),
             _ => None,
         };
 
         if let Some(action) = split_action {
-            let current = match std::mem::take(node) {
-                PanelNode::Leaf(v) => v,
+            let (current, current_id) = match std::mem::take(node) {
+                PanelNode::Leaf(current, current_id) => (current, current_id),
                 _ => unreachable!(),
             };
             let (a, b) = if action.new_panel_first {
                 (
-                    PanelNode::Leaf(PanelView::Timeline),
-                    PanelNode::Leaf(current),
+                    PanelNode::Leaf(PanelView::Timeline, Uuid::new_v4()),
+                    PanelNode::Leaf(current, current_id),
                 )
             } else {
                 (
-                    PanelNode::Leaf(current),
-                    PanelNode::Leaf(PanelView::Timeline),
+                    PanelNode::Leaf(current, current_id),
+                    PanelNode::Leaf(PanelView::Timeline, Uuid::new_v4()),
                 )
             };
             *node = PanelNode::Split {
@@ -90,18 +85,17 @@ impl EditorState {
     }
 }
 
-/// Recursively collects the stable panel IDs of all CodeEditor leaves in the tree.
-fn collect_code_editor_ids(node: &PanelNode, node_id: egui::Id) -> HashSet<egui::Id> {
+/// Recursively collects the ids.
+fn collect_panel_ids(node: &PanelNode) -> HashSet<Uuid> {
     match node {
-        PanelNode::Leaf(PanelView::CodeEditor) => {
+        PanelNode::Leaf(_, node_id) => {
             let mut set = HashSet::new();
-            set.insert(node_id);
+            set.insert(*node_id);
             set
         }
-        PanelNode::Leaf(_) => HashSet::new(),
         PanelNode::Split { first, second, .. } => {
-            let mut ids = collect_code_editor_ids(first, node_id.with("first"));
-            ids.extend(collect_code_editor_ids(second, node_id.with("second")));
+            let mut ids = collect_panel_ids(first);
+            ids.extend(collect_panel_ids(second));
             ids
         }
     }

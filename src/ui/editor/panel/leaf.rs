@@ -5,6 +5,7 @@ use crate::ui::{
     theme,
 };
 use eframe::egui::{self, CursorIcon, Rect, UiBuilder, style::StyleModifier};
+use uuid::Uuid;
 
 const EDGE_SIZE: f32 = 10.0;
 const MIN_NEW_PANEL: f32 = 80.0;
@@ -22,12 +23,12 @@ impl EditorState {
         &mut self,
         ui: &mut egui::Ui,
         view: &mut PanelView,
+        id: Uuid,
         rect: Rect,
-        panel_id: egui::Id,
     ) -> Option<SplitAction> {
         // Use a scoped child UI with a unique ID derived from the panel position
         // This ensures scroll state and widget IDs are independent per panel
-        let result = ui.scope_builder(UiBuilder::new().id_salt(panel_id).max_rect(rect), |ui| {
+        let result = ui.scope_builder(UiBuilder::new().id_salt(id).max_rect(rect), |ui| {
             ui.set_clip_rect(rect);
 
             // Remove the spacing between header and content
@@ -39,13 +40,10 @@ impl EditorState {
             // Without this, painter-based content (node graph, piano roll) would draw
             // over the header because the outer clip rect covers the full panel
             let content_rect = ui.available_rect_before_wrap();
-            ui.scope_builder(
-                UiBuilder::new().id_salt(panel_id).max_rect(content_rect),
-                |ui| {
-                    ui.set_clip_rect(content_rect);
-                    self.render_view_content(ui, view, panel_id);
-                },
-            );
+            ui.scope_builder(UiBuilder::new().id_salt(id).max_rect(content_rect), |ui| {
+                ui.set_clip_rect(content_rect);
+                self.render_view_content(ui, view, id);
+            });
 
             check_edge_drag(ui, rect)
         });
@@ -53,7 +51,7 @@ impl EditorState {
         result.inner
     }
 
-    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, panel_id: egui::Id) {
+    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, id: Uuid) {
         match view {
             PanelView::Timeline => self.timeline(ui),
             PanelView::PianoRoll => self.piano_roll(ui),
@@ -61,7 +59,7 @@ impl EditorState {
             PanelView::Inspector => self.inspector(ui),
             PanelView::ErrorList => self.error_list(ui),
             PanelView::Automation => self.automation(ui),
-            PanelView::CodeEditor => self.code_editor(ui, panel_id),
+            PanelView::CodeEditor => self.code_editor(ui, id),
         }
     }
 }

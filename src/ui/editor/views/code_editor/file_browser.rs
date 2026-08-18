@@ -4,15 +4,16 @@ use crate::{
 };
 use eframe::egui;
 use std::path::{Path, PathBuf};
+use uuid::Uuid;
 
 impl EditorState {
-    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
+    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, id: Uuid) {
         // Get the currently opened path for highlighting (empty path = nothing selected)
         let opened_path: PathBuf = self
             .views
             .code_editor
             .code_buffers
-            .get(&panel_id)
+            .get(&id)
             .and_then(|b| b.as_ref())
             .map(|(path, _)| path.clone())
             .unwrap_or_default();
@@ -27,7 +28,7 @@ impl EditorState {
         // Read the content at the path to the buffer
         if let Some(path) = selected_file
             && let Ok(content) = std::fs::read_to_string(&path)
-            && let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&panel_id)
+            && let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&id)
         {
             *buffer = Some((path, content));
         }
