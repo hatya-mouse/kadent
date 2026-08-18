@@ -4,10 +4,10 @@ use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 impl EditorState {
     pub(in crate::actions) fn remove_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
         // Get the track and track metadata
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
+        let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
         };
-        let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id) else {
+        let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
             return;
         };
 
@@ -22,7 +22,7 @@ impl EditorState {
         track.get_graph_mut().remove_node(node_id);
         track_meta.graph.remove_node(node_id);
 
-        self.ui_state.select_track(*track_id);
+        self.selection.select_track(*track_id);
 
         // Update the project
         self.modified_project();

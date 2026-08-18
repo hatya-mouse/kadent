@@ -17,7 +17,7 @@ impl EditorState {
         let delete = ui.input(|i| i.key_pressed(egui::Key::Delete));
         let backspace = ui.input(|i| i.key_pressed(egui::Key::Backspace));
         if delete || backspace {
-            match self.ui_state.selection {
+            match self.selection {
                 Selection::Region(track_id, region_id) => {
                     self.push_action(EditorAction::RemoveRegion(track_id, region_id));
                 }
@@ -39,7 +39,7 @@ impl EditorState {
 
         let play_pause = ui.input(|i| i.key_pressed(egui::Key::Space));
         if play_pause {
-            if self.ui_state.is_playing {
+            if self.transport.is_playing {
                 self.push_action(EditorAction::Pause);
             } else {
                 self.push_action(EditorAction::Play);
@@ -49,18 +49,14 @@ impl EditorState {
         let seek_forward = ui.input(|i| i.key_pressed(egui::Key::ArrowRight));
         if seek_forward {
             self.push_action(EditorAction::Seek(
-                self.ui_state.proj_ctx.project_meta.export_range.end_time(),
+                self.project.meta.export_range.end_time(),
             ));
         }
 
         let seek_back = ui.input(|i| i.key_pressed(egui::Key::ArrowLeft));
         if seek_back {
             self.push_action(EditorAction::Seek(
-                self.ui_state
-                    .proj_ctx
-                    .project_meta
-                    .export_range
-                    .start_time(),
+                self.project.meta.export_range.start_time(),
             ));
         }
     }

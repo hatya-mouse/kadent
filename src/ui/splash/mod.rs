@@ -4,7 +4,7 @@ mod splash_controls;
 pub(crate) mod state;
 
 use crate::{
-    core::project_ctx::EditorContext,
+    core::project_ctx::ProjectContext,
     ui::{splash::state::SplashUiState, theme},
     utils::version_string,
 };
@@ -14,7 +14,7 @@ const PROJECT_LIST_THRESHOLD: f32 = 240.0;
 
 /// The splash screen of Kadent.
 pub struct SplashUi {
-    /// The current splash UI self.
+    /// The current splash UI state.
     splash_state: SplashUiState,
     /// The version text displayed in the splash screen.
     version_string: String,
@@ -30,7 +30,7 @@ impl Default for SplashUi {
 }
 
 impl SplashUi {
-    pub fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
+    pub fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
         let mut ctx = None;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {

@@ -7,16 +7,13 @@ use crate::{
     consts::{TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
     ui::{
         EditorState,
-        editor::{
-            state::{EditorUiState, TimelineCoord},
-            timeline::{TIMELINE_LEFT_PADDING, edit_panel::audio_drop::show_dragged_hint},
-        },
+        editor::{state::TimelineCoord, timeline::TIMELINE_LEFT_PADDING},
         theme,
         zoom::zoom_scroll_offset,
     },
 };
 use eframe::egui;
-use kadent_engine::{data_types::Ticks, mixer::TrackID};
+use kadent_engine::data_types::Ticks;
 
 impl EditorState {
     pub(crate) fn track_edit_panel(
@@ -33,7 +30,7 @@ impl EditorState {
         let available = ui.available_rect_before_wrap();
 
         // Draw each tracks
-        let track_order = self.ui_state.proj_ctx.project_meta.track_order.clone();
+        let track_order = self.project.meta.track_order.clone();
         for (i, track_id) in track_order.iter().enumerate() {
             let y = available.min.y + i as f32 * track_height;
             let row_rect = egui::Rect::from_min_size(
@@ -62,14 +59,15 @@ impl EditorState {
 
         // Handle dragged or dropped file
         self.try_resolve_audio_drop();
-        show_dragged_hint(ui, &mut self.ui_state);
+        self.show_dragged_hint(ui);
 
         scroll_override
     }
 
     fn playhead(&self, ui: &mut egui::Ui, timeline_coord: &TimelineCoord, editor_rect: egui::Rect) {
         let playhead_x = timeline_coord.ppb
-            * (self.ui_state.playhead_tick.0 as f32 / self.ui_state.audio_ctx.resolution as f32);
+            * (self.transport.playhead_tick.0 as f32
+                / self.project.data.audio_ctx.resolution as f32);
 
         // Create a new painter to draw on the foreground layer
         ui.painter().vline(
@@ -105,7 +103,7 @@ impl EditorState {
         // Ticks under the cursor before changing the zoom level
         let ticks_at_cursor = x_to_ticks(
             timeline_coord,
-            self.ui_state.audio_ctx.resolution,
+            self.project.data.audio_ctx.resolution,
             cursor_x,
             editor_rect,
         );
@@ -116,7 +114,7 @@ impl EditorState {
 
         // Shift the scroll offset by however much the position of `ticks_at_cursor` moved due to
         // the zoom change, so it stays under the cursor
-        let resolution = self.ui_state.audio_ctx.resolution as f32;
+        let resolution = self.project.data.audio_ctx.resolution as f32;
         let beats_at_cursor = ticks_at_cursor.0 as f32 / resolution;
         let new_offset = zoom_scroll_offset(scroll_x, beats_at_cursor, old_ppb, new_ppb);
         Some(new_offset.max(0.0))
@@ -130,26 +128,5 @@ fn x_to_ticks(
     row_rect: egui::Rect,
 ) -> Ticks {
     Ticks(((x - row_rect.min.x - TIMELINE_LEFT_PADDING) * timeline_coord.tpp(resolution)) as i64)
-        .max(Ticks(0))
-}
-
-/// Converts a screen-space y position to the track it falls into,
-/// given the y position of the top of the track list content area.
-fn y_to_track_id(
-    ui_state: &EditorUiState,
-    timeline_coord: &TimelineCoord,
-    y: f32,
-    content_top: f32,
-) -> Option<TrackID> {
-    let track_height = timeline_coord.y_zoom;
-    if y < content_top || track_height <= 0.0 {
-        return None;
-    }
-    let index = ((y - content_top) / track_height) as usize;
-    ui_state
-        .proj_ctx
-        .project_meta
-        .track_order
-        .get(index)
-        .copied()
+        .max(Ticks::ZERO)
 }

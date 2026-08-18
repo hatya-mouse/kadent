@@ -16,7 +16,7 @@ impl EditorState {
         track_id: &TrackID,
         region_id: &RegionID,
     ) {
-        let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id) else {
+        let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
             return;
         };
         let Some(region_meta) = track_meta.get_region_mut(region_id) else {

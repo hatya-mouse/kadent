@@ -9,22 +9,28 @@ mod node_graph;
 mod panel;
 mod piano_roll;
 mod preview_notes;
-pub mod state;
+mod state;
 mod status_bar;
 mod timeline;
 mod toolbar;
 
-pub(super) use state::Modification;
+pub(crate) use state::*;
 
 use crate::{
     actions::EditorAction,
-    background_thread::{BackgroundThreadCommand, BackgroundThreadHandle, spawn_background_thread},
+    background_thread::{BackgroundThreadCommand, spawn_background_thread},
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
-        project_ctx::EditorContext,
+        project_ctx::ProjectContext,
     },
-    ui::{components::ruler::RulerResponse, editor::state::EditorUiState, theme},
+    ui::{
+        components::ruler::RulerResponse,
+        editor::state::{
+            ActionDispatcher, AudioDeviceManager, MidiDeviceManager, PanelNode, TransportState,
+        },
+        theme,
+    },
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
@@ -33,27 +39,93 @@ use kadent_engine::{
     thread::{AudioCommand, AudioThread, AudioThreadHandle},
     timing::TimePosition,
 };
-use std::{collections::VecDeque, sync::mpsc, time::Duration};
+use std::{sync::mpsc, time::Duration};
 use syntect::highlighting::ThemeSet;
 
 pub struct EditorState {
+    // --- PROJECT ---
+    /// The current project context that stores the document data.
+    pub project: ProjectContext,
+
+    // --- THREAD COMMUNIATION & HANDLES ---
     /// A thread handle to communicate with the audio thread.
     pub thread_handle: AudioThreadHandle,
-    /// A thread handle to communicate with the background processing thread.
-    pub background_handle: BackgroundThreadHandle,
     /// A channel to send MIDI commands to the MIDI thread.
-    pub midi_command_tx: mpsc::Sender<MidiCommand>,
-    /// UI states to store the current UI self.
-    pub ui_state: EditorUiState,
-    /// Pending actions to be executed in the frame.
-    pub pending_actions: VecDeque<EditorAction>,
+    pub midi_tx: mpsc::Sender<MidiCommand>,
+
+    // --- AUDIO & MIDI DEVICE ---
+    /// The audio device manager to store the available audio devices and the selected device.
+    pub audio_device: AudioDeviceManager,
+    /// The MIDI device manager to store the available MIDI devices and the selected device.
+    pub midi_device: MidiDeviceManager,
+
+    // --- TRANSPORT STATE ---
+    /// The transport state that stores the current playhead position.
+    pub transport: TransportState,
+
+    // --- UI LAYOUT & VIEW STATES ---
+    /// Panel layout tree.
+    pub layout: PanelNode,
+    /// The states for the each panel views.
+    pub views: ViewStates,
+
+    // --- BACKEND LOGIC ---
+    /// Currently selected content.
+    pub selection: Selection,
+    /// Action dispatcher that stores the pending actions to be executed at the end of the frame.
+    pub actions: ActionDispatcher,
+
+    // --- DEBUG MODE ---
     /// Whether the editor is in the debug mode.
     pub debug_mode: bool,
 }
 
 impl EditorState {
+    pub fn new(proj_ctx: ProjectContext) -> EditorState {
+        let (thread_handle, midi_producer) = AudioThread::spawn(proj_ctx.meta.export_ctx.clone());
+        let background_handle = spawn_background_thread();
+        let midi_tx = spawn_midi_thread(midi_producer);
+
+        let mut editor_ui = EditorState {
+            project: proj_ctx,
+            thread_handle,
+            midi_tx,
+            audio_device: AudioDeviceManager::default(),
+            midi_device: MidiDeviceManager::default(),
+            transport: TransportState::default(),
+            layout: PanelNode::default(),
+            views: ViewStates::default(),
+            selection: Selection::default(),
+            actions: ActionDispatcher::new(background_handle),
+            debug_mode: false,
+        };
+
+        // Load the kasl syntax set and create a syntect settings
+        editor_ui.views.code_editor.syntect_settings = Some(SyntectSettings {
+            ps: kasl_syntax_set(),
+            ts: ThemeSet::load_defaults(),
+        });
+
+        // Fetch the avaliable devices first
+        editor_ui.fetch_devices();
+        editor_ui.audio_device.selected_output = editor_ui
+            .audio_device
+            .default_output
+            .as_ref()
+            .and_then(|device| device.id().ok());
+
+        // Load the project structure and cache it
+        editor_ui.push_action(EditorAction::UpdateDirCache);
+        editor_ui.modified_project();
+
+        // For each audio region, generate the waveforms
+        editor_ui.generate_waveforms();
+
+        editor_ui
+    }
+
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui) {
-        self.ui_state.code_editor_state.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
+        self.views.code_editor.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
 
         self.calculate_playhead();
         self.process_vu_value();
@@ -84,7 +156,7 @@ impl EditorState {
             });
 
         // Reset the modification state from the last frame
-        self.ui_state.set_modification(Modification::None);
+        self.views.status_bar.set_status_hint(StatusHint::None);
 
         egui::CentralPanel::default()
             .frame(
@@ -110,55 +182,16 @@ impl EditorState {
         self.process_background_results();
     }
 
-    pub fn new(editor_ctx: EditorContext) -> EditorState {
-        let (thread_handle, midi_producer) =
-            AudioThread::spawn(editor_ctx.proj_ctx.project_meta.export_ctx.clone());
-        let background_handle = spawn_background_thread();
-        let midi_command_tx = spawn_midi_thread(midi_producer);
-
-        let mut editor_ui = EditorState {
-            thread_handle,
-            background_handle,
-            midi_command_tx,
-            ui_state: EditorUiState::new(editor_ctx.audio_ctx, editor_ctx.proj_ctx),
-            pending_actions: VecDeque::new(),
-            debug_mode: false,
-        };
-
-        // Load the kasl syntax set and create a syntect settings
-        editor_ui.ui_state.code_editor_state.syntect_settings = Some(SyntectSettings {
-            ps: kasl_syntax_set(),
-            ts: ThemeSet::load_defaults(),
-        });
-
-        // Fetch the avaliable devices first
-        editor_ui.fetch_devices();
-        editor_ui.ui_state.selected_output_device = editor_ui
-            .ui_state
-            .default_output_device
-            .as_ref()
-            .and_then(|device| device.id().ok());
-
-        // Load the project structure and cache it
-        editor_ui.push_action(EditorAction::UpdateDirCache);
-        editor_ui.modified_project();
-
-        // For each audio region, generate the waveforms
-        editor_ui.generate_waveforms();
-
-        editor_ui
-    }
-
     /// Checks if the project has been modified recently and sends an update command to the audio thread if necessary.
     /// Should not be called directly because this is automatically called.
     fn update_project(&mut self) {
-        if let Some(t) = self.ui_state.last_edit_time
+        if let Some(t) = self.actions.last_edit_time
             && t.elapsed() > std::time::Duration::from_millis(300)
         {
-            self.ui_state.last_edit_time = None;
+            self.actions.last_edit_time = None;
 
             // Clone the project and send it to the audio thread
-            let project = self.ui_state.proj_ctx.project.clone();
+            let project = self.project.data.clone();
             if let Err(err) = self
                 .thread_handle
                 .audio_command_tx
@@ -186,16 +219,16 @@ impl EditorState {
     }
 
     pub(super) fn push_action(&mut self, action: EditorAction) {
-        self.pending_actions.push_back(action);
+        self.actions.pending.push_back(action);
     }
 
     pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
-        self.background_handle.command_tx.send(command).ok();
+        self.actions.background_handle.command_tx.send(command).ok();
     }
 
     fn apply_ruler_res(&mut self, ruler_res: &RulerResponse) {
         if let Some(target_tick) = ruler_res.seek_to {
-            self.ui_state.playhead_tick = target_tick;
+            self.transport.playhead_tick = target_tick;
 
             if ruler_res.drag_ended {
                 self.push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));

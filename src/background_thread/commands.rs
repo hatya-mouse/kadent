@@ -1,8 +1,8 @@
-use crate::core::{metadata::ProjectMeta, project_ctx::EditorContext};
+use crate::core::{metadata::ProjectMeta, project_ctx::ProjectContext};
 use kadent_engine::{
     audio_data::{AudioData, AudioSource},
     data_types::{PlaybackContext, Ticks},
-    mixer::{Project, TrackID},
+    mixer::{ProjectData, TrackID},
     track::RegionID,
 };
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ pub(crate) struct WaveformLod {
 pub(crate) enum BackgroundThreadCommand {
     SaveProject {
         path: PathBuf,
-        project: Box<Project>,
+        project: Box<ProjectData>,
         project_meta: Box<ProjectMeta>,
         code_buffers: Vec<(PathBuf, String)>,
     },
@@ -56,7 +56,7 @@ pub(crate) enum BackgroundThreadCommand {
 
 pub(crate) enum BackgroundThreadResult {
     SavedProject(std::io::Result<()>),
-    OpenedProject(Option<Box<EditorContext>>),
+    OpenedProject(Option<Box<ProjectContext>>),
     WroteWav(hound::Result<()>),
     ImportedAudio {
         file_name: Option<String>,

@@ -7,8 +7,7 @@ use eframe::egui;
 impl EditorState {
     pub(super) fn code_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Ensure a buffer entry exists for this panel
-        self.ui_state
-            .code_editor_state
+        self.views.code_editor
             .code_buffers
             .entry(panel_id)
             .or_insert(None);

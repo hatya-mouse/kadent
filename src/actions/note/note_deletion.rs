@@ -16,9 +16,8 @@ impl EditorState {
     ) {
         // Set the note's start time
         if let Some(region) = self
-            .ui_state
-            .proj_ctx
             .project
+            .data
             .get_track_mut(track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
             .and_then(|track| track.get_region_mut(region_id))
@@ -26,7 +25,7 @@ impl EditorState {
             region.remove_note(note_id);
         }
 
-        self.ui_state.select_region(*track_id, *region_id);
+        self.selection.select_region(*track_id, *region_id);
         self.modified_project();
     }
 }

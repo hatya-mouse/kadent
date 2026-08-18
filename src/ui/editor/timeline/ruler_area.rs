@@ -3,8 +3,11 @@ use crate::{
     consts::{PANEL_HEADER_HEIGHT, PANEL_HEADER_MARGIN, SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::{
         EditorState,
-        components::{icon_button::small_icon_button, ruler::ruler_and_scroll_bar},
-        editor::{Modification, state::TimelineCoord},
+        components::{
+            icon_button::small_icon_button,
+            ruler::{RulerConfig, ruler_and_scroll_bar},
+        },
+        editor::{StatusHint, state::TimelineCoord},
         theme,
     },
 };
@@ -34,11 +37,16 @@ impl EditorState {
             egui::pos2(panel_rect.min.x + track_list_width, panel_rect.min.y),
             egui::pos2(panel_rect.max.x, panel_rect.min.y + PANEL_HEADER_HEIGHT),
         );
+        let ruler_config = RulerConfig::new(
+            Ticks::ZERO,
+            TIMELINE_LEFT_PADDING,
+            self.project.data.audio_ctx.resolution,
+        );
         let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
             ui,
             area_rect,
             timeline_coord,
-            self.ui_state.audio_ctx.resolution,
+            &ruler_config,
             timeline_width,
             visible_width,
         );
@@ -69,16 +77,11 @@ impl EditorState {
         scroll_x: f32,
     ) {
         let ppb = timeline_coord.ppb;
-        let ppt = ppb / self.ui_state.audio_ctx.resolution as f32;
-        let tempo_map = &self.ui_state.proj_ctx.project.tempo_map;
+        let ppt = ppb / self.project.data.audio_ctx.resolution as f32;
+        let tempo_map = &self.project.data.tempo_map;
         let origin_x = ruler_screen_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;
 
-        let (range_start, range_end) = self
-            .ui_state
-            .proj_ctx
-            .project_meta
-            .export_range
-            .tick_range(tempo_map);
+        let (range_start, range_end) = self.project.meta.export_range.tick_range(tempo_map);
         let range_duration = range_end - range_start;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
@@ -136,14 +139,12 @@ impl EditorState {
 
             // Avoid negative duration by using saturating_sub
             let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
-            self.ui_state
-                .proj_ctx
-                .project_meta
+            self.project
+                .meta
                 .export_range
                 .set_duration_ticks(new_duration, tempo_map);
 
-            self.ui_state
-                .set_modification(Modification::ProjectRange(range_start, new_duration));
+            self.views.status_bar.set_status_hint(StatusHint::ProjectRange(range_start, new_duration));
         } else if start_drag_res.dragged() {
             let drag_delta = start_drag_res.drag_delta();
             let ticks_delta = (drag_delta.x / ppt) as i64;
@@ -154,19 +155,18 @@ impl EditorState {
             let start_delta = new_start.0 - range_start.0;
             let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
 
-            self.ui_state.proj_ctx.project_meta.export_range = TimeBounds::Musical {
+            self.project.meta.export_range = TimeBounds::Musical {
                 start: new_start,
                 duration: new_duration,
             };
 
-            self.ui_state
-                .set_modification(Modification::ProjectRange(new_start, new_duration));
+            self.views.status_bar.set_status_hint(StatusHint::ProjectRange(new_start, new_duration));
         }
 
         // Confirm the change when the mouse is released
         if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
             self.push_action(EditorAction::SetProjectRange(
-                self.ui_state.proj_ctx.project_meta.export_range.clone(),
+                self.project.meta.export_range.clone(),
             ));
         }
     }

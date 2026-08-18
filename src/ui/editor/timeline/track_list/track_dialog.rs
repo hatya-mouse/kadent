@@ -17,7 +17,7 @@ use eframe::egui;
 impl EditorState {
     pub(crate) fn track_dialog(&mut self, ui: &egui::Ui) {
         let DialogState::AddTrack(mut state) =
-            std::mem::replace(&mut self.ui_state.dialog_state, DialogState::None)
+            std::mem::replace(&mut self.views.dialog, DialogState::None)
         else {
             return;
         };
@@ -68,9 +68,9 @@ impl EditorState {
         });
 
         if should_close || modal.should_close() {
-            self.ui_state.dialog_state = DialogState::None;
+            self.views.dialog = DialogState::None;
         } else {
-            self.ui_state.dialog_state = DialogState::AddTrack(state);
+            self.views.dialog = DialogState::AddTrack(state);
         }
     }
 }

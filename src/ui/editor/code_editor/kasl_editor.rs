@@ -11,9 +11,7 @@ use egui_extras::syntax_highlighting::highlight_with;
 impl EditorState {
     pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Show a placeholder when no file is open
-        if !self
-            .ui_state
-            .code_editor_state
+        if !self.views.code_editor
             .code_buffers
             .contains_key(&panel_id)
         {
@@ -24,9 +22,7 @@ impl EditorState {
         };
 
         // Show filename and close button in the header
-        let file_name = self
-            .ui_state
-            .code_editor_state
+        let file_name = self.views.code_editor
             .code_buffers
             .get(&panel_id)
             .and_then(|b| b.as_ref())
@@ -48,9 +44,7 @@ impl EditorState {
         });
 
         if close_clicked {
-            if let Some(buffer) = self
-                .ui_state
-                .code_editor_state
+            if let Some(buffer) = self.views.code_editor
                 .code_buffers
                 .get_mut(&panel_id)
             {
@@ -60,9 +54,7 @@ impl EditorState {
         }
 
         // Get a mutable reference to the code buffer for this panel
-        let Some(Some((_, code))) = self
-            .ui_state
-            .code_editor_state
+        let Some(Some((_, code))) = self.views.code_editor
             .code_buffers
             .get_mut(&panel_id)
         else {
@@ -71,8 +63,8 @@ impl EditorState {
 
         // Get the theme and syntect settings for syntax highlighting
         let (Some(theme), Some(syntect_settings)) = (
-            self.ui_state.code_editor_state.theme.as_ref(),
-            self.ui_state.code_editor_state.syntect_settings.as_ref(),
+            self.views.code_editor.theme.as_ref(),
+            self.views.code_editor.syntect_settings.as_ref(),
         ) else {
             return;
         };

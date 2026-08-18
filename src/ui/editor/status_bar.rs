@@ -1,25 +1,25 @@
 use crate::{
     background_thread::BackgroundTaskStatus,
-    ui::{EditorState, editor::state::Modification, theme},
+    ui::{EditorState, editor::state::StatusHint, theme},
 };
 use eframe::egui;
 
 impl EditorState {
     pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
-            if let Some(track_id) = self.ui_state.selection.track_id()
-                && let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(&track_id)
+            if let Some(track_id) = self.selection.track_id()
+                && let Some(track_meta) = self.project.meta.get_track(&track_id)
             {
                 status_text(ui, &format!("Selection: {}", track_meta.name));
 
-                if let Some(region_id) = self.ui_state.selection.region_id()
+                if let Some(region_id) = self.selection.region_id()
                     && let Some(region_meta) = track_meta.get_region(&region_id)
                 {
                     status_text(ui, "—");
                     status_text(ui, &region_meta.name);
                 }
 
-                if let Some(node_id) = self.ui_state.selection.node_id()
+                if let Some(node_id) = self.selection.node_id()
                     && let Some(node_meta) = track_meta.graph.get_node_meta(&node_id)
                 {
                     status_text(ui, "—");
@@ -27,13 +27,13 @@ impl EditorState {
                 }
             }
 
-            if let Some(task) = &self.ui_state.status_bar_state.current_task {
+            if let Some(task) = &self.views.status_bar.current_task {
                 status_text(
                     ui,
                     match task {
-                        BackgroundTaskStatus::Save => "Saving Project...",
-                        BackgroundTaskStatus::Open => "Opening Project...",
-                        BackgroundTaskStatus::Export => "Exporting Project...",
+                        BackgroundTaskStatus::Save => "Saving ProjectData...",
+                        BackgroundTaskStatus::Open => "Opening ProjectData...",
+                        BackgroundTaskStatus::Export => "Exporting ProjectData...",
                         BackgroundTaskStatus::Import => "Importing File...",
                         BackgroundTaskStatus::GenerateWaveform => "Generating Waveform...",
                     },
@@ -43,29 +43,29 @@ impl EditorState {
             self.modification_text(ui);
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                self.ui_state.status_bar_state.notification_text(ui);
+                self.views.status_bar.notification_text(ui);
             });
         });
     }
 
     fn modification_text(&self, ui: &mut egui::Ui) {
-        if self.ui_state.modification.is_none() {
+        if self.views.status_bar.status_hint.is_none() {
             return;
         }
 
-        let resolution = self.ui_state.audio_ctx.resolution as f32;
-        let modification_string = match self.ui_state.modification {
-            Modification::None => unreachable!(),
-            Modification::ProjectRange(start_ticks, duration_ticks) => {
+        let resolution = self.project.data.audio_ctx.resolution as f32;
+        let hint_string = match self.views.status_bar.status_hint {
+            StatusHint::None => unreachable!(),
+            StatusHint::ProjectRange(start_ticks, duration_ticks) => {
                 let start_beats = start_ticks.0 as f32 / resolution;
                 let duration_beats = duration_ticks.0 as f32 / resolution;
                 format!(
-                    "Project Range: {:.3} – {:.3} Beats",
+                    "ProjectData Range: {:.3} – {:.3} Beats",
                     start_beats,
                     start_beats + duration_beats
                 )
             }
-            Modification::RegionRange(start_ticks, duration_ticks) => {
+            StatusHint::RegionRange(start_ticks, duration_ticks) => {
                 let start_beats = start_ticks.0 as f32 / resolution;
                 let duration_beats = duration_ticks.0 as f32 / resolution;
                 format!(
@@ -74,7 +74,7 @@ impl EditorState {
                     start_beats + duration_beats
                 )
             }
-            Modification::NotePosition(start_ticks, duration_ticks, pitch) => {
+            StatusHint::NotePosition(start_ticks, duration_ticks, pitch) => {
                 let start_beats = start_ticks.0 as f32 / resolution;
                 let duration_beats = duration_ticks.0 as f32 / resolution;
                 format!(
@@ -86,7 +86,7 @@ impl EditorState {
             }
         };
 
-        status_text(ui, &modification_string);
+        status_text(ui, &hint_string);
     }
 }
 

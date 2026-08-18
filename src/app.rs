@@ -1,6 +1,6 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
-    core::project_ctx::EditorContext,
+    core::project_ctx::ProjectContext,
     storage::project::open_project_to_ctx,
     ui::{EditorState, SplashUi, theme},
 };
@@ -17,7 +17,7 @@ pub enum AppState {
 }
 
 enum GetDroppedFileResult {
-    Project(Box<EditorContext>),
+    ProjectData(Box<ProjectContext>),
     AudioFile(PathBuf),
 }
 
@@ -55,7 +55,7 @@ impl KadentApp {
             {
                 if extension == PROJECT_FILE_EXTENSION {
                     return open_project_to_ctx(path.clone())
-                        .map(|ctx| GetDroppedFileResult::Project(Box::new(ctx)));
+                        .map(|ctx| GetDroppedFileResult::ProjectData(Box::new(ctx)));
                 } else if extension == "wav" {
                     return Some(GetDroppedFileResult::AudioFile(path.clone()));
                 }
@@ -100,7 +100,7 @@ impl eframe::App for KadentApp {
                     self.state = AppState::Editor(Box::new(EditorState::new(editor_ctx)));
                 }
 
-                if let Some(GetDroppedFileResult::Project(ctx)) = dropped_file {
+                if let Some(GetDroppedFileResult::ProjectData(ctx)) = dropped_file {
                     self.state = AppState::Editor(Box::new(EditorState::new(*ctx)));
                 }
             }

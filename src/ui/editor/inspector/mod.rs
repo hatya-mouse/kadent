@@ -23,7 +23,7 @@ impl EditorState {
 
         egui::ScrollArea::vertical()
             .auto_shrink(false)
-            .show(ui, |ui| match self.ui_state.selection {
+            .show(ui, |ui| match self.selection {
                 Selection::Track(track_id) => {
                     self.track_inspector(ui, &track_id);
                 }
@@ -62,7 +62,7 @@ fn inspector_section(
     ui.add_space(8.0);
 
     // Manage content collapsing state
-    let id = ui.make_persistent_id(unique_id);
+    let id = ui.id().with(unique_id);
     let mut state =
         egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, true);
 

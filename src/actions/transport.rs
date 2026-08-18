@@ -13,11 +13,10 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.ui_state
-                .errors
+            self.views.errors
                 .push(AudioError::CommandFailed(command));
         } else {
-            self.ui_state.is_playing = true;
+            self.transport.is_playing = true;
         }
     }
 
@@ -29,11 +28,10 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.ui_state
-                .errors
+            self.views.errors
                 .push(AudioError::CommandFailed(command));
         } else {
-            self.ui_state.is_playing = false;
+            self.transport.is_playing = false;
         }
     }
 
@@ -45,8 +43,7 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.ui_state
-                .errors
+            self.views.errors
                 .push(AudioError::CommandFailed(command));
         }
     }

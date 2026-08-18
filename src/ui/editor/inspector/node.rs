@@ -24,8 +24,7 @@ impl EditorState {
         node_id: &NodeID,
     ) {
         inspector_section(ui, ("node_section", track_id, node_id), "Node", |ui| {
-            let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id)
-            else {
+            let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
                 return;
             };
             let Some(node_meta) = track_meta.graph.get_node_meta_mut(node_id) else {
@@ -57,7 +56,7 @@ impl EditorState {
     }
 
     fn node_unique_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID, node_id: &NodeID) {
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
+        let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
         };
         let Some(node) = track.get_graph_mut().get_node_mut(node_id) else {

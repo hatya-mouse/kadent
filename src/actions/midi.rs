@@ -4,17 +4,15 @@ use midir::MidiInputPort;
 
 impl EditorState {
     pub(super) fn set_midi_input_port(&mut self, midi_in_port: MidiInputPort) {
-        self.ui_state.selected_midi_port = Some(midi_in_port.id());
-        self.midi_command_tx
+        self.midi_device.selected_port = Some(midi_in_port.id());
+        self.midi_tx
             .send(MidiCommand::SetMidiPort(midi_in_port))
             .ok();
     }
 
     pub(super) fn disconnect_midi_port(&mut self) {
-        self.ui_state.selected_midi_port = None;
-        self.midi_command_tx
-            .send(MidiCommand::DisconnectMidiPort)
-            .ok();
+        self.midi_device.selected_port = None;
+        self.midi_tx.send(MidiCommand::DisconnectMidiPort).ok();
         self.disarm_track();
     }
 

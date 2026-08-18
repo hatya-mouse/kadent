@@ -36,8 +36,8 @@ impl Default for ProjectMeta {
             kasl_search_paths: Vec::new(),
             export_ctx: PlaybackContext::default(),
             export_range: TimeBounds::Musical {
-                start: Ticks(0),
-                duration: Ticks(0),
+                start: Ticks::ZERO,
+                duration: Ticks::ZERO,
             },
         }
     }

@@ -1,5 +1,5 @@
 use crate::{
-    core::project_ctx::EditorContext,
+    core::project_ctx::ProjectContext,
     fonts::RichTextExt,
     storage::project::open_project_to_ctx,
     ui::{SplashUi, theme},
@@ -9,7 +9,7 @@ use eframe::egui;
 const CONTENT_MARGIN: i8 = 12;
 
 impl SplashUi {
-    pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
+    pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
         let mut selected_path = None;
 
         egui::ScrollArea::vertical()

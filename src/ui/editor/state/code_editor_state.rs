@@ -1,3 +1,4 @@
+use crate::actions::FileNode;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use std::{collections::HashMap, path::PathBuf};
@@ -10,6 +11,9 @@ pub(crate) struct CodeEditorState {
     pub syntect_settings: Option<SyntectSettings>,
     /// Open file buffers per code editor panel with stable panel ID keys.
     pub code_buffers: HashMap<egui::Id, Option<(PathBuf, String)>>,
+
+    /// Cached graph of the project directory structure.
+    pub project_dir_cache: Vec<FileNode>,
     // Whether the opened programs are modified or not.
     // pub are_modified: Vec<bool>,
 }

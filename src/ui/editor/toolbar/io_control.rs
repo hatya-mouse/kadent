@@ -41,13 +41,13 @@ impl EditorState {
                         |ui: &mut egui::Ui, device_name: String, device: &cpal::Device| {
                             let device_id = device.id().ok();
                             // Check if the device is currently selected
-                            let is_selected = self.ui_state.selected_output_device == device_id;
+                            let is_selected = self.audio_device.selected_output == device_id;
 
                             if ui.selectable_label(is_selected, &device_name).clicked()
                                 && !is_selected
                             {
                                 // Select the label when clicked
-                                self.ui_state.selected_output_device = device_id;
+                                self.audio_device.selected_output = device_id;
                                 self.thread_handle
                                     .audio_command_tx
                                     .send(AudioCommand::SetOutputDevice(device.clone()))
@@ -62,15 +62,13 @@ impl EditorState {
                     ))
                     .config(MenuConfig::new().style(StyleModifier::from(menu_style.clone())))
                     .ui(ui, |ui| {
-                        if let Some(default_output_device) = &self.ui_state.default_output_device {
+                        if let Some(default_output_device) = &self.audio_device.default_output {
                             let default_output_name =
                                 format!("Default — {}", get_device_name(default_output_device));
                             audio_output_item(ui, default_output_name, default_output_device);
                         }
 
-                        let output_devices: Vec<(String, &cpal::Device)> = self
-                            .ui_state
-                            .output_devices
+                        let output_devices: Vec<(String, &cpal::Device)> = self.audio_device.outputs
                             .iter()
                             .map(|device| (get_device_name(device), device))
                             .collect();
@@ -88,12 +86,10 @@ impl EditorState {
                     .config(MenuConfig::new().style(StyleModifier::from(menu_style.clone())))
                     .ui(ui, |ui| {
                         // Get the names of available MIDI input ports
-                        let Some(midi_in) = &self.ui_state.midi_in else {
+                        let Some(midi_in) = &self.midi_device.input else {
                             return;
                         };
-                        let midi_in_port_names: Vec<(String, MidiInputPort)> = self
-                            .ui_state
-                            .midi_in_ports
+                        let midi_in_port_names: Vec<(String, MidiInputPort)> = self.midi_device.in_ports
                             .iter()
                             .filter_map(|midi_in_port| {
                                 midi_in
@@ -105,17 +101,17 @@ impl EditorState {
 
                         if ui
                             .selectable_label(
-                                self.ui_state.selected_midi_port.is_none(),
+                                self.midi_device.selected_port.is_none(),
                                 "No MIDI Input",
                             )
                             .clicked()
-                            && self.ui_state.selected_midi_port.is_some()
+                            && self.midi_device.selected_port.is_some()
                         {
                             self.push_action(EditorAction::DisconnectMidiPort);
                         }
 
                         for (ref name, midi_in_port) in midi_in_port_names {
-                            let is_selected = self.ui_state.selected_midi_port.as_ref()
+                            let is_selected = self.midi_device.selected_port.as_ref()
                                 == Some(&midi_in_port.id());
                             if ui.selectable_label(is_selected, name).clicked() && !is_selected {
                                 // Set the selected MIDI input port

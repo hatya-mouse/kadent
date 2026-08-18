@@ -7,10 +7,7 @@ use crate::{
         MAX_TRACK_LIST_WIDTH, MIN_TRACK_LIST_WIDTH, TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING,
     },
     ui::{
-        EditorState,
-        components::panel_header::panel_header,
-        editor::state::{EditorUiState, TimelineCoord},
-        theme,
+        EditorState, components::panel_header::panel_header, editor::state::TimelineCoord, theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
@@ -20,9 +17,9 @@ impl EditorState {
         let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-        let follow_playhead_key = ui.make_persistent_id("follow_playhead");
-        let track_list_width_key = ui.make_persistent_id("track_list_width");
-        let timeline_coord_key = ui.make_persistent_id("timeline_coord");
+        let follow_playhead_key = ui.id().with("follow_playhead");
+        let track_list_width_key = ui.id().with("track_list_width");
+        let timeline_coord_key = ui.id().with("timeline_coord");
 
         let mut follow_playhead =
             ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
@@ -39,14 +36,14 @@ impl EditorState {
 
         // While following, keep the playhead centered in the visible track area
         let visible_width = (panel_width - track_list_width).max(0.0);
-        if follow_playhead && self.ui_state.is_playing {
+        if follow_playhead && self.transport.is_playing {
             timeline_coord.scroll.x =
-                follow_playhead_scroll_offset(&self.ui_state, &timeline_coord, visible_width);
+                self.follow_playhead_scroll_offset(&timeline_coord, visible_width);
         }
 
         // Clamp the timeline_scroll by zero and the end of the timeline content width
         // so that it never scrolls past the scrollable area
-        let timeline_width = timeline_content_width(&self.ui_state, &timeline_coord);
+        let timeline_width = self.timeline_content_width(&timeline_coord);
         let max_scroll = (timeline_width - visible_width).max(0.0);
         timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 
@@ -123,45 +120,43 @@ impl EditorState {
         ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
         ui.data_mut(|data| data.insert_temp(track_list_width_key, track_list_width));
     }
-}
 
-/// Returns the horizontal scroll offset that keeps the playhead centered within a viewport
-/// of the given visible width, clamped so it never scrolls past the scrollable content.
-fn follow_playhead_scroll_offset(
-    ui_state: &EditorUiState,
-    timeline_coord: &TimelineCoord,
-    visible_width: f32,
-) -> f32 {
-    let ppt = timeline_coord.ppt(ui_state.audio_ctx.resolution);
-    let playhead_content_x = TIMELINE_LEFT_PADDING + ui_state.playhead_tick.0 as f32 * ppt;
-    let visible_half_width = visible_width * 0.5;
+    /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport
+    /// of the given visible width, clamped so it never scrolls past the scrollable content.
+    fn follow_playhead_scroll_offset(
+        &self,
+        timeline_coord: &TimelineCoord,
+        visible_width: f32,
+    ) -> f32 {
+        let ppt = timeline_coord.ppt(self.project.data.audio_ctx.resolution);
+        let playhead_content_x =
+            TIMELINE_LEFT_PADDING + self.transport.playhead_tick.0 as f32 * ppt;
+        let visible_half_width = visible_width * 0.5;
 
-    playhead_content_x - visible_half_width
-}
+        playhead_content_x - visible_half_width
+    }
 
-/// Calculates the width of the entire timeline based on the current pixels-per-beat and project range.
-///
-/// ```
-/// |<--                             timeline_content_width                         -->|
-/// |<-- TIMELINE_LEFT_PADDING -->[<-- Project Range -->]<-- TIMELINE_RIGHT_PADDING -->|
-/// ```
-pub(super) fn timeline_content_width(
-    ui_state: &EditorUiState,
-    timeline_coord: &TimelineCoord,
-) -> f32 {
-    let ppt = timeline_coord.ppt(ui_state.audio_ctx.resolution);
-    let tempo_map = &ui_state.proj_ctx.project.tempo_map;
-    let range_end_ticks = ui_state.proj_ctx.project.export_range.end_tick(tempo_map).0;
-    let last_region_end = ui_state
-        .proj_ctx
-        .project_meta
-        .track_order
-        .iter()
-        .filter_map(|id| ui_state.proj_ctx.project_meta.get_track(id))
-        .flat_map(|t| t.regions.values())
-        .map(|r| r.bounds.start_tick(tempo_map).0 + r.bounds.duration_ticks(tempo_map).0)
-        .max()
-        .unwrap_or(0);
-    let content_end_ticks = range_end_ticks.max(last_region_end);
-    TIMELINE_LEFT_PADDING + content_end_ticks as f32 * ppt + TIMELINE_RIGHT_PADDING
+    /// Calculates the width of the entire timeline based on the current pixels-per-beat and project range.
+    ///
+    /// ```
+    /// |<--                             timeline_content_width                         -->|
+    /// |<-- TIMELINE_LEFT_PADDING -->[<-- ProjectData Range -->]<-- TIMELINE_RIGHT_PADDING -->|
+    /// ```
+    pub(super) fn timeline_content_width(&self, timeline_coord: &TimelineCoord) -> f32 {
+        let ppt = timeline_coord.ppt(self.project.data.audio_ctx.resolution);
+        let tempo_map = &self.project.data.tempo_map;
+        let range_end_ticks = self.project.data.export_range.end_tick(tempo_map).0;
+        let last_region_end = self
+            .project
+            .meta
+            .track_order
+            .iter()
+            .filter_map(|id| self.project.meta.get_track(id))
+            .flat_map(|t| t.regions.values())
+            .map(|r| r.bounds.start_tick(tempo_map).0 + r.bounds.duration_ticks(tempo_map).0)
+            .max()
+            .unwrap_or(0);
+        let content_end_ticks = range_end_ticks.max(last_region_end);
+        TIMELINE_LEFT_PADDING + content_end_ticks as f32 * ppt + TIMELINE_RIGHT_PADDING
+    }
 }

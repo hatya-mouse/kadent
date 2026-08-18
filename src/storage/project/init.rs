@@ -1,12 +1,12 @@
 use crate::core::kasl_node::KaslNode;
-use kadent_engine::{data_types::PlaybackContext, graph::InputSource, mixer::Project};
+use kadent_engine::{data_types::PlaybackContext, graph::InputSource, mixer::ProjectData};
 use std::path::Path;
 
 /// Initialize all KaslNodes in the project with their search paths and project directory,
 /// then compile them so the blueprint (and port names) are ready before the first UI render.
 /// After compilation, edges are re-applied with type checking so stale edges are dropped.
 pub(crate) fn init_kasl_nodes(
-    project: &mut Project,
+    project: &mut ProjectData,
     search_paths: &[String],
     project_dir: &Path,
     playback_ctx: &PlaybackContext,

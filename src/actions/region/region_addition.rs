@@ -23,7 +23,7 @@ impl EditorState {
         bounds: TimeBounds,
     ) {
         // Get the target track
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
+        let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
         };
 
@@ -35,7 +35,7 @@ impl EditorState {
             let region_id = audio_track.add_region(audio_region);
 
             // Add a region to the project meta
-            if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id) {
+            if let Some(track_meta) = self.project.meta.get_track_mut(track_id) {
                 let region_meta = RegionMeta::new(name, bounds);
                 track_meta.add_region(region_id, region_meta);
             }
@@ -53,7 +53,7 @@ impl EditorState {
         bounds: TimeBounds,
     ) {
         // Get the target track
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(track_id) else {
+        let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
         };
 
@@ -64,7 +64,7 @@ impl EditorState {
             let region_id = audio_track.add_region(note_region);
 
             // Add a region to the project meta
-            if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(track_id) {
+            if let Some(track_meta) = self.project.meta.get_track_mut(track_id) {
                 // Note region can be resized as you want
                 let region_meta = RegionMeta::new(name, bounds);
                 track_meta.add_region(region_id, region_meta);
@@ -82,14 +82,9 @@ impl EditorState {
         decoded: DecodedAudio,
     ) {
         // Calculate the length of the audio region to add
-        let current_bpm = self.ui_state.proj_ctx.project.tempo_map.bpm_at_tick(start);
+        let current_bpm = self.project.data.tempo_map.bpm_at_tick(start);
         let duration_seconds = decoded.frames as f64 / decoded.sample_rate as f64;
-        let start_seconds = self
-            .ui_state
-            .proj_ctx
-            .project
-            .tempo_map
-            .ticks_to_seconds(start);
+        let start_seconds = self.project.data.tempo_map.ticks_to_seconds(start);
         let bounds = TimeBounds::Time {
             start_seconds,
             duration_seconds,
@@ -100,21 +95,21 @@ impl EditorState {
         let track_id = self.available_audio_track(&region_name);
 
         // Get the audio track
-        let Some(track) = self.ui_state.proj_ctx.project.get_track_mut(&track_id) else {
+        let Some(track) = self.project.data.get_track_mut(&track_id) else {
             return;
         };
 
-        self.ui_state.status_bar_state.current_task = None;
+        self.views.status_bar.current_task = None;
 
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             let source = AudioSource::Original(decoded.path);
             let audio_region = AudioRegion::new(source.clone(), bounds.clone(), 0, current_bpm);
             let region_id = audio_track.add_region(audio_region);
 
-            self.ui_state.timeline_state.last_dropped_region = Some((track_id, region_id));
+            self.views.timeline.last_dropped_region = Some((track_id, region_id));
 
             // Set the name of the region to the file name or fallback to the default name
-            if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track_mut(&track_id) {
+            if let Some(track_meta) = self.project.meta.get_track_mut(&track_id) {
                 let region_meta = RegionMeta::new(region_name, bounds);
                 track_meta.add_region(region_id, region_meta);
             }
@@ -122,7 +117,7 @@ impl EditorState {
             self.modified_project();
 
             // Send the background thread a message to calculate the waveform of the audio region
-            self.ui_state.status_bar_state.current_task =
+            self.views.status_bar.current_task =
                 Some(BackgroundTaskStatus::GenerateWaveform);
             self.push_background_job(BackgroundThreadCommand::GenerateWaveform {
                 track_id,
@@ -133,12 +128,11 @@ impl EditorState {
     }
 
     fn available_audio_track(&mut self, file_name: &str) -> TrackID {
-        if let Some(selected_audio_track) = self.ui_state.selection.track_id() {
+        if let Some(selected_audio_track) = self.selection.track_id() {
             selected_audio_track
         } else if let Some(first_audio_track) = self
-            .ui_state
-            .proj_ctx
-            .project_meta
+            .project
+            .meta
             .tracks
             .iter()
             .find(|track| matches!(track.1.track_type, TrackType::Audio))

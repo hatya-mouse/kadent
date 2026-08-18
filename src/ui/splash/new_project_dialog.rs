@@ -1,6 +1,6 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
-    core::project_ctx::EditorContext,
+    core::project_ctx::ProjectContext,
     fonts::RichTextExt,
     storage::{app_state::add_and_store_recent_projects, project::create_new_project},
     ui::{
@@ -15,7 +15,7 @@ use crate::{
 use eframe::egui;
 
 impl SplashUi {
-    pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<EditorContext> {
+    pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
         let mut dialog_state = self.splash_state.new_project_state.take()?;
 
         let mut should_close = false;

@@ -33,8 +33,8 @@ impl EditorState {
             self.file_control(ui);
             vu_meter(
                 ui,
-                &self.ui_state.toolbar_state.last_vu_value,
-                &self.ui_state.toolbar_state.peak_holds,
+                &self.views.toolbar.last_vu_value,
+                &self.views.toolbar.peak_holds,
                 egui::vec2(200.0, 28.0),
                 4,
             );
@@ -43,7 +43,7 @@ impl EditorState {
 
     fn playhead_beats(&self, ui: &mut egui::Ui) {
         let playhead_beats =
-            self.ui_state.playhead_tick.0 as f32 / self.ui_state.audio_ctx.resolution as f32;
+            self.transport.playhead_tick.0 as f32 / self.project.data.audio_ctx.resolution as f32;
         toolbar_group(ui, |ui| {
             ui.add_sized(
                 [200.0, 28.0],

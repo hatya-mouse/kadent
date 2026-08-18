@@ -153,7 +153,7 @@ pub(crate) enum EditorAction {
 impl EditorState {
     /// Consume all pending actions and execute them in order.
     pub(crate) fn consume_actions(&mut self) {
-        let pending_actions: Vec<EditorAction> = self.pending_actions.drain(..).collect();
+        let pending_actions: Vec<EditorAction> = self.actions.pending.drain(..).collect();
         for action in pending_actions {
             match action {
                 // --- PROJECT ---
@@ -281,14 +281,14 @@ impl EditorState {
         while let Ok(res) = self.thread_handle.result_rx.try_recv() {
             match res {
                 Ok(AudioResult::ExportedAudio(samples)) => {
-                    let Some(export_path) = self.ui_state.pending_export_path.take() else {
+                    let Some(export_path) = self.actions.pending_export_path.take() else {
                         return;
                     };
 
                     self.push_background_job(BackgroundThreadCommand::WriteWav {
                         path: export_path,
                         samples,
-                        export_ctx: self.ui_state.proj_ctx.project_meta.export_ctx.clone(),
+                        export_ctx: self.project.meta.export_ctx.clone(),
                     });
                 }
                 Err(_) => {

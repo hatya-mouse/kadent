@@ -8,9 +8,7 @@ use std::path::{Path, PathBuf};
 impl EditorState {
     pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Get the currently opened path for highlighting (empty path = nothing selected)
-        let opened_path: PathBuf = self
-            .ui_state
-            .code_editor_state
+        let opened_path: PathBuf = self.views.code_editor
             .code_buffers
             .get(&panel_id)
             .and_then(|b| b.as_ref())
@@ -20,16 +18,14 @@ impl EditorState {
         let selected_file = ui
             .scope(|ui| {
                 *ui.style_mut() = theme::menu_style(ui);
-                dir_children(ui, &self.ui_state.project_dir_cache, &opened_path)
+                dir_children(ui, &self.views.code_editor.project_dir_cache, &opened_path)
             })
             .inner;
 
         // Read the content at the path to the buffer
         if let Some(path) = selected_file
             && let Ok(content) = std::fs::read_to_string(&path)
-            && let Some(buffer) = self
-                .ui_state
-                .code_editor_state
+            && let Some(buffer) = self.views.code_editor
                 .code_buffers
                 .get_mut(&panel_id)
         {
@@ -74,7 +70,7 @@ fn dir_expand_button(ui: &mut egui::Ui, node: &FileNode, opened_program: &Path) 
     };
 
     // Manage expand state using persistent ID based on the node's path
-    let id = ui.make_persistent_id(&node.path);
+    let id = ui.id().with(&node.path);
     let mut state =
         egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, false);
 

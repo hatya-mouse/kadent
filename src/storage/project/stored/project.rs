@@ -1,13 +1,13 @@
 use crate::storage::project::stored::{tempo_map::StoredTempoMap, track::StoredTrack};
 use kadent_engine::{
     data_types::AudioContext,
-    mixer::{Project, TrackID},
+    mixer::{ProjectData, TrackID},
     timing::TimeBounds,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Mirror of `Project` for persistence. `next_track_id` isn't stored
+/// Mirror of `ProjectData` for persistence. `next_track_id` isn't stored
 /// and it's recomputed from the loaded track IDs.
 #[derive(Serialize, Deserialize)]
 pub(crate) struct StoredProject {
@@ -18,7 +18,7 @@ pub(crate) struct StoredProject {
 }
 
 impl StoredProject {
-    pub fn from_project(project: &Project) -> Self {
+    pub fn from_project(project: &ProjectData) -> Self {
         let tracks = project
             .tracks
             .iter()
@@ -35,10 +35,13 @@ impl StoredProject {
         }
     }
 
-    pub fn to_project(&self) -> Project {
+    pub fn to_project(&self) -> ProjectData {
         let tempo_map = self.tempo_map.to_tempo_map(&self.audio_ctx);
-        let mut project =
-            Project::with_tempo_map(self.audio_ctx.clone(), tempo_map, self.export_range.clone());
+        let mut project = ProjectData::with_tempo_map(
+            self.audio_ctx.clone(),
+            tempo_map,
+            self.export_range.clone(),
+        );
 
         for (id, stored_track) in &self.tracks {
             project.tracks.insert(*id, stored_track.to_track());
@@ -49,7 +52,7 @@ impl StoredProject {
     }
 }
 
-fn restore_next_track_id(project: &mut Project) {
+fn restore_next_track_id(project: &mut ProjectData) {
     let next_id = project
         .tracks
         .keys()

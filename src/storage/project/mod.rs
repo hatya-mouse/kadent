@@ -16,7 +16,7 @@ use crate::{
         stored::{StoredProjMeta, StoredProject},
     },
 };
-use kadent_engine::mixer::Project;
+use kadent_engine::mixer::ProjectData;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
@@ -25,7 +25,7 @@ use std::{
 };
 
 pub(crate) struct LoadProjResult {
-    pub(crate) project: Project,
+    pub(crate) project: ProjectData,
     pub(crate) project_meta: StoredProjMeta,
 }
 
@@ -42,7 +42,7 @@ struct StoredProjectFile {
 /// forced quit mid-write can never leave a half-written project file at `path`.
 pub(crate) fn save_project(
     path: &Path,
-    project: &Project,
+    project: &ProjectData,
     project_meta: &ProjectMeta,
 ) -> std::io::Result<()> {
     let tmp_path = temp_path_for(path);
@@ -51,7 +51,7 @@ pub(crate) fn save_project(
         let mut file = File::create(&tmp_path)?;
 
         // Write the project data to the file
-        // First write "KADENT" to check if the file is a Kadent Project file when opened
+        // First write "KADENT" to check if the file is a Kadent ProjectData file when opened
         file.write_all("KADENT".as_bytes())?;
 
         // Then write the version of Kadent
@@ -91,12 +91,12 @@ fn temp_path_for(path: &Path) -> PathBuf {
     path.with_file_name(file_name)
 }
 
-/// Loads a project file from the given path. Returns an error if the file is not a Kadent Project file or if the file is corrupted.
+/// Loads a project file from the given path. Returns an error if the file is not a Kadent ProjectData file or if the file is corrupted.
 pub(crate) fn load_project(path: &Path) -> Result<LoadProjResult, LoadError> {
     // Load the file from the path
     let mut file = File::open(path).map_err(LoadError::IoError)?;
 
-    // Read the first 6 bytes to check if it's a Kadent Project file
+    // Read the first 6 bytes to check if it's a Kadent ProjectData file
     let mut header_bytes = [0u8; 6];
     file.read_exact(&mut header_bytes)
         .map_err(LoadError::IoError)?;

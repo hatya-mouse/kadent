@@ -21,12 +21,11 @@ impl EditorState {
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
 
-            for track_id in self.ui_state.proj_ctx.project_meta.track_order.clone() {
-                if let Some(track_meta) = self.ui_state.proj_ctx.project_meta.tracks.get(&track_id)
-                {
+            for track_id in self.project.meta.track_order.clone() {
+                if let Some(track_meta) = self.project.meta.tracks.get(&track_id) {
                     // Change the background color of the selected track based on whether the track is selected
                     let is_selected =
-                        Some(&track_id) == self.ui_state.selection.track_id().as_ref();
+                        Some(&track_id) == self.selection.track_id().as_ref();
                     let bg_color = if is_selected {
                         theme::secondary_bg(ui.visuals().dark_mode)
                     } else {
@@ -61,7 +60,7 @@ impl EditorState {
                         theme::border(ui.visuals().dark_mode),
                     );
                     if response.clicked() {
-                        self.ui_state.select_track(track_id);
+                        self.selection.select_track(track_id);
                         self.push_action(EditorAction::ArmTrack(track_id));
                     }
                 }
@@ -117,7 +116,7 @@ impl EditorState {
             );
 
             if response.clicked() {
-                self.ui_state.dialog_state = DialogState::AddTrack(AddTrackState {
+                self.views.dialog = DialogState::AddTrack(AddTrackState {
                     selected_track_type: TrackType::Audio,
                     name: String::new(),
                 });

@@ -11,15 +11,15 @@ impl EditorState {
         };
 
         let in_ports = midi_in.ports();
-        self.ui_state.midi_in = Some(midi_in);
-        self.ui_state.midi_in_ports = in_ports;
+        self.midi_device.input = Some(midi_in);
+        self.midi_device.in_ports = in_ports;
 
         // Fetch the default output device
-        self.ui_state.default_output_device = self.ui_state.host.default_output_device();
+        self.audio_device.default_output = self.audio_device.host.default_output_device();
 
         // Fetch the output devices
-        self.ui_state.output_devices = self
-            .ui_state
+        self.audio_device.outputs = self
+            .audio_device
             .host
             .output_devices()
             .map(|devices| devices.collect())

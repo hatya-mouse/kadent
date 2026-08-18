@@ -13,17 +13,16 @@ const PEAK_HOLD_TIME: f32 = 0.5;
 
 impl EditorState {
     pub fn calculate_playhead(&mut self) {
-        self.ui_state.playhead_tick =
+        self.transport.playhead_tick =
             Ticks(self.thread_handle.playhead_tick.load(Ordering::Acquire));
     }
 
     pub fn process_vu_value(&mut self) {
-        let channels = self.ui_state.proj_ctx.project_meta.export_ctx.channels;
-        self.ui_state
-            .toolbar_state
+        let channels = self.project.meta.export_ctx.channels;
+        self.views.toolbar
             .last_vu_value
             .resize(channels, 0.0);
-        self.ui_state.toolbar_state.peak_holds.resize(
+        self.views.toolbar.peak_holds.resize(
             channels,
             PeakHold {
                 value: 0.0,
@@ -34,12 +33,12 @@ impl EditorState {
         for channel in 0..channels {
             // Fetch the latest VU value for this channel from the audio thread
             if let Some(v) = self.thread_handle.vu_consumer.try_pop() {
-                self.ui_state.toolbar_state.last_vu_value[channel] = v;
+                self.views.toolbar.last_vu_value[channel] = v;
             };
 
             // Update the peak hold values
-            let current_vu = self.ui_state.toolbar_state.last_vu_value[channel];
-            let peak_hold = &mut self.ui_state.toolbar_state.peak_holds[channel];
+            let current_vu = self.views.toolbar.last_vu_value[channel];
+            let peak_hold = &mut self.views.toolbar.peak_holds[channel];
             if peak_hold.hold_time.elapsed().as_secs_f32() > PEAK_HOLD_TIME
                 || current_vu > peak_hold.value
             {

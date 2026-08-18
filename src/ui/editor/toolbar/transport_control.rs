@@ -23,15 +23,11 @@ impl EditorState {
             .clicked()
             {
                 self.push_action(EditorAction::Seek(
-                    self.ui_state
-                        .proj_ctx
-                        .project_meta
-                        .export_range
-                        .start_time(),
+                    self.project.meta.export_range.start_time(),
                 ));
             }
 
-            let play_button_color = if self.ui_state.is_playing {
+            let play_button_color = if self.transport.is_playing {
                 Some(theme::transport_green(ui.visuals().dark_mode))
             } else {
                 None
@@ -42,7 +38,7 @@ impl EditorState {
                 play_button_color,
             )
             .clicked()
-                && !self.ui_state.is_playing
+                && !self.transport.is_playing
             {
                 self.push_action(EditorAction::Play);
             }
@@ -52,7 +48,7 @@ impl EditorState {
                 egui::Image::new(egui::include_image!("../../../../assets/icons/pause.png")),
             )
             .clicked()
-                && self.ui_state.is_playing
+                && self.transport.is_playing
             {
                 self.push_action(EditorAction::Pause);
             }
@@ -64,7 +60,7 @@ impl EditorState {
             .clicked()
             {
                 self.push_action(EditorAction::Seek(
-                    self.ui_state.proj_ctx.project_meta.export_range.end_time(),
+                    self.project.meta.export_range.end_time(),
                 ));
             }
         });

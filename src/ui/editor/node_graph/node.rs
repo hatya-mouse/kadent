@@ -17,7 +17,7 @@ impl EditorState {
         node_id: &NodeID,
         view_transform: egui::Vec2,
     ) {
-        let Some(track_id) = self.ui_state.selection.track_id() else {
+        let Some(track_id) = self.selection.track_id() else {
             return;
         };
 
@@ -25,18 +25,16 @@ impl EditorState {
         // Borrows end at the closing brace so we can take &mut self freely afterwards.
         let (input_names, output_names, pos, display_name) = {
             let Some(node) = self
-                .ui_state
-                .proj_ctx
                 .project
+                .data
                 .get_track(&track_id)
                 .and_then(|t| t.get_graph().get_node(node_id))
             else {
                 return;
             };
             let Some(meta) = self
-                .ui_state
-                .proj_ctx
-                .project_meta
+                .project
+                .meta
                 .get_track(&track_id)
                 .and_then(|t| t.graph.get_node_meta(node_id))
             else {
@@ -64,7 +62,7 @@ impl EditorState {
         let painter = ui.painter();
 
         // Draw the node background
-        let node_stroke = if self.ui_state.selection.node_id() == Some(*node_id) {
+        let node_stroke = if self.selection.node_id() == Some(*node_id) {
             egui::Stroke::new(2.0, theme::region_selected(dark_mode))
         } else {
             theme::border(dark_mode)
@@ -123,16 +121,15 @@ impl EditorState {
     ) {
         // Click or drag to select the node
         if response.clicked() || response.dragged() {
-            self.ui_state.select_node(*track_id, *node_id);
+            self.selection.select_node(*track_id, *node_id);
         }
 
         // Drag to move the node; suppress when a ghost edge drag is in progress
         if response.dragged()
-            && self.ui_state.node_graph_state.ghost_edge.is_none()
+            && self.views.node_graph.ghost_edge.is_none()
             && let Some(meta) = self
-                .ui_state
-                .proj_ctx
-                .project_meta
+                .project
+                .meta
                 .get_track_mut(track_id)
                 .and_then(|t| t.graph.get_node_meta_mut(node_id))
         {
@@ -161,14 +158,14 @@ impl EditorState {
                 let mouse_pos = ui
                     .input(|inp| inp.pointer.hover_pos())
                     .unwrap_or(port_center);
-                self.ui_state.node_graph_state.ghost_edge =
+                self.views.node_graph.ghost_edge =
                     Some(((*node_id, current_row), mouse_pos));
             }
 
             // Update the position of the ghost edge
             if port_resp.dragged()
                 && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-                && let Some(ghost) = &mut self.ui_state.node_graph_state.ghost_edge
+                && let Some(ghost) = &mut self.views.node_graph.ghost_edge
             {
                 ghost.1 = pos;
             }
@@ -195,35 +192,28 @@ impl EditorState {
             // If the drag has started, get the edge pointing toward the input port and create a ghost edge
             if port_resp.drag_started() {
                 // Find the edge connected to this input port
-                let found = self
-                    .ui_state
-                    .proj_ctx
-                    .project
-                    .get_track(track_id)
-                    .and_then(|t| {
-                        t.get_graph()
-                            .get_all_edges()
-                            .iter()
-                            .find(|(_, _, to_id, in_idx)| {
-                                to_id == node_id && *in_idx == current_row
-                            })
-                            .copied()
-                    });
+                let found = self.project.data.get_track(track_id).and_then(|t| {
+                    t.get_graph()
+                        .get_all_edges()
+                        .iter()
+                        .find(|(_, _, to_id, in_idx)| to_id == node_id && *in_idx == current_row)
+                        .copied()
+                });
                 if let Some(edge) = found {
                     let (from_id, out_idx, _, _) = edge;
                     let mouse_pos = ui
                         .input(|inp| inp.pointer.hover_pos())
                         .unwrap_or(port_center);
-                    self.ui_state.node_graph_state.ghost_edge =
+                    self.views.node_graph.ghost_edge =
                         Some(((from_id, out_idx), mouse_pos));
-                    self.ui_state.node_graph_state.dragged_edge = Some(edge);
+                    self.views.node_graph.dragged_edge = Some(edge);
                 }
             }
 
             // Update the position of the ghost edge
             if port_resp.dragged()
                 && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-                && let Some(ghost) = &mut self.ui_state.node_graph_state.ghost_edge
+                && let Some(ghost) = &mut self.views.node_graph.ghost_edge
             {
                 ghost.1 = pos;
             }

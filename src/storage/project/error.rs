@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub(crate) enum LoadError {
-    /// The file is not a Kadent Project file
+    /// The file is not a Kadent ProjectData file
     NotAProjectFile,
     /// The file is possibly corrupted or incomplete
     Postcard(postcard::Error),

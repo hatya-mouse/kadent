@@ -1,6 +1,6 @@
 use crate::{
-    consts::{SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
-    ui::{editor::state::TimelineCoord, theme},
+    consts::SCROLL_BAR_HEIGHT,
+    ui::{editor::TimelineCoord, theme},
 };
 use eframe::egui;
 use kadent_engine::data_types::Ticks;
@@ -8,7 +8,24 @@ use kadent_engine::data_types::Ticks;
 /// The minimum width of the scroll bar handle.
 const MINIMUM_HANDLE_WIDTH: f32 = 12.0;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
+pub struct RulerConfig {
+    pub start_tick: Ticks,
+    pub left_padding: f32,
+    pub resolution: u64,
+}
+
+impl RulerConfig {
+    pub fn new(start_tick: Ticks, left_padding: f32, resolution: u64) -> Self {
+        Self {
+            start_tick,
+            left_padding,
+            resolution,
+        }
+    }
+}
+
+#[derive(Default, Clone)]
 pub struct RulerResponse {
     pub drag_ended: bool,
     pub seek_to: Option<Ticks>,
@@ -19,7 +36,7 @@ pub(crate) fn ruler_and_scroll_bar(
     ui: &mut egui::Ui,
     rect: egui::Rect,
     timeline_coord: &TimelineCoord,
-    resolution: u64,
+    ruler_config: &RulerConfig,
     timeline_width: f32,
     visible_width: f32,
 ) -> (Option<f32>, RulerResponse) {
@@ -37,7 +54,7 @@ pub(crate) fn ruler_and_scroll_bar(
     );
     let ruler_res = beat_ruler(
         ui,
-        resolution,
+        ruler_config,
         timeline_coord.ppb,
         ruler_rect,
         timeline_coord.scroll.x,
@@ -104,15 +121,18 @@ fn scroll_bar(
 /// Draws the ruler in the specified rect and returns the new playhead position if the user clicks on the ruler.
 fn beat_ruler(
     ui: &mut egui::Ui,
-    resolution: u64,
+    config: &RulerConfig,
     ppb: f32,
     ruler_rect: egui::Rect,
     scroll_x: f32,
 ) -> RulerResponse {
     let mut ruler_res = RulerResponse::default();
-    let origin_x = ruler_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;
-    let ppt = ppb / resolution as f32;
+    let ppt = ppb / config.resolution as f32;
     let dark_mode = ui.visuals().dark_mode;
+
+    // Calculate the origin x position of the ruler based on the scroll position, start tick and left padding
+    let start_offset_x = (config.start_tick.0 as f32) * ppt;
+    let origin_x = ruler_rect.min.x - scroll_x + config.left_padding - start_offset_x;
 
     // --- Gesture handling ---
     let (hover_pos, press_origin, primary_pressed, primary_down, primary_released) =
@@ -126,7 +146,7 @@ fn beat_ruler(
             )
         });
 
-    let seek_key = ui.make_persistent_id("ruler_seeking");
+    let seek_key = ui.id().with("ruler_seeking");
     let seeking: bool = ui.data(|data| data.get_temp(seek_key).unwrap_or(false));
 
     if primary_pressed
@@ -142,16 +162,19 @@ fn beat_ruler(
         ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
     }
 
+    let pos_to_ticks = |pos_x: f32| -> Ticks {
+        let raw_ticks = ((pos_x - origin_x) / ppt) as i64;
+        Ticks(raw_ticks.max(0))
+    };
+
     if seeking {
         if primary_down && let Some(pos) = hover_pos {
-            let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
-            ruler_res.seek_to = Some(ticks);
+            ruler_res.seek_to = Some(pos_to_ticks(pos.x));
         }
 
         if primary_released {
             if let Some(pos) = hover_pos {
-                let ticks = Ticks(((pos.x - origin_x) / ppt) as i64).max(Ticks(0));
-                ruler_res.seek_to = Some(ticks);
+                ruler_res.seek_to = Some(pos_to_ticks(pos.x));
                 ruler_res.drag_ended = true;
             }
             ui.data_mut(|data| data.remove::<bool>(seek_key));
@@ -180,8 +203,9 @@ fn beat_ruler(
         ((raw_interval + 31) / 32) * 32
     };
 
-    // Visible beat range
-    let left_beat = ((ruler_rect.min.x - origin_x) / ppb).floor() as i32;
+    // Calculate the visible range of beats
+    let start_beat = (config.start_tick.0 as f64 / config.resolution as f64).floor() as i32;
+    let left_beat = (((ruler_rect.min.x - origin_x) / ppb).floor() as i32).max(start_beat);
     let right_beat = ((ruler_rect.max.x - origin_x) / ppb).ceil() as i32;
     let first_label_beat = (left_beat / beats_per_label) * beats_per_label;
 
@@ -191,9 +215,8 @@ fn beat_ruler(
     // Major ticks and labels
     let mut beat = first_label_beat;
     while beat <= right_beat {
-        if beat >= 0 {
+        if beat >= start_beat {
             let x = origin_x + beat as f32 * ppb;
-
             painter.vline(
                 x,
                 egui::Rangef::new(ruler_rect.min.y, ruler_rect.max.y),

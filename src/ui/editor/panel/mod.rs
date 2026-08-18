@@ -18,17 +18,16 @@ impl EditorState {
     /// Renders the panel layout by recursively drawing the each nodes.
     pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
         // Extract the layout tree to avoid a simultaneous borrow of self
-        let mut layout = std::mem::take(&mut self.ui_state.panel_layout);
+        let mut layout = std::mem::take(&mut self.layout);
         self.render_node(ui, &mut layout, rect, ui.id().with("panel_root"));
 
         // Remove code buffers for panels that no longer exist in the layout tree
         let active_ids = collect_code_editor_ids(&layout, ui.id().with("panel_root"));
-        self.ui_state
-            .code_editor_state
+        self.views.code_editor
             .code_buffers
             .retain(|id, _| active_ids.contains(id));
 
-        self.ui_state.panel_layout = layout;
+        self.layout = layout;
     }
 
     fn render_node(

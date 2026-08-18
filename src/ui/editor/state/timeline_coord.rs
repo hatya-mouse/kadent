@@ -1,6 +1,6 @@
 use eframe::egui;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct TimelineCoord {
     pub ppb: f32,
     pub y_zoom: f32,

@@ -1,8 +1,5 @@
 use crate::{
-    core::{
-        metadata::ProjectMeta,
-        project_ctx::{EditorContext, ProjectContext},
-    },
+    core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::{
         app_state::add_and_store_recent_projects,
         project::{get_project_dir, init_kasl_nodes, load_project},
@@ -11,7 +8,7 @@ use crate::{
 use std::path::PathBuf;
 
 /// Opens the project file at the given path, returning the transition data if successful.
-pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<EditorContext> {
+pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<ProjectContext> {
     // Store the project to recent projects
     add_and_store_recent_projects(&project_path);
 
@@ -27,10 +24,10 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<EditorContext
                     &project_meta.export_ctx,
                 );
 
-                let audio_ctx = proj_res.project.audio_ctx.clone();
-                Some(EditorContext::new(
-                    ProjectContext::new(project_path, proj_res.project, project_meta),
-                    audio_ctx,
+                Some(ProjectContext::new(
+                    project_path,
+                    proj_res.project,
+                    project_meta,
                 ))
             }
             Err(e) => {

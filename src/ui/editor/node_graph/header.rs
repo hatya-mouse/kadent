@@ -40,21 +40,21 @@ impl EditorState {
 
         // Jump to a random node's position
         if jump_to_random
-            && let Some(track_id) = self.ui_state.selection.track_id()
-            && let Some(track_meta) = self.ui_state.proj_ctx.project_meta.get_track(&track_id)
+            && let Some(track_id) = self.selection.track_id()
+            && let Some(track_meta) = self.project.meta.get_track(&track_id)
             && let Some(node_meta) = track_meta.graph.nodes.values().next()
         {
-            self.ui_state.node_graph_state.jump_to_pos = Some(node_meta.pos);
+            self.views.node_graph.jump_to_pos = Some(node_meta.pos);
         }
 
         // Add a new node if the node is clicked on the add list
         if let Some(node_type) = node_to_add {
             // Get the currently selected track
-            let Some(track_id) = self.ui_state.selection.track_id() else {
+            let Some(track_id) = self.selection.track_id() else {
                 return;
             };
 
-            let pan = self.ui_state.node_graph_state.pan_offset;
+            let pan = self.views.node_graph.pan_offset;
             let pos = egui::pos2(-pan.x + 20.0, -pan.y + 20.0);
             self.push_action(EditorAction::AddNode(track_id, node_type, pos));
         }

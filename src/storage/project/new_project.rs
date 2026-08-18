@@ -1,15 +1,12 @@
 use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE, PROJECT_FILE_EXTENSION},
-    core::{
-        metadata::ProjectMeta,
-        project_ctx::{EditorContext, ProjectContext},
-    },
+    core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::project::save_project,
     ui::EditorState,
 };
 use kadent_engine::{
     data_types::{AudioContext, PlaybackContext, Ticks},
-    mixer::Project,
+    mixer::ProjectData,
     timing::TimeBounds,
 };
 use std::{io, path::PathBuf};
@@ -17,7 +14,7 @@ use std::{io, path::PathBuf};
 pub(crate) fn create_new_project(
     project_name: &str,
     parent_path: PathBuf,
-) -> io::Result<EditorContext> {
+) -> io::Result<ProjectContext> {
     // 1. Generate paths for each subdirectories
     let root_path = parent_path.join(project_name);
     let src_dir = root_path.join("src");
@@ -38,11 +35,11 @@ pub(crate) fn create_new_project(
         buffer_size: DEFAULT_BUFFER_SIZE,
     };
 
-    let project = Project::new(
+    let project = ProjectData::new(
         audio_ctx.clone(),
         120.0,
         TimeBounds::Musical {
-            start: Ticks(0),
+            start: Ticks::ZERO,
             duration: Ticks(3840),
         },
     );
@@ -53,8 +50,5 @@ pub(crate) fn create_new_project(
     };
     save_project(&project_path, &project, &project_meta)?;
 
-    Ok(EditorContext::new(
-        ProjectContext::new(project_path, project, project_meta),
-        audio_ctx,
-    ))
+    Ok(ProjectContext::new(project_path, project, project_meta))
 }

@@ -25,11 +25,9 @@ impl EditorState {
         rect: Rect,
         panel_id: egui::Id,
     ) -> Option<SplitAction> {
-        let salt = (rect.min.x as i32, rect.min.y as i32);
-
         // Use a scoped child UI with a unique ID derived from the panel position
         // This ensures scroll state and widget IDs are independent per panel
-        let result = ui.scope_builder(UiBuilder::new().id_salt(salt).max_rect(rect), |ui| {
+        let result = ui.scope_builder(UiBuilder::new().id_salt(panel_id).max_rect(rect), |ui| {
             ui.set_clip_rect(rect);
 
             // Remove the spacing between header and content
@@ -41,10 +39,13 @@ impl EditorState {
             // Without this, painter-based content (node graph, piano roll) would draw
             // over the header because the outer clip rect covers the full panel
             let content_rect = ui.available_rect_before_wrap();
-            ui.scope_builder(UiBuilder::new().max_rect(content_rect), |ui| {
-                ui.set_clip_rect(content_rect);
-                self.render_view_content(ui, view, panel_id);
-            });
+            ui.scope_builder(
+                UiBuilder::new().id_salt(panel_id).max_rect(content_rect),
+                |ui| {
+                    ui.set_clip_rect(content_rect);
+                    self.render_view_content(ui, view, panel_id);
+                },
+            );
 
             check_edge_drag(ui, rect)
         });
@@ -109,7 +110,7 @@ fn check_single_edge(ui: &mut egui::Ui, rect: Rect, edge: Edge) -> Option<SplitA
         ui.ctx().set_cursor_icon(edge_cursor(edge));
     }
 
-    let accum_key = ui.make_persistent_id("accum");
+    let accum_key = ui.id().with("accum");
     let prev: f32 = ui.data(|d| d.get_temp(accum_key).unwrap_or(0.0));
 
     if resp.dragged() {

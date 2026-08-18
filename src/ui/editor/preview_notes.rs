@@ -5,25 +5,23 @@ const PREVIEW_NOTE_DURATION: std::time::Duration = std::time::Duration::from_mil
 
 impl EditorState {
     pub(super) fn play_note_feedback(&mut self, pitch: u8, velocity: u8) {
-        self.midi_command_tx
+        self.midi_tx
             .send(MidiCommand::SendEvent(MidiEvent::NoteOn {
                 pitch,
                 velocity,
             }))
             .ok();
         // Add the note to the preview notes with the current timestamp
-        self.ui_state
-            .piano_roll_state
+        self.views.piano_roll
             .preview_notes
             .push((pitch, std::time::Instant::now()));
     }
 
     pub(super) fn update_preview_notes(&mut self) {
         let now = std::time::Instant::now();
-        let tx = &self.midi_command_tx;
+        let tx = &self.midi_tx;
 
-        self.ui_state
-            .piano_roll_state
+        self.views.piano_roll
             .preview_notes
             .retain(|&(pitch, started_at)| {
                 // If the note has been playing for longer than PREVIEW_NOTE_DURATION,
