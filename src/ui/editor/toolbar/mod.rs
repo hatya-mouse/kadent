@@ -1,6 +1,9 @@
 mod file_control;
 mod io_control;
+mod state;
 mod transport_control;
+
+pub(crate) use state::ToolbarState;
 
 use crate::{
     fonts::RichTextExt,

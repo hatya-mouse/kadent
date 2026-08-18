@@ -1,6 +1,10 @@
+mod state;
+
+pub(crate) use state::{StatusBarState, StatusHint};
+
 use crate::{
     background_thread::BackgroundTaskStatus,
-    ui::{EditorState, editor::state::StatusHint, theme},
+    ui::{EditorState, theme},
 };
 use eframe::egui;
 

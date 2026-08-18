@@ -1,5 +1,8 @@
 mod note_grid;
 mod ruler;
+mod state;
+
+pub(crate) use state::PianoRollState;
 
 use crate::{
     consts::PANEL_HEADER_HEIGHT,

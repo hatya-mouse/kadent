@@ -1,5 +1,8 @@
 mod file_browser;
 mod kasl_editor;
+mod state;
+
+pub(crate) use state::CodeEditorState;
 
 use crate::ui::EditorState;
 use eframe::egui;

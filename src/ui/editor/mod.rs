@@ -9,6 +9,8 @@ mod toolbar;
 mod views;
 
 pub(crate) use state::*;
+pub(crate) use status_bar::{StatusBarState, StatusHint};
+pub(crate) use views::{CodeEditorState, NodeGraphState, PianoRollState, TimelineState};
 
 use crate::{
     actions::EditorAction,

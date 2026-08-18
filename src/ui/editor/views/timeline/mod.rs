@@ -1,6 +1,9 @@
 mod edit_panel;
 mod ruler_area;
+mod state;
 mod track_list;
+
+pub(crate) use state::TimelineState;
 
 use crate::{
     consts::{

@@ -2,6 +2,9 @@ mod edge;
 mod header;
 mod node;
 mod port;
+mod state;
+
+pub(crate) use state::NodeGraphState;
 
 use crate::{
     actions::EditorAction,
