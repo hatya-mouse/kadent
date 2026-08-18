@@ -1,15 +1,15 @@
 use crate::{
     core::metadata::TrackType,
     fonts::RichTextExt,
-    ui::editor::actions::EditorAction,
     ui::{
+        EditorState,
         components::{
             dialog::dialog,
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
+        editor::{DialogState, actions::EditorAction},
         theme,
-        {EditorState, editor::state::DialogState},
     },
 };
 use eframe::egui;

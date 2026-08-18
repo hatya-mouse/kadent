@@ -12,7 +12,9 @@ mod views;
 pub(crate) use panel::{PanelNode, PanelView, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::{StatusBarState, StatusHint};
-pub(crate) use views::{CodeEditorState, NodeGraphState, PianoRollState, TimelineState};
+pub(crate) use views::{
+    CodeEditorState, DialogState, NodeGraphState, PianoRollState, TimelineState, ViewStates,
+};
 
 use crate::{
     background_thread::{BackgroundThreadCommand, spawn_background_thread},

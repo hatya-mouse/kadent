@@ -3,11 +3,10 @@ mod leaf;
 mod split;
 
 pub(crate) use layout::{PanelNode, PanelView, SplitDir};
-use uuid::Uuid;
 
 use crate::ui::EditorState;
 use eframe::egui;
-use std::collections::HashSet;
+use uuid::Uuid;
 
 struct SplitAction {
     dir: SplitDir,
@@ -21,13 +20,6 @@ impl EditorState {
         // Extract the layout tree to avoid a simultaneous borrow of self
         let mut layout = std::mem::take(&mut self.layout);
         self.render_node(ui, &mut layout, rect);
-
-        // Remove code buffers for panels that no longer exist in the layout tree
-        let active_ids = collect_panel_ids(&layout);
-        self.views
-            .code_editor
-            .code_buffers
-            .retain(|id, _| active_ids.contains(id));
 
         self.layout = layout;
     }
@@ -71,27 +63,32 @@ impl EditorState {
                 second: Box::new(b),
             };
         } else if let Some(keep_first) = collapse_keep_first {
-            *node = match std::mem::take(node) {
+            let (retained, removed) = match std::mem::take(node) {
                 PanelNode::Split { first, second, .. } => {
                     if keep_first {
-                        *first
+                        (*first, Some(*second))
                     } else {
-                        *second
+                        (*second, Some(*first))
                     }
                 }
-                other => other,
+                other => (other, None),
             };
+            *node = retained;
+
+            // Remove the state of the removed panel(s) from the view states
+            if let Some(removed) = removed {
+                let removed_ids = collect_panel_ids(&removed);
+                self.views.remove_panel_states(&removed_ids);
+            }
         }
     }
 }
 
 /// Recursively collects the ids.
-fn collect_panel_ids(node: &PanelNode) -> HashSet<Uuid> {
+fn collect_panel_ids(node: &PanelNode) -> Vec<Uuid> {
     match node {
         PanelNode::Leaf(_, node_id) => {
-            let mut set = HashSet::new();
-            set.insert(*node_id);
-            set
+            vec![*node_id]
         }
         PanelNode::Split { first, second, .. } => {
             let mut ids = collect_panel_ids(first);

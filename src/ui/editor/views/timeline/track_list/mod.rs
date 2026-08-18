@@ -2,10 +2,9 @@ mod track_dialog;
 
 use crate::{
     core::metadata::TrackType,
-    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
-        editor::state::{AddTrackState, DialogState, TimelineCoord},
+        editor::{DialogState, actions::EditorAction, state::TimelineCoord, views::AddTrackState},
         theme,
     },
 };
