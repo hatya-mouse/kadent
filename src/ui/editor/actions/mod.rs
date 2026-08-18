@@ -1,4 +1,4 @@
-//! Processes the actions that are executed in the UI thread.
+//! Processes the actions that are executed in the UI thread at the end of the frame.
 
 mod graph;
 mod midi;
