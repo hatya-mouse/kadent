@@ -1,14 +1,12 @@
+use super::{inspector_item, inspector_section};
 use crate::{
     actions::EditorAction,
     ui::{
+        EditorState,
         components::{
             color_picker::color_picker, text_button::text_button, text_input::text_input,
         },
         theme,
-        {
-            EditorState,
-            editor::inspector::{inspector_item, inspector_section},
-        },
     },
 };
 use eframe::egui;

@@ -13,7 +13,7 @@ use crate::{
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
 impl EditorState {
-    pub fn timeline(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn timeline(&mut self, ui: &mut egui::Ui) {
         let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 

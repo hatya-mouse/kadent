@@ -1,5 +1,5 @@
-use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
-use crate::ui::{editor::node_graph::NODE_HEADER_HEGIHT, theme};
+use super::{NODE_HEADER_HEGIHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
+use crate::ui::theme;
 use eframe::egui;
 
 /// Returns which port on the node contains `mouse_pos`, or `None`.

@@ -8,7 +8,9 @@ use std::path::{Path, PathBuf};
 impl EditorState {
     pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Get the currently opened path for highlighting (empty path = nothing selected)
-        let opened_path: PathBuf = self.views.code_editor
+        let opened_path: PathBuf = self
+            .views
+            .code_editor
             .code_buffers
             .get(&panel_id)
             .and_then(|b| b.as_ref())
@@ -25,9 +27,7 @@ impl EditorState {
         // Read the content at the path to the buffer
         if let Some(path) = selected_file
             && let Ok(content) = std::fs::read_to_string(&path)
-            && let Some(buffer) = self.views.code_editor
-                .code_buffers
-                .get_mut(&panel_id)
+            && let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&panel_id)
         {
             *buffer = Some((path, content));
         }
@@ -76,9 +76,9 @@ fn dir_expand_button(ui: &mut egui::Ui, node: &FileNode, opened_program: &Path) 
 
     // Collapsing directory item
     let collapse_icon = if state.is_open() {
-        egui::include_image!("../../../../assets/icons/tri_down.svg")
+        egui::include_image!("../../../../../assets/icons/tri_down.svg")
     } else {
-        egui::include_image!("../../../../assets/icons/tri_right.svg")
+        egui::include_image!("../../../../../assets/icons/tri_right.svg")
     };
     let parent_dir_res = ui.add(egui::Button::image_and_text(collapse_icon, &node.name));
 

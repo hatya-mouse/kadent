@@ -6,18 +6,12 @@ mod port;
 use crate::{
     actions::EditorAction,
     consts::PANEL_HEADER_MARGIN,
-    ui::{
-        EditorState,
-        components::panel_header::panel_header,
-        editor::node_graph::{
-            edge::{draw_edges, draw_ghost_edge},
-            port::find_hovered_input,
-        },
-        theme,
-    },
+    ui::{EditorState, components::panel_header::panel_header, theme},
 };
+use edge::{draw_edges, draw_ghost_edge};
 use eframe::egui;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
+use port::find_hovered_input;
 
 // --- NODE LAYOUT CONSTANTS ---
 const NODE_WIDTH: f32 = 180.0;
@@ -31,7 +25,7 @@ const EDGE_WIDTH: f32 = 4.0;
 const NODE_HEADER_HEGIHT: f32 = 24.0;
 
 impl EditorState {
-    pub fn node_graph(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn node_graph(&mut self, ui: &mut egui::Ui) {
         // Draw the node graph header
         panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             self.draw_node_graph_header(ui);
@@ -60,8 +54,7 @@ impl EditorState {
 
                 // view_transform converts canvas-space positions to screen-space each frame.
                 // Adding content_rect.min ensures nodes follow panel moves and resizes automatically.
-                let view_transform =
-                    content_rect.min.to_vec2() + self.views.node_graph.pan_offset;
+                let view_transform = content_rect.min.to_vec2() + self.views.node_graph.pan_offset;
 
                 let Some(track_id) = self.selection.track_id() else {
                     return;

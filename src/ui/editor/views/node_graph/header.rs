@@ -14,7 +14,7 @@ impl EditorState {
         ui.horizontal_centered(|ui| {
             let plus_button = small_icon_button(
                 ui,
-                egui::Image::new(egui::include_image!("../../../../assets/icons/plus.svg")),
+                egui::Image::new(egui::include_image!("../../../../../assets/icons/plus.svg")),
             );
             egui::Popup::menu(&plus_button)
                 .style(theme::menu_style(ui))
@@ -29,7 +29,7 @@ impl EditorState {
             let jump_button = small_icon_button(
                 ui,
                 egui::Image::new(egui::include_image!(
-                    "../../../../assets/icons/crosshair.svg"
+                    "../../../../../assets/icons/crosshair.svg"
                 )),
             )
             .on_hover_text("Jump to a random node");

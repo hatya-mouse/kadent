@@ -1,12 +1,8 @@
-use super::{NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT};
-use crate::ui::{
-    EditorState,
-    editor::node_graph::{
-        NODE_HEADER_HEGIHT,
-        port::{calc_port_y, draw_ports},
-    },
-    theme,
+use super::{
+    NODE_HEADER_HEGIHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT,
+    port::{calc_port_y, draw_ports},
 };
+use crate::ui::{EditorState, theme};
 use eframe::egui::{self, Sense};
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
@@ -158,8 +154,7 @@ impl EditorState {
                 let mouse_pos = ui
                     .input(|inp| inp.pointer.hover_pos())
                     .unwrap_or(port_center);
-                self.views.node_graph.ghost_edge =
-                    Some(((*node_id, current_row), mouse_pos));
+                self.views.node_graph.ghost_edge = Some(((*node_id, current_row), mouse_pos));
             }
 
             // Update the position of the ghost edge
@@ -204,8 +199,7 @@ impl EditorState {
                     let mouse_pos = ui
                         .input(|inp| inp.pointer.hover_pos())
                         .unwrap_or(port_center);
-                    self.views.node_graph.ghost_edge =
-                        Some(((from_id, out_idx), mouse_pos));
+                    self.views.node_graph.ghost_edge = Some(((from_id, out_idx), mouse_pos));
                     self.views.node_graph.dragged_edge = Some(edge);
                 }
             }

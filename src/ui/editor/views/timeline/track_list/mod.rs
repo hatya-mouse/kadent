@@ -24,8 +24,7 @@ impl EditorState {
             for track_id in self.project.meta.track_order.clone() {
                 if let Some(track_meta) = self.project.meta.tracks.get(&track_id) {
                     // Change the background color of the selected track based on whether the track is selected
-                    let is_selected =
-                        Some(&track_id) == self.selection.track_id().as_ref();
+                    let is_selected = Some(&track_id) == self.selection.track_id().as_ref();
                     let bg_color = if is_selected {
                         theme::secondary_bg(ui.visuals().dark_mode)
                     } else {
@@ -92,7 +91,7 @@ impl EditorState {
 
                             ui.add(
                                 egui::Image::new(include_image!(
-                                    "../../../../../assets/icons/plus.svg"
+                                    "../../../../../../assets/icons/plus.svg"
                                 ))
                                 .fit_to_exact_size(egui::vec2(20.0, 20.0))
                                 .tint(theme::primary_fg(ui.visuals().dark_mode)),

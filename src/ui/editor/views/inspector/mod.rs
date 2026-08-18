@@ -13,7 +13,7 @@ use std::hash::Hash;
 const HEADER_HEIGHT: f32 = 32.0;
 
 impl EditorState {
-    pub fn inspector(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn inspector(&mut self, ui: &mut egui::Ui) {
         // Fill the background
         ui.painter().rect_filled(
             ui.max_rect(),
@@ -76,9 +76,9 @@ fn inspector_section(
                 ui.set_min_height(HEADER_HEIGHT);
 
                 let collapse_icon = if state.is_open() {
-                    egui::include_image!("../../../../assets/icons/tri_down.svg")
+                    egui::include_image!("../../../../../assets/icons/tri_down.svg")
                 } else {
-                    egui::include_image!("../../../../assets/icons/tri_right.svg")
+                    egui::include_image!("../../../../../assets/icons/tri_right.svg")
                 };
                 ui.add(
                     egui::Image::new(collapse_icon)

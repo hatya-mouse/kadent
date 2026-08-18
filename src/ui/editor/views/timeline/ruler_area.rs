@@ -144,7 +144,9 @@ impl EditorState {
                 .export_range
                 .set_duration_ticks(new_duration, tempo_map);
 
-            self.views.status_bar.set_status_hint(StatusHint::ProjectRange(range_start, new_duration));
+            self.views
+                .status_bar
+                .set_status_hint(StatusHint::ProjectRange(range_start, new_duration));
         } else if start_drag_res.dragged() {
             let drag_delta = start_drag_res.drag_delta();
             let ticks_delta = (drag_delta.x / ppt) as i64;
@@ -160,7 +162,9 @@ impl EditorState {
                 duration: new_duration,
             };
 
-            self.views.status_bar.set_status_hint(StatusHint::ProjectRange(new_start, new_duration));
+            self.views
+                .status_bar
+                .set_status_hint(StatusHint::ProjectRange(new_start, new_duration));
         }
 
         // Confirm the change when the mouse is released
@@ -179,7 +183,7 @@ fn follow_playhead_button(ui: &mut egui::Ui, corner_rect: egui::Rect, follow_pla
         egui::UiBuilder::new().max_rect(corner_rect.shrink2(PANEL_HEADER_MARGIN.right_bottom())),
         |ui| {
             ui.horizontal_centered(|ui| {
-                let icon = egui::include_image!("../../../../assets/icons/crosshair.svg");
+                let icon = egui::include_image!("../../../../../assets/icons/crosshair.svg");
                 let response = small_icon_button(ui, egui::Image::new(icon));
                 if response.clicked() {
                     *follow_playhead = !*follow_playhead;

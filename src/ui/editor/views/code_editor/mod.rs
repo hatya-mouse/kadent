@@ -5,9 +5,10 @@ use crate::ui::EditorState;
 use eframe::egui;
 
 impl EditorState {
-    pub(super) fn code_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
+    pub(in crate::ui::editor) fn code_editor(&mut self, ui: &mut egui::Ui, panel_id: egui::Id) {
         // Ensure a buffer entry exists for this panel
-        self.views.code_editor
+        self.views
+            .code_editor
             .code_buffers
             .entry(panel_id)
             .or_insert(None);

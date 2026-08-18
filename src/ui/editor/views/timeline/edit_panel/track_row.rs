@@ -5,7 +5,7 @@ use crate::{
         EditorState,
         editor::{
             state::{StatusHint, TimelineCoord},
-            timeline::{TIMELINE_LEFT_PADDING, edit_panel::x_to_ticks},
+            views::timeline::{TIMELINE_LEFT_PADDING, edit_panel::x_to_ticks},
         },
         theme,
     },

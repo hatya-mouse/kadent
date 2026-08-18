@@ -1,16 +1,14 @@
+use super::{inspector_item, inspector_section};
 use crate::{
     actions::EditorAction,
     core::kasl_node::KaslNode,
     ui::{
+        EditorState,
         components::{
             text_button::text_button,
             text_input::{text_input, text_input_with_callback},
         },
         theme,
-        {
-            EditorState,
-            editor::inspector::{inspector_item, inspector_section},
-        },
     },
 };
 use eframe::egui;

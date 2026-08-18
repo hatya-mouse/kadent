@@ -10,17 +10,15 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{
-            piano_roll::ruler::{note_grid_ruler, note_pitch_ruler},
-            state::TimelineCoord,
-        },
+        editor::state::TimelineCoord,
     },
 };
 use eframe::egui;
 use kadent_engine::track::note_track::NoteTrack;
+use ruler::{note_grid_ruler, note_pitch_ruler};
 
 impl EditorState {
-    pub fn piano_roll(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn piano_roll(&mut self, ui: &mut egui::Ui) {
         let Some((track_id, region_id)) = self.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");
             return;

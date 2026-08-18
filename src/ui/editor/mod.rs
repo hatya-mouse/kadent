@@ -1,18 +1,12 @@
-mod automation;
 mod background_results;
-mod code_editor;
 mod device_fetching;
-mod error_list;
-mod inspector;
 mod keyboard;
-mod node_graph;
 mod panel;
-mod piano_roll;
 mod preview_notes;
 mod state;
 mod status_bar;
-mod timeline;
 mod toolbar;
+mod views;
 
 pub(crate) use state::*;
 

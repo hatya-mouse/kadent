@@ -5,7 +5,7 @@ use eframe::egui;
 use item::draw_error_item;
 
 impl EditorState {
-    pub fn error_list(&self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn error_list(&self, ui: &mut egui::Ui) {
         ui.painter().rect_filled(
             ui.available_rect_before_wrap(),
             0.0,

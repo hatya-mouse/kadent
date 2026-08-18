@@ -3,14 +3,10 @@ mod region_notes;
 mod track_row;
 mod waveform;
 
+use super::TIMELINE_LEFT_PADDING;
 use crate::{
     consts::{TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
-    ui::{
-        EditorState,
-        editor::{state::TimelineCoord, timeline::TIMELINE_LEFT_PADDING},
-        theme,
-        zoom::zoom_scroll_offset,
-    },
+    ui::{EditorState, editor::state::TimelineCoord, theme, zoom::zoom_scroll_offset},
 };
 use eframe::egui;
 use kadent_engine::data_types::Ticks;
