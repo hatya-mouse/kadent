@@ -32,9 +32,10 @@ pub(crate) struct ViewStates {
 
 impl ViewStates {
     pub(crate) fn remove_panel_states(&mut self, panel_ids: &[Uuid]) {
-        // Remove code buffers for panels that no longer exist in the layout tree
-        self.code_editor
-            .code_buffers
-            .retain(|id, _| panel_ids.contains(id));
+        for panel_id in panel_ids {
+            self.timeline.remove_panel_state(panel_id);
+            self.piano_roll.remove_panel_state(panel_id);
+            self.code_editor.remove_panel_state(panel_id);
+        }
     }
 }

@@ -17,3 +17,9 @@ pub(crate) struct CodeEditorState {
     // Whether the opened programs are modified or not.
     // pub are_modified: Vec<bool>,
 }
+
+impl CodeEditorState {
+    pub(crate) fn remove_panel_state(&mut self, panel_id: &Uuid) {
+        self.code_buffers.remove(panel_id);
+    }
+}
