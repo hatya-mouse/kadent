@@ -1,6 +1,6 @@
 use crate::{
-    actions::EditorAction,
     consts::{PANEL_HEADER_HEIGHT, PANEL_HEADER_MARGIN, SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         components::{

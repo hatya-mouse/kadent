@@ -1,4 +1,3 @@
-mod actions;
 mod app;
 mod background_thread;
 mod consts;

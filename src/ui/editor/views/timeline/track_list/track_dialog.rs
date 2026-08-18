@@ -1,7 +1,7 @@
 use crate::{
-    actions::EditorAction,
     core::metadata::TrackType,
     fonts::RichTextExt,
+    ui::editor::actions::EditorAction,
     ui::{
         components::{
             dialog::dialog,

@@ -3,7 +3,7 @@ use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::{core::kasl_node::KaslNode, ui::EditorState};
 
 impl EditorState {
-    pub(in crate::actions) fn compile_kasl_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
+    pub(crate) fn compile_kasl_node(&mut self, track_id: &TrackID, node_id: &NodeID) {
         let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
         };

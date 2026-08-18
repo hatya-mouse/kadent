@@ -1,6 +1,6 @@
 use crate::{
-    actions::EditorAction,
     consts::{TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         editor::{StatusHint, TimelineCoord},

@@ -1,5 +1,5 @@
 use crate::{
-    actions::EditorAction,
+    ui::editor::actions::EditorAction,
     ui::{
         components::icon_button::toolbar_icon_button,
         theme,
@@ -68,7 +68,9 @@ impl EditorState {
                             audio_output_item(ui, default_output_name, default_output_device);
                         }
 
-                        let output_devices: Vec<(String, &cpal::Device)> = self.audio_device.outputs
+                        let output_devices: Vec<(String, &cpal::Device)> = self
+                            .audio_device
+                            .outputs
                             .iter()
                             .map(|device| (get_device_name(device), device))
                             .collect();
@@ -89,7 +91,9 @@ impl EditorState {
                         let Some(midi_in) = &self.midi_device.input else {
                             return;
                         };
-                        let midi_in_port_names: Vec<(String, MidiInputPort)> = self.midi_device.in_ports
+                        let midi_in_port_names: Vec<(String, MidiInputPort)> = self
+                            .midi_device
+                            .in_ports
                             .iter()
                             .filter_map(|midi_in_port| {
                                 midi_in
@@ -111,8 +115,8 @@ impl EditorState {
                         }
 
                         for (ref name, midi_in_port) in midi_in_port_names {
-                            let is_selected = self.midi_device.selected_port.as_ref()
-                                == Some(&midi_in_port.id());
+                            let is_selected =
+                                self.midi_device.selected_port.as_ref() == Some(&midi_in_port.id());
                             if ui.selectable_label(is_selected, name).clicked() && !is_selected {
                                 // Set the selected MIDI input port
                                 self.push_action(EditorAction::SetMidiInputPort(midi_in_port));

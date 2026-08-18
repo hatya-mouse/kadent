@@ -1,11 +1,11 @@
 use crate::{
-    actions::AddibleNodes,
     core::{
         kasl_node::KaslNode,
         metadata::{NodeMeta, NodeType},
     },
     storage::project::get_project_dir,
     ui::EditorState,
+    ui::editor::actions::AddibleNodes,
 };
 use eframe::egui;
 use kadent_engine::{
@@ -14,7 +14,7 @@ use kadent_engine::{
 };
 
 impl EditorState {
-    pub(in crate::actions) fn add_node(
+    pub(crate) fn add_node(
         &mut self,
         track_id: &TrackID,
         node_type: &AddibleNodes,

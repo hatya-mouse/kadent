@@ -3,16 +3,16 @@ use kadent_engine::{
     mixer::TrackID,
     track::{
         RegionID,
-        note_track::{Note, NoteTrack},
+        note_track::{NoteID, NoteTrack},
     },
 };
 
 impl EditorState {
-    pub(in crate::actions) fn add_note(
+    pub(crate) fn remove_note(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
-        note: Note,
+        note_id: &NoteID,
     ) {
         // Set the note's start time
         if let Some(region) = self
@@ -22,9 +22,10 @@ impl EditorState {
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
             .and_then(|track| track.get_region_mut(region_id))
         {
-            region.add_note(note);
+            region.remove_note(note_id);
         }
 
+        self.selection.select_region(*track_id, *region_id);
         self.modified_project();
     }
 }

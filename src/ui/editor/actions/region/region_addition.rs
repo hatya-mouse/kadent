@@ -16,7 +16,7 @@ use kadent_engine::{
 
 impl EditorState {
     /// Adds a new empty audio region to the given audio track.
-    pub(in crate::actions) fn add_audio_region(
+    pub(crate) fn add_audio_region(
         &mut self,
         track_id: &TrackID,
         name: String,
@@ -46,12 +46,7 @@ impl EditorState {
     }
 
     /// Adds a new empty audio region to the given audio track.
-    pub(in crate::actions) fn add_note_region(
-        &mut self,
-        track_id: &TrackID,
-        name: String,
-        bounds: TimeBounds,
-    ) {
+    pub(crate) fn add_note_region(&mut self, track_id: &TrackID, name: String, bounds: TimeBounds) {
         // Get the target track
         let Some(track) = self.project.data.get_track_mut(track_id) else {
             return;
@@ -117,8 +112,7 @@ impl EditorState {
             self.modified_project();
 
             // Send the background thread a message to calculate the waveform of the audio region
-            self.views.status_bar.current_task =
-                Some(BackgroundTaskStatus::GenerateWaveform);
+            self.views.status_bar.current_task = Some(BackgroundTaskStatus::GenerateWaveform);
             self.push_background_job(BackgroundThreadCommand::GenerateWaveform {
                 track_id,
                 region_id,

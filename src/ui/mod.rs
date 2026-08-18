@@ -4,5 +4,5 @@ pub mod splash;
 pub mod theme;
 pub mod zoom;
 
-pub use editor::EditorState;
-pub use splash::SplashUi;
+pub(crate) use editor::EditorState;
+pub(crate) use splash::SplashUi;

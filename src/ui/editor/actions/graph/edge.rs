@@ -2,7 +2,7 @@ use crate::ui::EditorState;
 use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorState {
-    pub(in crate::actions) fn remove_edge(&mut self, track_id: &TrackID, to: &(NodeID, usize)) {
+    pub(crate) fn remove_edge(&mut self, track_id: &TrackID, to: &(NodeID, usize)) {
         if let Some(track) = self.project.data.get_track_mut(track_id) {
             track.get_graph_mut().remove_edge(to);
             // Update the project on the audio thread
@@ -10,7 +10,7 @@ impl EditorState {
         }
     }
 
-    pub(in crate::actions) fn add_edge(
+    pub(crate) fn add_edge(
         &mut self,
         track_id: &TrackID,
         from: (NodeID, usize),

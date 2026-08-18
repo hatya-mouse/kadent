@@ -9,7 +9,7 @@ use kadent_engine::{
 };
 
 impl EditorState {
-    pub(in crate::actions) fn move_note(
+    pub(crate) fn move_note(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
@@ -30,7 +30,7 @@ impl EditorState {
         self.modified_project();
     }
 
-    pub(in crate::actions) fn set_note_pitch(
+    pub(crate) fn set_note_pitch(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
@@ -49,7 +49,7 @@ impl EditorState {
         self.modified_project();
     }
 
-    pub(in crate::actions) fn set_note_duration(
+    pub(crate) fn set_note_duration(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,
@@ -70,7 +70,7 @@ impl EditorState {
         self.modified_project();
     }
 
-    // pub(in crate::actions) fn set_note_velocity(
+    // pub(crate) fn set_note_velocity(
     //     &mut self,
     //     track_id: &TrackID,
     //     region_id: &RegionID,

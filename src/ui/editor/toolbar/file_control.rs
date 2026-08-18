@@ -1,5 +1,5 @@
 use crate::{
-    actions::EditorAction,
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         components::{icon_button::toolbar_icon_button, toolbar_group::toolbar_group},

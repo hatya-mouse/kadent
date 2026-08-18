@@ -1,6 +1,6 @@
 use super::{inspector_item, inspector_section};
 use crate::{
-    actions::EditorAction,
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         components::{

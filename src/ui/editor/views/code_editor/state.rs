@@ -1,4 +1,4 @@
-use crate::actions::FileNode;
+use crate::ui::editor::actions::FileNode;
 use eframe::egui;
 use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
 use std::{collections::HashMap, path::PathBuf};

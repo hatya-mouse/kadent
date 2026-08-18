@@ -1,4 +1,4 @@
-use crate::{actions::EditorAction, background_thread::BackgroundThreadHandle};
+use crate::{background_thread::BackgroundThreadHandle, ui::editor::actions::EditorAction};
 use std::{collections::VecDeque, path::PathBuf, time::Instant};
 
 pub(crate) struct ActionDispatcher {

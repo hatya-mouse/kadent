@@ -1,7 +1,7 @@
 use super::{inspector_item, inspector_section};
 use crate::{
-    actions::EditorAction,
     core::kasl_node::KaslNode,
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         components::{

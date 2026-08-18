@@ -1,3 +1,4 @@
+mod actions;
 mod background_results;
 mod device_fetching;
 mod keyboard;
@@ -13,13 +14,13 @@ pub(crate) use status_bar::{StatusBarState, StatusHint};
 pub(crate) use views::{CodeEditorState, NodeGraphState, PianoRollState, TimelineState};
 
 use crate::{
-    actions::EditorAction,
     background_thread::{BackgroundThreadCommand, spawn_background_thread},
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
         project_ctx::ProjectContext,
     },
+    ui::editor::actions::EditorAction,
     ui::{
         components::ruler::RulerResponse,
         editor::state::{

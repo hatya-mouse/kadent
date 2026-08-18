@@ -1,5 +1,5 @@
 use crate::{
-    actions::{FileNode, FileNodeKind},
+    ui::editor::actions::{FileNode, FileNodeKind},
     ui::{EditorState, theme},
 };
 use eframe::egui;

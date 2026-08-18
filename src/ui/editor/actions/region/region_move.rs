@@ -9,7 +9,7 @@ use kadent_engine::{
 };
 
 impl EditorState {
-    pub(in crate::actions) fn move_region(
+    pub(crate) fn move_region(
         &mut self,
         original_track_id: &TrackID,
         region_id: &RegionID,
@@ -126,11 +126,14 @@ impl EditorState {
                 }
 
                 // Finally move the calculated waveform data to the new track
-                if let Some(waveform) = self.views.timeline
+                if let Some(waveform) = self
+                    .views
+                    .timeline
                     .waveforms
                     .remove(&(*original_track_id, *region_id))
                 {
-                    self.views.timeline
+                    self.views
+                        .timeline
                         .waveforms
                         .insert((*new_track_id, new_region_id), waveform);
                 }
@@ -152,7 +155,7 @@ impl EditorState {
         self.modified_project();
     }
 
-    pub(in crate::actions) fn set_region_duration(
+    pub(crate) fn set_region_duration(
         &mut self,
         track_id: &TrackID,
         region_id: &RegionID,

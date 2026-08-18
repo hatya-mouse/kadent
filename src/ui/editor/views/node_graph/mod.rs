@@ -7,8 +7,8 @@ mod state;
 pub(crate) use state::NodeGraphState;
 
 use crate::{
-    actions::EditorAction,
     consts::PANEL_HEADER_MARGIN,
+    ui::editor::actions::EditorAction,
     ui::{EditorState, components::panel_header::panel_header, theme},
 };
 use edge::{draw_edges, draw_ghost_edge};

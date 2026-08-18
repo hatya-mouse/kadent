@@ -1,6 +1,6 @@
 use crate::{
-    actions::EditorAction,
     core::metadata::TrackType,
+    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         editor::{
