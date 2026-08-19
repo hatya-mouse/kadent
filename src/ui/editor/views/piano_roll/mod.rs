@@ -3,6 +3,7 @@ mod ruler;
 mod state;
 
 pub(crate) use state::PianoRollState;
+use uuid::Uuid;
 
 use crate::{
     consts::PANEL_HEADER_HEIGHT,
@@ -13,7 +14,7 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::state::TimelineCoord,
+        editor::{PanelView, state::TimelineCoord, views::PanelViewState},
     },
 };
 use eframe::egui;
@@ -21,7 +22,7 @@ use kadent_engine::track::note_track::NoteTrack;
 use ruler::{note_grid_ruler, note_pitch_ruler};
 
 impl EditorState {
-    pub(in crate::ui::editor) fn piano_roll(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn piano_roll(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
         let Some((track_id, region_id)) = self.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");
             return;
@@ -59,11 +60,15 @@ impl EditorState {
         let ruler_screen_rect = total_rect.with_max_y(ruler_bottom_y);
         let note_grid_rect = total_rect.with_min_y(ruler_bottom_y);
 
-        let timeline_coord_key = ui.id().with("timeline_coord");
-        let timeline_coord = ui.data(|data| {
-            data.get_temp(timeline_coord_key)
-                .unwrap_or(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
-        });
+        let PanelViewState::PianoRoll(timeline_coord) = self
+            .views
+            .get_panel_state_or_insert(panel_id, PanelView::PianoRoll, || {
+                PanelViewState::PianoRoll(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
+            })
+            .clone()
+        else {
+            return;
+        };
 
         // Calculate the total width and height of the scroll area content (128 MIDI notes)
         let (region_start, region_end) = region.bounds.tick_range(&self.project.data.tempo_map);
@@ -141,8 +146,9 @@ impl EditorState {
             new_timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
         );
 
-        println!("new_timeline_coord: {:?}", new_timeline_coord);
-
-        ui.data_mut(|data| data.insert_temp(timeline_coord_key, new_timeline_coord));
+        self.views.insert_panel_state(
+            panel_id,
+            PanelViewState::PianoRoll(new_timeline_coord.clone()),
+        );
     }
 }

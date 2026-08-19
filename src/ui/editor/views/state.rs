@@ -1,8 +1,9 @@
 use crate::ui::editor::{
-    CodeEditorState, DialogState, NodeGraphState, PianoRollState, StatusBarState, TimelineState,
-    toolbar::ToolbarState,
+    CodeEditorState, DialogState, NodeGraphState, PanelView, PianoRollState, StatusBarState,
+    TimelineState, toolbar::ToolbarState, views::PanelViewState,
 };
 use kadent_engine::thread::AudioError;
+use std::collections::{HashMap, hash_map::Entry};
 use uuid::Uuid;
 
 #[derive(Default)]
@@ -16,6 +17,10 @@ pub(crate) struct ViewStates {
     pub node_graph: NodeGraphState,
     /// The current code editor state.
     pub code_editor: CodeEditorState,
+
+    // --- PANEL-SPECIFIC STATES ---
+    /// The states for each panel, keyed by their unique ID.
+    pub panel_states: HashMap<Uuid, PanelViewState>,
 
     // --- NON-PANEL STATES ---
     /// The current toolbar state.
@@ -31,11 +36,33 @@ pub(crate) struct ViewStates {
 }
 
 impl ViewStates {
+    pub(crate) fn get_panel_state_or_insert<F>(
+        &mut self,
+        panel_id: Uuid,
+        desired_view: PanelView,
+        default_state: F,
+    ) -> &mut PanelViewState
+    where
+        F: FnOnce() -> PanelViewState,
+    {
+        match self.panel_states.entry(panel_id) {
+            Entry::Occupied(mut entry) => {
+                if entry.get().view() != desired_view {
+                    entry.insert(default_state());
+                }
+                entry.into_mut()
+            }
+            Entry::Vacant(entry) => entry.insert(default_state()),
+        }
+    }
+
+    pub(crate) fn insert_panel_state(&mut self, panel_id: Uuid, state: PanelViewState) {
+        self.panel_states.insert(panel_id, state);
+    }
+
     pub(crate) fn remove_panel_states(&mut self, panel_ids: &[Uuid]) {
         for panel_id in panel_ids {
-            self.timeline.remove_panel_state(panel_id);
-            self.piano_roll.remove_panel_state(panel_id);
-            self.code_editor.remove_panel_state(panel_id);
+            self.panel_states.remove(panel_id);
         }
     }
 }

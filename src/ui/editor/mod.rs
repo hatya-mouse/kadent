@@ -32,12 +32,15 @@ use crate::{
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
-use egui_extras::syntax_highlighting::{CodeTheme, SyntectSettings};
+use egui_extras::syntax_highlighting::SyntectSettings;
 use kadent_engine::{
     thread::{AudioCommand, AudioThread, AudioThreadHandle},
     timing::TimePosition,
 };
-use std::{sync::mpsc, time::Duration};
+use std::{
+    sync::{Arc, mpsc},
+    time::Duration,
+};
 use syntect::highlighting::ThemeSet;
 
 pub struct EditorState {
@@ -99,10 +102,10 @@ impl EditorState {
         };
 
         // Load the kasl syntax set and create a syntect settings
-        editor_ui.views.code_editor.syntect_settings = Some(SyntectSettings {
+        editor_ui.views.code_editor.syntect_settings = Some(Arc::new(SyntectSettings {
             ps: kasl_syntax_set(),
             ts: ThemeSet::load_defaults(),
-        });
+        }));
 
         // Fetch the avaliable devices first
         editor_ui.fetch_devices();
@@ -123,8 +126,6 @@ impl EditorState {
     }
 
     pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui) {
-        self.views.code_editor.theme = Some(CodeTheme::from_memory(ui.ctx(), ui.style()));
-
         self.calculate_playhead();
         self.process_vu_value();
         self.update_preview_notes();

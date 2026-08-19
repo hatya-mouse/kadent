@@ -4,38 +4,45 @@ mod state;
 mod track_list;
 
 pub(crate) use state::TimelineState;
+use uuid::Uuid;
 
 use crate::{
     consts::{
         MAX_TRACK_LIST_WIDTH, MIN_TRACK_LIST_WIDTH, TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING,
     },
     ui::{
-        EditorState, components::panel_header::panel_header, editor::state::TimelineCoord, theme,
+        EditorState,
+        components::panel_header::panel_header,
+        editor::{PanelView, state::TimelineCoord, views::PanelViewState},
+        theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
 impl EditorState {
-    pub(in crate::ui::editor) fn timeline(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn timeline(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
         let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-        let follow_playhead_key = ui.id().with("follow_playhead");
-        let track_list_width_key = ui.id().with("track_list_width");
-        let timeline_coord_key = ui.id().with("timeline_coord");
-
-        let mut follow_playhead =
-            ui.data_mut(|data| data.get_temp(follow_playhead_key).unwrap_or_default());
-        let mut track_list_width =
-            ui.data_mut(|data| data.get_temp(track_list_width_key).unwrap_or(200.0));
-        let mut timeline_coord = ui.data(|data| {
-            data.get_temp(timeline_coord_key)
-                .unwrap_or(TimelineCoord::new(
+        let PanelViewState::Timeline {
+            mut follow_playhead,
+            mut track_list_width,
+            mut timeline_coord,
+        } = self
+            .views
+            .get_panel_state_or_insert(panel_id, PanelView::Timeline, || PanelViewState::Timeline {
+                follow_playhead: false,
+                track_list_width: 200.0,
+                timeline_coord: TimelineCoord::new(
                     80.0,
                     50.0,
                     egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
-                ))
-        });
+                ),
+            })
+            .clone()
+        else {
+            return;
+        };
 
         // While following, keep the playhead centered in the visible track area
         let visible_width = (panel_width - track_list_width).max(0.0);
@@ -94,7 +101,6 @@ impl EditorState {
                         let final_offset = new_scroll_x
                             .unwrap_or(scroll_output.inner.unwrap_or(scroll_output.state.offset.x));
                         timeline_coord.scroll.x = final_offset;
-                        ui.data_mut(|data| data.insert_temp(timeline_coord_key, timeline_coord));
 
                         // Handle dragging the divider and draw the divider
                         if divider_resp.dragged() {
@@ -120,8 +126,12 @@ impl EditorState {
                 });
             });
 
-        ui.data_mut(|data| data.insert_temp(follow_playhead_key, follow_playhead));
-        ui.data_mut(|data| data.insert_temp(track_list_width_key, track_list_width));
+        let new_panel_state = PanelViewState::Timeline {
+            follow_playhead,
+            track_list_width,
+            timeline_coord,
+        };
+        self.views.insert_panel_state(panel_id, new_panel_state);
     }
 
     /// Returns the horizontal scroll offset that keeps the playhead centered within a viewport

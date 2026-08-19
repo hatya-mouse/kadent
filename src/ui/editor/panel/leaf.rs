@@ -51,15 +51,15 @@ impl EditorState {
         result.inner
     }
 
-    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, id: Uuid) {
+    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, panel_id: Uuid) {
         match view {
-            PanelView::Timeline => self.timeline(ui),
-            PanelView::PianoRoll => self.piano_roll(ui),
+            PanelView::Timeline => self.timeline(ui, panel_id),
+            PanelView::PianoRoll => self.piano_roll(ui, panel_id),
             PanelView::NodeGraph => self.node_graph(ui),
             PanelView::Inspector => self.inspector(ui),
             PanelView::ErrorList => self.error_list(ui),
             PanelView::Automation => self.automation(ui),
-            PanelView::CodeEditor => self.code_editor(ui, id),
+            PanelView::CodeEditor => self.code_editor(ui, panel_id),
         }
     }
 }

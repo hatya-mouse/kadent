@@ -1,7 +1,6 @@
-use crate::{background_thread::WaveformLod, ui::editor::TimelineCoord};
+use crate::background_thread::WaveformLod;
 use kadent_engine::{mixer::TrackID, track::RegionID};
 use std::{collections::HashMap, path::PathBuf};
-use uuid::Uuid;
 
 #[derive(Default)]
 pub(crate) struct TimelineState {
@@ -17,14 +16,4 @@ pub(crate) struct TimelineState {
     // --- WAVEFORM CACHE ---
     /// Waveform cache for audio regions. The key is a tuple of (track_id, region_id).
     pub waveforms: HashMap<(TrackID, RegionID), WaveformLod>,
-
-    // --- TIMELINE COORDINATES ---
-    /// Timeline coordinates of the panel.
-    pub timeline_coords: HashMap<Uuid, TimelineCoord>,
-}
-
-impl TimelineState {
-    pub(crate) fn remove_panel_state(&mut self, panel_id: &Uuid) {
-        self.timeline_coords.remove(panel_id);
-    }
 }
