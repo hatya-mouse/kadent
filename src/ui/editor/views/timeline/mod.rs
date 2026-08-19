@@ -4,7 +4,6 @@ mod state;
 mod track_list;
 
 pub(crate) use state::TimelineState;
-use uuid::Uuid;
 
 use crate::{
     consts::{
@@ -18,6 +17,7 @@ use crate::{
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
+use uuid::Uuid;
 
 impl EditorState {
     pub(in crate::ui::editor) fn timeline(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {

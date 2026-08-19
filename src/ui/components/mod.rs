@@ -1,4 +1,5 @@
 pub(super) mod card_button;
+pub(super) mod centered_text;
 pub(super) mod color_picker;
 pub(super) mod dialog;
 pub(super) mod icon_button;

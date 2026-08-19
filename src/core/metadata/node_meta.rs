@@ -6,7 +6,7 @@ use kadent_engine::node::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub(crate) enum NodeType {
     NoteInput = 0,
     AudioInput = 1,
