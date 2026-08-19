@@ -3,15 +3,15 @@ use eframe::egui;
 #[derive(Clone, Debug)]
 pub(crate) struct TimelineCoord {
     pub ppb: f32,
-    pub y_zoom: f32,
+    pub y_scale: f32,
     pub scroll: egui::Vec2,
 }
 
 impl TimelineCoord {
-    pub fn new(ppb: f32, y_zoom: f32, scroll: egui::Vec2) -> Self {
+    pub fn new(ppb: f32, y_scale: f32, scroll: egui::Vec2) -> Self {
         Self {
             ppb,
-            y_zoom,
+            y_scale,
             scroll,
         }
     }
@@ -26,10 +26,10 @@ impl TimelineCoord {
         resolution as f32 / self.ppb
     }
 
-    pub fn with_zoom_and_scroll(&self, y_zoom: f32, scroll: egui::Vec2) -> Self {
+    pub fn with_zoom_and_scroll(&self, y_scale: f32, scroll: egui::Vec2) -> Self {
         Self {
             ppb: self.ppb,
-            y_zoom,
+            y_scale,
             scroll,
         }
     }
@@ -37,7 +37,7 @@ impl TimelineCoord {
     pub fn with_ppb_and_scroll(&self, ppb: f32, scroll: egui::Vec2) -> Self {
         Self {
             ppb,
-            y_zoom: self.y_zoom,
+            y_scale: self.y_scale,
             scroll,
         }
     }
@@ -45,7 +45,7 @@ impl TimelineCoord {
     pub fn with_scroll(&self, scroll: egui::Vec2) -> Self {
         Self {
             ppb: self.ppb,
-            y_zoom: self.y_zoom,
+            y_scale: self.y_scale,
             scroll,
         }
     }

@@ -36,7 +36,7 @@ impl EditorState {
 
                             // Draw track color
                             let (rect, _) = ui.allocate_exact_size(
-                                egui::vec2(4.0, timeline_coord.y_zoom),
+                                egui::vec2(4.0, timeline_coord.y_scale),
                                 egui::Sense::hover(),
                             );
                             ui.painter().rect_filled(rect, 0.0, track_meta.color);

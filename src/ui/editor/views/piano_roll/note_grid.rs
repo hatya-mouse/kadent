@@ -50,7 +50,7 @@ impl EditorState {
 
         let ppb = timeline_coord.ppb;
         let ppt = ppb / self.project.data.audio_ctx.resolution as f32;
-        let note_height = timeline_coord.y_zoom;
+        let note_height = timeline_coord.y_scale;
 
         // Draw the notes
         let painter = ui.painter_at(note_grid_rect);
@@ -124,7 +124,7 @@ impl EditorState {
     ) -> Option<TimelineCoord> {
         let resolution = self.project.data.audio_ctx.resolution;
         let ppb = timeline_coord.ppb;
-        let note_height = timeline_coord.y_zoom;
+        let note_height = timeline_coord.y_scale;
         let scroll_amount = timeline_coord.scroll;
         let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
 
@@ -207,7 +207,7 @@ impl EditorState {
         note_rect: egui::Rect,
         resize_rect: egui::Rect,
     ) {
-        let note_height = timeline_coord.y_zoom;
+        let note_height = timeline_coord.y_scale;
         let resolution = self.project.data.audio_ctx.resolution;
 
         // Get gestures on the note

@@ -12,7 +12,7 @@ pub(super) fn note_pitch_ruler(
     let grid_color_note = theme::border_color(ui.visuals().dark_mode);
     let grid_color_octave = ui.visuals().window_stroke().color;
 
-    let note_height = timeline_coord.y_zoom;
+    let note_height = timeline_coord.y_scale;
     let origin_y = note_grid_rect.min.y - timeline_coord.scroll.y;
     // Only show per note grid lines if the note height is large enough
     let show_per_note_grid = note_height >= NOTE_GRID_FACTOR;

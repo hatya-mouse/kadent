@@ -18,7 +18,7 @@ impl EditorState {
         timeline_coord: &mut TimelineCoord,
         timeline_width: f32,
     ) -> Option<f32> {
-        let track_height = timeline_coord.y_zoom;
+        let track_height = timeline_coord.y_scale;
 
         // Ensure the scroll area extends past the project range end (or last region end)
         ui.set_min_width(timeline_width);

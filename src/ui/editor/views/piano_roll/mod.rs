@@ -83,7 +83,7 @@ impl EditorState {
         let scroll_content_width = (content_end_ticks as f32
             * timeline_coord.ppt(self.project.data.audio_ctx.resolution))
         .max(note_grid_rect.width());
-        let scroll_content_height = (128.0 * timeline_coord.y_zoom).max(note_grid_rect.height());
+        let scroll_content_height = (128.0 * timeline_coord.y_scale).max(note_grid_rect.height());
         let scroll_content_size = egui::vec2(scroll_content_width, scroll_content_height);
 
         let (new_scroll_x, ruler_res) = panel_header(ui, egui::Margin::ZERO, |ui| {

@@ -333,7 +333,7 @@ impl EditorState {
         y: f32,
         content_top: f32,
     ) -> Option<TrackID> {
-        let track_height = timeline_coord.y_zoom;
+        let track_height = timeline_coord.y_scale;
         if y < content_top || track_height <= 0.0 {
             return None;
         }

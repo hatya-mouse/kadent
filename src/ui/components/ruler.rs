@@ -31,7 +31,7 @@ pub struct RulerResponse {
     pub seek_to: Option<Ticks>,
 }
 
-/// Draws the ruler and scroll bar for the timeline in the given rect, and returns the new scroll position when the scroll bar returns it.
+/// Draws the ruler and scroll bar for the timeline in the given rect, and returns the new scroll position when the scroll bar returns it, and the ruler response.
 pub(crate) fn ruler_and_scroll_bar(
     ui: &mut egui::Ui,
     rect: egui::Rect,

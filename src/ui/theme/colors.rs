@@ -221,3 +221,9 @@ pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {
         Color32::from_rgb(200, 15, 0)
     }
 }
+
+// --- KEYFRAMES ---
+
+pub(crate) fn keyframe() -> Color32 {
+    Color32::from_rgb(255, 113, 40)
+}
