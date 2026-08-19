@@ -17,7 +17,7 @@ use crate::{
         editor::{PanelView, state::TimelineCoord, views::PanelViewState},
     },
 };
-use eframe::egui;
+use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 use kadent_engine::track::note_track::NoteTrack;
 use ruler::{note_grid_ruler, note_pitch_ruler};
 
@@ -105,6 +105,7 @@ impl EditorState {
 
         // Draw the notes
         let scroll_output = egui::ScrollArea::both()
+            .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
             .scroll_offset(timeline_coord.scroll)
             .show(ui, |ui| {
                 ui.set_min_size(scroll_content_size);

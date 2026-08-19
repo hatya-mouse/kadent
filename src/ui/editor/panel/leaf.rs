@@ -58,7 +58,7 @@ impl EditorState {
             PanelView::NodeGraph => self.node_graph(ui),
             PanelView::Inspector => self.inspector(ui),
             PanelView::ErrorList => self.error_list(ui),
-            PanelView::Automation => self.automation(ui),
+            PanelView::Automation => self.automation(ui, panel_id),
             PanelView::CodeEditor => self.code_editor(ui, panel_id),
         }
     }

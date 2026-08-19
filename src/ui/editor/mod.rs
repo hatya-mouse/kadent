@@ -7,6 +7,7 @@ mod preview_notes;
 mod state;
 mod status_bar;
 mod toolbar;
+mod utils;
 mod views;
 
 pub(crate) use panel::{PanelNode, PanelView, SplitDir};

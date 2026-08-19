@@ -55,7 +55,7 @@ impl EditorState {
 
     fn add_automation_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         // Add the node to the project
-        let track = AutomationTrack::new_float();
+        let track = AutomationTrack::new_float(0.0..=1.0);
         let Some(node_id) = self.project.data.get_track_mut(track_id).map(|t| {
             t.get_graph_mut()
                 .add_node(Box::new(AutomationNode::new(track)))
