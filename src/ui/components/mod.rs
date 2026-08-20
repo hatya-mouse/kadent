@@ -2,6 +2,7 @@ pub(super) mod card_button;
 pub(super) mod centered_text;
 pub(super) mod color_picker;
 pub(super) mod dialog;
+pub(super) mod dropdown;
 pub(super) mod icon_button;
 pub(super) mod panel_header;
 pub(super) mod ruler;

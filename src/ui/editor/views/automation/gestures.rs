@@ -2,7 +2,10 @@ use crate::{
     consts::TIMELINE_LEFT_PADDING,
     ui::{
         EditorState,
-        editor::{TimelineCoord, actions::EditorAction},
+        editor::{
+            TimelineCoord,
+            actions::{EditorAction, KeyframeType},
+        },
     },
 };
 use eframe::egui::{self, Response};
@@ -41,7 +44,11 @@ pub(super) fn add_keyframe_gesture(
                     .clamp(*range.start(), *range.end());
                 let keyframe =
                     Keyframe::new(tick, last_curve_type.unwrap_or(CurveType::Linear), value);
-                Some(EditorAction::AddFloatKeyframe(id.0, id.1, keyframe))
+                Some(EditorAction::AddKeyframe(
+                    id.0,
+                    id.1,
+                    KeyframeType::Float(keyframe),
+                ))
             }
             AutomationTrack::Int { range, .. } => {
                 let value = ((1.0
@@ -49,13 +56,21 @@ pub(super) fn add_keyframe_gesture(
                     .round() as i32)
                     .clamp(*range.start(), *range.end());
                 let keyframe = Keyframe::new(tick, CurveType::Step, value);
-                Some(EditorAction::AddIntKeyframe(id.0, id.1, keyframe))
+                Some(EditorAction::AddKeyframe(
+                    id.0,
+                    id.1,
+                    KeyframeType::Int(keyframe),
+                ))
             }
             AutomationTrack::Bool { .. } => {
                 let half_height = scroll_rect.height() * timeline_coord.y_scale * 0.5;
                 let value = pos.y - origin_pos.y < half_height;
                 let keyframe = Keyframe::new(tick, CurveType::Step, value);
-                Some(EditorAction::AddBoolKeyframe(id.0, id.1, keyframe))
+                Some(EditorAction::AddKeyframe(
+                    id.0,
+                    id.1,
+                    KeyframeType::Bool(keyframe),
+                ))
             }
         }
     } else {

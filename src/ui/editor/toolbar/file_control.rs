@@ -16,7 +16,7 @@ impl EditorState {
             )
             .clicked()
             {
-                self.push_action(EditorAction::SaveAll);
+                self.actions.push_action(EditorAction::SaveAll);
             }
 
             if toolbar_icon_button(
@@ -26,7 +26,8 @@ impl EditorState {
             .clicked()
                 && let Some(proj_path) = rfd::FileDialog::new().pick_file()
             {
-                self.push_action(EditorAction::OpenProject(proj_path));
+                self.actions
+                    .push_action(EditorAction::OpenProject(proj_path));
             }
 
             if toolbar_icon_button(
@@ -42,7 +43,7 @@ impl EditorState {
                     .save_file();
 
                 if let Some(path) = export_path {
-                    self.push_action(EditorAction::ExportProject(path));
+                    self.actions.push_action(EditorAction::ExportProject(path));
                 }
             }
         });

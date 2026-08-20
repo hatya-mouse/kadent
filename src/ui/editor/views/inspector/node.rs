@@ -1,18 +1,23 @@
 use super::{inspector_item, inspector_section};
 use crate::{
     core::kasl_node::KaslNode,
-    ui::editor::actions::EditorAction,
     ui::{
         EditorState,
         components::{
+            dropdown::dropdown_button,
             text_button::text_button,
             text_input::{text_input, text_input_with_callback},
         },
+        editor::actions::{EditorAction, KeyframeValue},
         theme,
     },
 };
 use eframe::egui;
-use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
+use kadent_engine::{
+    graph::node_id::NodeID,
+    mixer::TrackID,
+    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
+};
 
 impl EditorState {
     pub(super) fn node_inspector(
@@ -68,9 +73,98 @@ impl EditorState {
 
             inspector_item(ui, "Compile", |ui| {
                 if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
-                    self.push_action(EditorAction::CompileKasl(*track_id, *node_id));
+                    self.actions
+                        .push_action(EditorAction::CompileKasl(*track_id, *node_id));
                 }
             });
+        } else if let Some(automation_node) = node.as_any_mut().downcast_mut::<AutomationNode>() {
+            let current_track_type = automation_node.track.track_type();
+
+            inspector_item(ui, "Track Type", |ui| {
+                dropdown_button(
+                    ui,
+                    ui.id().with("track_type"),
+                    track_type_to_string(&current_track_type),
+                    |ui| {
+                        for track_type in AutomationTrackType::all() {
+                            if ui
+                                .selectable_label(current_track_type == *track_type, "Float")
+                                .clicked()
+                            {
+                                self.actions.push_action(EditorAction::SetAutomationType(
+                                    *track_id,
+                                    *node_id,
+                                    track_type.clone(),
+                                ));
+                            }
+                        }
+                    },
+                );
+            });
+
+            match &automation_node.track {
+                AutomationTrack::Float { range, .. } => {
+                    inspector_item(ui, "Max Value", |ui| {
+                        text_input_with_callback(ui, range.end().to_string(), |new_max| {
+                            if let Ok(new_max) = new_max.parse::<f32>() {
+                                self.actions
+                                    .push_action(EditorAction::SetAutomationMaxValue(
+                                        *track_id,
+                                        *node_id,
+                                        KeyframeValue::Float(new_max),
+                                    ));
+                            }
+                        });
+                    });
+                    inspector_item(ui, "Min Value", |ui| {
+                        text_input_with_callback(ui, range.start().to_string(), |new_min| {
+                            if let Ok(new_min) = new_min.parse::<f32>() {
+                                self.actions
+                                    .push_action(EditorAction::SetAutomationMinValue(
+                                        *track_id,
+                                        *node_id,
+                                        KeyframeValue::Float(new_min),
+                                    ));
+                            }
+                        });
+                    });
+                }
+                AutomationTrack::Int { range, .. } => {
+                    inspector_item(ui, "Max Value", |ui| {
+                        text_input_with_callback(ui, range.end().to_string(), |new_max| {
+                            if let Ok(new_max) = new_max.parse::<i32>() {
+                                self.actions
+                                    .push_action(EditorAction::SetAutomationMaxValue(
+                                        *track_id,
+                                        *node_id,
+                                        KeyframeValue::Int(new_max),
+                                    ));
+                            }
+                        });
+                    });
+                    inspector_item(ui, "Min Value", |ui| {
+                        text_input_with_callback(ui, range.start().to_string(), |new_min| {
+                            if let Ok(new_min) = new_min.parse::<i32>() {
+                                self.actions
+                                    .push_action(EditorAction::SetAutomationMinValue(
+                                        *track_id,
+                                        *node_id,
+                                        KeyframeValue::Int(new_min),
+                                    ));
+                            }
+                        });
+                    });
+                }
+                AutomationTrack::Bool { .. } => (),
+            }
         }
+    }
+}
+
+fn track_type_to_string(track_type: &AutomationTrackType) -> &'static str {
+    match track_type {
+        AutomationTrackType::Float => "Float",
+        AutomationTrackType::Int => "Int",
+        AutomationTrackType::Bool => "Bool",
     }
 }

@@ -59,7 +59,7 @@ impl EditorState {
                     );
                     if response.clicked() {
                         self.selection.select_track(track_id);
-                        self.push_action(EditorAction::ArmTrack(track_id));
+                        self.actions.push_action(EditorAction::ArmTrack(track_id));
                     }
                 }
             }

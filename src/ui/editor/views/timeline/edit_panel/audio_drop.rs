@@ -34,7 +34,7 @@ impl EditorState {
         }
 
         // We have already checked that last_audio_drop is Some, so we can safely unwrap it here
-        self.push_action(EditorAction::ImportAudioFile(
+        self.actions.push_action(EditorAction::ImportAudioFile(
             file_path,
             self.transport.playhead_tick,
         ));

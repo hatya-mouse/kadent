@@ -29,8 +29,9 @@ impl EditorState {
 
             inspector_item(ui, "Delete", |ui| {
                 if text_button(ui, "delete_track", "Delete Track").clicked() {
-                    self.push_action(EditorAction::RemoveTrack(*track_id));
-                    self.push_action(EditorAction::DisarmTrack);
+                    self.actions
+                        .push_action(EditorAction::RemoveTrack(*track_id));
+                    self.actions.push_action(EditorAction::DisarmTrack);
                 }
             });
 

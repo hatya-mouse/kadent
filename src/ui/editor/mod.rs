@@ -219,10 +219,6 @@ impl EditorState {
         paths
     }
 
-    pub(super) fn push_action(&mut self, action: EditorAction) {
-        self.actions.pending.push_back(action);
-    }
-
     pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
         self.actions.background_handle.command_tx.send(command).ok();
     }
@@ -232,7 +228,8 @@ impl EditorState {
             self.transport.playhead_tick = target_tick;
 
             if ruler_res.drag_ended {
-                self.push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));
+                self.actions
+                    .push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));
             }
         }
     }

@@ -23,4 +23,8 @@ impl ActionDispatcher {
             pending_export_path: None,
         }
     }
+
+    pub(crate) fn push_action(&mut self, action: EditorAction) {
+        self.pending.push_back(action);
+    }
 }

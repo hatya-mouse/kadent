@@ -144,7 +144,8 @@ impl EditorState {
 
                 // Add a note at the position
                 let note = Note::new(start, note_duration, pitch, 1.0);
-                self.push_action(EditorAction::AddNote(*track_id, *region_id, note));
+                self.actions
+                    .push_action(EditorAction::AddNote(*track_id, *region_id, note));
 
                 // Play the note for feedback
                 self.play_note_feedback(pitch.round() as u8, 255u8);
@@ -223,7 +224,7 @@ impl EditorState {
                 .and_then(|region| region.get_duration(note_id.2))
         {
             self.views.piano_roll.last_edited_note_length = Some(new_duration);
-            self.push_action(EditorAction::SetNoteDuration(
+            self.actions.push_action(EditorAction::SetNoteDuration(
                 *note_id.0,
                 *note_id.1,
                 *note_id.2,
@@ -269,10 +270,10 @@ impl EditorState {
                 .and_then(|r| Some((r.get_start(note_id.2)?, r.get_pitch(note_id.2)?)));
             if let Some((new_start, new_pitch)) = committed {
                 self.views.piano_roll.last_edited_note_length = Some(note.duration);
-                self.push_action(EditorAction::MoveNote(
+                self.actions.push_action(EditorAction::MoveNote(
                     *note_id.0, *note_id.1, *note_id.2, new_start,
                 ));
-                self.push_action(EditorAction::SetNotePitch(
+                self.actions.push_action(EditorAction::SetNotePitch(
                     *note_id.0,
                     *note_id.1,
                     *note_id.2,

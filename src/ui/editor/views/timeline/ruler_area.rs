@@ -169,7 +169,7 @@ impl EditorState {
 
         // Confirm the change when the mouse is released
         if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
-            self.push_action(EditorAction::SetProjectRange(
+            self.actions.push_action(EditorAction::SetProjectRange(
                 self.project.meta.export_range.clone(),
             ));
         }

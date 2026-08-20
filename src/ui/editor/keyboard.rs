@@ -19,16 +19,19 @@ impl EditorState {
         if delete || backspace {
             match self.selection {
                 Selection::Region(track_id, region_id) => {
-                    self.push_action(EditorAction::RemoveRegion(track_id, region_id));
+                    self.actions
+                        .push_action(EditorAction::RemoveRegion(track_id, region_id));
                 }
                 Selection::Node(track_id, node_id) => {
-                    self.push_action(EditorAction::RemoveNode(track_id, node_id));
+                    self.actions
+                        .push_action(EditorAction::RemoveNode(track_id, node_id));
                 }
                 Selection::Note(track_id, region_id, note_id) => {
-                    self.push_action(EditorAction::RemoveNote(track_id, region_id, note_id));
+                    self.actions
+                        .push_action(EditorAction::RemoveNote(track_id, region_id, note_id));
                 }
                 Selection::Keyframe(track_id, region_id, keyframe_index) => {
-                    self.push_action(EditorAction::RemoveKeyframe(
+                    self.actions.push_action(EditorAction::RemoveKeyframe(
                         track_id,
                         region_id,
                         keyframe_index,
@@ -41,28 +44,28 @@ impl EditorState {
         let save = ui.input(|i| i.modifiers.command && i.key_pressed(egui::Key::S));
         if save {
             // Save the projects and opened KASL programs
-            self.push_action(EditorAction::SaveAll);
+            self.actions.push_action(EditorAction::SaveAll);
         }
 
         let play_pause = ui.input(|i| i.key_pressed(egui::Key::Space));
         if play_pause {
             if self.transport.is_playing {
-                self.push_action(EditorAction::Pause);
+                self.actions.push_action(EditorAction::Pause);
             } else {
-                self.push_action(EditorAction::Play);
+                self.actions.push_action(EditorAction::Play);
             }
         }
 
         let seek_forward = ui.input(|i| i.key_pressed(egui::Key::ArrowRight));
         if seek_forward {
-            self.push_action(EditorAction::Seek(
+            self.actions.push_action(EditorAction::Seek(
                 self.project.meta.export_range.end_time(),
             ));
         }
 
         let seek_back = ui.input(|i| i.key_pressed(egui::Key::ArrowLeft));
         if seek_back {
-            self.push_action(EditorAction::Seek(
+            self.actions.push_action(EditorAction::Seek(
                 self.project.meta.export_range.start_time(),
             ));
         }

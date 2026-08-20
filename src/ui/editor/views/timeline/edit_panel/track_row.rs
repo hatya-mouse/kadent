@@ -186,14 +186,14 @@ impl EditorState {
             let track_type = self.project.meta.get_track(track_id).map(|m| m.track_type);
             match track_type {
                 Some(TrackType::Audio) => {
-                    self.push_action(EditorAction::AddAudioRegion(
+                    self.actions.push_action(EditorAction::AddAudioRegion(
                         *track_id,
                         "Region".to_string(),
                         bounds,
                     ));
                 }
                 Some(TrackType::Note) => {
-                    self.push_action(EditorAction::AddNoteRegion(
+                    self.actions.push_action(EditorAction::AddNoteRegion(
                         *track_id,
                         "Region".to_string(),
                         bounds,
@@ -231,7 +231,7 @@ impl EditorState {
         if resize_res.dragged() {
             // Select the region
             self.selection.select_region(*track_id, *region_id);
-            self.push_action(EditorAction::ArmTrack(*track_id));
+            self.actions.push_action(EditorAction::ArmTrack(*track_id));
 
             // Calculate the new duration from the drag amount
             let delta_ticks = Ticks((resize_res.drag_delta().x * tpp) as i64);
@@ -264,7 +264,7 @@ impl EditorState {
                 .and_then(|track| track.get_region(region_id))
                 .map(|region| region.bounds.duration_ticks(&self.project.data.tempo_map))
         {
-            self.push_action(EditorAction::SetRegionDuration(
+            self.actions.push_action(EditorAction::SetRegionDuration(
                 *track_id,
                 *region_id,
                 TimePosition::Musical(new_duration),
@@ -276,7 +276,7 @@ impl EditorState {
         if move_res.dragged() {
             // Select the region
             self.selection.select_region(*track_id, *region_id);
-            self.push_action(EditorAction::ArmTrack(*track_id));
+            self.actions.push_action(EditorAction::ArmTrack(*track_id));
 
             let delta_ticks = Ticks((move_res.drag_delta().x * tpp) as i64);
             if let Some(region) = self
@@ -314,7 +314,7 @@ impl EditorState {
                 .and_then(|pos| self.y_to_track_id(timeline_coord, pos.y, content_top))
                 .unwrap_or(*track_id);
 
-            self.push_action(EditorAction::MoveRegion(
+            self.actions.push_action(EditorAction::MoveRegion(
                 *track_id,
                 *region_id,
                 new_track_id,

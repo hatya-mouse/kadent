@@ -22,7 +22,7 @@ impl EditorState {
             )
             .clicked()
             {
-                self.push_action(EditorAction::Seek(
+                self.actions.push_action(EditorAction::Seek(
                     self.project.meta.export_range.start_time(),
                 ));
             }
@@ -40,7 +40,7 @@ impl EditorState {
             .clicked()
                 && !self.transport.is_playing
             {
-                self.push_action(EditorAction::Play);
+                self.actions.push_action(EditorAction::Play);
             }
 
             if toolbar_icon_button(
@@ -50,7 +50,7 @@ impl EditorState {
             .clicked()
                 && self.transport.is_playing
             {
-                self.push_action(EditorAction::Pause);
+                self.actions.push_action(EditorAction::Pause);
             }
 
             if toolbar_icon_button(
@@ -59,7 +59,7 @@ impl EditorState {
             )
             .clicked()
             {
-                self.push_action(EditorAction::Seek(
+                self.actions.push_action(EditorAction::Seek(
                     self.project.meta.export_range.end_time(),
                 ));
             }

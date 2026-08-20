@@ -116,7 +116,7 @@ impl EditorState {
             scroll_rect,
             tpp,
         ) {
-            self.push_action(action);
+            self.actions.push_action(action);
         }
         self.select_keyframe_gesture(&response, &keyframe_pos);
 

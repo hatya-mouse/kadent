@@ -111,7 +111,7 @@ impl EditorState {
                             .clicked()
                             && self.midi_device.selected_port.is_some()
                         {
-                            self.push_action(EditorAction::DisconnectMidiPort);
+                            self.actions.push_action(EditorAction::DisconnectMidiPort);
                         }
 
                         for (ref name, midi_in_port) in midi_in_port_names {
@@ -119,7 +119,8 @@ impl EditorState {
                                 self.midi_device.selected_port.as_ref() == Some(&midi_in_port.id());
                             if ui.selectable_label(is_selected, name).clicked() && !is_selected {
                                 // Set the selected MIDI input port
-                                self.push_action(EditorAction::SetMidiInputPort(midi_in_port));
+                                self.actions
+                                    .push_action(EditorAction::SetMidiInputPort(midi_in_port));
                             }
                         }
                     });

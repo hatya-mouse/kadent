@@ -151,7 +151,7 @@ impl EditorState {
                 ) {
                     // Remove the dragged node from the project and add a new edge to the hovered port
                     if let Some(old_edge) = self.views.node_graph.dragged_edge {
-                        self.push_action(EditorAction::RemoveEdge(
+                        self.actions.push_action(EditorAction::RemoveEdge(
                             *track_id,
                             (old_edge.2, old_edge.3),
                         ));
@@ -159,7 +159,7 @@ impl EditorState {
 
                     // Add the new edge to the project
                     let new_edge = (ghost_edge.0.0, ghost_edge.0.1, *node_id, port);
-                    self.push_action(EditorAction::AddEdge(
+                    self.actions.push_action(EditorAction::AddEdge(
                         *track_id,
                         (new_edge.0, new_edge.1),
                         (new_edge.2, new_edge.3),
@@ -176,7 +176,7 @@ impl EditorState {
                 // If we didn't connect to an input, just remove the dragged edge from the project
                 // because it has released in empty space
                 if let Some(old_edge) = self.views.node_graph.dragged_edge {
-                    self.push_action(EditorAction::RemoveEdge(
+                    self.actions.push_action(EditorAction::RemoveEdge(
                         *track_id,
                         (old_edge.2, old_edge.3),
                     ));

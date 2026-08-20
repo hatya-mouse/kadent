@@ -56,7 +56,7 @@ impl EditorState {
                     )
                     .clicked()
                     .then(|| {
-                        self.push_action(EditorAction::AddTrack(
+                        self.actions.push_action(EditorAction::AddTrack(
                             state.selected_track_type,
                             state.name.clone(),
                             theme::default_track_color(),

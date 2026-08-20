@@ -20,7 +20,7 @@ use kadent_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
-    node::builtin::Keyframe,
+    node::builtin::{AutomationTrackType, Keyframe},
     thread::AudioResult,
     timing::{TimeBounds, TimePosition},
     track::{
@@ -48,6 +48,20 @@ impl AddibleNodes {
     pub(crate) fn all() -> Vec<AddibleNodes> {
         vec![AddibleNodes::Kasl, AddibleNodes::Automation]
     }
+}
+
+#[derive(Clone)]
+pub(crate) enum KeyframeType {
+    Float(Keyframe<f32>),
+    Int(Keyframe<i32>),
+    Bool(Keyframe<bool>),
+}
+
+#[derive(Clone)]
+pub(crate) enum KeyframeValue {
+    Float(f32),
+    Int(i32),
+    Bool(bool),
 }
 
 pub(crate) enum EditorAction {
@@ -123,18 +137,24 @@ pub(crate) enum EditorAction {
     RemoveNode(TrackID, NodeID),
 
     // --- AUTOMATION ---
-    /// Adds a new float keyframe to the given automation node.
+    /// Adds a new keyframe to the given automation node.
     /// `(track_id, node_id, keyframe)`
-    AddFloatKeyframe(TrackID, NodeID, Keyframe<f32>),
-    /// Adds a new int keyframe to the given automation node.
-    /// `(track_id, node_id, keyframe)`
-    AddIntKeyframe(TrackID, NodeID, Keyframe<i32>),
-    /// Adds a new bool keyframe to the given automation node.
-    /// `(track_id, node_id, keyframe)`
-    AddBoolKeyframe(TrackID, NodeID, Keyframe<bool>),
+    AddKeyframe(TrackID, NodeID, KeyframeType),
     /// Removes a keyframe from the given automation node.
     /// `(track_id, node_id, keyframe_index)`
     RemoveKeyframe(TrackID, NodeID, usize),
+    /// Sets the value of the keyframe at the given index.
+    /// `(track_id, node_id, keyframe_index, new_value)`
+    SetKeyframeValue(TrackID, NodeID, usize, KeyframeValue),
+    /// Changes the type of the track for the given automation node.
+    /// `(track_id, node_id, new_type)`
+    SetAutomationType(TrackID, NodeID, AutomationTrackType),
+    /// Sets the maximum value for the given automation node.
+    /// `(track_id, node_id, max_value)`
+    SetAutomationMaxValue(TrackID, NodeID, KeyframeValue),
+    /// Sets the minimum value for the given automation node.
+    /// `(track_id, node_id, min_value)`
+    SetAutomationMinValue(TrackID, NodeID, KeyframeValue),
 
     // --- NOTE ---
     /// Add a new note to the given note region.
@@ -253,17 +273,28 @@ impl EditorState {
                 }
 
                 // --- AUTOMATION ---
-                EditorAction::AddFloatKeyframe(ref track_id, ref node_id, keyframe) => {
-                    self.add_keyframe(track_id, node_id, keyframe);
-                }
-                EditorAction::AddIntKeyframe(ref track_id, ref node_id, keyframe) => {
-                    self.add_keyframe(track_id, node_id, keyframe);
-                }
-                EditorAction::AddBoolKeyframe(ref track_id, ref node_id, keyframe) => {
+                EditorAction::AddKeyframe(ref track_id, ref node_id, keyframe) => {
                     self.add_keyframe(track_id, node_id, keyframe);
                 }
                 EditorAction::RemoveKeyframe(ref track_id, ref node_id, keyframe_index) => {
                     self.remove_keyframe(track_id, node_id, keyframe_index);
+                }
+                EditorAction::SetKeyframeValue(
+                    ref track_id,
+                    ref node_id,
+                    keyframe_index,
+                    new_value,
+                ) => {
+                    self.set_keyframe_value(track_id, node_id, keyframe_index, new_value);
+                }
+                EditorAction::SetAutomationType(ref track_id, ref node_id, new_type) => {
+                    self.set_automation_type(track_id, node_id, new_type);
+                }
+                EditorAction::SetAutomationMaxValue(ref track_id, ref node_id, max_value) => {
+                    self.set_automation_max_value(track_id, node_id, max_value);
+                }
+                EditorAction::SetAutomationMinValue(ref track_id, ref node_id, min_value) => {
+                    self.set_automation_min_value(track_id, node_id, min_value);
                 }
 
                 // --- NOTE ---
