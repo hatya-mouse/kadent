@@ -37,12 +37,6 @@ impl EditorState {
 
             if self.debug_mode {
                 ui.separator();
-                inspector_item(ui, "Track ID", |ui| {
-                    ui.label(
-                        egui::RichText::new(format!("{}", track_id.0))
-                            .size(theme::normal_font_size()),
-                    );
-                });
                 inspector_item(ui, "Node ID", |ui| {
                     ui.label(
                         egui::RichText::new(format!("{}", node_id.0))
