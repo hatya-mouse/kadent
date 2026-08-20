@@ -1,7 +1,10 @@
 use crate::ui::{
     EditorState,
     components::text_input::text_input_with_callback,
-    editor::views::inspector::{inspector_item, inspector_section},
+    editor::{
+        actions::{EditorAction, KeyframeValue},
+        views::inspector::{inspector_item, inspector_section},
+    },
     theme,
 };
 use eframe::egui;
@@ -36,30 +39,36 @@ impl EditorState {
                 };
 
                 match track {
-                    AutomationTrack::Float {
-                        keyframes, range, ..
-                    } => {
+                    AutomationTrack::Float { keyframes, .. } => {
                         let Some(keyframe) = keyframes.get_mut(keyframe_index) else {
                             return;
                         };
                         inspector_item(ui, "Value", |ui| {
                             text_input_with_callback(ui, keyframe.value.to_string(), |new_value| {
                                 if let Ok(new_value) = new_value.parse::<f32>() {
-                                    keyframe.value = new_value.clamp(*range.start(), *range.end());
+                                    self.actions.push_action(EditorAction::SetKeyframeValue(
+                                        *track_id,
+                                        *node_id,
+                                        keyframe_index,
+                                        KeyframeValue::Float(new_value),
+                                    ));
                                 }
                             });
                         });
                     }
-                    AutomationTrack::Int {
-                        keyframes, range, ..
-                    } => {
+                    AutomationTrack::Int { keyframes, .. } => {
                         let Some(keyframe) = keyframes.get_mut(keyframe_index) else {
                             return;
                         };
                         inspector_item(ui, "Value", |ui| {
                             text_input_with_callback(ui, keyframe.value.to_string(), |new_value| {
                                 if let Ok(new_value) = new_value.parse::<i32>() {
-                                    keyframe.value = new_value.clamp(*range.start(), *range.end());
+                                    self.actions.push_action(EditorAction::SetKeyframeValue(
+                                        *track_id,
+                                        *node_id,
+                                        keyframe_index,
+                                        KeyframeValue::Int(new_value),
+                                    ));
                                 }
                             });
                         });
@@ -71,7 +80,12 @@ impl EditorState {
                         inspector_item(ui, "Value", |ui| {
                             let response = ui.checkbox(&mut keyframe.value, "Value");
                             if response.changed() {
-                                keyframe.value = !keyframe.value;
+                                self.actions.push_action(EditorAction::SetKeyframeValue(
+                                    *track_id,
+                                    *node_id,
+                                    keyframe_index,
+                                    KeyframeValue::Bool(!keyframe.value),
+                                ));
                             }
                         });
                     }
