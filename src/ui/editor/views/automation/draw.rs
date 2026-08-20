@@ -3,7 +3,9 @@ use crate::{
     ui::{
         editor::{
             Selection, TimelineCoord,
-            views::automation::{KEYFRAME_CIRCLE_RADIUS, KEYFRAME_SQUARE_SIZE, STROKE_WIDTH},
+            views::automation::{
+                KEYFRAME_CIRCLE_RADIUS, KEYFRAME_DIA_SIZE, KEYFRAME_SQUARE_SIZE, STROKE_WIDTH,
+            },
         },
         theme,
     },
@@ -58,7 +60,7 @@ pub(super) fn draw_automation_timeline(
     for chunk in keyframe_positions.windows(2) {
         let first = chunk[0];
         let second = chunk[1];
-        draw_curve(&curve_painter, &second.1, first.2, second.2);
+        draw_curve(&curve_painter, &first.1, first.2, second.2);
     }
 
     // Draw the lines for the first and the last keyframe
@@ -141,11 +143,11 @@ fn draw_keyframe(
         CurveType::Linear => {
             let mut mesh = egui::Mesh::default();
             let outline = [
-                egui::pos2(pos.x, pos.y - KEYFRAME_CIRCLE_RADIUS),
-                egui::pos2(pos.x + KEYFRAME_CIRCLE_RADIUS, pos.y),
-                egui::pos2(pos.x, pos.y + KEYFRAME_CIRCLE_RADIUS),
-                egui::pos2(pos.x - KEYFRAME_CIRCLE_RADIUS, pos.y),
-                egui::pos2(pos.x, pos.y - KEYFRAME_CIRCLE_RADIUS),
+                egui::pos2(pos.x, pos.y - KEYFRAME_DIA_SIZE),
+                egui::pos2(pos.x + KEYFRAME_DIA_SIZE, pos.y),
+                egui::pos2(pos.x, pos.y + KEYFRAME_DIA_SIZE),
+                egui::pos2(pos.x - KEYFRAME_DIA_SIZE, pos.y),
+                egui::pos2(pos.x, pos.y - KEYFRAME_DIA_SIZE),
             ];
             mesh.colored_vertex(outline[0], color);
             mesh.colored_vertex(outline[1], color);

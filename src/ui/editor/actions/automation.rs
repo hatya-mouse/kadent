@@ -64,6 +64,7 @@ impl EditorState {
                 KeyframeValue::Int(value) => node.track.set_int_value(keyframe_index, value),
                 KeyframeValue::Bool(value) => node.track.set_bool_value(keyframe_index, value),
             }
+            self.modified_project();
         }
     }
 
@@ -76,6 +77,7 @@ impl EditorState {
     ) {
         if let Some(node) = self.get_automation_node_mut(track_id, node_id) {
             node.track.set_curve_type(keyframe_index, new_curve);
+            self.modified_project();
         }
     }
 
@@ -97,6 +99,7 @@ impl EditorState {
                     node.track = AutomationTrack::new_bool();
                 }
             }
+            self.modified_project();
         }
     }
 
@@ -111,11 +114,13 @@ impl EditorState {
                 AutomationTrack::Float { range, .. } => {
                     if let KeyframeValue::Float(max_value) = max_value {
                         *range = *range.start()..=max_value.max(*range.start());
+                        self.modified_project();
                     }
                 }
                 AutomationTrack::Int { range, .. } => {
                     if let KeyframeValue::Int(max_value) = max_value {
                         *range = *range.start()..=max_value.max(*range.start());
+                        self.modified_project();
                     }
                 }
                 AutomationTrack::Bool { .. } => (),
@@ -134,11 +139,13 @@ impl EditorState {
                 AutomationTrack::Float { range, .. } => {
                     if let KeyframeValue::Float(min_value) = min_value {
                         *range = min_value.min(*range.end())..=*range.end();
+                        self.modified_project();
                     }
                 }
                 AutomationTrack::Int { range, .. } => {
                     if let KeyframeValue::Int(min_value) = min_value {
                         *range = min_value.min(*range.end())..=*range.end();
+                        self.modified_project();
                     }
                 }
                 AutomationTrack::Bool { .. } => (),
