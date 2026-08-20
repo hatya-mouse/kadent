@@ -88,7 +88,10 @@ impl EditorState {
                     |ui| {
                         for track_type in AutomationTrackType::all() {
                             if ui
-                                .selectable_label(current_track_type == *track_type, "Float")
+                                .selectable_label(
+                                    current_track_type == *track_type,
+                                    track_type_to_string(track_type),
+                                )
                                 .clicked()
                             {
                                 self.actions.push_action(EditorAction::SetAutomationType(
