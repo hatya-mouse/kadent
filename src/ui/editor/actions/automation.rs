@@ -29,6 +29,7 @@ impl EditorState {
         let keyframe_index = track.add_keyframe(keyframe);
         self.selection
             .select_keyframe(*track_id, *node_id, keyframe_index);
+        self.modified_project();
     }
 
     pub(super) fn remove_keyframe(
@@ -49,5 +50,6 @@ impl EditorState {
         };
 
         track.remove_keyframe(keyframe_index);
+        self.modified_project();
     }
 }

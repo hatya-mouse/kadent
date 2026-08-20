@@ -243,3 +243,7 @@ pub(crate) fn keyframe_stroke(dark_mode: bool) -> Stroke {
         },
     )
 }
+
+pub(crate) fn selected_keyframe() -> Color32 {
+    Color32::from_rgb(255, 220, 25)
+}

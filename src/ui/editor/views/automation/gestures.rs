@@ -10,36 +10,62 @@ use kadent_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
-    node::builtin::{CurveType, Keyframe},
+    node::builtin::{AutomationTrack, CurveType, Keyframe},
 };
 
 const KEYFRAME_CLICK_SIZE: f32 = 20.0;
 
-impl EditorState {
-    pub(super) fn add_keyframe_gesture(
-        &mut self,
-        response: &Response,
-        id: (TrackID, NodeID),
-        timeline_coord: &TimelineCoord,
-        scroll_rect: egui::Rect,
-        tpp: f32,
-    ) {
-        // Keyframe add gesture
-        if response.double_clicked()
-            && let Some(pos) = response.interact_pointer_pos()
-        {
-            let origin_pos = egui::pos2(
-                scroll_rect.min.x + TIMELINE_LEFT_PADDING - timeline_coord.scroll.x,
-                scroll_rect.min.y + timeline_coord.scroll.y,
-            );
-            let tick = Ticks(((pos.x - origin_pos.x) * tpp) as i64).max(Ticks::ZERO);
-            let value =
-                1.0 - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale);
-            let keyframe = Keyframe::new(tick, CurveType::Linear, value);
-            self.push_action(EditorAction::AddFloatKeyframe(id.0, id.1, keyframe));
-        }
-    }
+pub(super) fn add_keyframe_gesture(
+    response: &Response,
+    track: &AutomationTrack,
+    id: (TrackID, NodeID),
+    timeline_coord: &TimelineCoord,
+    scroll_rect: egui::Rect,
+    tpp: f32,
+) -> Option<EditorAction> {
+    // Keyframe add gesture
+    if response.double_clicked()
+        && let Some(pos) = response.interact_pointer_pos()
+    {
+        let origin_pos = egui::pos2(
+            scroll_rect.min.x + TIMELINE_LEFT_PADDING - timeline_coord.scroll.x,
+            scroll_rect.min.y - timeline_coord.scroll.y,
+        );
+        let tick = Ticks(((pos.x - origin_pos.x) * tpp) as i64).max(Ticks::ZERO);
 
+        match track {
+            AutomationTrack::Float { range, .. } => {
+                let value = (1.0
+                    - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale))
+                    .clamp(*range.start(), *range.end());
+                let keyframe = Keyframe::new(tick, CurveType::Linear, value);
+                Some(EditorAction::AddFloatKeyframe(id.0, id.1, keyframe))
+            }
+            AutomationTrack::Int { range, .. } => {
+                let value = ((1.0
+                    - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale))
+                    .round() as i32)
+                    .clamp(*range.start(), *range.end());
+                let keyframe = Keyframe::new(tick, CurveType::Step, value);
+                Some(EditorAction::AddIntKeyframe(id.0, id.1, keyframe))
+            }
+            AutomationTrack::Bool { .. } => {
+                let half_height = scroll_rect.height() * timeline_coord.y_scale * 0.5;
+                let value = if pos.y - origin_pos.y < half_height {
+                    true
+                } else {
+                    false
+                };
+                let keyframe = Keyframe::new(tick, CurveType::Step, value);
+                Some(EditorAction::AddBoolKeyframe(id.0, id.1, keyframe))
+            }
+        }
+    } else {
+        None
+    }
+}
+
+impl EditorState {
     pub(super) fn select_keyframe_gesture(
         &mut self,
         response: &Response,

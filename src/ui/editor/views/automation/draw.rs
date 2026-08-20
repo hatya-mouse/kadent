@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 use crate::{
     consts::TIMELINE_LEFT_PADDING,
     ui::{
@@ -8,7 +10,7 @@ use crate::{
         theme,
     },
 };
-use eframe::egui::{self, Pos2};
+use eframe::egui::{self, Color32, Pos2};
 use kadent_engine::{
     data_types::Ticks,
     node::builtin::{AutomationTrack, CurveType},
@@ -51,28 +53,20 @@ pub(super) fn draw_automation_timeline(
     selection: &Selection,
     scroll_rect: egui::Rect,
 ) {
-    // Draw keyframes and curve based on the type of automation track
-    let painter = ui.painter_at(scroll_rect);
+    let curve_painter = ui.painter_at(scroll_rect);
 
     // Draw the curves based on the calculated positions
     for chunk in keyframe_positions.windows(2) {
         let first = chunk[0];
         let second = chunk[1];
-        draw_curve(&painter, &second.1, first.2, second.2);
-    }
-
-    // Draw the keyframes on the curves
-    let selected_index = selection.keyframe_index();
-    for (index, curve, pos) in keyframe_positions {
-        let is_selected = selected_index.is_some_and(|selected_index| *index == selected_index);
-        draw_keyframe(ui, &painter, is_selected, curve, *pos);
+        draw_curve(&curve_painter, &second.1, first.2, second.2);
     }
 
     // Draw the lines for the first and the last keyframe
     if let Some(first) = keyframe_positions.first()
         && first.2.x > scroll_rect.min.x
     {
-        painter.hline(
+        curve_painter.hline(
             scroll_rect.min.x..=first.2.x.min(scroll_rect.max.x),
             first.2.y,
             egui::Stroke::new(STROKE_WIDTH, theme::keyframe(&first.1)),
@@ -82,11 +76,20 @@ pub(super) fn draw_automation_timeline(
     if let Some(last) = keyframe_positions.last()
         && last.2.x < scroll_rect.max.x
     {
-        painter.hline(
+        curve_painter.hline(
             last.2.x.max(scroll_rect.min.x)..=scroll_rect.max.x,
             last.2.y,
             egui::Stroke::new(STROKE_WIDTH, theme::keyframe(&last.1)),
         );
+    }
+
+    let keyframe_painter = ui.painter_at(scroll_rect);
+
+    // Draw the keyframes on the curves
+    let selected_index = selection.keyframe_index();
+    for (index, curve, pos) in keyframe_positions {
+        let is_selected = selected_index.is_some_and(|selected_index| *index == selected_index);
+        draw_keyframe(ui, &keyframe_painter, is_selected, curve, *pos);
     }
 }
 
@@ -116,9 +119,13 @@ fn draw_keyframe(
     curve: &CurveType,
     pos: egui::Pos2,
 ) {
-    let color = theme::keyframe(curve);
+    let color = if is_selected {
+        theme::keyframe(curve).mul(Color32::from_gray(127))
+    } else {
+        theme::keyframe(curve)
+    };
     let stroke = if is_selected {
-        egui::Stroke::new(2.0, theme::selected_bg())
+        egui::Stroke::new(2.0, theme::selected_keyframe())
     } else {
         theme::keyframe_stroke(ui.visuals().dark_mode)
     };

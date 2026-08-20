@@ -15,7 +15,10 @@ use crate::{
             utils::handle_timeline_zoom,
             views::{
                 PanelViewState,
-                automation::draw::{draw_automation_timeline, keyframe_positions},
+                automation::{
+                    draw::{draw_automation_timeline, keyframe_positions},
+                    gestures::add_keyframe_gesture,
+                },
             },
         },
     },
@@ -56,9 +59,9 @@ impl EditorState {
         let Some(automation_node) = self
             .project
             .data
-            .get_track_mut(&track_id)
-            .and_then(|track| track.get_graph_mut().get_node_mut(&node_id))
-            .and_then(|node| node.as_any_mut().downcast_mut::<AutomationNode>())
+            .get_track(&track_id)
+            .and_then(|track| track.get_graph().get_node(&node_id))
+            .and_then(|node| node.as_any().downcast_ref::<AutomationNode>())
         else {
             centered_text(ui, "No Automation Node Selected");
             return;
@@ -85,7 +88,7 @@ impl EditorState {
         })
         .inner;
 
-        let track = &mut automation_node.track;
+        let track = &automation_node.track;
         let tpp = timeline_coord.tpp(resolution);
         let keyframe_pos =
             keyframe_positions(track, &timeline_coord, scroll_rect, timeline_width, tpp);
@@ -109,13 +112,16 @@ impl EditorState {
 
         // Handle gestures
         let response = ui.allocate_rect(scroll_rect, egui::Sense::click());
-        self.add_keyframe_gesture(
+        if let Some(action) = add_keyframe_gesture(
             &response,
+            track,
             (track_id, node_id),
             &timeline_coord,
             scroll_rect,
             tpp,
-        );
+        ) {
+            self.push_action(action);
+        }
         self.select_keyframe_gesture(&response, &keyframe_pos);
 
         // Handle the zoom gesture and apply the scroll offset
