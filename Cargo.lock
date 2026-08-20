@@ -2369,7 +2369,7 @@ dependencies = [
 [[package]]
 name = "kadent_engine"
 version = "0.4.3"
-source = "git+https://github.com/hatya-mouse/kadent_engine#ee3c344974b47f2391846472265ce340b59de7a4"
+source = "git+https://github.com/hatya-mouse/kadent_engine#5c8e68e39d620ea19398b9b995f12d50973d60ee"
 dependencies = [
  "cpal",
  "hound",
@@ -6001,9 +6001,9 @@ dependencies = [
 
 [[package]]
 name = "zerovec"
-version = "0.11.7"
+version = "0.11.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94b5c6b5976d66c1d703c4fd17d3f5e43c8cedaacf604961b171adc7130896d8"
+checksum = "bb0464e17806c1d976d5cba29399c7f08e516e279e2ba493f63123b5fca67dd8"
 dependencies = [
  "yoke",
  "zerofrom",

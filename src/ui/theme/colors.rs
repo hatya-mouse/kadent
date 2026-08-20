@@ -227,3 +227,14 @@ pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {
 pub(crate) fn keyframe() -> Color32 {
     Color32::from_rgb(255, 113, 40)
 }
+
+pub(crate) fn keyframe_stroke(dark_mode: bool) -> Stroke {
+    Stroke::new(
+        1.0,
+        if dark_mode {
+            Color32::from_black_alpha(200)
+        } else {
+            Color32::WHITE
+        },
+    )
+}
