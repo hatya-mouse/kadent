@@ -5,7 +5,7 @@ use crate::ui::{
 use kadent_engine::{
     graph::node_id::NodeID,
     mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
+    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType, CurveType},
 };
 
 impl EditorState {
@@ -64,6 +64,18 @@ impl EditorState {
                 KeyframeValue::Int(value) => node.track.set_int_value(keyframe_index, value),
                 KeyframeValue::Bool(value) => node.track.set_bool_value(keyframe_index, value),
             }
+        }
+    }
+
+    pub(super) fn set_keyframe_curve_type(
+        &mut self,
+        track_id: &TrackID,
+        node_id: &NodeID,
+        keyframe_index: usize,
+        new_curve: CurveType,
+    ) {
+        if let Some(node) = self.get_automation_node_mut(track_id, node_id) {
+            node.track.set_curve_type(keyframe_index, new_curve);
         }
     }
 

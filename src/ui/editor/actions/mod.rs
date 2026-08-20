@@ -20,7 +20,7 @@ use kadent_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
-    node::builtin::{AutomationTrackType, Keyframe},
+    node::builtin::{AutomationTrackType, CurveType, Keyframe},
     thread::AudioResult,
     timing::{TimeBounds, TimePosition},
     track::{
@@ -146,6 +146,9 @@ pub(crate) enum EditorAction {
     /// Sets the value of the keyframe at the given index.
     /// `(track_id, node_id, keyframe_index, new_value)`
     SetKeyframeValue(TrackID, NodeID, usize, KeyframeValue),
+    /// Sets the keyframe curve type of the keyframe at the given index to the given one.
+    /// `(track_id, node_id, keyframe_index, new_curve)`
+    SetKeyframeCurveType(TrackID, NodeID, usize, CurveType),
     /// Changes the type of the track for the given automation node.
     /// `(track_id, node_id, new_type)`
     SetAutomationType(TrackID, NodeID, AutomationTrackType),
@@ -286,6 +289,14 @@ impl EditorState {
                     new_value,
                 ) => {
                     self.set_keyframe_value(track_id, node_id, keyframe_index, new_value);
+                }
+                EditorAction::SetKeyframeCurveType(
+                    ref track_id,
+                    ref node_id,
+                    keyframe_index,
+                    new_curve,
+                ) => {
+                    self.set_keyframe_curve_type(track_id, node_id, keyframe_index, new_curve);
                 }
                 EditorAction::SetAutomationType(ref track_id, ref node_id, new_type) => {
                     self.set_automation_type(track_id, node_id, new_type);

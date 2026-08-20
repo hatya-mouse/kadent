@@ -1,6 +1,6 @@
 use crate::ui::{
     EditorState,
-    components::text_input::text_input_with_callback,
+    components::{dropdown::dropdown_button, text_input::text_input_with_callback},
     editor::{
         actions::{EditorAction, KeyframeValue},
         views::inspector::{inspector_item, inspector_section},
@@ -11,7 +11,7 @@ use eframe::egui;
 use kadent_engine::{
     graph::node_id::NodeID,
     mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack},
+    node::builtin::{AutomationNode, AutomationTrack, CurveType},
 };
 
 impl EditorState {
@@ -72,6 +72,34 @@ impl EditorState {
                                 }
                             });
                         });
+
+                        inspector_item(ui, "Curve Type", |ui| {
+                            dropdown_button(
+                                ui,
+                                ui.id().with("curve_type"),
+                                curve_type_to_string(&keyframe.curve),
+                                |ui| {
+                                    for curve_type in CurveType::all() {
+                                        if ui
+                                            .selectable_label(
+                                                keyframe.curve.is_same_type(curve_type),
+                                                curve_type_to_string(curve_type),
+                                            )
+                                            .clicked()
+                                        {
+                                            self.actions.push_action(
+                                                EditorAction::SetKeyframeCurveType(
+                                                    *track_id,
+                                                    *node_id,
+                                                    keyframe_index,
+                                                    *curve_type,
+                                                ),
+                                            );
+                                        }
+                                    }
+                                },
+                            );
+                        });
                     }
                     AutomationTrack::Bool { keyframes, .. } => {
                         let Some(keyframe) = keyframes.get_mut(keyframe_index) else {
@@ -101,5 +129,13 @@ impl EditorState {
                 }
             },
         );
+    }
+}
+
+fn curve_type_to_string(curve_type: &CurveType) -> &'static str {
+    match curve_type {
+        CurveType::Linear => "Linear",
+        CurveType::Step => "Step",
+        CurveType::Smooth { tension: _ } => "Smooth",
     }
 }
