@@ -118,7 +118,7 @@ impl EditorState {
             .and_then(|device| device.id().ok());
 
         // Load the project structure and cache it
-        editor_ui.push_action(EditorAction::UpdateDirCache);
+        editor_ui.actions.push_action(EditorAction::UpdateDirCache);
         editor_ui.modified_project();
 
         // For each audio region, generate the waveforms
