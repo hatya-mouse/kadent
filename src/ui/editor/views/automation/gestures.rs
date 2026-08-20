@@ -13,6 +13,8 @@ use kadent_engine::{
     node::builtin::{CurveType, Keyframe},
 };
 
+const KEYFRAME_CLICK_SIZE: f32 = 20.0;
+
 impl EditorState {
     pub(super) fn add_keyframe_gesture(
         &mut self,
@@ -49,7 +51,8 @@ impl EditorState {
             };
 
             for (index, _, pos) in keyframe_pos {
-                let rect = egui::Rect::from_center_size(*pos, egui::vec2(16.0, 16.0));
+                let rect =
+                    egui::Rect::from_center_size(*pos, egui::Vec2::splat(KEYFRAME_CLICK_SIZE));
                 if rect.contains(hover_pos)
                     && let Some((track_id, node_id)) = self.selection.track_and_node_id()
                 {
