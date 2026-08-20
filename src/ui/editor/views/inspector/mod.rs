@@ -1,3 +1,4 @@
+mod keyframe;
 mod node;
 mod note;
 mod region;
@@ -39,6 +40,11 @@ impl EditorState {
                 Selection::Node(track_id, node_id) => {
                     self.track_inspector(ui, &track_id);
                     self.node_inspector(ui, &track_id, &node_id);
+                }
+                Selection::Keyframe(track_id, node_id, keyframe_index) => {
+                    self.track_inspector(ui, &track_id);
+                    self.node_inspector(ui, &track_id, &node_id);
+                    self.keyframe_inspector(ui, &track_id, &node_id, keyframe_index);
                 }
                 Selection::None => {
                     ui.centered_and_justified(|ui| {

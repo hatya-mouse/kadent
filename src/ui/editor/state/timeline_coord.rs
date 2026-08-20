@@ -49,4 +49,26 @@ impl TimelineCoord {
             scroll,
         }
     }
+
+    /// Applies the scroll offset in the following priority order:
+    /// Scroll Bar > Zoom > Scroll Area
+    pub fn apply_scroll(
+        &mut self,
+        bar_scroll_x: Option<f32>,
+        zoom_output: Option<TimelineCoord>,
+        scroll_area_output: egui::Vec2,
+    ) {
+        match bar_scroll_x {
+            Some(bar_scroll_x) => {
+                self.scroll.x = bar_scroll_x;
+            }
+            None => {
+                if let Some(zoom_output) = zoom_output {
+                    *self = zoom_output;
+                } else {
+                    self.scroll = scroll_area_output;
+                }
+            }
+        }
+    }
 }

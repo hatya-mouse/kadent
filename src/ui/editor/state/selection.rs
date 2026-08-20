@@ -11,6 +11,7 @@ pub(crate) enum Selection {
     Track(TrackID),
     Region(TrackID, RegionID),
     Node(TrackID, NodeID),
+    Keyframe(TrackID, NodeID, usize),
     Note(TrackID, RegionID, NoteID),
 }
 
@@ -29,6 +30,15 @@ impl Selection {
         *self = Selection::Node(track_id, node_id);
     }
 
+    pub(crate) fn select_keyframe(
+        &mut self,
+        track_id: TrackID,
+        node_id: NodeID,
+        keyframe_index: usize,
+    ) {
+        *self = Selection::Keyframe(track_id, node_id, keyframe_index);
+    }
+
     pub(crate) fn select_note(&mut self, track_id: TrackID, region_id: RegionID, note_id: NoteID) {
         *self = Selection::Note(track_id, region_id, note_id);
     }
@@ -44,6 +54,7 @@ impl Selection {
             Selection::Track(track_id) => Some(*track_id),
             Selection::Region(track_id, _) => Some(*track_id),
             Selection::Node(track_id, _) => Some(*track_id),
+            Selection::Keyframe(track_id, _, _) => Some(*track_id),
             Selection::Note(track_id, _, _) => Some(*track_id),
             Selection::None => None,
         }
@@ -67,6 +78,7 @@ impl Selection {
     pub(crate) fn node_id(&self) -> Option<NodeID> {
         match self {
             Selection::Node(_, node_id) => Some(*node_id),
+            Selection::Keyframe(_, node_id, _) => Some(*node_id),
             _ => None,
         }
     }
@@ -75,6 +87,13 @@ impl Selection {
         match self {
             Selection::Region(track_id, region_id) => Some((*track_id, *region_id)),
             Selection::Note(track_id, region_id, _) => Some((*track_id, *region_id)),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn keyframe_index(&self) -> Option<usize> {
+        match self {
+            Selection::Keyframe(_, _, index) => Some(*index),
             _ => None,
         }
     }

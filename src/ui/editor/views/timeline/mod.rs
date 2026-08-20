@@ -6,11 +6,16 @@ mod track_list;
 pub(crate) use state::TimelineState;
 
 use crate::{
-    consts::{MAX_TRACK_LIST_WIDTH, MIN_TRACK_LIST_WIDTH, TIMELINE_LEFT_PADDING},
+    consts::{
+        MAX_TRACK_HEIGHT, MAX_TRACK_LIST_WIDTH, MIN_TRACK_HEIGHT, MIN_TRACK_LIST_WIDTH,
+        TIMELINE_LEFT_PADDING,
+    },
     ui::{
         EditorState,
         components::panel_header::panel_header,
-        editor::{PanelView, state::TimelineCoord, views::PanelViewState},
+        editor::{
+            PanelView, state::TimelineCoord, utils::handle_timeline_zoom, views::PanelViewState,
+        },
         theme,
     },
 };
@@ -55,7 +60,7 @@ impl EditorState {
         let max_scroll = (timeline_width - visible_width).max(0.0);
         timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 
-        let new_scroll_x = panel_header(ui, egui::Margin::ZERO, |ui| {
+        let bar_scroll_x = panel_header(ui, egui::Margin::ZERO, |ui| {
             self.ruler_area(
                 ui,
                 &timeline_coord,
@@ -85,22 +90,29 @@ impl EditorState {
                         // Draw divider later to avoid ScrollArea overlapping the divider
                         let divider_resp = ui.allocate_rect(divider_rect, egui::Sense::drag());
 
-                        let scroll_output = egui::ScrollArea::horizontal()
+                        let scroll_res = egui::ScrollArea::horizontal()
                             .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
                             .horizontal_scroll_offset(timeline_coord.scroll.x)
                             .show(ui, |ui| {
                                 ui.set_min_height(panel_rect.height());
-                                self.track_edit_panel(ui, &mut timeline_coord, timeline_width)
+                                self.track_edit_panel(ui, &timeline_coord, timeline_width)
                             });
+                        let zoom_gesture_res = handle_timeline_zoom(
+                            ui,
+                            panel_rect.with_min_x(panel_rect.min.x + track_list_width),
+                            &timeline_coord,
+                            TIMELINE_LEFT_PADDING,
+                            MIN_TRACK_HEIGHT,
+                            MAX_TRACK_HEIGHT,
+                        );
 
-                        // If the timeline is scrolled via the top scroll bar, prefer the `new_scroll_x`
-                        // If a zoom gesture requested a specific scroll offset this frame, use
-                        // that instead of the ScrollArea's own offset
-                        let final_offset = new_scroll_x
-                            .unwrap_or(scroll_output.inner.unwrap_or(scroll_output.state.offset.x));
-                        timeline_coord.scroll.x = final_offset;
+                        timeline_coord.apply_scroll(
+                            bar_scroll_x,
+                            zoom_gesture_res,
+                            scroll_res.state.offset,
+                        );
 
-                        // Handle dragging the divider and draw the divider
+                        // Handle divider drag and then draw the divider
                         if divider_resp.dragged() {
                             track_list_width = (track_list_width + divider_resp.drag_delta().x)
                                 .min(panel_width * 0.5)

@@ -60,7 +60,7 @@ impl EditorState {
         let ruler_screen_rect = total_rect.with_max_y(ruler_bottom_y);
         let note_grid_rect = total_rect.with_min_y(ruler_bottom_y);
 
-        let PanelViewState::PianoRoll(timeline_coord) = self
+        let PanelViewState::PianoRoll(mut timeline_coord) = self
             .views
             .get_panel_state_or_insert(panel_id, PanelView::PianoRoll, || {
                 PanelViewState::PianoRoll(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
@@ -86,7 +86,7 @@ impl EditorState {
         let scroll_content_height = (128.0 * timeline_coord.y_scale).max(note_grid_rect.height());
         let scroll_content_size = egui::vec2(scroll_content_width, scroll_content_height);
 
-        let (new_scroll_x, ruler_res) = panel_header(ui, egui::Margin::ZERO, |ui| {
+        let (bar_scroll_x, ruler_res) = panel_header(ui, egui::Margin::ZERO, |ui| {
             let ruler_config =
                 RulerConfig::new(region_start, 0.0, self.project.data.audio_ctx.resolution);
 
@@ -104,7 +104,7 @@ impl EditorState {
         self.apply_ruler_res(&ruler_res);
 
         // Draw the notes
-        let scroll_output = egui::ScrollArea::both()
+        let scroll_res = egui::ScrollArea::both()
             .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
             .scroll_offset(timeline_coord.scroll)
             .show(ui, |ui| {
@@ -128,28 +128,18 @@ impl EditorState {
                 )
             });
 
-        // Prioritize scroll bar click over the scroll area's own offset
-        let mut new_timeline_coord = match new_scroll_x {
-            Some(new_scroll_x) => {
-                timeline_coord.with_scroll(egui::vec2(new_scroll_x, timeline_coord.scroll.y))
-            }
-            None => scroll_output
-                .inner
-                .unwrap_or_else(|| timeline_coord.with_scroll(scroll_output.state.offset)),
-        };
+        timeline_coord.apply_scroll(bar_scroll_x, scroll_res.inner, scroll_res.state.offset);
 
         // Clamp the scroll by zero and the end of the content so that it never exceeds the content
         // especially when zooming out
         let max_scroll_x = (scroll_content_width - note_grid_rect.width()).max(0.0);
         let max_scroll_y = (scroll_content_height - note_grid_rect.height()).max(0.0);
-        new_timeline_coord.scroll = egui::vec2(
-            new_timeline_coord.scroll.x.clamp(0.0, max_scroll_x),
-            new_timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
+        timeline_coord.scroll = egui::vec2(
+            timeline_coord.scroll.x.clamp(0.0, max_scroll_x),
+            timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
         );
 
-        self.views.insert_panel_state(
-            panel_id,
-            PanelViewState::PianoRoll(new_timeline_coord.clone()),
-        );
+        self.views
+            .insert_panel_state(panel_id, PanelViewState::PianoRoll(timeline_coord.clone()));
     }
 }

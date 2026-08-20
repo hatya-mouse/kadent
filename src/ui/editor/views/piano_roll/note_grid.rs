@@ -1,12 +1,7 @@
-use crate::{
-    consts::{TIMELINE_MAX_PPB, TIMELINE_MIN_PPB},
-    ui::editor::actions::EditorAction,
-    ui::{
-        EditorState,
-        editor::{StatusHint, TimelineCoord},
-        theme,
-        zoom::zoom_scroll_offset,
-    },
+use crate::ui::{
+    EditorState,
+    editor::{StatusHint, TimelineCoord, actions::EditorAction, utils::handle_timeline_zoom},
+    theme,
 };
 use eframe::egui;
 use kadent_engine::{
@@ -123,7 +118,6 @@ impl EditorState {
         region_id: &RegionID,
     ) -> Option<TimelineCoord> {
         let resolution = self.project.data.audio_ctx.resolution;
-        let ppb = timeline_coord.ppb;
         let note_height = timeline_coord.y_scale;
         let scroll_amount = timeline_coord.scroll;
         let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
@@ -160,42 +154,14 @@ impl EditorState {
             return None;
         }
 
-        let zoom_delta = ui.input(|i| i.zoom_delta());
-        if zoom_delta == 1.0 {
-            return None;
-        }
-        let cursor_pos = ui.input(|i| i.pointer.hover_pos())?;
-
-        // Only zoom to adjust pixels per beat, and press shift to adjust the note height
-        let shift = ui.input(|i| i.modifiers.shift);
-
-        if shift {
-            let rows_from_top_at_cursor =
-                (scroll_amount.y + cursor_pos.y - note_grid_rect.min.y) / note_height;
-            let new_note_height =
-                (note_height * zoom_delta).clamp(MIN_NOTE_HEIGHT, MAX_NOTE_HEIGHT);
-            let new_scroll_y = zoom_scroll_offset(
-                timeline_coord.scroll.y,
-                rows_from_top_at_cursor,
-                note_height,
-                new_note_height,
-            );
-
-            Some(timeline_coord.with_zoom_and_scroll(
-                new_note_height,
-                egui::vec2(scroll_amount.x, new_scroll_y.max(0.0)),
-            ))
-        } else {
-            // Horizontal zoom (pixels per beat), centered on the cursor
-            let beats_at_cursor = (scroll_amount.x + cursor_pos.x - note_grid_rect.min.x) / ppb;
-            let new_ppb = (ppb * zoom_delta).clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
-            let new_scroll_x = zoom_scroll_offset(scroll_amount.x, beats_at_cursor, ppb, new_ppb);
-
-            Some(
-                timeline_coord
-                    .with_ppb_and_scroll(new_ppb, egui::vec2(new_scroll_x, scroll_amount.y)),
-            )
-        }
+        handle_timeline_zoom(
+            ui,
+            note_grid_rect,
+            timeline_coord,
+            0.0,
+            MIN_NOTE_HEIGHT,
+            MAX_NOTE_HEIGHT,
+        )
     }
 
     fn note_controls(

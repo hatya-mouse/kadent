@@ -1,5 +1,7 @@
+use eframe::egui;
+
 use crate::{
-    consts::{TIMELINE_LEFT_PADDING, TIMELINE_RIGHT_PADDING},
+    consts::{TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB, TIMELINE_RIGHT_PADDING},
     ui::{EditorState, editor::TimelineCoord},
 };
 
@@ -42,4 +44,70 @@ impl EditorState {
 
         playhead_content_x - visible_half_width
     }
+}
+
+/// Handles timeline gesture and returns the updated timeline coordinate.
+pub(super) fn handle_timeline_zoom(
+    ui: &egui::Ui,
+    timeline_rect: egui::Rect,
+    timeline_coord: &TimelineCoord,
+    left_padding: f32,
+    min_y_scale: f32,
+    max_y_scale: f32,
+) -> Option<TimelineCoord> {
+    let ppb = timeline_coord.ppb;
+    let y_scale = timeline_coord.y_scale;
+    let scroll_amount = timeline_coord.scroll;
+
+    let cursor_pos = ui.input(|i| i.pointer.hover_pos())?;
+    if !timeline_rect.contains(cursor_pos) {
+        return None;
+    }
+
+    // Get the zoom amount from the input
+    let zoom_delta = ui.input(|i| i.zoom_delta());
+    if zoom_delta == 1.0 {
+        return None;
+    }
+
+    // Only zoom to adjust pixels per beat, and press shift to adjust the note height
+    let shift = ui.input(|i| i.modifiers.shift);
+
+    if shift {
+        let rows_from_top_at_cursor =
+            (scroll_amount.y + cursor_pos.y - timeline_rect.min.y) / y_scale;
+        let new_y_scale = (y_scale * zoom_delta).clamp(min_y_scale, max_y_scale);
+        let new_scroll_y = zoom_scroll_offset(
+            timeline_coord.scroll.y,
+            rows_from_top_at_cursor,
+            y_scale,
+            new_y_scale,
+        );
+
+        Some(timeline_coord.with_zoom_and_scroll(
+            new_y_scale,
+            egui::vec2(scroll_amount.x, new_scroll_y).max(egui::Vec2::ZERO),
+        ))
+    } else {
+        // Horizontal zoom (pixels per beat), centered on the cursor
+        let beats_at_cursor =
+            (scroll_amount.x + cursor_pos.x - timeline_rect.min.x - left_padding) / ppb;
+        let new_ppb = (ppb * zoom_delta).clamp(TIMELINE_MIN_PPB, TIMELINE_MAX_PPB);
+        let new_scroll_x = zoom_scroll_offset(scroll_amount.x, beats_at_cursor, ppb, new_ppb);
+
+        Some(timeline_coord.with_ppb_and_scroll(
+            new_ppb,
+            egui::vec2(new_scroll_x, scroll_amount.y).max(egui::Vec2::ZERO),
+        ))
+    }
+}
+
+/// Returns a new zoom scroll offset so that it zooms around the cursor.
+pub(crate) fn zoom_scroll_offset(
+    current_offset: f32,
+    value_at_cursor: f32,
+    old_scale: f32,
+    new_scale: f32,
+) -> f32 {
+    current_offset + value_at_cursor * (new_scale - old_scale)
 }

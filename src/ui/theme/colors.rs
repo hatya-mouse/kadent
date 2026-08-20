@@ -1,4 +1,5 @@
 use eframe::egui::{Color32, Stroke};
+use kadent_engine::node::builtin::CurveType;
 
 // --- FOREGROUND ---
 
@@ -224,17 +225,21 @@ pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {
 
 // --- KEYFRAMES ---
 
-pub(crate) fn keyframe() -> Color32 {
-    Color32::from_rgb(255, 113, 40)
+pub(crate) fn keyframe(curve: &CurveType) -> Color32 {
+    match curve {
+        CurveType::Step => Color32::from_rgb(254, 68, 36),
+        CurveType::Linear => Color32::from_rgb(18, 255, 81),
+        CurveType::Smooth { .. } => Color32::from_rgb(32, 172, 255),
+    }
 }
 
 pub(crate) fn keyframe_stroke(dark_mode: bool) -> Stroke {
     Stroke::new(
-        1.0,
+        2.0,
         if dark_mode {
-            Color32::from_black_alpha(200)
-        } else {
             Color32::WHITE
+        } else {
+            Color32::from_black_alpha(200)
         },
     )
 }
