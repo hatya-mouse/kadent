@@ -1,4 +1,5 @@
 mod draw;
+mod gestures;
 
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
@@ -12,18 +13,17 @@ use crate::{
         editor::{
             PanelView, TimelineCoord,
             utils::handle_timeline_zoom,
-            views::{PanelViewState, automation::draw::draw_automation_timeline},
+            views::{
+                PanelViewState,
+                automation::draw::{draw_automation_timeline, keyframe_positions},
+            },
         },
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
-use kadent_engine::{
-    data_types::Ticks,
-    node::builtin::{AutomationNode, CurveType, Keyframe},
-};
+use kadent_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use uuid::Uuid;
 
-const VERTICAL_PADDING: f32 = 20.0;
 const STROKE_WIDTH: f32 = 4.0;
 const KEYFRAME_SIZE: f32 = 5.0;
 const MIN_AUTOMATION_SCALE: f32 = 1.0;
@@ -87,6 +87,8 @@ impl EditorState {
 
         let track = &mut automation_node.track;
         let tpp = timeline_coord.tpp(resolution);
+        let keyframe_pos =
+            keyframe_positions(track, &timeline_coord, scroll_rect, timeline_width, tpp);
 
         // Draw the automation timeline and keyframes
         let scroll_res = egui::CentralPanel::default()
@@ -94,41 +96,30 @@ impl EditorState {
             .show_inside(ui, |ui| {
                 egui::ScrollArea::both()
                     .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                    .horizontal_scroll_offset(timeline_coord.scroll.x)
-                    .vertical_scroll_offset(timeline_coord.scroll.y)
+                    .scroll_offset(timeline_coord.scroll)
                     .show(ui, |ui| {
-                        ui.set_min_width(timeline_width);
-                        draw_automation_timeline(
-                            ui,
-                            &self.selection,
-                            track,
-                            &timeline_coord,
-                            scroll_rect,
+                        ui.set_min_size(egui::vec2(
                             timeline_width,
-                            tpp,
-                        );
+                            scroll_rect.height() * timeline_coord.y_scale,
+                        ));
+                        draw_automation_timeline(ui, &keyframe_pos, &self.selection, scroll_rect);
                     })
             })
             .inner;
 
         // Handle gestures
         let response = ui.allocate_rect(scroll_rect, egui::Sense::click());
-        if response.double_clicked()
-            && let Some(pos) = response.interact_pointer_pos()
-        {
-            let origin_pos = egui::pos2(
-                scroll_rect.min.x + TIMELINE_LEFT_PADDING - timeline_coord.scroll.x,
-                scroll_rect.min.y + timeline_coord.scroll.y,
-            );
-            let tick = Ticks(((pos.x - origin_pos.x) * tpp) as i64).max(Ticks::ZERO);
-            let value =
-                1.0 - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale);
-            let keyframe = Keyframe::new(tick, CurveType::Linear, value);
-            track.add_keyframe(keyframe);
-        }
+        self.add_keyframe_gesture(
+            &response,
+            (track_id, node_id),
+            &timeline_coord,
+            scroll_rect,
+            tpp,
+        );
+        self.select_keyframe_gesture(&response, &keyframe_pos);
 
         // Handle the zoom gesture and apply the scroll offset
-        let zoom_gesture_output = handle_timeline_zoom(
+        let zoom_gesture_res = handle_timeline_zoom(
             ui,
             scroll_rect,
             &timeline_coord,
@@ -136,7 +127,7 @@ impl EditorState {
             MIN_AUTOMATION_SCALE,
             MAX_AUTOMATION_SCALE,
         );
-        timeline_coord.apply_scroll(bar_scroll_x, zoom_gesture_output, scroll_res.state.offset);
+        timeline_coord.apply_scroll(bar_scroll_x, zoom_gesture_res, scroll_res.state.offset);
 
         self.views
             .insert_panel_state(panel_id, PanelViewState::Automation(timeline_coord));

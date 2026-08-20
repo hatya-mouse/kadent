@@ -8,21 +8,19 @@ use crate::{
         theme,
     },
 };
-use eframe::egui;
+use eframe::egui::{self, Pos2};
 use kadent_engine::{
     data_types::Ticks,
     node::builtin::{AutomationTrack, CurveType},
 };
 
-pub(super) fn draw_automation_timeline(
-    ui: &egui::Ui,
-    selection: &Selection,
+pub(super) fn keyframe_positions(
     track: &AutomationTrack,
     timeline_coord: &TimelineCoord,
     scroll_rect: egui::Rect,
     timeline_width: f32,
     tpp: f32,
-) {
+) -> Vec<(usize, CurveType, Pos2)> {
     let ppt = 1.0 / tpp;
 
     // Calculate the visible range of the keyframes and get normalized keyframe values based on it
@@ -31,9 +29,6 @@ pub(super) fn draw_automation_timeline(
     let visible_range = start_tick..end_tick;
 
     let normalized = track.normalized_keyframes_around(visible_range);
-
-    // Draw keyframes and curve based on the type of automation track
-    let painter = ui.painter_at(scroll_rect);
 
     let mut keyframe_positions = Vec::with_capacity(normalized.len());
     for keyframe in normalized.into_iter() {
@@ -47,6 +42,18 @@ pub(super) fn draw_automation_timeline(
         keyframe_positions.push((keyframe.index, keyframe.curve, pos));
     }
 
+    keyframe_positions
+}
+
+pub(super) fn draw_automation_timeline(
+    ui: &egui::Ui,
+    keyframe_positions: &[(usize, CurveType, Pos2)],
+    selection: &Selection,
+    scroll_rect: egui::Rect,
+) {
+    // Draw keyframes and curve based on the type of automation track
+    let painter = ui.painter_at(scroll_rect);
+
     // Draw the curves based on the calculated positions
     for chunk in keyframe_positions.windows(2) {
         let first = chunk[0];
@@ -56,7 +63,7 @@ pub(super) fn draw_automation_timeline(
 
     // Draw the keyframes on the curves
     let selected_index = selection.keyframe_index();
-    for (index, curve, pos) in &keyframe_positions {
+    for (index, curve, pos) in keyframe_positions {
         let is_selected = selected_index.is_some_and(|selected_index| *index == selected_index);
         draw_keyframe(ui, &painter, is_selected, curve, *pos);
     }

@@ -42,14 +42,6 @@ impl TimelineCoord {
         }
     }
 
-    pub fn with_scroll(&self, scroll: egui::Vec2) -> Self {
-        Self {
-            ppb: self.ppb,
-            y_scale: self.y_scale,
-            scroll,
-        }
-    }
-
     /// Applies the scroll offset in the following priority order:
     /// Scroll Bar > Zoom > Scroll Area
     pub fn apply_scroll(

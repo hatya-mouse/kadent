@@ -27,6 +27,13 @@ impl EditorState {
                 Selection::Note(track_id, region_id, note_id) => {
                     self.push_action(EditorAction::RemoveNote(track_id, region_id, note_id));
                 }
+                Selection::Keyframe(track_id, region_id, keyframe_index) => {
+                    self.push_action(EditorAction::RemoveKeyframe(
+                        track_id,
+                        region_id,
+                        keyframe_index,
+                    ));
+                }
                 _ => (),
             }
         }

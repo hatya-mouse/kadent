@@ -1,0 +1,62 @@
+use crate::{
+    consts::TIMELINE_LEFT_PADDING,
+    ui::{
+        EditorState,
+        editor::{TimelineCoord, actions::EditorAction},
+    },
+};
+use eframe::egui::{self, Response};
+use kadent_engine::{
+    data_types::Ticks,
+    graph::node_id::NodeID,
+    mixer::TrackID,
+    node::builtin::{CurveType, Keyframe},
+};
+
+impl EditorState {
+    pub(super) fn add_keyframe_gesture(
+        &mut self,
+        response: &Response,
+        id: (TrackID, NodeID),
+        timeline_coord: &TimelineCoord,
+        scroll_rect: egui::Rect,
+        tpp: f32,
+    ) {
+        // Keyframe add gesture
+        if response.double_clicked()
+            && let Some(pos) = response.interact_pointer_pos()
+        {
+            let origin_pos = egui::pos2(
+                scroll_rect.min.x + TIMELINE_LEFT_PADDING - timeline_coord.scroll.x,
+                scroll_rect.min.y + timeline_coord.scroll.y,
+            );
+            let tick = Ticks(((pos.x - origin_pos.x) * tpp) as i64).max(Ticks::ZERO);
+            let value =
+                1.0 - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale);
+            let keyframe = Keyframe::new(tick, CurveType::Linear, value);
+            self.push_action(EditorAction::AddFloatKeyframe(id.0, id.1, keyframe));
+        }
+    }
+
+    pub(super) fn select_keyframe_gesture(
+        &mut self,
+        response: &Response,
+        keyframe_pos: &[(usize, CurveType, egui::Pos2)],
+    ) {
+        if response.clicked() {
+            let Some(hover_pos) = response.hover_pos() else {
+                return;
+            };
+
+            for (index, _, pos) in keyframe_pos {
+                let rect = egui::Rect::from_center_size(*pos, egui::vec2(16.0, 16.0));
+                if rect.contains(hover_pos)
+                    && let Some((track_id, node_id)) = self.selection.track_and_node_id()
+                {
+                    self.selection.select_keyframe(track_id, node_id, *index);
+                    return;
+                }
+            }
+        }
+    }
+}

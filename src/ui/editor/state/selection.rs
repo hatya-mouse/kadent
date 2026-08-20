@@ -91,6 +91,14 @@ impl Selection {
         }
     }
 
+    pub(crate) fn track_and_node_id(&self) -> Option<(TrackID, NodeID)> {
+        match self {
+            Selection::Node(track_id, node_id) => Some((*track_id, *node_id)),
+            Selection::Keyframe(track_id, node_id, _) => Some((*track_id, *node_id)),
+            _ => None,
+        }
+    }
+
     pub(crate) fn keyframe_index(&self) -> Option<usize> {
         match self {
             Selection::Keyframe(_, _, index) => Some(*index),

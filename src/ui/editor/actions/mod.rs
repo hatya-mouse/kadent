@@ -1,5 +1,6 @@
 //! Processes the actions that are executed in the UI thread at the end of the frame.
 
+mod automation;
 mod graph;
 mod midi;
 mod note;
@@ -19,6 +20,7 @@ use kadent_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
+    node::builtin::Keyframe,
     thread::AudioResult,
     timing::{TimeBounds, TimePosition},
     track::{
@@ -119,6 +121,20 @@ pub(crate) enum EditorAction {
     /// Remove a node from the given track.
     /// `(track_id, node_id)`
     RemoveNode(TrackID, NodeID),
+
+    // --- AUTOMATION ---
+    /// Adds a new float keyframe to the given automation node.
+    /// `(track_id, node_id, keyframe)`
+    AddFloatKeyframe(TrackID, NodeID, Keyframe<f32>),
+    /// Adds a new int keyframe to the given automation node.
+    /// `(track_id, node_id, keyframe)`
+    AddIntKeyframe(TrackID, NodeID, Keyframe<i32>),
+    /// Adds a new bool keyframe to the given automation node.
+    /// `(track_id, node_id, keyframe)`
+    AddBoolKeyframe(TrackID, NodeID, Keyframe<bool>),
+    /// Removes a keyframe from the given automation node.
+    /// `(track_id, node_id, keyframe_index)`
+    RemoveKeyframe(TrackID, NodeID, usize),
 
     // --- NOTE ---
     /// Add a new note to the given note region.
@@ -234,6 +250,20 @@ impl EditorState {
                 }
                 EditorAction::RemoveNode(ref track_id, ref node_id) => {
                     self.remove_node(track_id, node_id)
+                }
+
+                // --- AUTOMATION ---
+                EditorAction::AddFloatKeyframe(ref track_id, ref node_id, keyframe) => {
+                    self.add_keyframe(track_id, node_id, keyframe);
+                }
+                EditorAction::AddIntKeyframe(ref track_id, ref node_id, keyframe) => {
+                    self.add_keyframe(track_id, node_id, keyframe);
+                }
+                EditorAction::AddBoolKeyframe(ref track_id, ref node_id, keyframe) => {
+                    self.add_keyframe(track_id, node_id, keyframe);
+                }
+                EditorAction::RemoveKeyframe(ref track_id, ref node_id, keyframe_index) => {
+                    self.remove_keyframe(track_id, node_id, keyframe_index);
                 }
 
                 // --- NOTE ---

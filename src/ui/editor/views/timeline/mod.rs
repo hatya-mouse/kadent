@@ -92,7 +92,7 @@ impl EditorState {
 
                         let scroll_res = egui::ScrollArea::horizontal()
                             .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                            .horizontal_scroll_offset(timeline_coord.scroll.x)
+                            .scroll_offset(timeline_coord.scroll)
                             .show(ui, |ui| {
                                 ui.set_min_height(panel_rect.height());
                                 self.track_edit_panel(ui, &timeline_coord, timeline_width)
@@ -105,7 +105,6 @@ impl EditorState {
                             MIN_TRACK_HEIGHT,
                             MAX_TRACK_HEIGHT,
                         );
-
                         timeline_coord.apply_scroll(
                             bar_scroll_x,
                             zoom_gesture_res,
