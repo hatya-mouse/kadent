@@ -107,7 +107,7 @@ impl EditorState {
 
             match &automation_node.track {
                 AutomationTrack::Float { range, .. } => {
-                    inspector_item(ui, "Max Value", |ui| {
+                    inspector_item(ui, "Max", |ui| {
                         text_input_with_callback(ui, range.end().to_string(), |new_max| {
                             if let Ok(new_max) = new_max.parse::<f32>() {
                                 self.actions
@@ -119,7 +119,7 @@ impl EditorState {
                             }
                         });
                     });
-                    inspector_item(ui, "Min Value", |ui| {
+                    inspector_item(ui, "Min", |ui| {
                         text_input_with_callback(ui, range.start().to_string(), |new_min| {
                             if let Ok(new_min) = new_min.parse::<f32>() {
                                 self.actions
@@ -133,7 +133,7 @@ impl EditorState {
                     });
                 }
                 AutomationTrack::Int { range, .. } => {
-                    inspector_item(ui, "Max Value", |ui| {
+                    inspector_item(ui, "Max", |ui| {
                         text_input_with_callback(ui, range.end().to_string(), |new_max| {
                             if let Ok(new_max) = new_max.parse::<i32>() {
                                 self.actions
@@ -145,7 +145,7 @@ impl EditorState {
                             }
                         });
                     });
-                    inspector_item(ui, "Min Value", |ui| {
+                    inspector_item(ui, "Min", |ui| {
                         text_input_with_callback(ui, range.start().to_string(), |new_min| {
                             if let Ok(new_min) = new_min.parse::<i32>() {
                                 self.actions

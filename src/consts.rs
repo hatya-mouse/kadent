@@ -53,7 +53,7 @@ pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
 /// The maximum width of the track list panel in pixels.
 pub(crate) const MAX_TRACK_LIST_WIDTH: f32 = 800.0;
 /// The minimum height of the track row in pixels.
-pub(crate) const MIN_TRACK_HEIGHT: f32 = 40.0;
+pub(crate) const MIN_TRACK_HEIGHT: f32 = 30.0;
 /// The maximum height of the track row in pixels.
 pub(crate) const MAX_TRACK_HEIGHT: f32 = 200.0;
 /// Extra pixels of empty space inserted before zero beat.

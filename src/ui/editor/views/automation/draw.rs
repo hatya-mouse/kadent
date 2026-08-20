@@ -1,11 +1,9 @@
-use std::ops::Mul;
-
 use crate::{
     consts::TIMELINE_LEFT_PADDING,
     ui::{
         editor::{
             Selection, TimelineCoord,
-            views::automation::{KEYFRAME_SIZE, STROKE_WIDTH},
+            views::automation::{KEYFRAME_CIRCLE_RADIUS, KEYFRAME_SQUARE_SIZE, STROKE_WIDTH},
         },
         theme,
     },
@@ -15,6 +13,7 @@ use kadent_engine::{
     data_types::Ticks,
     node::builtin::{AutomationTrack, CurveType},
 };
+use std::ops::Mul;
 
 pub(super) fn keyframe_positions(
     track: &AutomationTrack,
@@ -132,7 +131,7 @@ fn draw_keyframe(
     match curve {
         CurveType::Step => {
             painter.rect(
-                egui::Rect::from_center_size(pos, egui::Vec2::splat(KEYFRAME_SIZE)),
+                egui::Rect::from_center_size(pos, egui::Vec2::splat(KEYFRAME_SQUARE_SIZE)),
                 0.0,
                 color,
                 stroke,
@@ -142,11 +141,11 @@ fn draw_keyframe(
         CurveType::Linear => {
             let mut mesh = egui::Mesh::default();
             let outline = [
-                egui::pos2(pos.x, pos.y - KEYFRAME_SIZE),
-                egui::pos2(pos.x + KEYFRAME_SIZE, pos.y),
-                egui::pos2(pos.x, pos.y + KEYFRAME_SIZE),
-                egui::pos2(pos.x - KEYFRAME_SIZE, pos.y),
-                egui::pos2(pos.x, pos.y - KEYFRAME_SIZE),
+                egui::pos2(pos.x, pos.y - KEYFRAME_CIRCLE_RADIUS),
+                egui::pos2(pos.x + KEYFRAME_CIRCLE_RADIUS, pos.y),
+                egui::pos2(pos.x, pos.y + KEYFRAME_CIRCLE_RADIUS),
+                egui::pos2(pos.x - KEYFRAME_CIRCLE_RADIUS, pos.y),
+                egui::pos2(pos.x, pos.y - KEYFRAME_CIRCLE_RADIUS),
             ];
             mesh.colored_vertex(outline[0], color);
             mesh.colored_vertex(outline[1], color);
@@ -160,7 +159,7 @@ fn draw_keyframe(
             painter.line(outline.to_vec(), stroke);
         }
         CurveType::Smooth { .. } => {
-            painter.circle(pos, KEYFRAME_SIZE, color, stroke);
+            painter.circle(pos, KEYFRAME_CIRCLE_RADIUS, color, stroke);
         }
     }
 }
