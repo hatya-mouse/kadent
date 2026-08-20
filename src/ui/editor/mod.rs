@@ -14,7 +14,8 @@ pub(crate) use panel::{PanelNode, PanelView, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::{StatusBarState, StatusHint};
 pub(crate) use views::{
-    CodeEditorState, DialogState, NodeGraphState, PianoRollState, TimelineState, ViewStates,
+    AutomationState, CodeEditorState, DialogState, NodeGraphState, PianoRollState, TimelineState,
+    ViewStates,
 };
 
 use crate::{

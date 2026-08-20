@@ -1,5 +1,8 @@
 mod draw;
 mod gestures;
+mod state;
+
+pub(crate) use state::AutomationState;
 
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
@@ -10,20 +13,12 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{
-            PanelView, TimelineCoord,
-            utils::handle_timeline_zoom,
-            views::{
-                PanelViewState,
-                automation::{
-                    draw::{draw_automation_timeline, keyframe_positions},
-                    gestures::add_keyframe_gesture,
-                },
-            },
-        },
+        editor::{PanelView, TimelineCoord, utils::handle_timeline_zoom, views::PanelViewState},
     },
 };
+use draw::{draw_automation_timeline, keyframe_positions};
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
+use gestures::add_keyframe_gesture;
 use kadent_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use uuid::Uuid;
 
@@ -115,6 +110,7 @@ impl EditorState {
         if let Some(action) = add_keyframe_gesture(
             &response,
             track,
+            &self.views.automation.last_curve_type,
             (track_id, node_id),
             &timeline_coord,
             scroll_rect,

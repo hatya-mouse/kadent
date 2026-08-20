@@ -1,6 +1,6 @@
 use crate::ui::editor::{
-    CodeEditorState, DialogState, NodeGraphState, PanelView, PianoRollState, StatusBarState,
-    TimelineState, toolbar::ToolbarState, views::PanelViewState,
+    AutomationState, CodeEditorState, DialogState, NodeGraphState, PanelView, PianoRollState,
+    StatusBarState, TimelineState, toolbar::ToolbarState, views::PanelViewState,
 };
 use kadent_engine::thread::AudioError;
 use std::collections::{HashMap, hash_map::Entry};
@@ -17,6 +17,8 @@ pub(crate) struct ViewStates {
     pub node_graph: NodeGraphState,
     /// The current code editor state.
     pub code_editor: CodeEditorState,
+    /// the current automation editor state.
+    pub automation: AutomationState,
 
     // --- PANEL-SPECIFIC STATES ---
     /// The states for each panel, keyed by their unique ID.

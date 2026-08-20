@@ -18,6 +18,7 @@ const KEYFRAME_CLICK_SIZE: f32 = 20.0;
 pub(super) fn add_keyframe_gesture(
     response: &Response,
     track: &AutomationTrack,
+    last_curve_type: &Option<CurveType>,
     id: (TrackID, NodeID),
     timeline_coord: &TimelineCoord,
     scroll_rect: egui::Rect,
@@ -38,7 +39,8 @@ pub(super) fn add_keyframe_gesture(
                 let value = (1.0
                     - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale))
                     .clamp(*range.start(), *range.end());
-                let keyframe = Keyframe::new(tick, CurveType::Linear, value);
+                let keyframe =
+                    Keyframe::new(tick, last_curve_type.unwrap_or(CurveType::Linear), value);
                 Some(EditorAction::AddFloatKeyframe(id.0, id.1, keyframe))
             }
             AutomationTrack::Int { range, .. } => {
@@ -51,11 +53,7 @@ pub(super) fn add_keyframe_gesture(
             }
             AutomationTrack::Bool { .. } => {
                 let half_height = scroll_rect.height() * timeline_coord.y_scale * 0.5;
-                let value = if pos.y - origin_pos.y < half_height {
-                    true
-                } else {
-                    false
-                };
+                let value = pos.y - origin_pos.y < half_height;
                 let keyframe = Keyframe::new(tick, CurveType::Step, value);
                 Some(EditorAction::AddBoolKeyframe(id.0, id.1, keyframe))
             }
