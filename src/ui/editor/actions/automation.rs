@@ -29,9 +29,9 @@ impl EditorState {
     ) {
         if let Some(node) = self.get_automation_node_mut(track_id, node_id) {
             let keyframe_index = match keyframe {
-                KeyframeType::Float(keyframe) => node.track.add_keyframe(keyframe),
-                KeyframeType::Int(keyframe) => node.track.add_keyframe(keyframe),
-                KeyframeType::Bool(keyframe) => node.track.add_keyframe(keyframe),
+                KeyframeType::Float(keyframe) => node.track.add_float_keyframe(keyframe),
+                KeyframeType::Int(keyframe) => node.track.add_int_keyframe(keyframe),
+                KeyframeType::Bool(keyframe) => node.track.add_bool_keyframe(keyframe),
             };
             self.selection
                 .select_keyframe(*track_id, *node_id, keyframe_index);

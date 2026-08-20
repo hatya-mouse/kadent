@@ -38,10 +38,9 @@ pub(super) fn add_keyframe_gesture(
         let tick = Ticks(((pos.x - origin_pos.x) * tpp) as i64).max(Ticks::ZERO);
 
         match track {
-            AutomationTrack::Float { range, .. } => {
-                let value = (1.0
-                    - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale))
-                    .clamp(*range.start(), *range.end());
+            AutomationTrack::Float { .. } => {
+                let value =
+                    1.0 - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale);
                 let keyframe =
                     Keyframe::new(tick, last_curve_type.unwrap_or(CurveType::Linear), value);
                 Some(EditorAction::AddKeyframe(
@@ -50,11 +49,10 @@ pub(super) fn add_keyframe_gesture(
                     KeyframeType::Float(keyframe),
                 ))
             }
-            AutomationTrack::Int { range, .. } => {
-                let value = ((1.0
+            AutomationTrack::Int { .. } => {
+                let value = (1.0
                     - (pos.y - origin_pos.y) / (scroll_rect.height() * timeline_coord.y_scale))
-                    .round() as i32)
-                    .clamp(*range.start(), *range.end());
+                    .round() as i32;
                 let keyframe = Keyframe::new(tick, CurveType::Step, value);
                 Some(EditorAction::AddKeyframe(
                     id.0,
