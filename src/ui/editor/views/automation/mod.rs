@@ -120,7 +120,7 @@ impl EditorState {
         ) {
             self.actions.push_action(action);
         }
-        self.select_keyframe_gesture(&response, &keyframe_pos);
+        self.keyframe_click_gesture(&response, &keyframe_pos);
 
         // Handle the zoom gesture and apply the scroll offset
         let zoom_gesture_res = handle_timeline_zoom(
