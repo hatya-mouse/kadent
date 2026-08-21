@@ -81,7 +81,7 @@ impl EditorState {
         let tempo_map = &self.project.data.tempo_map;
         let origin_x = ruler_screen_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;
 
-        let (range_start, range_end) = self.project.meta.export_range.tick_range(tempo_map);
+        let (range_start, range_end) = self.project.data.export_range.tick_range(tempo_map);
         let range_duration = range_end - range_start;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
@@ -140,7 +140,7 @@ impl EditorState {
             // Avoid negative duration by using saturating_sub
             let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
             self.project
-                .meta
+                .data
                 .export_range
                 .set_duration_ticks(new_duration, tempo_map);
 
@@ -157,7 +157,7 @@ impl EditorState {
             let start_delta = new_start.0 - range_start.0;
             let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
 
-            self.project.meta.export_range = TimeBounds::Musical {
+            self.project.data.export_range = TimeBounds::Musical {
                 start: new_start,
                 duration: new_duration,
             };
@@ -170,7 +170,7 @@ impl EditorState {
         // Confirm the change when the mouse is released
         if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
             self.actions.push_action(EditorAction::SetProjectRange(
-                self.project.meta.export_range.clone(),
+                self.project.data.export_range.clone(),
             ));
         }
     }

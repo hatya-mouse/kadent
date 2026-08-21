@@ -12,35 +12,15 @@ use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE},
     storage::project::LoadProjResult,
 };
-use kadent_engine::{
-    data_types::{PlaybackContext, Ticks},
-    mixer::TrackID,
-    timing::TimeBounds,
-};
+use kadent_engine::{data_types::PlaybackContext, mixer::TrackID};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub(crate) struct ProjectMeta {
     pub tracks: HashMap<TrackID, TrackMeta>,
     pub track_order: Vec<TrackID>,
     pub kasl_search_paths: Vec<String>,
     pub export_ctx: PlaybackContext,
-    pub export_range: TimeBounds,
-}
-
-impl Default for ProjectMeta {
-    fn default() -> Self {
-        Self {
-            tracks: HashMap::new(),
-            track_order: Vec::new(),
-            kasl_search_paths: Vec::new(),
-            export_ctx: PlaybackContext::default(),
-            export_range: TimeBounds::Musical {
-                start: Ticks::ZERO,
-                duration: Ticks::ZERO,
-            },
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -68,7 +48,6 @@ impl ProjectMeta {
         let mut new_meta = ProjectMeta {
             kasl_search_paths: proj_res.project_meta.kasl_search_paths.clone(),
             export_ctx,
-            export_range: proj_res.project.export_range.clone(),
             ..Default::default()
         };
 

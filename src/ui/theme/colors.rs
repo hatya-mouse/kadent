@@ -228,7 +228,7 @@ pub(crate) fn peak_hold(dark_mode: bool) -> Color32 {
 pub(crate) fn keyframe(curve: &CurveType) -> Color32 {
     match curve {
         CurveType::Step => Color32::from_rgb(254, 68, 36),
-        CurveType::Linear => Color32::from_rgb(18, 255, 81),
+        CurveType::Linear => Color32::from_rgb(15, 212, 67),
         CurveType::Smooth { .. } => Color32::from_rgb(32, 172, 255),
     }
 }

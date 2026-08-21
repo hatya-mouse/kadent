@@ -22,10 +22,10 @@ use gestures::add_keyframe_gesture;
 use kadent_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use uuid::Uuid;
 
-const STROKE_WIDTH: f32 = 4.0;
-const KEYFRAME_CIRCLE_RADIUS: f32 = 5.0;
-const KEYFRAME_DIA_SIZE: f32 = 7.0;
-const KEYFRAME_SQUARE_SIZE: f32 = 10.0;
+const STROKE_WIDTH: f32 = 2.0;
+const KEYFRAME_CIRCLE_RADIUS: f32 = 4.0;
+const KEYFRAME_DIA_SIZE: f32 = 6.0;
+const KEYFRAME_SQUARE_SIZE: f32 = 8.0;
 const MIN_AUTOMATION_SCALE: f32 = 1.0;
 const MAX_AUTOMATION_SCALE: f32 = 10.0;
 

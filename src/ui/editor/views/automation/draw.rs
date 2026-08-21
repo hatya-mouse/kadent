@@ -148,6 +148,7 @@ fn draw_keyframe(
                 egui::pos2(pos.x, pos.y + KEYFRAME_DIA_SIZE),
                 egui::pos2(pos.x - KEYFRAME_DIA_SIZE, pos.y),
                 egui::pos2(pos.x, pos.y - KEYFRAME_DIA_SIZE),
+                egui::pos2(pos.x + KEYFRAME_DIA_SIZE, pos.y),
             ];
             mesh.colored_vertex(outline[0], color);
             mesh.colored_vertex(outline[1], color);

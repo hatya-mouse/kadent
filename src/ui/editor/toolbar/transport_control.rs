@@ -23,7 +23,7 @@ impl EditorState {
             .clicked()
             {
                 self.actions.push_action(EditorAction::Seek(
-                    self.project.meta.export_range.start_time(),
+                    self.project.data.export_range.start_time(),
                 ));
             }
 
@@ -60,7 +60,7 @@ impl EditorState {
             .clicked()
             {
                 self.actions.push_action(EditorAction::Seek(
-                    self.project.meta.export_range.end_time(),
+                    self.project.data.export_range.end_time(),
                 ));
             }
         });
