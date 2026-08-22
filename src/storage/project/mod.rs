@@ -2,6 +2,7 @@ mod error;
 mod init;
 mod new_project;
 mod open_project;
+mod serial;
 mod stored;
 
 pub(crate) use init::init_kasl_nodes;
@@ -37,13 +38,10 @@ struct StoredProjectFile {
 }
 
 /// Saves the given project to the given path. Returns an error if the file cannot be created or written to.
-///
-/// Writes to a temporary file first and renames it over `path` at the end, so a crash or a
-/// forced quit mid-write can never leave a half-written project file at `path`.
 pub(crate) fn save_project(
     path: &Path,
-    project: &ProjectData,
-    project_meta: &ProjectMeta,
+    data: &ProjectData,
+    meta: &ProjectMeta,
 ) -> std::io::Result<()> {
     let tmp_path = temp_path_for(path);
 
@@ -62,14 +60,10 @@ pub(crate) fn save_project(
         file.write_all(&minor_ver.to_le_bytes())?;
         file.write_all(&patch_ver.to_le_bytes())?;
 
-        // Serialize the metadata and the project together with postcard
-        let stored = StoredProjectFile {
-            project_meta: StoredProjMeta::from_project_meta(project_meta),
-            project: StoredProject::from_project(project),
-        };
-        let payload = postcard::to_allocvec(&stored)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-        file.write_all(&payload)?;
+        let data_bytes = sode::encode(&data)?;
+        file.write_all(&data_bytes)?;
+        let meta_bytes = sode::encode(&meta)?;
+        file.write_all(&meta_bytes)?;
         file.flush()?;
     }
 
