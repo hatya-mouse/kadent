@@ -30,7 +30,7 @@ pub(crate) fn init_kasl_nodes(
     // Drops any edges that reference ports no longer valid after a KASL source change.
     for track in project.tracks.values_mut() {
         let graph = track.get_graph_mut();
-        for (to, input_source) in graph.input_sources.clone() {
+        for (to, input_source) in graph.get_input_sources().clone() {
             if let InputSource::Edge(from_node, from_output) = input_source {
                 graph.remove_edge(&to);
                 graph.add_edge((from_node, from_output), to).ok();

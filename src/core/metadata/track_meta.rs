@@ -1,10 +1,5 @@
-use crate::core::audio_engine::track::{
-    RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack,
-};
-use crate::{
-    core::metadata::{GraphMeta, RegionMeta},
-    storage::project::StoredTrackMeta,
-};
+use crate::core::audio_engine::track::RegionID;
+use crate::core::metadata::{GraphMeta, RegionMeta};
 use eframe::egui;
 use std::{collections::HashMap, fmt::Display};
 
@@ -54,55 +49,6 @@ impl TrackMeta {
             track_type,
             regions: HashMap::new(),
             graph: GraphMeta::default(),
-        }
-    }
-
-    pub(crate) fn from_stored(track: &dyn Track, track_meta: &StoredTrackMeta) -> Self {
-        // Determine track type based on the track's type
-        if let Some(audio_track) = track.as_any().downcast_ref::<AudioTrack>() {
-            // Get the audio regions from the track
-            let mut regions = HashMap::new();
-            for (region_id, audio_region) in audio_track.get_all_regions() {
-                let Some(stored_region_meta) = track_meta.region_metas.get(region_id) else {
-                    continue;
-                };
-
-                regions.insert(
-                    *region_id,
-                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds.clone()),
-                );
-            }
-
-            Self {
-                name: track_meta.name.clone(),
-                color: track_meta.color(),
-                track_type: TrackType::Audio,
-                regions,
-                graph: track_meta.node_graph.to_graph_meta(),
-            }
-        } else if let Some(note_track) = track.as_any().downcast_ref::<NoteTrack>() {
-            // Get the note regions from the track
-            let mut regions = HashMap::new();
-            for (region_id, audio_region) in note_track.get_all_regions() {
-                let Some(stored_region_meta) = track_meta.region_metas.get(region_id) else {
-                    continue;
-                };
-
-                regions.insert(
-                    *region_id,
-                    RegionMeta::new(stored_region_meta.name.clone(), audio_region.bounds.clone()),
-                );
-            }
-
-            Self {
-                name: track_meta.name.clone(),
-                color: track_meta.color(),
-                track_type: TrackType::Note,
-                regions,
-                graph: track_meta.node_graph.to_graph_meta(),
-            }
-        } else {
-            unreachable!("There must be no tracks other than AudioTrack and NoteTrack");
         }
     }
 

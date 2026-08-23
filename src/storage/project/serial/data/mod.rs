@@ -1,4 +1,3 @@
-use super::restore_next_id;
 use crate::core::audio_engine::{
     data_types::AudioContext,
     mixer::{ProjectData, TrackID},
@@ -7,6 +6,25 @@ use crate::core::audio_engine::{
 };
 use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 use std::collections::HashMap;
+
+mod audio_track;
+mod automation;
+mod graph;
+mod node;
+mod note_track;
+mod tempo_map;
+mod track;
+
+fn restore_next_id<T>(used_ids: &[T]) -> u64
+where
+    T: Into<u64> + Copy,
+{
+    used_ids
+        .iter()
+        .map(|id| Into::into(*id))
+        .max()
+        .map_or(0, |max_id| max_id + 1)
+}
 
 // --- ProjectData ---
 

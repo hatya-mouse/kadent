@@ -1,12 +1,10 @@
-use crate::{
-    core::audio_engine::{
-        audio_data::AudioSource,
-        track::{
-            RegionID, Track,
-            audio_track::{AudioRegion, AudioTrack},
-        },
+use super::restore_next_id;
+use crate::core::audio_engine::{
+    audio_data::AudioSource,
+    track::{
+        RegionID, Track,
+        audio_track::{AudioRegion, AudioTrack},
     },
-    storage::project::serial::restore_next_id,
 };
 use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 use std::{collections::HashMap, path::PathBuf};

@@ -1,9 +1,7 @@
-use crate::{
-    core::audio_engine::track::{
-        RegionID, Track,
-        note_track::{Note, NoteID, NoteRegion, NoteTrack},
-    },
-    storage::project::serial::restore_next_id,
+use super::restore_next_id;
+use crate::core::audio_engine::track::{
+    RegionID, Track,
+    note_track::{Note, NoteID, NoteRegion, NoteTrack},
 };
 use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 use std::collections::HashMap;

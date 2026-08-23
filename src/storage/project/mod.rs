@@ -3,21 +3,13 @@ mod init;
 mod new_project;
 mod open_project;
 mod serial;
-mod stored;
 
 pub(crate) use init::init_kasl_nodes;
 pub(crate) use new_project::create_new_project;
 pub(crate) use open_project::open_project_to_ctx;
-pub(crate) use stored::StoredTrackMeta;
 
 use crate::core::audio_engine::mixer::ProjectData;
-use crate::{
-    core::metadata::ProjectMeta,
-    storage::project::{
-        error::LoadError,
-        stored::{StoredProjMeta, StoredProject},
-    },
-};
+use crate::{core::metadata::ProjectMeta, storage::project::error::LoadError};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
@@ -33,8 +25,8 @@ pub(crate) struct LoadProjResult {
 /// The full payload written after the "KADENT" + version header.
 #[derive(Serialize, Deserialize)]
 struct StoredProjectFile {
-    project_meta: StoredProjMeta,
-    project: StoredProject,
+    meta: ProjectMeta,
+    data: ProjectData,
 }
 
 /// Saves the given project to the given path. Returns an error if the file cannot be created or written to.

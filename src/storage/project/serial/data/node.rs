@@ -12,11 +12,11 @@ use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 
 impl Encode for Box<dyn Node> {
     fn encode(&self, e: &mut Encoder) -> Result<(), EncodeError> {
-        if let Some(node) = self.as_any().downcast_ref::<NoteInputNode>() {
+        if self.type_id() == std::any::TypeId::of::<NoteInputNode>() {
             e.field(0, &NodeType::NoteInput)?;
-        } else if let Some(node) = self.as_any().downcast_ref::<AudioInputNode>() {
+        } else if self.type_id() == std::any::TypeId::of::<AudioInputNode>() {
             e.field(0, &NodeType::AudioInput)?;
-        } else if let Some(node) = self.as_any().downcast_ref::<AudioOutputNode>() {
+        } else if let Some(_) = self.as_any().downcast_ref::<AudioOutputNode>() {
             e.field(0, &NodeType::AudioOutput)?;
         } else if let Some(node) = self.as_any().downcast_ref::<KaslNode>() {
             e.field(0, &NodeType::Kasl)?;
