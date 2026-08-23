@@ -4,9 +4,9 @@ use std::collections::HashSet;
 #[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 pub(crate) struct NoteID(pub(crate) u64);
 
-impl Into<u64> for NoteID {
-    fn into(self) -> u64 {
-        self.0
+impl From<NoteID> for u64 {
+    fn from(value: NoteID) -> u64 {
+        value.0
     }
 }
 

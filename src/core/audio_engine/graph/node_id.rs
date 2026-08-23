@@ -1,9 +1,9 @@
 #[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 pub(crate) struct NodeID(pub(crate) u64);
 
-impl Into<u64> for NodeID {
-    fn into(self) -> u64 {
-        self.0
+impl From<NodeID> for u64 {
+    fn from(value: NodeID) -> u64 {
+        value.0
     }
 }
 

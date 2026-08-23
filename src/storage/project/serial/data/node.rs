@@ -16,7 +16,7 @@ impl Encode for Box<dyn Node> {
             e.field(0, &NodeType::NoteInput)?;
         } else if self.type_id() == std::any::TypeId::of::<AudioInputNode>() {
             e.field(0, &NodeType::AudioInput)?;
-        } else if let Some(_) = self.as_any().downcast_ref::<AudioOutputNode>() {
+        } else if self.type_id() == std::any::TypeId::of::<AudioOutputNode>() {
             e.field(0, &NodeType::AudioOutput)?;
         } else if let Some(node) = self.as_any().downcast_ref::<KaslNode>() {
             e.field(0, &NodeType::Kasl)?;

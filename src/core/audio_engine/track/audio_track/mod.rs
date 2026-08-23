@@ -88,10 +88,6 @@ impl AudioTrack {
         self.regions.get(id)
     }
 
-    pub(crate) fn get_region_mut(&mut self, id: &RegionID) -> Option<&mut AudioRegion> {
-        self.regions.get_mut(id)
-    }
-
     pub(crate) fn get_all_regions(&self) -> &HashMap<RegionID, AudioRegion> {
         &self.regions
     }
@@ -101,10 +97,6 @@ impl AudioTrack {
     }
 
     // --- REGION ADDITION ---
-
-    pub(crate) fn set_next_region_id(&mut self, next_id: u64) {
-        self.next_region_id = next_id;
-    }
 
     fn generate_region_id(&mut self) -> RegionID {
         let id = RegionID(self.next_region_id);
@@ -116,10 +108,6 @@ impl AudioTrack {
         let id = self.generate_region_id();
         self.regions.insert(id, region);
         id
-    }
-
-    pub(crate) fn set_regions(&mut self, regions: HashMap<RegionID, AudioRegion>) {
-        self.regions = regions;
     }
 }
 

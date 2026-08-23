@@ -44,21 +44,6 @@ impl ProjectData {
         }
     }
 
-    /// Creates a new project with the given tempo map.
-    pub(crate) fn with_tempo_map(
-        audio_ctx: AudioContext,
-        tempo_map: TempoMap,
-        export_range: TimeBounds,
-    ) -> Self {
-        Self {
-            tracks: HashMap::new(),
-            tempo_map,
-            audio_ctx,
-            export_range,
-            next_track_id: 0,
-        }
-    }
-
     /// Creates a new project with all the specified parameters.
     pub(crate) fn with_all(
         tracks: HashMap<TrackID, Box<dyn Track>>,
@@ -77,11 +62,6 @@ impl ProjectData {
     }
 
     // --- TRACK ID GENERATION ---
-
-    /// Sets the next track ID for generating track IDs.
-    pub(crate) fn set_next_track_id(&mut self, next_id: u64) {
-        self.next_track_id = next_id;
-    }
 
     /// Generates a new unique track ID.
     fn generate_track_id(&mut self) -> TrackID {

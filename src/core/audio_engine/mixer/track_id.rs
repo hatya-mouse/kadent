@@ -1,9 +1,9 @@
 #[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 pub(crate) struct TrackID(pub(crate) u64);
 
-impl Into<u64> for TrackID {
-    fn into(self) -> u64 {
-        self.0
+impl From<TrackID> for u64 {
+    fn from(value: TrackID) -> u64 {
+        value.0
     }
 }
 

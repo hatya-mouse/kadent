@@ -69,7 +69,6 @@ impl AudioThread {
                 audio_command_tx,
                 result_rx,
                 vu_consumer,
-                playhead,
                 playhead_tick,
             },
             midi_producer,

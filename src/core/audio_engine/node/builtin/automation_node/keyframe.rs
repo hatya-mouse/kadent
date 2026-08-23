@@ -1,7 +1,4 @@
-use crate::core::audio_engine::{
-    data_types::Ticks,
-    node::builtin::{AutomationTrack, CurveType},
-};
+use crate::core::audio_engine::{data_types::Ticks, node::builtin::CurveType};
 
 #[derive(Debug, Clone)]
 pub(crate) struct Keyframe<T> {
@@ -30,66 +27,6 @@ impl NormalizedKeyframe {
             tick,
             curve,
             value,
-        }
-    }
-}
-
-pub(crate) trait AutomationTarget: Sized {
-    fn keyframes(track: &AutomationTrack) -> Option<&[Keyframe<Self>]>;
-
-    fn keyframes_mut(track: &mut AutomationTrack) -> Option<&mut Vec<Keyframe<Self>>>;
-}
-
-impl AutomationTarget for f32 {
-    fn keyframes(track: &AutomationTrack) -> Option<&[Keyframe<Self>]> {
-        if let AutomationTrack::Float { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
-        }
-    }
-
-    fn keyframes_mut(track: &mut AutomationTrack) -> Option<&mut Vec<Keyframe<Self>>> {
-        if let AutomationTrack::Float { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
-        }
-    }
-}
-
-impl AutomationTarget for i32 {
-    fn keyframes(track: &AutomationTrack) -> Option<&[Keyframe<Self>]> {
-        if let AutomationTrack::Int { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
-        }
-    }
-
-    fn keyframes_mut(track: &mut AutomationTrack) -> Option<&mut Vec<Keyframe<Self>>> {
-        if let AutomationTrack::Int { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
-        }
-    }
-}
-
-impl AutomationTarget for bool {
-    fn keyframes(track: &AutomationTrack) -> Option<&[Keyframe<Self>]> {
-        if let AutomationTrack::Bool { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
-        }
-    }
-
-    fn keyframes_mut(track: &mut AutomationTrack) -> Option<&mut Vec<Keyframe<Self>>> {
-        if let AutomationTrack::Bool { keyframes, .. } = track {
-            Some(keyframes)
-        } else {
-            None
         }
     }
 }

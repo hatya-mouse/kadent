@@ -104,10 +104,6 @@ impl NoteTrack {
 
     // --- REGION ADDITION ---
 
-    pub(crate) fn set_next_region_id(&mut self, next_id: u64) {
-        self.next_region_id = next_id;
-    }
-
     fn generate_region_id(&mut self) -> RegionID {
         let id = RegionID(self.next_region_id);
         self.next_region_id += 1;
@@ -118,10 +114,6 @@ impl NoteTrack {
         let id = self.generate_region_id();
         self.regions.insert(id, region);
         id
-    }
-
-    pub(crate) fn set_regions(&mut self, regions: HashMap<RegionID, NoteRegion>) {
-        self.regions = regions;
     }
 
     // --- REALTIME MIDI ---

@@ -9,7 +9,6 @@ pub(crate) enum GraphError {
     OutputTypeUnavailable(NodeID, usize),
     InputTypeUnavailable(NodeID, usize),
     NodeTypeMismatch((NodeID, usize, NodeID, usize)),
-    EdgeNotFound((NodeID, usize, NodeID, usize)),
 }
 
 pub(crate) trait NodeError: Send + Debug + Display {}

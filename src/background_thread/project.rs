@@ -1,5 +1,6 @@
-use crate::{core::metadata::ProjectMeta, storage::project::save_project};
 use crate::core::audio_engine::{data_types::PlaybackContext, mixer::ProjectData};
+use crate::storage::project::SaveError;
+use crate::{core::metadata::ProjectMeta, storage::project::save_project};
 use std::path::{Path, PathBuf};
 
 pub(super) fn run_save_project(
@@ -7,10 +8,10 @@ pub(super) fn run_save_project(
     project: &ProjectData,
     project_meta: &ProjectMeta,
     code_buffers: &[(PathBuf, String)],
-) -> std::io::Result<()> {
+) -> Result<(), SaveError> {
     let program_res = save_programs(code_buffers);
     let proj_res = save_project(path, project, project_meta);
-    program_res.and(proj_res)
+    program_res.map_err(SaveError::IoError).and(proj_res)
 }
 
 /// Save all opened programs to their respective file paths.

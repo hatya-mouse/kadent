@@ -67,20 +67,16 @@ impl Graph {
         input_id: NodeID,
         output_id: NodeID,
     ) -> Self {
-        let mut graph = Graph::default();
-        graph.nodes = nodes;
-        graph.input_sources = input_sources;
-        graph.input_id = input_id;
-        graph.output_id = output_id;
-        graph
+        Graph {
+            nodes,
+            input_sources,
+            input_id,
+            output_id,
+            ..Default::default()
+        }
     }
 
     // --- ID GENERATION ---
-
-    /// Sets the next node ID to the given value.
-    pub(crate) fn set_next_node_id(&mut self, next_node_id: u64) {
-        self.next_node_id = next_node_id;
-    }
 
     /// Generates a new NodeID which is unique inside the graph.
     fn generate_node_id(&mut self) -> NodeID {
@@ -121,14 +117,6 @@ impl Graph {
 
     // --- NODE MANIPULATION ---
 
-    pub(crate) fn set_input_id(&mut self, id: NodeID) {
-        self.input_id = id;
-    }
-
-    pub(crate) fn set_output_id(&mut self, id: NodeID) {
-        self.output_id = id;
-    }
-
     /// Adds a new node to the graph, and returns the newly generated node ID.
     pub(crate) fn add_node(&mut self, mut node: Box<dyn Node>) -> NodeID {
         let id = self.generate_node_id();
@@ -137,14 +125,6 @@ impl Graph {
         // Insert the node to the map
         self.nodes.insert(id, node);
         id
-    }
-
-    /// Adds a new node to the graph with the given ID.
-    pub(crate) fn add_node_with_id(&mut self, id: NodeID, mut node: Box<dyn Node>) {
-        // Update the node
-        node.update_type_info();
-        // Insert the node to the map
-        self.nodes.insert(id, node);
     }
 
     /// Removes the node with the given NodeID from the graph.
@@ -164,13 +144,6 @@ impl Graph {
     }
 
     // --- EDGE MANIPULATION ---
-
-    /// Connects the node's output to another nodes' input without any validation,
-    /// but overwrites the existing edge if it exists.
-    pub(crate) fn add_edge_unchecked(&mut self, from: (NodeID, usize), to: InputKey) {
-        self.input_sources
-            .insert(to, InputSource::Edge(from.0, from.1));
-    }
 
     /// Connects the node's output to another node's input, and returns an error if the type of the output and input are not the same, or if the node is not found.
     /// This function overwrites the existing edge if it exists.

@@ -31,12 +31,6 @@ impl Track for NoteTrack {
         &mut self.graph
     }
 
-    // --- GRAPH UPDATING ---
-
-    fn set_graph(&mut self, graph: Graph) {
-        self.graph = graph;
-    }
-
     // --- REGION BOUNDS GETTING ---
 
     fn get_region_bounds(&self, region_id: &RegionID) -> Option<&TimeBounds> {

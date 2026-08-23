@@ -1,10 +1,13 @@
-use crate::core::audio_engine::{
-    audio_data::{AudioData, AudioSource},
-    data_types::{PlaybackContext, Ticks},
-    mixer::{ProjectData, TrackID},
-    track::RegionID,
-};
 use crate::core::{metadata::ProjectMeta, project_ctx::ProjectContext};
+use crate::{
+    core::audio_engine::{
+        audio_data::{AudioData, AudioSource},
+        data_types::{PlaybackContext, Ticks},
+        mixer::{ProjectData, TrackID},
+        track::RegionID,
+    },
+    storage::project::SaveError,
+};
 use std::path::PathBuf;
 
 pub(crate) struct DecodedAudio {
@@ -55,7 +58,7 @@ pub(crate) enum BackgroundThreadCommand {
 }
 
 pub(crate) enum BackgroundThreadResult {
-    SavedProject(std::io::Result<()>),
+    SavedProject(Result<(), SaveError>),
     OpenedProject(Option<Box<ProjectContext>>),
     WroteWav(hound::Result<()>),
     ImportedAudio {

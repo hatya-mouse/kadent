@@ -24,9 +24,6 @@ pub(crate) trait Track: Send + Any {
     /// Returns a mutable reference to the Graph.
     fn get_graph_mut(&mut self) -> &mut Graph;
 
-    /// Sets the Graph to the new one.
-    fn set_graph(&mut self, graph: Graph);
-
     /// Gets the region bounds for the given region ID.
     fn get_region_bounds(&self, region_id: &RegionID) -> Option<&TimeBounds>;
 

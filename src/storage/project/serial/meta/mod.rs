@@ -78,7 +78,7 @@ struct StoredColor {
 }
 
 impl StoredColor {
-    fn to_color32(self) -> egui::Color32 {
+    fn to_color32(&self) -> egui::Color32 {
         egui::Color32::from_rgb(self.r, self.g, self.b)
     }
 
@@ -119,7 +119,7 @@ struct StoredPos2 {
 }
 
 impl StoredPos2 {
-    fn to_pos2(self) -> egui::Pos2 {
+    fn to_pos2(&self) -> egui::Pos2 {
         egui::pos2(self.x, self.y)
     }
 

@@ -1,6 +1,8 @@
+use crate::core::audio_engine::{
+    graph::error::GraphError, thread::AudioError, track::error::TrackError,
+};
 use crate::ui::theme;
 use eframe::egui;
-use crate::core::audio_engine::{graph::error::GraphError, thread::AudioError, track::error::TrackError};
 
 pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
     let message = error_message(error);
@@ -63,9 +65,6 @@ fn graph_error_message(error: &GraphError) -> String {
         }
         GraphError::NodeTypeMismatch((src, src_port, dst, dst_port)) => {
             format!("Type mismatch: {src:?}[{src_port}] -> {dst:?}[{dst_port}]")
-        }
-        GraphError::EdgeNotFound((src, src_port, dst, dst_port)) => {
-            format!("Edge not found: {src:?}[{src_port}] -> {dst:?}[{dst_port}]")
         }
     }
 }

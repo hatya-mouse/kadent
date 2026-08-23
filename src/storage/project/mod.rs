@@ -4,12 +4,12 @@ mod new_project;
 mod open_project;
 mod serial;
 
+pub(crate) use error::SaveError;
 pub(crate) use init::init_kasl_nodes;
 pub(crate) use new_project::create_new_project;
 pub(crate) use open_project::open_project_to_ctx;
 
 use crate::core::audio_engine::mixer::ProjectData;
-use crate::storage::project::error::SaveError;
 use crate::storage::project::serial::{DecodableProject, EncodableProject};
 use crate::{core::metadata::ProjectMeta, storage::project::error::LoadError};
 use std::{
@@ -73,7 +73,7 @@ fn temp_path_for(path: &Path) -> PathBuf {
 }
 
 /// Loads a project file from the given path. Returns an error if the file is not a Kadent ProjectData file or if the file is corrupted.
-pub(crate) fn load_project(path: &Path) -> Result<DecodableProject, LoadError> {
+fn load_project(path: &Path) -> Result<DecodableProject, LoadError> {
     // Load the file from the path
     let mut file = File::open(path).map_err(LoadError::IoError)?;
 

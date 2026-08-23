@@ -40,11 +40,6 @@ impl NoteRegion {
 
     // --- NOTE ID GENERATION ---
 
-    /// Sets the next note ID to the given ID.
-    pub(crate) fn set_next_note_id(&mut self, next_note_id: u64) {
-        self.next_note_id = next_note_id;
-    }
-
     /// Generates a new note ID.
     fn generate_note_id(&mut self) -> NoteID {
         let id = NoteID(self.next_note_id);
@@ -100,13 +95,6 @@ impl NoteRegion {
         }
     }
 
-    /// Sets the note's velocity to the given velocity.
-    pub(crate) fn set_velocity(&mut self, id: &NoteID, velocity: f32) {
-        if let Some(note) = self.get_note_mut(id) {
-            note.velocity = velocity;
-        }
-    }
-
     // --- NOTE DATA GETTING ---
 
     /// Returns the start beat of the note.
@@ -122,10 +110,5 @@ impl NoteRegion {
     /// Returns the pitch of the note.
     pub(crate) fn get_pitch(&self, id: &NoteID) -> Option<f32> {
         self.get_note(id).map(|note| note.pitch)
-    }
-
-    /// Returns the velocity of the note.
-    pub(crate) fn get_velocity(&self, id: &NoteID) -> Option<f32> {
-        self.get_note(id).map(|note| note.velocity)
     }
 }

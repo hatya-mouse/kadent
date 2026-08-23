@@ -97,7 +97,7 @@ impl EditorState {
                                 self.actions.push_action(EditorAction::SetAutomationType(
                                     *track_id,
                                     *node_id,
-                                    track_type.clone(),
+                                    *track_type,
                                 ));
                             }
                         }
