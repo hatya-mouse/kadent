@@ -8,11 +8,8 @@ pub(crate) use node_meta::{NodeMeta, NodeType};
 pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
+use crate::consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE};
 use crate::core::audio_engine::{data_types::PlaybackContext, mixer::TrackID};
-use crate::{
-    consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE},
-    storage::project::LoadProjResult,
-};
 use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone)]
@@ -23,16 +20,9 @@ pub(crate) struct ProjectMeta {
     pub(crate) export_ctx: PlaybackContext,
 }
 
-#[derive(Debug)]
-pub(crate) enum ProjectMetaLoadingError {
-    MissingTrackMeta(TrackID),
-}
-
 impl ProjectMeta {
-    pub(crate) fn from_load_res(
-        proj_res: &LoadProjResult,
-    ) -> Result<Self, ProjectMetaLoadingError> {
-        let export_ctx = proj_res.project_meta.export_ctx.clone();
+    pub(crate) fn from_loaded_meta(meta: ProjectMeta) -> Self {
+        let export_ctx = meta.export_ctx;
         // If the export context is corrupted, use default values instead
         let export_ctx = if export_ctx.channels == 0
             || export_ctx.sample_rate == 0
@@ -47,23 +37,12 @@ impl ProjectMeta {
             export_ctx
         };
 
-        let mut new_meta = ProjectMeta {
-            kasl_search_paths: proj_res.project_meta.kasl_search_paths.clone(),
+        ProjectMeta {
+            tracks: meta.tracks,
+            track_order: meta.track_order,
+            kasl_search_paths: meta.kasl_search_paths,
             export_ctx,
-            ..Default::default()
-        };
-
-        // Initialize the tracks
-        for (track_id, track) in &proj_res.project.tracks {
-            if let Some(stored_track_meta) = proj_res.project_meta.track_metas.get(track_id) {
-                let track_meta = TrackMeta::from_stored(track.as_ref(), stored_track_meta);
-                new_meta.add_track(*track_id, track_meta);
-            } else {
-                return Err(ProjectMetaLoadingError::MissingTrackMeta(*track_id));
-            }
         }
-
-        Ok(new_meta)
     }
 
     // --- TRACK MANAGEMENT ---

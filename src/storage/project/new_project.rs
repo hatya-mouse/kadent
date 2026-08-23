@@ -1,20 +1,23 @@
-use crate::core::audio_engine::{
-    data_types::{AudioContext, PlaybackContext, Ticks},
-    mixer::ProjectData,
-    timing::TimeBounds,
-};
 use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE, PROJECT_FILE_EXTENSION},
     core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::project::save_project,
     ui::EditorState,
 };
-use std::{io, path::PathBuf};
+use crate::{
+    core::audio_engine::{
+        data_types::{AudioContext, PlaybackContext, Ticks},
+        mixer::ProjectData,
+        timing::TimeBounds,
+    },
+    storage::project::error::SaveError,
+};
+use std::path::PathBuf;
 
 pub(crate) fn create_new_project(
     project_name: &str,
     parent_path: PathBuf,
-) -> io::Result<ProjectContext> {
+) -> Result<ProjectContext, SaveError> {
     // 1. Generate paths for each subdirectories
     let root_path = parent_path.join(project_name);
     let src_dir = root_path.join("src");
@@ -24,8 +27,8 @@ pub(crate) fn create_new_project(
         .with_added_extension(PROJECT_FILE_EXTENSION);
 
     // 2. Create folders and files
-    std::fs::create_dir_all(&src_dir)?;
-    std::fs::create_dir_all(&assets_dir)?;
+    std::fs::create_dir_all(&src_dir).map_err(SaveError::IoError)?;
+    std::fs::create_dir_all(&assets_dir).map_err(SaveError::IoError)?;
 
     // 3. Create an empty project file
     let audio_ctx = AudioContext { resolution: 480 };

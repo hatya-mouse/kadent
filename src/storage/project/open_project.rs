@@ -14,27 +14,22 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<ProjectContex
 
     // Load the project and pass the data to the editor UI
     match load_project(&project_path) {
-        Ok(mut proj_res) => match ProjectMeta::from_load_res(&proj_res) {
-            Ok(project_meta) => {
-                let project_dir = get_project_dir(&project_path);
-                init_kasl_nodes(
-                    &mut proj_res.project,
-                    &project_meta.kasl_search_paths,
-                    &project_dir,
-                    &project_meta.export_ctx,
-                );
+        Ok(mut decodable_proj) => {
+            let project_meta = ProjectMeta::from_loaded_meta(decodable_proj.meta);
+            let project_dir = get_project_dir(&project_path);
+            init_kasl_nodes(
+                &mut decodable_proj.data,
+                &project_meta.kasl_search_paths,
+                &project_dir,
+                &project_meta.export_ctx,
+            );
 
-                Some(ProjectContext::new(
-                    project_path,
-                    proj_res.project,
-                    project_meta,
-                ))
-            }
-            Err(e) => {
-                eprintln!("Failed to extract project metadata: {:?}", e);
-                None
-            }
-        },
+            Some(ProjectContext::new(
+                project_path,
+                decodable_proj.data,
+                project_meta,
+            ))
+        }
         Err(e) => {
             eprintln!("Failed to load project: {:?}", e);
             None
