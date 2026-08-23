@@ -6,11 +6,10 @@ use crate::core::audio_engine::{
     track::audio_track::resampler::resample_channels,
     utils::{convert_rate_with_ratio, samples_per_tick},
 };
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 /// Stores the raw audio source data.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
 pub(crate) struct AudioRegion {
     pub(crate) data_source: AudioSource,
     /// The bounds for the region.
@@ -21,16 +20,12 @@ pub(crate) struct AudioRegion {
     pub(crate) bpm: f64,
 
     /// Cached region start and end sample positions in the global sample rate.
-    #[serde(skip)]
     sample_bounds: (usize, usize),
     /// Cached samples per tick for the region, used for sample number calculation in Musical mode.
-    #[serde(skip)]
     data_samples_per_tick: f64,
     /// Cached raw audio data for the region.
-    #[serde(skip)]
     audio_data: Option<Arc<AudioData>>,
     /// Pre-allocated buffer for resampled audio data.
-    #[serde(skip)]
     resampled_buffer: Vec<f32>,
 }
 

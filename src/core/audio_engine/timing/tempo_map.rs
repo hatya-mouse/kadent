@@ -3,9 +3,8 @@ use crate::core::audio_engine::{
     timing::{TempoEvent, TempoSection},
     utils::{samples_to_seconds, seconds_to_samples},
 };
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default)]
 pub(crate) struct TempoMap {
     /// The resolution of the audio context, used for converting between ticks and seconds.
     pub(crate) resolution: u64,

@@ -2294,7 +2294,6 @@ dependencies = [
  "rayon",
  "rfd",
  "ringbuf",
- "serde",
  "serde_json",
  "sode",
  "syntect",

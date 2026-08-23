@@ -16,7 +16,6 @@ kasl = { version = "0.2.35", features = ["cranelift"] }
 midir = "0.11.0"
 rfd = "0.17.2"
 ringbuf = "0.5.0"
-serde = "1.0.228"
 serde_json = "1.0.150"
 cpal = "0.18.1"
 syntect = "5.3.0"

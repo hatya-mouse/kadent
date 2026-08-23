@@ -10,6 +10,8 @@ pub(crate) const KADENT_DATA_DIR_NAME: &str = "Kadent";
 pub(crate) const APP_NAME: &str = "Kadent";
 /// The file extension for Kadent project files.
 pub(crate) const PROJECT_FILE_EXTENSION: &str = "kdp";
+/// The current file version of Kadent project files.
+pub(crate) const KADENT_FILE_VERSION: u64 = 0;
 
 /// A relative path to recent projects data file. Relative to `dirs::data_dir()`.
 pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";

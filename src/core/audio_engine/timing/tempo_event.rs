@@ -1,15 +1,13 @@
 use crate::core::audio_engine::data_types::Ticks;
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 pub(crate) struct TempoEvent {
     /// The ticks at which the tempo change occurs.
     pub(crate) tick: Ticks,
     /// The bpm which the event represents.
     pub(crate) bpm: f64,
     /// Cached accumulated event position in seconds.
-    #[serde(skip)]
     pub(crate) time_seconds: f64,
 }
 

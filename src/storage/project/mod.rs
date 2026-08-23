@@ -5,10 +5,10 @@ mod open_project;
 mod serial;
 
 pub(crate) use error::SaveError;
-pub(crate) use init::init_kasl_nodes;
 pub(crate) use new_project::create_new_project;
 pub(crate) use open_project::open_project_to_ctx;
 
+use crate::consts::KADENT_FILE_VERSION;
 use crate::core::audio_engine::mixer::ProjectData;
 use crate::storage::project::serial::{DecodableProject, EncodableProject};
 use crate::{core::metadata::ProjectMeta, storage::project::error::LoadError};
@@ -38,14 +38,14 @@ pub(crate) fn save_project(
         let major_ver: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
         let minor_ver: u32 = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
         let patch_ver: u32 = env!("CARGO_PKG_VERSION_PATCH").parse().unwrap();
-        let file_version: u32 = 0;
+        let file_ver: u64 = KADENT_FILE_VERSION;
         file.write_all(&major_ver.to_le_bytes())
             .map_err(SaveError::IoError)?;
         file.write_all(&minor_ver.to_le_bytes())
             .map_err(SaveError::IoError)?;
         file.write_all(&patch_ver.to_le_bytes())
             .map_err(SaveError::IoError)?;
-        file.write_all(&file_version.to_le_bytes())
+        file.write_all(&file_ver.to_le_bytes())
             .map_err(SaveError::IoError)?;
 
         let project_file = EncodableProject { data, meta };

@@ -1,5 +1,4 @@
 use hound::SampleFormat;
-use serde::{Deserialize, Serialize};
 use std::{
     ops::Range,
     path::{Path, PathBuf},
@@ -7,7 +6,7 @@ use std::{
 
 use crate::core::audio_engine::audio_data::{AudioData, AudioDataInfo};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
 pub(crate) enum AudioSource {
     /// The audio data is loaded from the original audio file.
     Original(PathBuf),

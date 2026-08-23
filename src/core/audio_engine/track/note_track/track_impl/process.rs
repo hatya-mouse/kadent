@@ -50,9 +50,7 @@ impl NoteTrack {
         // Convert the modified notes into ProcessedNote
         let mut processed_notes: Vec<ProcessedNote> = modified_notes
             .into_iter()
-            .enumerate()
-            .map(|(id, note)| ProcessedNote {
-                id,
+            .map(|note| ProcessedNote {
                 start: note.start,
                 duration: note.duration,
                 pitch: note.pitch,

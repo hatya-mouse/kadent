@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::fmt::Display;
 use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Default, Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub(crate) struct Ticks(pub(crate) i64);
 
 impl Ticks {

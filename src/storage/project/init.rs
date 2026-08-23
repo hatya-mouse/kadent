@@ -4,10 +4,8 @@ use crate::core::audio_engine::{
 use crate::core::kasl_node::KaslNode;
 use std::path::Path;
 
-/// Initialize all KaslNodes in the project with their search paths and project directory,
-/// then compile them so the blueprint (and port names) are ready before the first UI render.
-/// After compilation, edges are re-applied with type checking so stale edges are dropped.
-pub(crate) fn init_kasl_nodes(
+/// Initialize all nodes in the project data.
+pub(crate) fn init_nodes(
     project: &mut ProjectData,
     search_paths: &[String],
     project_dir: &Path,
@@ -15,6 +13,9 @@ pub(crate) fn init_kasl_nodes(
 ) {
     for track in project.tracks.values_mut() {
         for node in track.get_graph_mut().get_node_map_mut().values_mut() {
+            node.update_type_info();
+
+            // For the KASL node, set the search paths and project directory, then compile it
             if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
                 kasl_node.set_search_paths(search_paths.to_vec());
                 kasl_node.set_project_dir(project_dir.to_path_buf());

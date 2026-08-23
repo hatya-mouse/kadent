@@ -1,7 +1,6 @@
 use crate::core::audio_engine::{data_types::Ticks, timing::TempoMap, utils::seconds_to_samples};
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Timebase {
     /// Tick / beat based timing
     Musical,
@@ -9,7 +8,7 @@ pub(crate) enum Timebase {
     Time,
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug)]
 pub(crate) enum TimePosition {
     Musical(Ticks),
     Time(f64),
@@ -49,7 +48,7 @@ impl TimePosition {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 pub(crate) enum TimeBounds {
     Musical {
         start: Ticks,
