@@ -1,5 +1,5 @@
+use crate::core::audio_engine::{mixer::TrackID, thread::AudioCommand};
 use crate::{core::midi_thread::MidiCommand, ui::EditorState};
-use kadent_engine::{mixer::TrackID, thread::AudioCommand};
 use midir::MidiInputPort;
 
 impl EditorState {

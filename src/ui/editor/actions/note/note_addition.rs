@@ -1,11 +1,11 @@
-use crate::ui::EditorState;
-use kadent_engine::{
+use crate::core::audio_engine::{
     mixer::TrackID,
     track::{
         RegionID,
         note_track::{Note, NoteTrack},
     },
 };
+use crate::ui::EditorState;
 
 impl EditorState {
     pub(crate) fn add_note(&mut self, track_id: &TrackID, region_id: &RegionID, note: Note) {

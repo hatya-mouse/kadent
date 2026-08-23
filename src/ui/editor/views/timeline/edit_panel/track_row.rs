@@ -1,3 +1,9 @@
+use crate::core::audio_engine::{
+    data_types::Ticks,
+    mixer::TrackID,
+    timing::{TimeBounds, TimePosition},
+    track::RegionID,
+};
 use crate::{
     core::metadata::TrackType,
     ui::editor::actions::EditorAction,
@@ -12,12 +18,6 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::{
-    data_types::Ticks,
-    mixer::TrackID,
-    timing::{TimeBounds, TimePosition},
-    track::RegionID,
-};
 
 impl EditorState {
     pub(super) fn track_row(

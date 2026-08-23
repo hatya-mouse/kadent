@@ -1,5 +1,5 @@
 use crate::ui::EditorState;
-use kadent_engine::{mixer::TrackID, track::RegionID};
+use crate::core::audio_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorState {
     pub(crate) fn remove_region(&mut self, track_id: &TrackID, region_id: &RegionID) {

@@ -1,12 +1,12 @@
+use crate::core::audio_engine::{
+    mixer::TrackID,
+    track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
+};
 use crate::{
     core::metadata::{GraphMeta, TrackMeta, TrackType},
     ui::EditorState,
 };
 use eframe::egui;
-use kadent_engine::{
-    mixer::TrackID,
-    track::{Track, audio_track::AudioTrack, note_track::NoteTrack},
-};
 
 impl EditorState {
     /// Adds a new track to the project and the project metadata.

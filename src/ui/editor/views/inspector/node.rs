@@ -1,4 +1,9 @@
 use super::{inspector_item, inspector_section};
+use crate::core::audio_engine::{
+    graph::node_id::NodeID,
+    mixer::TrackID,
+    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
+};
 use crate::{
     core::kasl_node::KaslNode,
     ui::{
@@ -13,11 +18,6 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::{
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
-};
 
 impl EditorState {
     pub(super) fn node_inspector(

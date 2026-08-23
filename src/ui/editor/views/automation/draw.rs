@@ -1,3 +1,7 @@
+use crate::core::audio_engine::{
+    data_types::Ticks,
+    node::builtin::{AutomationTrack, CurveType},
+};
 use crate::{
     consts::TIMELINE_LEFT_PADDING,
     ui::{
@@ -11,10 +15,6 @@ use crate::{
     },
 };
 use eframe::egui::{self, Color32, Pos2};
-use kadent_engine::{
-    data_types::Ticks,
-    node::builtin::{AutomationTrack, CurveType},
-};
 use std::ops::Mul;
 
 pub(super) fn keyframe_positions(

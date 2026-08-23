@@ -1,7 +1,7 @@
 use super::{EDGE_WIDTH, NODE_HEADER_HEGIHT, NODE_PADDING, NODE_WIDTH, PORT_ROW_HEIGHT};
+use crate::core::audio_engine::graph::node_id::NodeID;
 use crate::{core::metadata::GraphMeta, ui::theme};
 use eframe::egui;
-use kadent_engine::graph::node_id::NodeID;
 
 /// Draws all edges in the graph as straight lines, skipping `dragged_edge` if set.
 pub(super) fn draw_edges(

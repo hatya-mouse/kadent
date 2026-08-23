@@ -1,9 +1,9 @@
+use crate::core::audio_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     core::project_ctx::ProjectContext,
     ui::{EditorState, theme},
 };
-use kadent_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -14,9 +14,9 @@ pub(crate) enum FileNodeKind {
 
 #[derive(Debug)]
 pub(crate) struct FileNode {
-    pub path: PathBuf,
-    pub name: String,
-    pub kind: FileNodeKind,
+    pub(crate) path: PathBuf,
+    pub(crate) name: String,
+    pub(crate) kind: FileNodeKind,
 }
 
 impl EditorState {

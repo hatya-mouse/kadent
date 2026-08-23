@@ -1,4 +1,4 @@
-use kadent_engine::graph::error::NodeError;
+use crate::core::audio_engine::graph::error::NodeError;
 use kasl::core::error::ErrorRecord;
 use std::fmt::Display;
 

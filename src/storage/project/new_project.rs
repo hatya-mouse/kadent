@@ -1,13 +1,13 @@
+use crate::core::audio_engine::{
+    data_types::{AudioContext, PlaybackContext, Ticks},
+    mixer::ProjectData,
+    timing::TimeBounds,
+};
 use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE, PROJECT_FILE_EXTENSION},
     core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::project::save_project,
     ui::EditorState,
-};
-use kadent_engine::{
-    data_types::{AudioContext, PlaybackContext, Ticks},
-    mixer::ProjectData,
-    timing::TimeBounds,
 };
 use std::{io, path::PathBuf};
 

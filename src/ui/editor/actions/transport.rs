@@ -1,8 +1,8 @@
-use crate::ui::EditorState;
-use kadent_engine::{
+use crate::core::audio_engine::{
     thread::{AudioCommand, AudioError},
     timing::TimePosition,
 };
+use crate::ui::EditorState;
 
 impl EditorState {
     pub(super) fn play(&mut self) {
@@ -13,8 +13,7 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.views.errors
-                .push(AudioError::CommandFailed(command));
+            self.views.errors.push(AudioError::CommandFailed(command));
         } else {
             self.transport.is_playing = true;
         }
@@ -28,8 +27,7 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.views.errors
-                .push(AudioError::CommandFailed(command));
+            self.views.errors.push(AudioError::CommandFailed(command));
         } else {
             self.transport.is_playing = false;
         }
@@ -43,8 +41,7 @@ impl EditorState {
             .send(command.clone())
             .is_err()
         {
-            self.views.errors
-                .push(AudioError::CommandFailed(command));
+            self.views.errors.push(AudioError::CommandFailed(command));
         }
     }
 }

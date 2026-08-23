@@ -1,17 +1,17 @@
+use crate::core::audio_engine::{data_types::PlaybackContext, mixer::TrackID};
 use crate::{core::metadata::ProjectMeta, storage::project::stored::track_meta::StoredTrackMeta};
-use kadent_engine::{data_types::PlaybackContext, mixer::TrackID};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct StoredProjMeta {
-    pub track_metas: HashMap<TrackID, StoredTrackMeta>,
-    pub kasl_search_paths: Vec<String>,
-    pub export_ctx: PlaybackContext,
+    pub(crate) track_metas: HashMap<TrackID, StoredTrackMeta>,
+    pub(crate) kasl_search_paths: Vec<String>,
+    pub(crate) export_ctx: PlaybackContext,
 }
 
 impl StoredProjMeta {
-    pub fn from_project_meta(project_meta: &ProjectMeta) -> Self {
+    pub(crate) fn from_project_meta(project_meta: &ProjectMeta) -> Self {
         let track_metas = project_meta
             .tracks
             .iter()

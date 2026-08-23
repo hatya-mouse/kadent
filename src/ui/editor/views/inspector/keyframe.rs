@@ -1,3 +1,8 @@
+use crate::core::audio_engine::{
+    graph::node_id::NodeID,
+    mixer::TrackID,
+    node::builtin::{AutomationNode, AutomationTrack, CurveType},
+};
 use crate::ui::{
     EditorState,
     components::{dropdown::dropdown_button, text_input::text_input_with_callback},
@@ -8,11 +13,6 @@ use crate::ui::{
     theme,
 };
 use eframe::egui;
-use kadent_engine::{
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, CurveType},
-};
 
 impl EditorState {
     pub(super) fn keyframe_inspector(

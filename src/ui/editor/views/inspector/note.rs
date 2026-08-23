@@ -1,10 +1,10 @@
 use super::{inspector_item, inspector_section};
-use crate::ui::{EditorState, theme};
-use eframe::egui;
-use kadent_engine::{
+use crate::core::audio_engine::{
     mixer::TrackID,
     track::{RegionID, note_track::NoteID},
 };
+use crate::ui::{EditorState, theme};
+use eframe::egui;
 
 impl EditorState {
     pub(super) fn note_inspector(

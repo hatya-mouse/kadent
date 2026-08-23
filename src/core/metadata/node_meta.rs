@@ -1,9 +1,9 @@
-use crate::core::kasl_node::KaslNode;
-use eframe::egui;
-use kadent_engine::node::{
+use crate::core::audio_engine::node::{
     Node,
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
 };
+use crate::core::kasl_node::KaslNode;
+use eframe::egui;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -43,15 +43,15 @@ impl std::fmt::Display for NodeType {
 #[derive(Debug, Clone)]
 pub(crate) struct NodeMeta {
     /// The type of the node.
-    pub node_type: NodeType,
+    pub(crate) node_type: NodeType,
     /// The name of the node, used for display purposes.
-    pub display_name: String,
+    pub(crate) display_name: String,
     /// The position of the node in canvas space.
-    pub pos: egui::Pos2,
+    pub(crate) pos: egui::Pos2,
 }
 
 impl NodeMeta {
-    pub fn new(node_type: NodeType, display_name: String, pos: egui::Pos2) -> Self {
+    pub(crate) fn new(node_type: NodeType, display_name: String, pos: egui::Pos2) -> Self {
         Self {
             node_type,
             display_name,
@@ -59,7 +59,7 @@ impl NodeMeta {
         }
     }
 
-    pub fn from_node(node: &dyn Node) -> Self {
+    pub(crate) fn from_node(node: &dyn Node) -> Self {
         let any_node = node.as_any();
         let node_type = if any_node.is::<NoteInputNode>() {
             NodeType::NoteInput

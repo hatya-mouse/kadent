@@ -1,4 +1,4 @@
-use kadent_engine::data_types::MidiEvent;
+use crate::core::audio_engine::data_types::MidiEvent;
 use midir::MidiInputPort;
 use ringbuf::traits::Producer;
 use std::{
@@ -7,7 +7,7 @@ use std::{
 };
 
 #[derive(Clone)]
-pub enum MidiCommand {
+pub(crate) enum MidiCommand {
     SetMidiPort(MidiInputPort),
     DisconnectMidiPort,
     SendEvent(MidiEvent),

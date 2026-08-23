@@ -1,11 +1,11 @@
-use crate::{
-    core::metadata::TrackType,
-    ui::{EditorState, theme},
-};
-use kadent_engine::{
+use crate::core::audio_engine::{
     mixer::TrackID,
     timing::{TimeBounds, TimePosition, Timebase},
     track::{RegionID, audio_track::AudioTrack, note_track::NoteTrack},
+};
+use crate::{
+    core::metadata::TrackType,
+    ui::{EditorState, theme},
 };
 
 impl EditorState {

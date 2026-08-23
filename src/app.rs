@@ -7,11 +7,11 @@ use crate::{
 use eframe::{self, egui};
 use std::path::PathBuf;
 
-pub struct KadentApp {
-    pub state: AppState,
+pub(crate) struct KadentApp {
+    pub(crate) state: AppState,
 }
 
-pub enum AppState {
+pub(crate) enum AppState {
     Splash(Box<SplashUi>),
     Editor(Box<EditorState>),
 }
@@ -22,7 +22,7 @@ enum GetDroppedFileResult {
 }
 
 impl KadentApp {
-    pub fn new(cc: &eframe::CreationContext, initial_project: Option<PathBuf>) -> Self {
+    pub(crate) fn new(cc: &eframe::CreationContext, initial_project: Option<PathBuf>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         Self::setup_fonts(&cc.egui_ctx);
         Self::base_style(&cc.egui_ctx);

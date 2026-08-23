@@ -2,13 +2,13 @@ use crate::app::KadentApp;
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, RichText};
 use std::sync::Arc;
 
-pub static FONT_FAMILY_BOLD: &str = "bold";
+pub(crate) static FONT_FAMILY_BOLD: &str = "bold";
 
-pub fn font_family_bold() -> FontFamily {
+pub(crate) fn font_family_bold() -> FontFamily {
     FontFamily::Name(Arc::from(FONT_FAMILY_BOLD))
 }
 
-pub trait RichTextExt {
+pub(crate) trait RichTextExt {
     fn bold(self) -> Self;
 }
 

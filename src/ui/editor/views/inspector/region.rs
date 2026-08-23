@@ -1,7 +1,7 @@
 use super::{inspector_item, inspector_section};
+use crate::core::audio_engine::{mixer::TrackID, track::RegionID};
 use crate::ui::{EditorState, components::text_input::text_input, theme};
 use eframe::egui;
-use kadent_engine::{mixer::TrackID, track::RegionID};
 
 impl EditorState {
     pub(super) fn region_inspector(

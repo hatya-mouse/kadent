@@ -4,6 +4,7 @@ mod state;
 
 pub(crate) use state::AutomationState;
 
+use crate::core::audio_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::{
@@ -19,7 +20,6 @@ use crate::{
 use draw::{draw_automation_timeline, keyframe_positions};
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 use gestures::add_keyframe_gesture;
-use kadent_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use uuid::Uuid;
 
 const STROKE_WIDTH: f32 = 2.0;

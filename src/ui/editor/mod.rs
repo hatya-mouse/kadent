@@ -18,6 +18,10 @@ pub(crate) use views::{
     ViewStates,
 };
 
+use crate::core::audio_engine::{
+    thread::{AudioCommand, AudioThread, AudioThreadHandle},
+    timing::TimePosition,
+};
 use crate::{
     background_thread::{BackgroundThreadCommand, spawn_background_thread},
     core::{
@@ -35,56 +39,52 @@ use crate::{
 use cpal::traits::DeviceTrait;
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
-use kadent_engine::{
-    thread::{AudioCommand, AudioThread, AudioThreadHandle},
-    timing::TimePosition,
-};
 use std::{
     sync::{Arc, mpsc},
     time::Duration,
 };
 use syntect::highlighting::ThemeSet;
 
-pub struct EditorState {
+pub(crate) struct EditorState {
     // --- PROJECT ---
     /// The current project context that stores the document data.
-    pub project: ProjectContext,
+    pub(crate) project: ProjectContext,
 
     // --- THREAD COMMUNIATION & HANDLES ---
     /// A thread handle to communicate with the audio thread.
-    pub thread_handle: AudioThreadHandle,
+    pub(crate) thread_handle: AudioThreadHandle,
     /// A channel to send MIDI commands to the MIDI thread.
-    pub midi_tx: mpsc::Sender<MidiCommand>,
+    pub(crate) midi_tx: mpsc::Sender<MidiCommand>,
 
     // --- AUDIO & MIDI DEVICE ---
     /// The audio device manager to store the available audio devices and the selected device.
-    pub audio_device: AudioDeviceManager,
+    pub(crate) audio_device: AudioDeviceManager,
     /// The MIDI device manager to store the available MIDI devices and the selected device.
-    pub midi_device: MidiDeviceManager,
+    pub(crate) midi_device: MidiDeviceManager,
 
     // --- TRANSPORT STATE ---
     /// The transport state that stores the current playhead position.
-    pub transport: TransportState,
+    pub(crate) transport: TransportState,
 
     // --- UI LAYOUT & VIEW STATES ---
     /// Panel layout tree.
-    pub layout: PanelNode,
+    pub(crate) layout: PanelNode,
     /// The states for the each panel views.
-    pub views: ViewStates,
+    pub(crate) views: ViewStates,
 
     // --- BACKEND LOGIC ---
     /// Currently selected content.
-    pub selection: Selection,
+    pub(crate) selection: Selection,
     /// Action dispatcher that stores the pending actions to be executed at the end of the frame.
-    pub actions: ActionDispatcher,
+    pub(crate) actions: ActionDispatcher,
 
     // --- DEBUG MODE ---
     /// Whether the editor is in the debug mode.
-    pub debug_mode: bool,
+    pub(crate) debug_mode: bool,
 }
 
 impl EditorState {
-    pub fn new(proj_ctx: ProjectContext) -> EditorState {
+    pub(crate) fn new(proj_ctx: ProjectContext) -> EditorState {
         let (thread_handle, midi_producer) = AudioThread::spawn(proj_ctx.meta.export_ctx.clone());
         let background_handle = spawn_background_thread();
         let midi_tx = spawn_midi_thread(midi_producer);

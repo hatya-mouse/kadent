@@ -1,11 +1,11 @@
-use crate::ui::{
-    EditorState,
-    editor::actions::{KeyframeType, KeyframeValue},
-};
-use kadent_engine::{
+use crate::core::audio_engine::{
     graph::node_id::NodeID,
     mixer::TrackID,
     node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType, CurveType},
+};
+use crate::ui::{
+    EditorState,
+    editor::actions::{KeyframeType, KeyframeValue},
 };
 
 impl EditorState {

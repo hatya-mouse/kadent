@@ -1,5 +1,7 @@
+use crate::core::audio_engine::{
+    data_types::PlaybackContext, graph::InputSource, mixer::ProjectData,
+};
 use crate::core::kasl_node::KaslNode;
-use kadent_engine::{data_types::PlaybackContext, graph::InputSource, mixer::ProjectData};
 use std::path::Path;
 
 /// Initialize all KaslNodes in the project with their search paths and project directory,

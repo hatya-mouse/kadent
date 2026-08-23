@@ -1,9 +1,4 @@
-use crate::{
-    background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, DecodedAudio},
-    core::metadata::{RegionMeta, TrackType},
-    ui::{EditorState, theme},
-};
-use kadent_engine::{
+use crate::core::audio_engine::{
     audio_data::AudioSource,
     data_types::Ticks,
     mixer::TrackID,
@@ -12,6 +7,11 @@ use kadent_engine::{
         audio_track::{AudioRegion, AudioTrack},
         note_track::{NoteRegion, NoteTrack},
     },
+};
+use crate::{
+    background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, DecodedAudio},
+    core::metadata::{RegionMeta, TrackType},
+    ui::{EditorState, theme},
 };
 
 impl EditorState {

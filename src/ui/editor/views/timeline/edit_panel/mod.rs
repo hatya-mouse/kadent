@@ -6,7 +6,7 @@ mod waveform;
 use super::TIMELINE_LEFT_PADDING;
 use crate::ui::{EditorState, editor::state::TimelineCoord, theme};
 use eframe::egui;
-use kadent_engine::data_types::Ticks;
+use crate::core::audio_engine::data_types::Ticks;
 
 impl EditorState {
     pub(crate) fn track_edit_panel(

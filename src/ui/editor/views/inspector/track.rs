@@ -1,4 +1,5 @@
 use super::{inspector_item, inspector_section};
+use crate::core::audio_engine::mixer::TrackID;
 use crate::{
     ui::editor::actions::EditorAction,
     ui::{
@@ -10,7 +11,6 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::mixer::TrackID;
 
 impl EditorState {
     pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {

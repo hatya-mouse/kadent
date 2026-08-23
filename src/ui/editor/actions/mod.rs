@@ -12,11 +12,7 @@ mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
 
-use crate::{
-    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorState,
-};
-use eframe::egui;
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::Ticks,
     graph::node_id::NodeID,
     mixer::TrackID,
@@ -28,6 +24,10 @@ use kadent_engine::{
         note_track::{Note, NoteID},
     },
 };
+use crate::{
+    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorState,
+};
+use eframe::egui;
 use midir::MidiInputPort;
 use std::path::PathBuf;
 

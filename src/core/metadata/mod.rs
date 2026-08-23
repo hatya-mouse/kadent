@@ -8,28 +8,30 @@ pub(crate) use node_meta::{NodeMeta, NodeType};
 pub(crate) use region_meta::RegionMeta;
 pub(crate) use track_meta::{TrackMeta, TrackType};
 
+use crate::core::audio_engine::{data_types::PlaybackContext, mixer::TrackID};
 use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE},
     storage::project::LoadProjResult,
 };
-use kadent_engine::{data_types::PlaybackContext, mixer::TrackID};
 use std::collections::HashMap;
 
 #[derive(Default, Debug, Clone)]
 pub(crate) struct ProjectMeta {
-    pub tracks: HashMap<TrackID, TrackMeta>,
-    pub track_order: Vec<TrackID>,
-    pub kasl_search_paths: Vec<String>,
-    pub export_ctx: PlaybackContext,
+    pub(crate) tracks: HashMap<TrackID, TrackMeta>,
+    pub(crate) track_order: Vec<TrackID>,
+    pub(crate) kasl_search_paths: Vec<String>,
+    pub(crate) export_ctx: PlaybackContext,
 }
 
 #[derive(Debug)]
-pub enum ProjectMetaLoadingError {
+pub(crate) enum ProjectMetaLoadingError {
     MissingTrackMeta(TrackID),
 }
 
 impl ProjectMeta {
-    pub fn from_load_res(proj_res: &LoadProjResult) -> Result<Self, ProjectMetaLoadingError> {
+    pub(crate) fn from_load_res(
+        proj_res: &LoadProjResult,
+    ) -> Result<Self, ProjectMetaLoadingError> {
         let export_ctx = proj_res.project_meta.export_ctx.clone();
         // If the export context is corrupted, use default values instead
         let export_ctx = if export_ctx.channels == 0
@@ -67,24 +69,24 @@ impl ProjectMeta {
     // --- TRACK MANAGEMENT ---
 
     /// Adds a new track to the project with the given ID.
-    pub fn add_track(&mut self, id: TrackID, track: TrackMeta) {
+    pub(crate) fn add_track(&mut self, id: TrackID, track: TrackMeta) {
         self.tracks.insert(id, track);
         self.track_order.push(id);
     }
 
     /// Removes a track from the project with the given ID.
-    pub fn remove_track(&mut self, id: &TrackID) {
+    pub(crate) fn remove_track(&mut self, id: &TrackID) {
         self.tracks.remove(id);
         self.track_order.retain(|&track_id| track_id != *id);
     }
 
     /// Returns a reference to the track with the given ID.
-    pub fn get_track(&self, id: &TrackID) -> Option<&TrackMeta> {
+    pub(crate) fn get_track(&self, id: &TrackID) -> Option<&TrackMeta> {
         self.tracks.get(id)
     }
 
     /// Returns a mutable reference to the track with the given ID.
-    pub fn get_track_mut(&mut self, id: &TrackID) -> Option<&mut TrackMeta> {
+    pub(crate) fn get_track_mut(&mut self, id: &TrackID) -> Option<&mut TrackMeta> {
         self.tracks.get_mut(id)
     }
 }

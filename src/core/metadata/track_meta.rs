@@ -1,18 +1,20 @@
+use crate::core::audio_engine::track::{
+    RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack,
+};
 use crate::{
     core::metadata::{GraphMeta, RegionMeta},
     storage::project::StoredTrackMeta,
 };
 use eframe::egui;
-use kadent_engine::track::{RegionID, Track, audio_track::AudioTrack, note_track::NoteTrack};
 use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Clone)]
 pub(crate) struct TrackMeta {
-    pub name: String,
-    pub color: egui::Color32,
-    pub track_type: TrackType,
-    pub regions: HashMap<RegionID, RegionMeta>,
-    pub graph: GraphMeta,
+    pub(crate) name: String,
+    pub(crate) color: egui::Color32,
+    pub(crate) track_type: TrackType,
+    pub(crate) regions: HashMap<RegionID, RegionMeta>,
+    pub(crate) graph: GraphMeta,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
@@ -22,11 +24,11 @@ pub(crate) enum TrackType {
 }
 
 impl TrackType {
-    pub fn all() -> [Self; 2] {
+    pub(crate) fn all() -> [Self; 2] {
         [Self::Audio, Self::Note]
     }
 
-    pub fn fmt_lowercase(&self) -> String {
+    pub(crate) fn fmt_lowercase(&self) -> String {
         match self {
             TrackType::Audio => "audio".to_string(),
             TrackType::Note => "note".to_string(),
@@ -44,7 +46,7 @@ impl Display for TrackType {
 }
 
 impl TrackMeta {
-    pub fn new(name: String, color: egui::Color32, track_type: TrackType) -> Self {
+    pub(crate) fn new(name: String, color: egui::Color32, track_type: TrackType) -> Self {
         Self {
             name,
             color,
@@ -54,7 +56,7 @@ impl TrackMeta {
         }
     }
 
-    pub fn from_stored(track: &dyn Track, track_meta: &StoredTrackMeta) -> Self {
+    pub(crate) fn from_stored(track: &dyn Track, track_meta: &StoredTrackMeta) -> Self {
         // Determine track type based on the track's type
         if let Some(audio_track) = track.as_any().downcast_ref::<AudioTrack>() {
             // Get the audio regions from the track
@@ -105,19 +107,19 @@ impl TrackMeta {
 
     // --- REGION MANAGEMENT ---
 
-    pub fn add_region(&mut self, id: RegionID, region: RegionMeta) {
+    pub(crate) fn add_region(&mut self, id: RegionID, region: RegionMeta) {
         self.regions.insert(id, region);
     }
 
-    pub fn get_region(&self, id: &RegionID) -> Option<&RegionMeta> {
+    pub(crate) fn get_region(&self, id: &RegionID) -> Option<&RegionMeta> {
         self.regions.get(id)
     }
 
-    pub fn get_region_mut(&mut self, id: &RegionID) -> Option<&mut RegionMeta> {
+    pub(crate) fn get_region_mut(&mut self, id: &RegionID) -> Option<&mut RegionMeta> {
         self.regions.get_mut(id)
     }
 
-    pub fn remove_region(&mut self, id: &RegionID) -> Option<RegionMeta> {
+    pub(crate) fn remove_region(&mut self, id: &RegionID) -> Option<RegionMeta> {
         self.regions.remove(id)
     }
 }

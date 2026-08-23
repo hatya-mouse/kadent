@@ -1,5 +1,11 @@
+use std::collections::HashMap;
+
 use super::restore_next_id;
-use kadent_engine::{mixer::ProjectData, timing::TimeBounds};
+use crate::core::audio_engine::{
+    mixer::{ProjectData, TrackID},
+    timing::TimeBounds,
+    track::Track,
+};
 use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 
 impl Encode for ProjectData {
@@ -15,12 +21,12 @@ impl Encode for ProjectData {
 impl Decode for ProjectData {
     fn decode(d: &mut ValueDecoder) -> Result<Self, DecodeError> {
         let d = d.to_field_decoder()?;
-        let tracks = d.field(0)?.unwrap_or_default();
+        let tracks: HashMap<TrackID, Box<dyn Track>> = d.field(0)?.unwrap_or_default();
         let tempo_map = d.field(1)?.unwrap_or_default();
         let audio_ctx = d.field(2)?.unwrap_or_default();
         let export_range = d.field(3)?.unwrap_or(TimeBounds::ZERO);
 
-        let next_id = restore_next_id(tracks.keys());
+        let next_id = restore_next_id(&tracks.keys());
         let mut data = ProjectData::with_all(tracks, tempo_map, audio_ctx, export_range, next_id);
 
         Ok(data)

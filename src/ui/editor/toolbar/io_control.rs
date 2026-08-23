@@ -1,3 +1,4 @@
+use crate::core::audio_engine::thread::AudioCommand;
 use crate::{
     ui::editor::actions::EditorAction,
     ui::{
@@ -13,7 +14,6 @@ use eframe::egui::{
     include_image,
     style::StyleModifier,
 };
-use kadent_engine::thread::AudioCommand;
 use midir::MidiInputPort;
 
 impl EditorState {

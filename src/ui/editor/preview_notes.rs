@@ -1,5 +1,5 @@
+use crate::core::audio_engine::data_types::MidiEvent;
 use crate::{core::midi_thread::MidiCommand, ui::EditorState};
-use kadent_engine::data_types::MidiEvent;
 
 const PREVIEW_NOTE_DURATION: std::time::Duration = std::time::Duration::from_millis(500);
 
@@ -12,7 +12,8 @@ impl EditorState {
             }))
             .ok();
         // Add the note to the preview notes with the current timestamp
-        self.views.piano_roll
+        self.views
+            .piano_roll
             .preview_notes
             .push((pitch, std::time::Instant::now()));
     }
@@ -21,7 +22,8 @@ impl EditorState {
         let now = std::time::Instant::now();
         let tx = &self.midi_tx;
 
-        self.views.piano_roll
+        self.views
+            .piano_roll
             .preview_notes
             .retain(|&(pitch, started_at)| {
                 // If the note has been playing for longer than PREVIEW_NOTE_DURATION,

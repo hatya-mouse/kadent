@@ -3,7 +3,7 @@ use std::fmt::Display;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub enum PanelView {
+pub(crate) enum PanelView {
     #[default]
     Timeline,
     Inspector,
@@ -29,7 +29,7 @@ impl Display for PanelView {
 }
 
 impl PanelView {
-    pub fn all() -> &'static [Self] {
+    pub(crate) fn all() -> &'static [Self] {
         &[
             PanelView::Timeline,
             PanelView::Inspector,
@@ -43,7 +43,7 @@ impl PanelView {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub enum SplitDir {
+pub(crate) enum SplitDir {
     /// First child on top, second on bottom.
     Horizontal,
     /// First child on left, second on right.
@@ -51,7 +51,7 @@ pub enum SplitDir {
 }
 
 #[derive(Clone, Debug)]
-pub enum PanelNode {
+pub(crate) enum PanelNode {
     Leaf(PanelView, Uuid),
     Split {
         dir: SplitDir,

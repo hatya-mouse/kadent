@@ -1,3 +1,9 @@
+use crate::core::audio_engine::{
+    data_types::Ticks,
+    graph::node_id::NodeID,
+    mixer::TrackID,
+    node::builtin::{AutomationTrack, CurveType, Keyframe},
+};
 use crate::{
     consts::TIMELINE_LEFT_PADDING,
     ui::{
@@ -9,12 +15,6 @@ use crate::{
     },
 };
 use eframe::egui::{self, Response};
-use kadent_engine::{
-    data_types::Ticks,
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationTrack, CurveType, Keyframe},
-};
 
 const KEYFRAME_CLICK_SIZE: f32 = 20.0;
 

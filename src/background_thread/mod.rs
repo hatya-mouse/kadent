@@ -21,8 +21,8 @@ use crate::{
 use std::sync::mpsc;
 
 pub(crate) struct BackgroundThreadHandle {
-    pub command_tx: mpsc::Sender<BackgroundThreadCommand>,
-    pub result_rx: mpsc::Receiver<BackgroundThreadResult>,
+    pub(crate) command_tx: mpsc::Sender<BackgroundThreadCommand>,
+    pub(crate) result_rx: mpsc::Receiver<BackgroundThreadResult>,
 }
 
 pub(crate) fn spawn_background_thread() -> BackgroundThreadHandle {

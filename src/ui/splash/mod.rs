@@ -13,7 +13,7 @@ use eframe::egui;
 const PROJECT_LIST_THRESHOLD: f32 = 240.0;
 
 /// The splash screen of Kadent.
-pub struct SplashUi {
+pub(crate) struct SplashUi {
     /// The current splash UI state.
     splash_state: SplashUiState,
     /// The version text displayed in the splash screen.
@@ -30,7 +30,7 @@ impl Default for SplashUi {
 }
 
 impl SplashUi {
-    pub fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
+    pub(crate) fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
         let mut ctx = None;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {

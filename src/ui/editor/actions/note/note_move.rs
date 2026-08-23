@@ -1,5 +1,4 @@
-use crate::ui::EditorState;
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::Ticks,
     mixer::TrackID,
     track::{
@@ -7,6 +6,7 @@ use kadent_engine::{
         note_track::{NoteID, NoteTrack},
     },
 };
+use crate::ui::EditorState;
 
 impl EditorState {
     pub(crate) fn move_note(

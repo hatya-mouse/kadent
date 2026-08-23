@@ -6,6 +6,7 @@ mod state;
 
 pub(crate) use state::NodeGraphState;
 
+use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::editor::actions::EditorAction,
@@ -13,7 +14,6 @@ use crate::{
 };
 use edge::{draw_edges, draw_ghost_edge};
 use eframe::egui;
-use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 use port::find_hovered_input;
 
 // --- NODE LAYOUT CONSTANTS ---

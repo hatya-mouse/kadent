@@ -6,16 +6,16 @@ use std::thread;
 
 #[derive(Clone)]
 pub(crate) struct RecentProjData {
-    pub name: String,
-    pub path_str: String,
-    pub path: PathBuf,
+    pub(crate) name: String,
+    pub(crate) path_str: String,
+    pub(crate) path: PathBuf,
 }
 
 pub(super) struct NewProjectDialogState {
     /// The name of the new project.
-    pub project_name: String,
+    pub(crate) project_name: String,
     /// The directory where the new project will be created.
-    pub project_dir: Option<PathBuf>,
+    pub(crate) project_dir: Option<PathBuf>,
 }
 
 impl Default for NewProjectDialogState {
@@ -29,9 +29,9 @@ impl Default for NewProjectDialogState {
 
 pub(super) struct SplashUiState {
     /// Recently opened projects.
-    pub recent_projects: Arc<Mutex<Vec<RecentProjData>>>,
+    pub(crate) recent_projects: Arc<Mutex<Vec<RecentProjData>>>,
     /// Whether to show the new track dialog.
-    pub new_project_state: Option<NewProjectDialogState>,
+    pub(crate) new_project_state: Option<NewProjectDialogState>,
 }
 
 impl Default for SplashUiState {

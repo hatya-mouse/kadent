@@ -1,10 +1,4 @@
-use crate::ui::{
-    EditorState,
-    editor::{StatusHint, TimelineCoord, actions::EditorAction, utils::handle_timeline_zoom},
-    theme,
-};
-use eframe::egui;
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::Ticks,
     mixer::TrackID,
     track::{
@@ -12,6 +6,12 @@ use kadent_engine::{
         note_track::{Note, NoteID, NoteTrack},
     },
 };
+use crate::ui::{
+    EditorState,
+    editor::{StatusHint, TimelineCoord, actions::EditorAction, utils::handle_timeline_zoom},
+    theme,
+};
+use eframe::egui;
 
 const MIN_NOTE_HEIGHT: f32 = 2.0;
 const MAX_NOTE_HEIGHT: f32 = 30.0;

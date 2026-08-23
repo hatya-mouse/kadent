@@ -1,6 +1,6 @@
 use crate::ui::theme;
 use eframe::egui;
-use kadent_engine::{graph::error::GraphError, thread::AudioError, track::error::TrackError};
+use crate::core::audio_engine::{graph::error::GraphError, thread::AudioError, track::error::TrackError};
 
 pub(super) fn draw_error_item(ui: &mut egui::Ui, error: &AudioError) {
     let message = error_message(error);

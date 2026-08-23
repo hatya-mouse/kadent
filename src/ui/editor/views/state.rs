@@ -1,8 +1,8 @@
+use crate::core::audio_engine::thread::AudioError;
 use crate::ui::editor::{
     AutomationState, CodeEditorState, DialogState, NodeGraphState, PanelView, PianoRollState,
     StatusBarState, TimelineState, toolbar::ToolbarState, views::PanelViewState,
 };
-use kadent_engine::thread::AudioError;
 use std::collections::{HashMap, hash_map::Entry};
 use uuid::Uuid;
 
@@ -10,31 +10,31 @@ use uuid::Uuid;
 pub(crate) struct ViewStates {
     // --- PANELS ---
     /// The current timeline state.
-    pub timeline: TimelineState,
+    pub(crate) timeline: TimelineState,
     /// The current piano roll state.
-    pub piano_roll: PianoRollState,
+    pub(crate) piano_roll: PianoRollState,
     /// The current node graph state.
-    pub node_graph: NodeGraphState,
+    pub(crate) node_graph: NodeGraphState,
     /// The current code editor state.
-    pub code_editor: CodeEditorState,
+    pub(crate) code_editor: CodeEditorState,
     /// the current automation editor state.
-    pub automation: AutomationState,
+    pub(crate) automation: AutomationState,
 
     // --- PANEL-SPECIFIC STATES ---
     /// The states for each panel, keyed by their unique ID.
-    pub panel_states: HashMap<Uuid, PanelViewState>,
+    pub(crate) panel_states: HashMap<Uuid, PanelViewState>,
 
     // --- NON-PANEL STATES ---
     /// The current toolbar state.
-    pub toolbar: ToolbarState,
+    pub(crate) toolbar: ToolbarState,
     /// The current dialog state.
-    pub dialog: DialogState,
+    pub(crate) dialog: DialogState,
     /// The current status bar state.
-    pub status_bar: StatusBarState,
+    pub(crate) status_bar: StatusBarState,
 
     // --- AUDIO ERRORS ---
     /// Errors to be shown.
-    pub errors: Vec<AudioError>,
+    pub(crate) errors: Vec<AudioError>,
 }
 
 impl ViewStates {

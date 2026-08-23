@@ -1,11 +1,11 @@
-use crate::ui::EditorState;
-use kadent_engine::{
+use crate::core::audio_engine::{
     mixer::TrackID,
     track::{
         RegionID,
         note_track::{NoteID, NoteTrack},
     },
 };
+use crate::ui::EditorState;
 
 impl EditorState {
     pub(crate) fn remove_note(

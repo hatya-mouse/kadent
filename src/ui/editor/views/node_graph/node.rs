@@ -2,9 +2,9 @@ use super::{
     NODE_HEADER_HEGIHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT,
     port::{calc_port_y, draw_ports},
 };
+use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::ui::{EditorState, theme};
 use eframe::egui::{self, Sense};
-use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorState {
     pub(super) fn draw_node(

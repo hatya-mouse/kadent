@@ -1,5 +1,5 @@
+use crate::core::audio_engine::graph::{Graph, InputSource, node_id::NodeID};
 use crate::storage::project::stored::node::StoredNode;
-use kadent_engine::graph::{Graph, InputSource, node_id::NodeID};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -7,14 +7,14 @@ use std::collections::HashMap;
 /// `next_node_id` isn't stored but it's recomputed from the loaded node IDs.
 #[derive(Serialize, Deserialize)]
 pub(crate) struct StoredGraph {
-    pub nodes: HashMap<NodeID, StoredNode>,
-    pub input_sources: HashMap<(NodeID, usize), InputSource>,
-    pub input_id: NodeID,
-    pub output_id: NodeID,
+    pub(crate) nodes: HashMap<NodeID, StoredNode>,
+    pub(crate) input_sources: HashMap<(NodeID, usize), InputSource>,
+    pub(crate) input_id: NodeID,
+    pub(crate) output_id: NodeID,
 }
 
 impl StoredGraph {
-    pub fn from_graph(graph: &Graph) -> Self {
+    pub(crate) fn from_graph(graph: &Graph) -> Self {
         let nodes = graph
             .get_node_map()
             .iter()
@@ -31,7 +31,7 @@ impl StoredGraph {
         }
     }
 
-    pub fn to_graph(&self) -> Graph {
+    pub(crate) fn to_graph(&self) -> Graph {
         let mut graph = Graph::default();
         for (id, stored_node) in &self.nodes {
             graph.add_node_with_id(*id, stored_node.to_node());

@@ -7,7 +7,7 @@ pub(crate) enum DialogState {
     AddTrack(AddTrackState),
 }
 
-pub struct AddTrackState {
-    pub selected_track_type: TrackType,
-    pub name: String,
+pub(crate) struct AddTrackState {
+    pub(crate) selected_track_type: TrackType,
+    pub(crate) name: String,
 }

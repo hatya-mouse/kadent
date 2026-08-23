@@ -1,8 +1,8 @@
+use crate::core::audio_engine::audio_data::AudioSource;
 use crate::{
     background_thread::commands::{WaveformLod, WaveformPeaks},
     consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
 };
-use kadent_engine::audio_data::AudioSource;
 
 /// Computes min/max peaks at three fixed resolutions from interleaved multi-channel samples.
 pub(super) fn run_generate_waveform(source: &AudioSource) -> WaveformLod {

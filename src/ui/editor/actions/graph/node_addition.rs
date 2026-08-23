@@ -1,3 +1,7 @@
+use crate::core::audio_engine::{
+    mixer::TrackID,
+    node::builtin::{AutomationNode, AutomationTrack},
+};
 use crate::{
     core::{
         kasl_node::KaslNode,
@@ -8,10 +12,6 @@ use crate::{
     ui::editor::actions::AddibleNodes,
 };
 use eframe::egui;
-use kadent_engine::{
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack},
-};
 
 impl EditorState {
     pub(crate) fn add_node(

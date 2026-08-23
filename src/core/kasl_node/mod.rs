@@ -4,7 +4,7 @@ mod syntax;
 pub(crate) use error::KaslNodeError;
 pub(crate) use syntax::kasl_syntax_set;
 
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::{PlaybackContext, TypeInfo},
     graph::error::NodeError,
     node::Node,
@@ -18,7 +18,7 @@ use kasl::{
 use std::path::PathBuf;
 
 #[derive(Default)]
-pub struct KaslNode {
+pub(crate) struct KaslNode {
     backend: Option<CraneliftBackend>,
     blueprint: Option<IOBlueprint>,
     search_paths: Vec<String>,
@@ -40,27 +40,30 @@ pub struct KaslNode {
 }
 
 impl KaslNode {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self::default()
     }
 
-    pub fn set_search_paths(&mut self, paths: Vec<String>) {
+    pub(crate) fn set_search_paths(&mut self, paths: Vec<String>) {
         self.search_paths = paths;
     }
 
-    pub fn set_file_path(&mut self, path: String) {
+    pub(crate) fn set_file_path(&mut self, path: String) {
         self.file_path = Some(path);
     }
 
-    pub fn get_file_path(&self) -> Option<&String> {
+    pub(crate) fn get_file_path(&self) -> Option<&String> {
         self.file_path.as_ref()
     }
 
-    pub fn set_project_dir(&mut self, dir: PathBuf) {
+    pub(crate) fn set_project_dir(&mut self, dir: PathBuf) {
         self.project_dir = Some(dir);
     }
 
-    pub fn compile(&mut self, playback_ctx: &PlaybackContext) -> Result<bool, KaslNodeError> {
+    pub(crate) fn compile(
+        &mut self,
+        playback_ctx: &PlaybackContext,
+    ) -> Result<bool, KaslNodeError> {
         // Read source code from disk at compile time
         // If the file path is not set, there is nothing to compile
         let (Some(project_dir), Some(file_path)) = (&self.project_dir, &self.file_path) else {

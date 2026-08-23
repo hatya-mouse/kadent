@@ -1,3 +1,9 @@
+use crate::core::audio_engine::{
+    mixer::TrackID,
+    timing::TimeBounds,
+    track::{RegionID, audio_track::AudioTrack},
+    utils::{samples_per_tick, seconds_to_samples},
+};
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, WaveformLod},
     consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
@@ -5,12 +11,6 @@ use crate::{
     ui::{EditorState, theme},
 };
 use eframe::egui;
-use kadent_engine::{
-    mixer::TrackID,
-    timing::TimeBounds,
-    track::{RegionID, audio_track::AudioTrack},
-    utils::{samples_per_tick, seconds_to_samples},
-};
 
 /// Space between waveform and top/bottom of the region
 const WAVEFORM_Y_CLEARANCE: f32 = 4.0;
@@ -229,7 +229,7 @@ fn draw_raw_waveform_in(
 }
 
 /// Calculates the number of source frames consumed within the given TimeBounds.
-pub fn calculate_data_frames(
+pub(crate) fn calculate_data_frames(
     bounds: &TimeBounds,
     data_sample_rate: u64,
     region_bpm: f64,

@@ -1,5 +1,5 @@
+use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::ui::EditorState;
-use kadent_engine::{graph::node_id::NodeID, mixer::TrackID};
 
 impl EditorState {
     pub(crate) fn remove_edge(&mut self, track_id: &TrackID, to: &(NodeID, usize)) {

@@ -1,3 +1,4 @@
+use crate::core::audio_engine::{data_types::Ticks, timing::TimeBounds};
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, PANEL_HEADER_MARGIN, SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::editor::actions::EditorAction,
@@ -12,7 +13,6 @@ use crate::{
     },
 };
 use eframe::egui;
-use kadent_engine::{data_types::Ticks, timing::TimeBounds};
 
 impl EditorState {
     /// Returns the new scroll position if the user scrolled the timeline, otherwise returns `None`.

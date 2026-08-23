@@ -5,6 +5,7 @@ mod state;
 pub(crate) use state::PianoRollState;
 use uuid::Uuid;
 
+use crate::core::audio_engine::track::note_track::NoteTrack;
 use crate::{
     consts::PANEL_HEADER_HEIGHT,
     core::metadata::TrackType,
@@ -18,7 +19,6 @@ use crate::{
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
-use kadent_engine::track::note_track::NoteTrack;
 use ruler::{note_grid_ruler, note_pitch_ruler};
 
 impl EditorState {

@@ -1,5 +1,5 @@
+use crate::core::audio_engine::node::builtin::CurveType;
 use eframe::egui::{Color32, Stroke};
-use kadent_engine::node::builtin::CurveType;
 
 // --- FOREGROUND ---
 

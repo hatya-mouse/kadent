@@ -10,6 +10,7 @@ pub(crate) use new_project::create_new_project;
 pub(crate) use open_project::open_project_to_ctx;
 pub(crate) use stored::StoredTrackMeta;
 
+use crate::core::audio_engine::mixer::ProjectData;
 use crate::{
     core::metadata::ProjectMeta,
     storage::project::{
@@ -17,7 +18,6 @@ use crate::{
         stored::{StoredProjMeta, StoredProject},
     },
 };
-use kadent_engine::mixer::ProjectData;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,

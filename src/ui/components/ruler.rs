@@ -1,22 +1,22 @@
+use crate::core::audio_engine::data_types::Ticks;
 use crate::{
     consts::SCROLL_BAR_HEIGHT,
     ui::{editor::TimelineCoord, theme},
 };
 use eframe::egui;
-use kadent_engine::data_types::Ticks;
 
 /// The minimum width of the scroll bar handle.
 const MINIMUM_HANDLE_WIDTH: f32 = 12.0;
 
 #[derive(Default, Clone)]
-pub struct RulerConfig {
-    pub start_tick: Ticks,
-    pub left_padding: f32,
-    pub resolution: u64,
+pub(crate) struct RulerConfig {
+    pub(crate) start_tick: Ticks,
+    pub(crate) left_padding: f32,
+    pub(crate) resolution: u64,
 }
 
 impl RulerConfig {
-    pub fn new(start_tick: Ticks, left_padding: f32, resolution: u64) -> Self {
+    pub(crate) fn new(start_tick: Ticks, left_padding: f32, resolution: u64) -> Self {
         Self {
             start_tick,
             left_padding,
@@ -26,9 +26,9 @@ impl RulerConfig {
 }
 
 #[derive(Default, Clone)]
-pub struct RulerResponse {
-    pub drag_ended: bool,
-    pub seek_to: Option<Ticks>,
+pub(crate) struct RulerResponse {
+    pub(crate) drag_ended: bool,
+    pub(crate) seek_to: Option<Ticks>,
 }
 
 /// Draws the ruler and scroll bar for the timeline in the given rect, and returns the new scroll position when the scroll bar returns it, and the ruler response.

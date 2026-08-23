@@ -1,2 +1,2 @@
-pub mod app_state;
-pub mod project;
+pub(crate) mod app_state;
+pub(crate) mod project;

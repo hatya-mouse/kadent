@@ -1,12 +1,12 @@
 //! Renders the notes on the region box in the timeline.
 
-use crate::ui::{EditorState, theme};
-use eframe::egui;
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::Ticks,
     mixer::TrackID,
     track::{RegionID, note_track::NoteTrack},
 };
+use crate::ui::{EditorState, theme};
+use eframe::egui;
 
 const NOTE_HEIGHT_MULTIPLIER: f32 = 3.0;
 

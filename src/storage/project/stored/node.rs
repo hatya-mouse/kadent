@@ -1,8 +1,8 @@
-use crate::core::kasl_node::KaslNode;
-use kadent_engine::node::{
+use crate::core::audio_engine::node::{
     Node,
     builtin::{AudioInputNode, AudioOutputNode, NoteInputNode},
 };
+use crate::core::kasl_node::KaslNode;
 use serde::{Deserialize, Serialize};
 
 /// Mirror of the `Box<dyn Node>` for persistence.
@@ -16,7 +16,7 @@ pub(crate) enum StoredNode {
 
 impl StoredNode {
     /// Returns `None` if the node is of an unrecognized type.
-    pub fn from_node(node: &dyn Node) -> Option<Self> {
+    pub(crate) fn from_node(node: &dyn Node) -> Option<Self> {
         let any_node = node.as_any();
         if any_node.is::<AudioInputNode>() {
             Some(Self::AudioInput)
@@ -33,7 +33,7 @@ impl StoredNode {
         }
     }
 
-    pub fn to_node(&self) -> Box<dyn Node> {
+    pub(crate) fn to_node(&self) -> Box<dyn Node> {
         match self {
             Self::AudioInput => Box::new(AudioInputNode::default()),
             Self::AudioOutput => Box::new(AudioOutputNode::default()),

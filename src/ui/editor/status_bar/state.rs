@@ -1,6 +1,6 @@
 use crate::background_thread::BackgroundTaskStatus;
+use crate::core::audio_engine::data_types::Ticks;
 use eframe::egui;
-use kadent_engine::data_types::Ticks;
 use std::time::{Duration, Instant};
 
 const TEMP_STATUS_DURATION: u64 = 5;
@@ -16,7 +16,7 @@ pub(crate) struct StatusBarState {
     /// Currently processing task to show in the status bar.
     pub(crate) current_task: Option<BackgroundTaskStatus>,
     /// The last modified value in purpose of showing the value in the status bar.
-    pub status_hint: StatusHint,
+    pub(crate) status_hint: StatusHint,
 }
 
 pub(crate) struct TempStatusNotification {

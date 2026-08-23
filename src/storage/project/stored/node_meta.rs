@@ -9,7 +9,7 @@ pub(crate) struct StoredNodeMeta {
 }
 
 impl StoredNodeMeta {
-    pub fn from_node_meta(node_meta: &NodeMeta) -> Self {
+    pub(crate) fn from_node_meta(node_meta: &NodeMeta) -> Self {
         Self {
             node_type: node_meta.node_type.clone(),
             display_name: node_meta.display_name.clone(),
@@ -17,7 +17,7 @@ impl StoredNodeMeta {
         }
     }
 
-    pub fn to_node_meta(&self) -> NodeMeta {
+    pub(crate) fn to_node_meta(&self) -> NodeMeta {
         NodeMeta {
             node_type: self.node_type.clone(),
             display_name: self.display_name.clone(),

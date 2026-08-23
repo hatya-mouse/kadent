@@ -1,9 +1,9 @@
-use crate::storage::project::stored::{tempo_map::StoredTempoMap, track::StoredTrack};
-use kadent_engine::{
+use crate::core::audio_engine::{
     data_types::AudioContext,
     mixer::{ProjectData, TrackID},
     timing::TimeBounds,
 };
+use crate::storage::project::stored::{tempo_map::StoredTempoMap, track::StoredTrack};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -11,14 +11,14 @@ use std::collections::HashMap;
 /// and it's recomputed from the loaded track IDs.
 #[derive(Serialize, Deserialize)]
 pub(crate) struct StoredProject {
-    pub tracks: HashMap<TrackID, StoredTrack>,
-    pub tempo_map: StoredTempoMap,
-    pub audio_ctx: AudioContext,
-    pub export_range: TimeBounds,
+    pub(crate) tracks: HashMap<TrackID, StoredTrack>,
+    pub(crate) tempo_map: StoredTempoMap,
+    pub(crate) audio_ctx: AudioContext,
+    pub(crate) export_range: TimeBounds,
 }
 
 impl StoredProject {
-    pub fn from_project(project: &ProjectData) -> Self {
+    pub(crate) fn from_project(project: &ProjectData) -> Self {
         let tracks = project
             .tracks
             .iter()
@@ -35,7 +35,7 @@ impl StoredProject {
         }
     }
 
-    pub fn to_project(&self) -> ProjectData {
+    pub(crate) fn to_project(&self) -> ProjectData {
         let tempo_map = self.tempo_map.to_tempo_map(&self.audio_ctx);
         let mut project = ProjectData::with_tempo_map(
             self.audio_ctx.clone(),
