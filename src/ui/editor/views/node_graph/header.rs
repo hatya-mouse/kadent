@@ -3,9 +3,10 @@ use crate::{
     ui::{EditorState, components::icon_button::small_icon_button, theme},
 };
 use eframe::egui;
+use rand::seq::IteratorRandom;
 
 impl EditorState {
-    pub(super) fn draw_node_graph_header(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::ui::editor) fn node_graph_header(&mut self, ui: &mut egui::Ui) {
         let mut node_to_add: Option<AddibleNodes> = None;
         let mut jump_to_random = false;
 
@@ -20,7 +21,7 @@ impl EditorState {
                 .style(theme::menu_style(ui))
                 .show(|ui| {
                     AddibleNodes::all().iter().for_each(|node| {
-                        if ui.button(node.name()).clicked() {
+                        if ui.selectable_label(false, node.name()).clicked() {
                             node_to_add = Some(node.clone());
                         }
                     });
@@ -42,7 +43,7 @@ impl EditorState {
         if jump_to_random
             && let Some(track_id) = self.selection.track_id()
             && let Some(track_meta) = self.project.meta.get_track(&track_id)
-            && let Some(node_meta) = track_meta.graph.nodes.values().next()
+            && let Some(node_meta) = track_meta.graph.nodes.values().choose(&mut rand::rng())
         {
             self.views.node_graph.jump_to_pos = Some(node_meta.pos);
         }

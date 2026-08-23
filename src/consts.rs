@@ -44,7 +44,7 @@ pub(crate) const DEFAULT_BUFFER_SIZE: usize = 512;
 /// The recommended height of the header inside each panels.
 pub(crate) const PANEL_HEADER_HEIGHT: f32 = 36.0;
 /// The default margin of the panel header.
-pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 4);
+pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 6);
 
 // --- TIMELINE ---
 

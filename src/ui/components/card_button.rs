@@ -25,7 +25,7 @@ pub(crate) fn card_button_enabled<R>(
             egui::Frame::new()
                 .corner_radius(6.0)
                 .stroke(theme::border(ui.visuals().dark_mode))
-                .inner_margin(4.0)
+                .inner_margin(egui::Margin::symmetric(6, 2))
                 .multiply_with_opacity(if enabled { 1.0 } else { 0.5 })
                 .show(ui, add_contents)
                 .response

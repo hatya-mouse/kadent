@@ -8,11 +8,7 @@ pub(crate) use state::NodeGraphState;
 
 use crate::core::audio_engine::graph::InputKey;
 use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
-use crate::{
-    consts::PANEL_HEADER_MARGIN,
-    ui::editor::actions::EditorAction,
-    ui::{EditorState, components::panel_header::panel_header, theme},
-};
+use crate::{ui::EditorState, ui::editor::actions::EditorAction};
 use edge::{draw_edges, draw_ghost_edge};
 use eframe::egui;
 use port::find_hovered_input;
@@ -30,87 +26,78 @@ const NODE_HEADER_HEGIHT: f32 = 24.0;
 
 impl EditorState {
     pub(in crate::ui::editor) fn node_graph(&mut self, ui: &mut egui::Ui) {
-        // Draw the node graph header
-        panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
-            self.draw_node_graph_header(ui);
-        });
+        let content_rect = ui.available_rect_before_wrap();
 
-        egui::CentralPanel::default()
-            .frame(egui::Frame::new().fill(theme::primary_bg(ui.visuals().dark_mode)))
-            .show_inside(ui, |ui| {
-                let content_rect = ui.available_rect_before_wrap();
+        // Allocate the full canvas rect for background interaction.
+        // Must be before node allocations so node interactions take priority.
+        let bg_response = ui.allocate_rect(content_rect, egui::Sense::drag());
 
-                // Allocate the full canvas rect for background interaction.
-                // Must be before node allocations so node interactions take priority.
-                let bg_response = ui.allocate_rect(content_rect, egui::Sense::drag());
+        // Middle mouse drag to pan
+        if bg_response.dragged_by(egui::PointerButton::Middle) {
+            self.views.node_graph.pan_offset += bg_response.drag_delta();
+        }
 
-                // Middle mouse drag to pan
-                if bg_response.dragged_by(egui::PointerButton::Middle) {
-                    self.views.node_graph.pan_offset += bg_response.drag_delta();
-                }
+        // Center on a requested canvas position (e.g. "jump to random node")
+        if let Some(target) = self.views.node_graph.jump_to_pos.take() {
+            let half_size = content_rect.size() * 0.5;
+            self.views.node_graph.pan_offset =
+                egui::vec2(half_size.x - target.x, half_size.y - target.y);
+        }
 
-                // Center on a requested canvas position (e.g. "jump to random node")
-                if let Some(target) = self.views.node_graph.jump_to_pos.take() {
-                    let half_size = content_rect.size() * 0.5;
-                    self.views.node_graph.pan_offset =
-                        egui::vec2(half_size.x - target.x, half_size.y - target.y);
-                }
+        // view_transform converts canvas-space positions to screen-space each frame.
+        // Adding content_rect.min ensures nodes follow panel moves and resizes automatically.
+        let view_transform = content_rect.min.to_vec2() + self.views.node_graph.pan_offset;
 
-                // view_transform converts canvas-space positions to screen-space each frame.
-                // Adding content_rect.min ensures nodes follow panel moves and resizes automatically.
-                let view_transform = content_rect.min.to_vec2() + self.views.node_graph.pan_offset;
+        let Some(track_id) = self.selection.track_id() else {
+            return;
+        };
 
-                let Some(track_id) = self.selection.track_id() else {
-                    return;
-                };
+        // Collect what we need up front to avoid holding borrows during drawing
+        let node_ids: Vec<NodeID> = self
+            .project
+            .meta
+            .get_track(&track_id)
+            .map(|t| t.graph.nodes.keys().cloned().collect())
+            .unwrap_or_default();
 
-                // Collect what we need up front to avoid holding borrows during drawing
-                let node_ids: Vec<NodeID> = self
-                    .project
-                    .meta
-                    .get_track(&track_id)
-                    .map(|t| t.graph.nodes.keys().cloned().collect())
-                    .unwrap_or_default();
+        let edges = self
+            .project
+            .data
+            .get_track(&track_id)
+            .map(|t| t.get_graph().get_all_edges())
+            .unwrap_or_default();
 
-                let edges = self
-                    .project
-                    .data
-                    .get_track(&track_id)
-                    .map(|t| t.get_graph().get_all_edges())
-                    .unwrap_or_default();
+        // Copy ghost/dragged edge before borrowing project_meta below
+        let ghost_edge = self.views.node_graph.ghost_edge;
+        let dragged_edge = self.views.node_graph.dragged_edge;
 
-                // Copy ghost/dragged edge before borrowing project_meta below
-                let ghost_edge = self.views.node_graph.ghost_edge;
-                let dragged_edge = self.views.node_graph.dragged_edge;
+        // Draw edges behind nodes
+        if let Some(track_meta) = self.project.meta.get_track(&track_id) {
+            let painter = ui.painter();
+            draw_edges(
+                ui,
+                painter,
+                &edges,
+                &track_meta.graph,
+                view_transform,
+                dragged_edge,
+            );
 
-                // Draw edges behind nodes
-                if let Some(track_meta) = self.project.meta.get_track(&track_id) {
-                    let painter = ui.painter();
-                    draw_edges(
-                        ui,
-                        painter,
-                        &edges,
-                        &track_meta.graph,
-                        view_transform,
-                        dragged_edge,
-                    );
+            // Draw the ghost edge
+            if let Some(ghost) = ghost_edge {
+                draw_ghost_edge(ui, painter, &ghost, &track_meta.graph, view_transform);
+            }
+        }
 
-                    // Draw the ghost edge
-                    if let Some(ghost) = ghost_edge {
-                        draw_ghost_edge(ui, painter, &ghost, &track_meta.graph, view_transform);
-                    }
-                }
+        // Draw each node (on top of edges)
+        for node_id in &node_ids {
+            self.draw_node(ui, node_id, view_transform);
+        }
 
-                // Draw each node (on top of edges)
-                for node_id in &node_ids {
-                    self.draw_node(ui, node_id, view_transform);
-                }
-
-                // Handle ghost edge release after drawing nodes
-                if let Some(ghost) = ghost_edge {
-                    self.handle_ghost_release(ui, ghost, &track_id, &node_ids, view_transform);
-                }
-            });
+        // Handle ghost edge release after drawing nodes
+        if let Some(ghost) = ghost_edge {
+            self.handle_ghost_release(ui, ghost, &track_id, &node_ids, view_transform);
+        }
     }
 
     fn handle_ghost_release(

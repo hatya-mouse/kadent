@@ -1,10 +1,14 @@
 use super::SplitAction;
-use crate::ui::{
-    EditorState,
-    editor::{PanelView, SplitDir},
-    theme,
+use crate::{
+    consts::PANEL_HEADER_MARGIN,
+    ui::{
+        EditorState,
+        components::{dropdown::dropdown_button, panel_header::panel_header},
+        editor::{PanelView, SplitDir},
+        theme,
+    },
 };
-use eframe::egui::{self, CursorIcon, Rect, UiBuilder, style::StyleModifier};
+use eframe::egui::{self, CursorIcon, Rect, UiBuilder};
 use uuid::Uuid;
 
 const EDGE_SIZE: f32 = 10.0;
@@ -34,7 +38,7 @@ impl EditorState {
             // Remove the spacing between header and content
             ui.spacing_mut().item_spacing.y = 0.0;
 
-            render_header(ui, view);
+            self.render_header(ui, view);
 
             // Clip the content to the area below the header
             // Without this, painter-based content (node graph, piano roll) would draw
@@ -62,31 +66,39 @@ impl EditorState {
             PanelView::CodeEditor => self.code_editor(ui, panel_id),
         }
     }
-}
 
-fn render_header(ui: &mut egui::Ui, view: &mut PanelView) {
-    let response = egui::Frame::new()
-        .fill(theme::tertiary_bg(ui.visuals().dark_mode))
-        .inner_margin(egui::Margin::symmetric(8, 4))
-        .show(ui, |ui| {
+    fn render_view_header(&mut self, ui: &mut egui::Ui, view: &PanelView) {
+        if view == &PanelView::NodeGraph {
+            self.node_graph_header(ui);
+        }
+    }
+
+    fn render_header(&mut self, ui: &mut egui::Ui, view: &mut PanelView) {
+        let response = panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             ui.set_min_width(ui.available_width());
 
-            egui::ComboBox::from_id_salt("panel_selection_combo_box")
-                .popup_style(StyleModifier::from(theme::menu_style(ui)))
-                .selected_text(view.to_string())
-                .show_ui(ui, |ui| {
+            dropdown_button(
+                ui,
+                ui.id().with("panel_selection_dropdown"),
+                view.to_string(),
+                |ui| {
                     PanelView::all().iter().for_each(|enum_view| {
                         ui.selectable_value(view, enum_view.clone(), enum_view.to_string());
                     });
-                })
+                },
+            );
+
+            // Add the PanelView-specific header content
+            self.render_view_header(ui, view);
         });
 
-    let stroke = ui.visuals().widgets.noninteractive.bg_stroke;
-    let rect = response.response.rect;
+        let stroke = ui.visuals().widgets.noninteractive.bg_stroke;
+        let rect = response.response.rect;
 
-    // Adjust the y coordinate to align with the bottom edge of the header frame
-    ui.painter()
-        .line_segment([rect.left_bottom(), rect.right_bottom()], stroke);
+        // Adjust the y coordinate to align with the bottom edge of the header frame
+        ui.painter()
+            .line_segment([rect.left_bottom(), rect.right_bottom()], stroke);
+    }
 }
 
 fn check_edge_drag(ui: &mut egui::Ui, rect: Rect) -> Option<SplitAction> {
