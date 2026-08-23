@@ -8,14 +8,14 @@ use crate::core::audio_engine::{
     },
     timing::TempoMap,
 };
-use serde::{Deserialize, Serialize};
 use std::ops::{Range, RangeInclusive};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
 pub(crate) enum AutomationTrackType {
-    Float,
-    Int,
-    Bool,
+    Float = 0,
+    Int = 1,
+    Bool = 2,
 }
 
 impl AutomationTrackType {
@@ -29,7 +29,7 @@ impl AutomationTrackType {
 }
 
 /// A track that stores keyframes for a specific node and input index.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub(crate) enum AutomationTrack {
     /// Float keyframe track, used for continuous values.
     /// The value is interpolated between keyframes based on the gradient calculated during preparation.
@@ -39,10 +39,8 @@ pub(crate) enum AutomationTrack {
         /// Inclusive range of the keyframe values, used for clamping the output values.
         range: RangeInclusive<f32>,
         /// Cached sample indices of the keyframes, sorted in the order of the keyframe index.
-        #[serde(skip)]
         keyframe_samples: Vec<usize>,
         /// The cursor that calculates the gradient at the specific sample index.
-        #[serde(skip)]
         float_cursor: FloatAutomationCursor,
     },
     /// Integer keyframe track, used for discrete values.
@@ -53,10 +51,8 @@ pub(crate) enum AutomationTrack {
         /// Inclusive range of the keyframe values, used for clamping the output values.
         range: RangeInclusive<i32>,
         /// Cached sample indices of the keyframes, sorted in the order of the keyframe index.
-        #[serde(skip)]
         keyframe_samples: Vec<usize>,
         /// The cursor that keeps track of the current position in the automation track for processing.
-        #[serde(skip)]
         automation_cursor: ConstantAutomationCursor,
     },
     /// Boolean keyframe track.
@@ -65,10 +61,8 @@ pub(crate) enum AutomationTrack {
         /// The vector of keyframes, sorted by ticks.
         keyframes: Vec<Keyframe<bool>>,
         /// Cached sample indices of the keyframes, sorted in the order of the keyframe index.
-        #[serde(skip)]
         keyframe_samples: Vec<usize>,
         /// The cursor that keeps track of the current position in the automation track for processing.
-        #[serde(skip)]
         automation_cursor: ConstantAutomationCursor,
     },
 }
@@ -85,6 +79,18 @@ impl AutomationTrack {
         }
     }
 
+    pub(crate) fn with_float_keyframes(
+        keyframes: Vec<Keyframe<f32>>,
+        range: RangeInclusive<f32>,
+    ) -> Self {
+        AutomationTrack::Float {
+            keyframes,
+            range,
+            keyframe_samples: Vec::new(),
+            float_cursor: FloatAutomationCursor::default(),
+        }
+    }
+
     pub(crate) fn new_int(range: RangeInclusive<i32>) -> Self {
         AutomationTrack::Int {
             keyframes: Vec::new(),
@@ -94,9 +100,29 @@ impl AutomationTrack {
         }
     }
 
+    pub(crate) fn with_int_keyframes(
+        keyframes: Vec<Keyframe<i32>>,
+        range: RangeInclusive<i32>,
+    ) -> Self {
+        AutomationTrack::Int {
+            keyframes,
+            range,
+            keyframe_samples: Vec::new(),
+            automation_cursor: ConstantAutomationCursor::default(),
+        }
+    }
+
     pub(crate) fn new_bool() -> Self {
         AutomationTrack::Bool {
             keyframes: Vec::new(),
+            keyframe_samples: Vec::new(),
+            automation_cursor: ConstantAutomationCursor::default(),
+        }
+    }
+
+    pub(crate) fn with_bool_keyframes(keyframes: Vec<Keyframe<bool>>) -> Self {
+        AutomationTrack::Bool {
+            keyframes,
             keyframe_samples: Vec::new(),
             automation_cursor: ConstantAutomationCursor::default(),
         }

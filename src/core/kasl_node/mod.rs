@@ -44,6 +44,12 @@ impl KaslNode {
         Self::default()
     }
 
+    pub(crate) fn with_path(path: String) -> Self {
+        let mut node = Self::default();
+        node.file_path = Some(path);
+        node
+    }
+
     pub(crate) fn set_search_paths(&mut self, paths: Vec<String>) {
         self.search_paths = paths;
     }

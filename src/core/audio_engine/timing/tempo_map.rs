@@ -7,12 +7,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub(crate) struct TempoMap {
-    /// The tempo events in the tempo map, sorted by their ticks.
-    pub(crate) events: Vec<TempoEvent>,
-    /// The initial BPM of the tempo map, used before the first tempo event.
-    pub(crate) initial_bpm: f64,
     /// The resolution of the audio context, used for converting between ticks and seconds.
     pub(crate) resolution: u64,
+    /// The initial BPM of the tempo map, used before the first tempo event.
+    pub(crate) initial_bpm: f64,
+    /// The tempo events in the tempo map, sorted by their ticks.
+    pub(crate) events: Vec<TempoEvent>,
 }
 
 impl TempoMap {
@@ -21,9 +21,20 @@ impl TempoMap {
     /// Creates a new TempoMap.
     pub(crate) fn new(resolution: u64, initial_bpm: f64) -> Self {
         let mut map = Self {
-            events: vec![],
             initial_bpm,
             resolution,
+            events: vec![],
+        };
+        map.bake();
+        map
+    }
+
+    /// Creates a new TempoMap with the given events.
+    pub(crate) fn with_events(resolution: u64, initial_bpm: f64, events: Vec<TempoEvent>) -> Self {
+        let mut map = Self {
+            initial_bpm,
+            resolution,
+            events,
         };
         map.bake();
         map

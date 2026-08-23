@@ -2,9 +2,8 @@ use crate::core::audio_engine::{
     data_types::Ticks,
     node::builtin::{AutomationTrack, CurveType},
 };
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub(crate) struct Keyframe<T> {
     pub(crate) tick: Ticks,
     pub(crate) curve: CurveType,

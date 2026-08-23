@@ -18,9 +18,10 @@ pub(crate) struct TrackMeta {
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
+#[repr(u32)]
 pub(crate) enum TrackType {
-    Audio,
-    Note,
+    Audio = 0,
+    Note = 1,
 }
 
 impl TrackType {

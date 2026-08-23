@@ -25,6 +25,19 @@ impl NoteRegion {
         }
     }
 
+    /// Creates a new note region with the given notes.
+    pub(crate) fn with_notes(
+        bounds: TimeBounds,
+        notes: HashMap<NoteID, Note>,
+        next_note_id: u64,
+    ) -> Self {
+        Self {
+            bounds,
+            notes,
+            next_note_id,
+        }
+    }
+
     // --- NOTE ID GENERATION ---
 
     /// Sets the next note ID to the given ID.

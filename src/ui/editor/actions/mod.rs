@@ -14,7 +14,7 @@ pub(crate) use project::{FileNode, FileNodeKind};
 
 use crate::core::audio_engine::{
     data_types::Ticks,
-    graph::node_id::NodeID,
+    graph::{InputKey, node_id::NodeID},
     mixer::TrackID,
     node::builtin::{AutomationTrackType, CurveType, Keyframe},
     thread::AudioResult,
@@ -124,11 +124,11 @@ pub(crate) enum EditorAction {
     /// `(track_id, pos)`
     AddNode(TrackID, AddibleNodes, egui::Pos2),
     /// Remove an edge from the given track's node graph.
-    /// `(track_id, to: (NodeID, usize))`
-    RemoveEdge(TrackID, (NodeID, usize)),
+    /// `(track_id, to)`
+    RemoveEdge(TrackID, InputKey),
     /// Add an edge to the given track's node graph.
-    /// `(track_id, from: (NodeID, usize), to: (NodeID, usize))`
-    AddEdge(TrackID, (NodeID, usize), (NodeID, usize)),
+    /// `(track_id, from: (NodeID, usize), to)`
+    AddEdge(TrackID, (NodeID, usize), InputKey),
     /// Compile a KASL program attached to the given node.
     /// `(track_id, node_id)`
     CompileKasl(TrackID, NodeID),

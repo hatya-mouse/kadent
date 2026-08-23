@@ -64,6 +64,24 @@ impl AudioTrack {
         }
     }
 
+    pub(crate) fn with_initial(
+        graph: Graph,
+        regions: HashMap<RegionID, AudioRegion>,
+        next_region_id: u64,
+    ) -> Self {
+        Self {
+            graph,
+            regions,
+            graph_input_buffer: Vec::new(),
+            ringbuf_cons: None,
+            should_worker_stop: None,
+            sync_state: None,
+            is_first_process: true,
+            local_buffer: Vec::new(),
+            next_region_id,
+        }
+    }
+
     // --- REGION GETTING ---
 
     pub(crate) fn get_region(&self, id: &RegionID) -> Option<&AudioRegion> {

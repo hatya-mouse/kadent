@@ -4,6 +4,18 @@ use std::collections::HashSet;
 #[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 pub(crate) struct NoteID(pub(crate) u64);
 
+impl Into<u64> for NoteID {
+    fn into(self) -> u64 {
+        self.0
+    }
+}
+
+impl From<u64> for NoteID {
+    fn from(value: u64) -> Self {
+        NoteID(value)
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct Note {
     /// Relative start position in the region in ticks.

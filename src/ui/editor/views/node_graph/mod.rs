@@ -6,6 +6,7 @@ mod state;
 
 pub(crate) use state::NodeGraphState;
 
+use crate::core::audio_engine::graph::InputKey;
 use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::{
     consts::PANEL_HEADER_MARGIN,
@@ -153,7 +154,7 @@ impl EditorState {
                     if let Some(old_edge) = self.views.node_graph.dragged_edge {
                         self.actions.push_action(EditorAction::RemoveEdge(
                             *track_id,
-                            (old_edge.2, old_edge.3),
+                            InputKey(old_edge.2, old_edge.3),
                         ));
                     }
 
@@ -162,7 +163,7 @@ impl EditorState {
                     self.actions.push_action(EditorAction::AddEdge(
                         *track_id,
                         (new_edge.0, new_edge.1),
-                        (new_edge.2, new_edge.3),
+                        InputKey(new_edge.2, new_edge.3),
                     ));
 
                     // Mark that we've connected the dragged edge to input
@@ -178,7 +179,7 @@ impl EditorState {
                 if let Some(old_edge) = self.views.node_graph.dragged_edge {
                     self.actions.push_action(EditorAction::RemoveEdge(
                         *track_id,
-                        (old_edge.2, old_edge.3),
+                        InputKey(old_edge.2, old_edge.3),
                     ));
                 }
             }

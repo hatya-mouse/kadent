@@ -6,7 +6,8 @@ use crate::core::kasl_node::KaslNode;
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[repr(u32)]
 pub(crate) enum NodeType {
     NoteInput = 0,
     AudioInput = 1,

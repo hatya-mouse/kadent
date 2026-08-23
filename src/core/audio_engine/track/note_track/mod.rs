@@ -26,15 +26,15 @@ pub(crate) struct NoteTrack {
     // --- GRAPH ---
     graph: Graph,
 
+    // --- MODIFIERS ---
+    modifiers: HashMap<NoteModifierID, Box<dyn NoteModifier>>,
+
     // --- NOTE DATA ---
     /// The original note data, which is not affected by the modifiers.
     regions: HashMap<RegionID, NoteRegion>,
     /// The processed note data, which has been processed by the modifiers.
     /// This is sorted by the start time of the notes, and is used for generating voice events.
     processed_notes: Vec<ProcessedNote>,
-
-    // --- MODIFIERS ---
-    modifiers: HashMap<NoteModifierID, Box<dyn NoteModifier>>,
 
     // --- VOICE EVENTS ---
     /// Voice Events such as NoteOn and NoteOff.
@@ -67,6 +67,19 @@ impl NoteTrack {
 
         Self {
             graph,
+            ..Default::default()
+        }
+    }
+
+    pub(crate) fn with_initial(
+        graph: Graph,
+        regions: HashMap<RegionID, NoteRegion>,
+        next_region_id: u64,
+    ) -> Self {
+        Self {
+            graph,
+            regions,
+            next_region_id,
             ..Default::default()
         }
     }

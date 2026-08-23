@@ -8,10 +8,12 @@ use crate::core::audio_engine::{
     node::Node,
     timing::TempoMap,
 };
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub(crate) struct InputKey(pub(crate) NodeID, pub(crate) usize);
+
+#[derive(Debug, Clone)]
 pub(crate) enum InputSource {
     Edge(NodeID, usize),
     Keyframe,
@@ -22,7 +24,7 @@ pub(crate) enum InputSource {
 pub(crate) struct Graph {
     // --- GRAPH STRUCTURE ---
     nodes: HashMap<NodeID, Box<dyn Node>>,
-    pub(crate) input_sources: HashMap<(NodeID, usize), InputSource>,
+    input_sources: HashMap<InputKey, InputSource>,
     adjacency: HashMap<NodeID, Vec<NodeID>>,
     input_id: NodeID,
     output_id: NodeID,
@@ -32,7 +34,7 @@ pub(crate) struct Graph {
     /// Allocated buffers for the output of each node, which are used as input for the connected nodes.
     output_buffers: HashMap<(NodeID, usize), Vec<u8>>,
     /// Allocated buffers for the calculated keyframe values.
-    keyframe_buffers: HashMap<(NodeID, usize), Vec<u8>>,
+    keyframe_buffers: HashMap<InputKey, Vec<u8>>,
     /// Stores pointers to the input buffers of each node, which may be the same as the node output buffers of the connected node.
     node_inputs: HashMap<NodeID, Vec<*const u8>>,
     /// Stores pointers to the output buffers of each node.
@@ -58,6 +60,21 @@ impl Graph {
         graph
     }
 
+    /// Creates a new graph with the given nodes, input_sources, input_id, and output_id.
+    pub(crate) fn with_nodes(
+        nodes: HashMap<NodeID, Box<dyn Node>>,
+        input_sources: HashMap<InputKey, InputSource>,
+        input_id: NodeID,
+        output_id: NodeID,
+    ) -> Self {
+        let mut graph = Graph::default();
+        graph.nodes = nodes;
+        graph.input_sources = input_sources;
+        graph.input_id = input_id;
+        graph.output_id = output_id;
+        graph
+    }
+
     // --- ID GENERATION ---
 
     /// Sets the next node ID to the given value.
@@ -73,6 +90,10 @@ impl Graph {
     }
 
     // --- NODE GETTING ---
+
+    pub(crate) fn get_input_sources(&self) -> &HashMap<InputKey, InputSource> {
+        &self.input_sources
+    }
 
     pub(crate) fn get_input_id(&self) -> NodeID {
         self.input_id
@@ -129,8 +150,9 @@ impl Graph {
     /// Removes the node with the given NodeID from the graph.
     pub(crate) fn remove_node(&mut self, id: &NodeID) {
         // Remove the edges connected to the node
-        self.input_sources.retain(|&(to_node, _), _| to_node != *id);
-        self.input_sources.retain(|&(_, _), source| {
+        self.input_sources
+            .retain(|&InputKey(to_node, _), _| to_node != *id);
+        self.input_sources.retain(|&InputKey(_, _), source| {
             if let InputSource::Edge(from_node, _) = source {
                 *from_node != *id
             } else {
@@ -145,7 +167,7 @@ impl Graph {
 
     /// Connects the node's output to another nodes' input without any validation,
     /// but overwrites the existing edge if it exists.
-    pub(crate) fn add_edge_unchecked(&mut self, from: (NodeID, usize), to: (NodeID, usize)) {
+    pub(crate) fn add_edge_unchecked(&mut self, from: (NodeID, usize), to: InputKey) {
         self.input_sources
             .insert(to, InputSource::Edge(from.0, from.1));
     }
@@ -155,7 +177,7 @@ impl Graph {
     pub(crate) fn add_edge(
         &mut self,
         from: (NodeID, usize),
-        to: (NodeID, usize),
+        to: InputKey,
     ) -> Result<(), GraphError> {
         // Check if the type of the output and input are the same
         let output_type = self
@@ -179,7 +201,7 @@ impl Graph {
     }
 
     /// Removes the edge from the graph.
-    pub(crate) fn remove_edge(&mut self, to: &(NodeID, usize)) {
+    pub(crate) fn remove_edge(&mut self, to: &InputKey) {
         self.input_sources.remove(to);
     }
 
@@ -192,7 +214,7 @@ impl Graph {
     pub(crate) fn get_all_edges(&self) -> Vec<(NodeID, usize, NodeID, usize)> {
         self.input_sources
             .iter()
-            .filter_map(|((to_node, to_input), source)| {
+            .filter_map(|(InputKey(to_node, to_input), source)| {
                 if let InputSource::Edge(from_node, from_output) = source {
                     Some((*from_node, *from_output, *to_node, *to_input))
                 } else {
@@ -337,7 +359,7 @@ impl Graph {
             let mut input_ptrs = vec![zero_ptr; input_len];
 
             for (input_index, input_ptr) in input_ptrs.iter_mut().enumerate() {
-                let key = (node_id, input_index);
+                let key = InputKey(node_id, input_index);
 
                 // Get the input source of the input
                 match self.input_sources.get(&key) {
