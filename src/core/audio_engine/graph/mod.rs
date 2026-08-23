@@ -163,8 +163,6 @@ impl Graph {
             .get(&to.0)
             .and_then(|node| node.get_input_type(to.1))
             .ok_or(GraphError::InputTypeUnavailable(to.0, to.1))?;
-        println!("Output Type: {:?}", output_type);
-        println!("Input Type: {:?}", input_type);
 
         if output_type != input_type {
             return Err(GraphError::NodeTypeMismatch((from.0, from.1, to.0, to.1)));
