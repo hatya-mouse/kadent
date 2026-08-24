@@ -1,5 +1,4 @@
 use crate::background_thread::BackgroundTaskStatus;
-use crate::core::audio_engine::data_types::Ticks;
 use eframe::egui;
 use std::time::{Duration, Instant};
 
@@ -15,8 +14,6 @@ pub(crate) struct StatusBarView {
     pub(crate) temp_status: Option<TempStatusNotification>,
     /// Currently processing task to show in the status bar.
     pub(crate) current_task: Option<BackgroundTaskStatus>,
-    /// The last modified value in purpose of showing the value in the status bar.
-    pub(crate) status_hint: StatusHint,
 }
 
 pub(crate) struct TempStatusNotification {
@@ -24,22 +21,6 @@ pub(crate) struct TempStatusNotification {
     pub(crate) color: egui::Color32,
     pub(crate) started_at: Instant,
     pub(crate) expires_at: Instant,
-}
-
-#[derive(Default)]
-pub(crate) enum StatusHint {
-    #[default]
-    None,
-    ProjectRange(Ticks, Ticks),
-    RegionRange(Ticks, Ticks),
-    /// (start, end, pitch)
-    NotePosition(Ticks, Ticks, f32),
-}
-
-impl StatusHint {
-    pub(crate) fn is_none(&self) -> bool {
-        matches!(self, StatusHint::None)
-    }
 }
 
 impl StatusBarView {
@@ -92,9 +73,5 @@ impl StatusBarView {
                 self.temp_status = None;
             }
         }
-    }
-
-    pub(crate) fn set_status_hint(&mut self, hint: StatusHint) {
-        self.status_hint = hint;
     }
 }

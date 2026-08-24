@@ -2,7 +2,7 @@ use crate::{
     consts::PROJECT_FILE_EXTENSION,
     core::project_ctx::ProjectContext,
     storage::project::open_project_to_ctx,
-    ui::{EditorState, SplashUi, editor::EditorUi, theme},
+    ui::{SplashUi, editor::EditorUi, theme},
 };
 use eframe::{self, egui};
 use std::path::PathBuf;

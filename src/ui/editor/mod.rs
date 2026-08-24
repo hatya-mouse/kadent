@@ -15,7 +15,7 @@ mod views;
 pub(crate) use frame_process::PeakHold;
 pub(crate) use panel::{PanelNode, PanelVariant, SplitDir};
 pub(crate) use state::*;
-pub(crate) use status_bar::{StatusBarView, StatusHint};
+pub(crate) use status_bar::StatusBarView;
 pub(crate) use views::{
     AutomationState, CodeBuffer, NodeGraphState, PianoRollState, TimelineState, ViewStates,
 };
@@ -173,9 +173,6 @@ impl EditorUi {
             .show_inside(ui, |ui| {
                 self.views.status_bar.ui(ui, &self.state);
             });
-
-        // Reset the modification state from the last frame
-        self.views.status_bar.set_status_hint(StatusHint::None);
 
         egui::CentralPanel::default()
             .frame(

@@ -86,7 +86,7 @@ impl AutomationState {
             ruler_and_scroll_bar(
                 ui,
                 ruler_rect,
-                &timeline_coord,
+                timeline_coord,
                 &ruler_config,
                 timeline_width,
                 available_rect.width(),
@@ -97,7 +97,7 @@ impl AutomationState {
         let track = &automation_node.track;
         let tpp = timeline_coord.tpp(resolution);
         let keyframe_pos =
-            keyframe_positions(track, &timeline_coord, scroll_rect, timeline_width, tpp);
+            keyframe_positions(track, timeline_coord, scroll_rect, timeline_width, tpp);
 
         // Draw the automation timeline and keyframes
         let scroll_res = egui::CentralPanel::default()
@@ -123,7 +123,7 @@ impl AutomationState {
             track,
             &self.last_curve_type,
             (track_id, node_id),
-            &timeline_coord,
+            timeline_coord,
             scroll_rect,
             tpp,
         ) {
@@ -135,7 +135,7 @@ impl AutomationState {
         let zoom_gesture_res = handle_timeline_zoom(
             ui,
             scroll_rect,
-            &timeline_coord,
+            timeline_coord,
             TIMELINE_LEFT_PADDING,
             MIN_AUTOMATION_SCALE,
             MAX_AUTOMATION_SCALE,

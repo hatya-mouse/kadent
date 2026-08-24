@@ -1,6 +1,6 @@
 mod state;
 
-pub(crate) use state::{StatusBarView, StatusHint};
+pub(crate) use state::StatusBarView;
 
 use crate::{
     background_thread::BackgroundTaskStatus,
@@ -44,53 +44,10 @@ impl StatusBarView {
                 );
             }
 
-            self.modification_text(ui, state);
-
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 self.notification_text(ui);
             });
         });
-    }
-
-    fn modification_text(&self, ui: &mut egui::Ui, state: &EditorState) {
-        if self.status_hint.is_none() {
-            return;
-        }
-
-        let resolution = state.project.data.audio_ctx.resolution as f32;
-        let hint_string = match self.status_hint {
-            StatusHint::None => unreachable!(),
-            StatusHint::ProjectRange(start_ticks, duration_ticks) => {
-                let start_beats = start_ticks.0 as f32 / resolution;
-                let duration_beats = duration_ticks.0 as f32 / resolution;
-                format!(
-                    "ProjectData Range: {:.3} – {:.3} Beats",
-                    start_beats,
-                    start_beats + duration_beats
-                )
-            }
-            StatusHint::RegionRange(start_ticks, duration_ticks) => {
-                let start_beats = start_ticks.0 as f32 / resolution;
-                let duration_beats = duration_ticks.0 as f32 / resolution;
-                format!(
-                    "Region Range: {:.3} – {:.3} Beats",
-                    start_beats,
-                    start_beats + duration_beats
-                )
-            }
-            StatusHint::NotePosition(start_ticks, duration_ticks, pitch) => {
-                let start_beats = start_ticks.0 as f32 / resolution;
-                let duration_beats = duration_ticks.0 as f32 / resolution;
-                format!(
-                    "Note: {:.3} – {:.3} Beats, Pitch {:.3}",
-                    start_beats,
-                    start_beats + duration_beats,
-                    pitch
-                )
-            }
-        };
-
-        status_text(ui, &hint_string);
     }
 }
 

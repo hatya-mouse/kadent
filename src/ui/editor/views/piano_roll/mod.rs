@@ -110,7 +110,7 @@ impl PianoRollState {
             ruler_and_scroll_bar(
                 ui,
                 ruler_screen_rect,
-                &timeline_coord,
+                timeline_coord,
                 &ruler_config,
                 scroll_content_width,
                 ruler_screen_rect.width(),
@@ -130,8 +130,8 @@ impl PianoRollState {
                 let region_duration_beats = (region_duration.0 as f32
                     / state.project.data.audio_ctx.resolution as f32)
                     .ceil() as i32;
-                note_pitch_ruler(ui, &timeline_coord, note_grid_rect);
-                note_grid_ruler(ui, &timeline_coord, note_grid_rect, region_duration_beats);
+                note_pitch_ruler(ui, timeline_coord, note_grid_rect);
+                note_grid_ruler(ui, timeline_coord, note_grid_rect, region_duration_beats);
 
                 // Then draw the notes on top of the note grid
                 self.draw_notes(
