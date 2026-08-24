@@ -31,7 +31,7 @@ impl Default for TimelinePanelState {
         Self {
             follow_playhead: false,
             track_list_width: 200.0,
-            timeline_coord: TimelineCoord::new(100.0, 40.0, egui::Vec2::ZERO),
+            timeline_coord: TimelineCoord::new(100.0, 60.0, egui::Vec2::ZERO),
         }
     }
 }
