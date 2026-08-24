@@ -117,9 +117,9 @@ pub(crate) fn transport_green(dark_mode: bool) -> Color32 {
 /// Soft border used on regions, notes, node bodies, and grid lines.
 pub(crate) fn border_color(dark_mode: bool) -> Color32 {
     if dark_mode {
-        Color32::from_rgba_unmultiplied(255, 255, 255, 30)
+        Color32::from_rgba_unmultiplied(255, 255, 255, 40)
     } else {
-        Color32::from_rgba_unmultiplied(0, 0, 0, 30)
+        Color32::from_rgba_unmultiplied(0, 0, 0, 40)
     }
 }
 
@@ -201,6 +201,14 @@ pub(crate) const fn default_track_color() -> Color32 {
 
 pub(crate) const fn waveform_color() -> Color32 {
     Color32::from_rgb(255, 255, 255)
+}
+
+pub(crate) fn ruler_color(dark_mode: bool) -> Color32 {
+    if dark_mode {
+        Color32::from_white_alpha(60)
+    } else {
+        Color32::from_black_alpha(60)
+    }
 }
 
 // --- RULER ---

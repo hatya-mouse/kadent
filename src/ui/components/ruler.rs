@@ -7,6 +7,8 @@ use eframe::egui;
 
 /// The minimum width of the scroll bar handle.
 const MINIMUM_HANDLE_WIDTH: f32 = 12.0;
+/// The height of the minor ticks.
+const MINOR_TICK_HEIGHT: f32 = 12.0;
 
 #[derive(Default, Clone)]
 pub(crate) struct RulerConfig {
@@ -188,7 +190,7 @@ fn beat_ruler(
     // --- Drawing ---
     let painter = ui.painter().with_clip_rect(ruler_rect);
 
-    let raw_interval = (60.0_f32 / ppb).ceil() as i32;
+    let raw_interval = (40.0_f32 / ppb).ceil() as i32;
     let beats_per_label = if raw_interval <= 1 {
         1
     } else if raw_interval <= 2 {
@@ -207,16 +209,35 @@ fn beat_ruler(
     let start_beat = (config.start_tick.0 as f64 / config.resolution as f64).floor() as i32;
     let left_beat = (((ruler_rect.min.x - origin_x) / ppb).floor() as i32).max(start_beat);
     let right_beat = ((ruler_rect.max.x - origin_x) / ppb).ceil() as i32;
-    let first_label_beat = (left_beat / beats_per_label) * beats_per_label;
 
-    let tick_color = theme::border_color(dark_mode);
+    let tick_color = theme::ruler_color(dark_mode);
     let text_color = theme::ruler_label(dark_mode);
 
-    // Major ticks and labels
-    let mut beat = first_label_beat;
-    while beat <= right_beat {
-        if beat >= start_beat {
-            let x = origin_x + beat as f32 * ppb;
+    // Define the number of minor lines between major beat lines based on the beats per label and ppb
+    let subdivisions: i32 = if beats_per_label == 1 {
+        if ppb >= 240.0 {
+            8
+        } else if ppb >= 120.0 {
+            4
+        } else if ppb >= 60.0 {
+            2
+        } else {
+            1
+        }
+    } else {
+        1
+    };
+
+    let unit_ppb = ppb / subdivisions as f32;
+    let major_units = beats_per_label * subdivisions;
+    let start_unit = (left_beat * subdivisions).max(start_beat * subdivisions);
+    let end_unit = right_beat * subdivisions;
+
+    // Render the ruler lines and labels
+    for unit in start_unit..=end_unit {
+        let x = origin_x + unit as f32 * unit_ppb;
+
+        if unit % major_units == 0 {
             painter.vline(
                 x,
                 egui::Rangef::new(ruler_rect.min.y, ruler_rect.max.y),
@@ -226,25 +247,16 @@ fn beat_ruler(
             painter.text(
                 egui::pos2(x + 3.0, ruler_rect.max.y - 2.0),
                 egui::Align2::LEFT_BOTTOM,
-                format!("{}", beat),
+                format!("{}", unit / subdivisions),
                 egui::FontId::proportional(12.0),
                 text_color,
             );
-        }
-        beat += beats_per_label;
-    }
-
-    // Minor ticks between major ticks
-    if ppb >= 30.0 && beats_per_label > 1 {
-        for sub_beat in left_beat..=right_beat {
-            if sub_beat >= 0 && sub_beat % beats_per_label != 0 {
-                let x = origin_x + sub_beat as f32 * ppb;
-                painter.vline(
-                    x,
-                    egui::Rangef::new(ruler_rect.max.y - 8.0, ruler_rect.max.y),
-                    egui::Stroke::new(1.0, tick_color.gamma_multiply(0.5)),
-                );
-            }
+        } else if unit_ppb >= 20.0 {
+            painter.vline(
+                x,
+                egui::Rangef::new(ruler_rect.max.y - MINOR_TICK_HEIGHT, ruler_rect.max.y),
+                egui::Stroke::new(1.0, tick_color),
+            );
         }
     }
 
