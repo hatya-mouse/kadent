@@ -185,7 +185,7 @@ fn follow_playhead_button(ui: &mut egui::Ui, corner_rect: egui::Rect, follow_pla
         egui::UiBuilder::new().max_rect(corner_rect.shrink2(PANEL_HEADER_MARGIN.right_bottom())),
         |ui| {
             ui.horizontal_centered(|ui| {
-                let icon = egui::include_image!("../../../../../assets/icons/crosshair.svg");
+                let icon = egui::include_image!("../../../../../assets/icons/playhead_follow.svg");
                 let response = small_icon_button(ui, egui::Image::new(icon));
                 if response.clicked() {
                     *follow_playhead = !*follow_playhead;
