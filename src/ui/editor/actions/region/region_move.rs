@@ -4,7 +4,7 @@ use crate::{
         timing::{TimeBounds, TimePosition, Timebase},
         track::{RegionID, audio_track::AudioTrack, note_track::NoteTrack},
     },
-    ui::editor::EditorUi,
+    ui::editor::{EditorUi, UiCommand},
 };
 use crate::{core::metadata::TrackType, ui::theme};
 
@@ -41,14 +41,16 @@ impl EditorUi {
 
             // Check if the destination track is of the same type as the original track
             if original_track_meta.track_type != new_track_meta.track_type {
-                self.views.status_bar.show_temp_status(
-                    &format!(
-                        "Cannot move {} region to {} track",
-                        original_track_meta.track_type.fmt_lowercase(),
-                        new_track_meta.track_type.fmt_lowercase()
-                    ),
-                    theme::error_fg(),
-                );
+                self.state
+                    .ui_commands
+                    .push_command(UiCommand::ShowTempStatus(
+                        format!(
+                            "Cannot move {} region to {} track",
+                            original_track_meta.track_type.fmt_lowercase(),
+                            new_track_meta.track_type.fmt_lowercase()
+                        ),
+                        theme::error_fg(),
+                    ));
                 return;
             }
 

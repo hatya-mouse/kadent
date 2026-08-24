@@ -20,9 +20,12 @@ pub(crate) use views::{
     AutomationState, CodeBuffer, NodeGraphState, PianoRollState, TimelineState, ViewStates,
 };
 
-use crate::core::audio_engine::{
-    thread::{AudioCommand, AudioThread, AudioThreadHandle},
-    timing::TimePosition,
+use crate::core::{
+    audio_engine::{
+        thread::{AudioCommand, AudioThread, AudioThreadHandle},
+        timing::TimePosition,
+    },
+    metadata::TrackType,
 };
 use crate::{
     background_thread::spawn_background_thread,
@@ -193,9 +196,30 @@ impl EditorUi {
 
         // Execute all pending actions
         self.consume_actions();
-        self.process_audio_thread_result();
+        // Also consume the UI commands
+        self.consume_ui_commands();
         // Process the result of the background thread
+        self.process_audio_thread_result();
         self.process_background_results();
+    }
+
+    fn consume_ui_commands(&mut self) {
+        let pending_commands: Vec<UiCommand> = self.state.ui_commands.pending.drain(..).collect();
+        for command in pending_commands {
+            match command {
+                UiCommand::ShowDialog(dialog_type) => match dialog_type {
+                    DialogType::AddTrack => {
+                        self.views.dialog = DialogState::AddTrack {
+                            selected_track_type: TrackType::Audio,
+                            name: String::new(),
+                        };
+                    }
+                },
+                UiCommand::ShowTempStatus(message, color) => {
+                    self.views.status_bar.show_temp_status(&message, color);
+                }
+            }
+        }
     }
 }
 
@@ -216,17 +240,6 @@ impl EditorState {
                 .send(AudioCommand::UpdateProject(Box::new(project)))
             {
                 println!("Failed to send project update command: {err}");
-            }
-        }
-    }
-
-    fn apply_ruler_res(&mut self, ruler_res: &RulerResponse) {
-        if let Some(target_tick) = ruler_res.seek_to {
-            self.transport.playhead_tick = target_tick;
-
-            if ruler_res.drag_ended {
-                self.actions
-                    .push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));
             }
         }
     }

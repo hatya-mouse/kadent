@@ -1,5 +1,5 @@
 use crate::core::audio_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
-use crate::ui::editor::EditorUi;
+use crate::ui::editor::{EditorUi, UiCommand};
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
     core::project_ctx::ProjectContext,
@@ -49,9 +49,12 @@ impl EditorUi {
     pub(super) fn export_project(&mut self, path: &Path) {
         // If the project is already being exported, show a message and return early
         if self.state.actions.pending_export_path.is_some() {
-            self.views
-                .status_bar
-                .show_temp_status("Export already in progress", theme::error_fg());
+            self.state
+                .ui_commands
+                .push_command(UiCommand::ShowTempStatus(
+                    "Export already in progress".to_string(),
+                    theme::error_fg(),
+                ));
             return;
         }
         self.views.status_bar.current_task = Some(BackgroundTaskStatus::Export);

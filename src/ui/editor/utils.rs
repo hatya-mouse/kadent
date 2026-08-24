@@ -2,7 +2,12 @@ use eframe::egui;
 
 use crate::{
     consts::{TIMELINE_LEFT_PADDING, TIMELINE_MAX_PPB, TIMELINE_MIN_PPB, TIMELINE_RIGHT_PADDING},
-    ui::{EditorState, editor::TimelineCoord},
+    core::audio_engine::timing::TimePosition,
+    ui::{
+        EditorState,
+        components::ruler::RulerResponse,
+        editor::{TimelineCoord, actions::EditorAction},
+    },
 };
 
 impl EditorState {
@@ -43,6 +48,18 @@ impl EditorState {
         let visible_half_width = visible_width * 0.5;
 
         playhead_content_x - visible_half_width
+    }
+
+    /// Updates the playhead position based on the given RulerResponse.
+    pub(super) fn apply_ruler_res(&mut self, ruler_res: &RulerResponse) {
+        if let Some(target_tick) = ruler_res.seek_to {
+            self.transport.playhead_tick = target_tick;
+
+            if ruler_res.drag_ended {
+                self.actions
+                    .push_action(EditorAction::Seek(TimePosition::Musical(target_tick)));
+            }
+        }
     }
 }
 
