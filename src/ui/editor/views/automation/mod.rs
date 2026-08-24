@@ -3,6 +3,7 @@ mod gestures;
 
 use crate::core::audio_engine::node::builtin::CurveType;
 use crate::core::audio_engine::{data_types::Ticks, node::builtin::AutomationNode};
+use crate::ui::editor::TimelineCoord;
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::{
@@ -12,7 +13,7 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{utils::handle_timeline_zoom, views::PanelViewState},
+        editor::utils::handle_timeline_zoom,
     },
 };
 use draw::{draw_automation_timeline, keyframe_positions};
@@ -32,18 +33,29 @@ pub(crate) struct AutomationState {
     pub(crate) last_curve_type: Option<CurveType>,
 }
 
+#[derive(Clone, Debug)]
+pub(crate) struct AutomationPanelState {
+    pub(crate) timeline_coord: TimelineCoord,
+}
+
+impl Default for AutomationPanelState {
+    fn default() -> Self {
+        Self {
+            timeline_coord: TimelineCoord::new(100.0, 200.0, egui::Vec2::ZERO),
+        }
+    }
+}
+
 impl AutomationState {
     pub(in crate::ui::editor) fn ui(
         &self,
         ui: &mut egui::Ui,
-        panel_state: &mut PanelViewState,
         state: &mut EditorState,
+        panel_state: &mut AutomationPanelState,
     ) {
-        let PanelViewState::Automation(timeline_coord) = panel_state else {
-            return;
-        };
+        let timeline_coord = &mut panel_state.timeline_coord;
         let resolution = state.project.data.audio_ctx.resolution;
-        let timeline_width = state.timeline_content_width(&timeline_coord);
+        let timeline_width = state.timeline_content_width(timeline_coord);
 
         // Get the track and the selected automation node
         let Some((track_id, node_id)) = state.selection.track_and_node_id() else {

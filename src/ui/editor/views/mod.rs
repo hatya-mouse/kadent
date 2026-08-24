@@ -8,10 +8,10 @@ mod piano_roll;
 mod state;
 mod timeline;
 
-pub(crate) use automation::AutomationState;
-pub(crate) use code_editor::{CodeBuffer, CodeEditorView};
+pub(crate) use automation::{AutomationPanelState, AutomationState};
+pub(crate) use code_editor::{CodeBuffer, CodeEditorPanelState, CodeEditorView};
 pub(crate) use node_graph::NodeGraphState;
 pub(crate) use panel_view_state::PanelViewState;
-pub(crate) use piano_roll::PianoRollState;
+pub(crate) use piano_roll::{PianoRollPanelState, PianoRollState};
 pub(crate) use state::ViewStates;
-pub(crate) use timeline::TimelineState;
+pub(crate) use timeline::{TimelinePanelState, TimelineState};

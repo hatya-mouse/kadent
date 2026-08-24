@@ -13,7 +13,7 @@ mod utils;
 mod views;
 
 pub(crate) use frame_process::PeakHold;
-pub(crate) use panel::{PanelNode, PanelView, SplitDir};
+pub(crate) use panel::{PanelNode, PanelVariant, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::{StatusBarView, StatusHint};
 pub(crate) use views::{

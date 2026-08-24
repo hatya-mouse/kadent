@@ -1,20 +1,23 @@
+use std::path::PathBuf;
+
 use crate::ui::{
     EditorState,
-    editor::{TimelineState, UiCommand, actions::EditorAction},
+    editor::{EditorUi, TimelineState, UiCommand, actions::EditorAction},
     theme,
 };
 use eframe::egui;
-use std::path::PathBuf;
 
-impl TimelineState {
+impl EditorUi {
     pub(crate) fn audio_dropped(&mut self, path: PathBuf) {
-        self.last_audio_drop = Some(path);
+        self.views.timeline.last_audio_drop = Some(path);
     }
 
     pub(crate) fn audio_hovered(&mut self, path: PathBuf) {
-        self.dragging_audio_file = Some(path);
+        self.views.timeline.dragging_audio_file = Some(path);
     }
+}
 
+impl TimelineState {
     pub(super) fn try_resolve_audio_drop(&mut self, state: &mut EditorState) {
         let Some(file_path) = self.last_audio_drop.take() else {
             return;

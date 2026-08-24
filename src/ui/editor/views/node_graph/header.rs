@@ -11,11 +11,7 @@ use eframe::egui;
 use rand::seq::IteratorRandom;
 
 impl NodeGraphState {
-    pub(in crate::ui::editor) fn node_graph_header(
-        &mut self,
-        ui: &mut egui::Ui,
-        state: &mut EditorState,
-    ) {
+    pub(in crate::ui::editor) fn header(&mut self, ui: &mut egui::Ui, state: &mut EditorState) {
         let mut node_to_add: Option<AddibleNodes> = None;
         let mut jump_to_random = false;
 

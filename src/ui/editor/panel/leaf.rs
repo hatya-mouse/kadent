@@ -3,7 +3,7 @@ use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::{
         components::{dropdown::dropdown_button, panel_header::panel_header},
-        editor::{EditorUi, PanelView, SplitDir, views::PanelViewState},
+        editor::{EditorUi, PanelVariant, SplitDir, views::PanelViewState},
         theme,
     },
 };
@@ -25,8 +25,7 @@ impl EditorUi {
     pub(super) fn render_leaf(
         &mut self,
         ui: &mut egui::Ui,
-        view: &mut PanelView,
-        panel_state: &mut PanelViewState,
+        view: &mut PanelViewState,
         id: Uuid,
         rect: Rect,
     ) -> Option<SplitAction> {
@@ -46,7 +45,7 @@ impl EditorUi {
             let content_rect = ui.available_rect_before_wrap();
             ui.scope_builder(UiBuilder::new().id_salt(id).max_rect(content_rect), |ui| {
                 ui.set_clip_rect(content_rect);
-                self.render_view_content(ui, view, panel_state, id);
+                self.render_view_content(ui, view, id);
             });
 
             check_edge_drag(ui, rect)
@@ -58,43 +57,56 @@ impl EditorUi {
     fn render_view_content(
         &mut self,
         ui: &mut egui::Ui,
-        view: &PanelView,
-        panel_state: &mut PanelViewState,
+        view: &mut PanelViewState,
         panel_id: Uuid,
     ) {
         match view {
-            PanelView::Timeline => self.views.timeline.ui(ui, panel_state, &mut self.state),
-            PanelView::PianoRoll => self.views.piano_roll.ui(ui, panel_state, &mut self.state),
-            PanelView::NodeGraph => self.views.node_graph.ui(ui, &mut self.state),
-            PanelView::Inspector => self.views.inspector.ui(ui, &mut self.state),
-            PanelView::ErrorList => self.views.error_list.ui(ui),
-            PanelView::Automation => self.views.automation.ui(ui, panel_id, &mut self.state),
-            PanelView::CodeEditor => self.views.code_editor.ui(ui, panel_id, panel_state),
+            PanelViewState::Timeline(panel_state) => {
+                self.views.timeline.ui(ui, &mut self.state, panel_state)
+            }
+            PanelViewState::PianoRoll(panel_state) => {
+                self.views.piano_roll.ui(ui, &mut self.state, panel_state)
+            }
+            PanelViewState::NodeGraph => self.views.node_graph.ui(ui, &mut self.state),
+            PanelViewState::Inspector => self.views.inspector.ui(ui, &mut self.state),
+            PanelViewState::ErrorList => self.views.error_list.ui(ui),
+            PanelViewState::Automation(panel_state) => {
+                self.views.automation.ui(ui, &mut self.state, panel_state)
+            }
+            PanelViewState::CodeEditor(panel_state) => {
+                self.views.code_editor.ui(ui, panel_id, panel_state)
+            }
         }
     }
 
-    fn render_view_header(&mut self, ui: &mut egui::Ui, view: &PanelView) {
-        if view == &PanelView::NodeGraph {
-            self.views.node_graph.header(ui);
+    fn render_view_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState) {
+        if matches!(view, PanelViewState::NodeGraph) {
+            self.views.node_graph.header(ui, &mut self.state);
         }
     }
 
-    fn render_header(&mut self, ui: &mut egui::Ui, view: &mut PanelView) {
+    fn render_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState) {
+        let selected_variant = view.variant();
         let response = panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             ui.set_min_width(ui.available_width());
 
             dropdown_button(
                 ui,
                 ui.id().with("panel_selection_dropdown"),
-                view.to_string(),
+                selected_variant.to_string(),
                 |ui| {
-                    PanelView::all().iter().for_each(|enum_view| {
-                        ui.selectable_value(view, enum_view.clone(), enum_view.to_string());
+                    PanelVariant::all().iter().for_each(|enum_view| {
+                        if ui
+                            .selectable_label(selected_variant == *enum_view, enum_view.to_string())
+                            .clicked()
+                        {
+                            *view = PanelViewState::from_variant(enum_view);
+                        }
                     });
                 },
             );
 
-            // Add the PanelView-specific header content
+            // Add the PanelVariant-specific header content
             self.render_view_header(ui, view);
         });
 

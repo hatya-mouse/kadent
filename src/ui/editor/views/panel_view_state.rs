@@ -1,26 +1,41 @@
-use crate::ui::editor::{PanelView, TimelineCoord};
+use crate::ui::editor::{
+    PanelVariant,
+    views::{AutomationPanelState, CodeEditorPanelState, PianoRollPanelState, TimelinePanelState},
+};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) enum PanelViewState {
-    CodeEditor {
-        file_list_width: f32,
-    },
-    Automation(TimelineCoord),
-    PianoRoll(TimelineCoord),
-    Timeline {
-        follow_playhead: bool,
-        track_list_width: f32,
-        timeline_coord: TimelineCoord,
-    },
+    Timeline(TimelinePanelState),
+    PianoRoll(PianoRollPanelState),
+    NodeGraph,
+    Inspector,
+    ErrorList,
+    Automation(AutomationPanelState),
+    CodeEditor(CodeEditorPanelState),
 }
 
 impl PanelViewState {
-    pub(crate) fn view(&self) -> PanelView {
+    pub(crate) fn variant(&self) -> PanelVariant {
         match self {
-            PanelViewState::CodeEditor { .. } => PanelView::CodeEditor,
-            PanelViewState::Automation(_) => PanelView::Automation,
-            PanelViewState::PianoRoll(_) => PanelView::PianoRoll,
-            PanelViewState::Timeline { .. } => PanelView::Timeline,
+            PanelViewState::Timeline { .. } => PanelVariant::Timeline,
+            PanelViewState::PianoRoll(_) => PanelVariant::PianoRoll,
+            PanelViewState::NodeGraph => PanelVariant::NodeGraph,
+            PanelViewState::Inspector => PanelVariant::Inspector,
+            PanelViewState::ErrorList => PanelVariant::ErrorList,
+            PanelViewState::Automation(_) => PanelVariant::Automation,
+            PanelViewState::CodeEditor { .. } => PanelVariant::CodeEditor,
+        }
+    }
+
+    pub(crate) fn from_variant(variant: &PanelVariant) -> Self {
+        match variant {
+            PanelVariant::Timeline => PanelViewState::Timeline(TimelinePanelState::default()),
+            PanelVariant::PianoRoll => PanelViewState::PianoRoll(PianoRollPanelState::default()),
+            PanelVariant::NodeGraph => PanelViewState::NodeGraph,
+            PanelVariant::Inspector => PanelViewState::Inspector,
+            PanelVariant::ErrorList => PanelViewState::ErrorList,
+            PanelVariant::Automation => PanelViewState::Automation(AutomationPanelState::default()),
+            PanelVariant::CodeEditor => PanelViewState::CodeEditor(CodeEditorPanelState::default()),
         }
     }
 }

@@ -13,30 +13,42 @@ use crate::{
     ui::{
         EditorState,
         components::panel_header::panel_header,
-        editor::{utils::handle_timeline_zoom, views::PanelViewState},
+        editor::{TimelineCoord, utils::handle_timeline_zoom},
         theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 
+#[derive(Clone, Debug)]
+pub(crate) struct TimelinePanelState {
+    pub(crate) follow_playhead: bool,
+    pub(crate) track_list_width: f32,
+    pub(crate) timeline_coord: TimelineCoord,
+}
+
+impl Default for TimelinePanelState {
+    fn default() -> Self {
+        Self {
+            follow_playhead: false,
+            track_list_width: 200.0,
+            timeline_coord: TimelineCoord::new(100.0, 200.0, egui::Vec2::ZERO),
+        }
+    }
+}
+
 impl TimelineState {
     pub(in crate::ui::editor) fn ui(
         &mut self,
         ui: &mut egui::Ui,
-        panel_state: &mut PanelViewState,
         state: &mut EditorState,
+        panel_state: &mut TimelinePanelState,
     ) {
         let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
-        let PanelViewState::Timeline {
-            follow_playhead,
-            track_list_width,
-            timeline_coord,
-        } = panel_state
-        else {
-            return;
-        };
+        let follow_playhead = &mut panel_state.follow_playhead;
+        let track_list_width = &mut panel_state.track_list_width;
+        let timeline_coord = &mut panel_state.timeline_coord;
 
         // While following, keep the playhead centered in the visible track area
         let visible_width = (panel_width - *track_list_width).max(0.0);

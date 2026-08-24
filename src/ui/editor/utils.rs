@@ -9,7 +9,7 @@ impl EditorState {
     /// Calculates the width of the entire timeline based on the current pixels-per-beat and project range.
     ///
     /// ```
-    /// |<--                             timeline_content_width                         -->|
+    /// |<--                               timeline_content_width                           -->|
     /// |<-- TIMELINE_LEFT_PADDING -->[<-- ProjectData Range -->]<-- TIMELINE_RIGHT_PADDING -->|
     /// ```
     pub(super) fn timeline_content_width(&self, timeline_coord: &TimelineCoord) -> f32 {

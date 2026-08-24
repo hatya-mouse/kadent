@@ -2,9 +2,12 @@ mod layout;
 mod leaf;
 mod split;
 
-pub(crate) use layout::{PanelNode, PanelView, SplitDir};
+pub(crate) use layout::{PanelNode, PanelVariant, SplitDir};
 
-use crate::ui::editor::EditorUi;
+use crate::ui::editor::{
+    EditorUi,
+    views::{PanelViewState, TimelinePanelState},
+};
 use eframe::egui;
 use uuid::Uuid;
 
@@ -26,7 +29,7 @@ impl EditorUi {
 
     fn render_node(&mut self, ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect) {
         let split_action = match node {
-            PanelNode::Leaf(view, state, id) => self.render_leaf(ui, view, state, *id, rect),
+            PanelNode::Leaf(view, id) => self.render_leaf(ui, view, *id, rect),
             _ => None,
         };
 
@@ -47,13 +50,19 @@ impl EditorUi {
             };
             let (a, b) = if action.new_panel_first {
                 (
-                    PanelNode::Leaf(PanelView::Timeline, Uuid::new_v4()),
+                    PanelNode::Leaf(
+                        PanelViewState::Timeline(TimelinePanelState::default()),
+                        Uuid::new_v4(),
+                    ),
                     PanelNode::Leaf(current, current_id),
                 )
             } else {
                 (
                     PanelNode::Leaf(current, current_id),
-                    PanelNode::Leaf(PanelView::Timeline, Uuid::new_v4()),
+                    PanelNode::Leaf(
+                        PanelViewState::Timeline(TimelinePanelState::default()),
+                        Uuid::new_v4(),
+                    ),
                 )
             };
             *node = PanelNode::Split {

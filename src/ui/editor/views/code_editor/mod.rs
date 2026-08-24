@@ -23,12 +23,25 @@ pub(crate) struct CodeBuffer {
     pub(crate) content: String,
 }
 
+#[derive(Clone, Debug)]
+pub(crate) struct CodeEditorPanelState {
+    pub(crate) file_list_width: f32,
+}
+
+impl Default for CodeEditorPanelState {
+    fn default() -> Self {
+        Self {
+            file_list_width: 200.0,
+        }
+    }
+}
+
 impl CodeEditorView {
     pub(in crate::ui::editor) fn ui(
         &mut self,
         ui: &mut egui::Ui,
         panel_id: Uuid,
-        panel_state: &mut PanelViewState,
+        panel_state: &mut CodeEditorPanelState,
     ) {
         egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |ui| {
             self.file_browser(ui, panel_id);

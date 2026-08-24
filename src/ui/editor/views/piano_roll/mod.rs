@@ -3,6 +3,7 @@ mod ruler;
 
 use crate::core::audio_engine::data_types::Ticks;
 use crate::core::audio_engine::track::note_track::NoteTrack;
+use crate::ui::editor::TimelineCoord;
 use crate::{
     consts::PANEL_HEADER_HEIGHT,
     core::metadata::TrackType,
@@ -12,7 +13,6 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::views::PanelViewState,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
@@ -27,13 +27,28 @@ pub(crate) struct PianoRollState {
     pub(crate) last_edited_note_length: Option<Ticks>,
 }
 
+#[derive(Clone, Debug)]
+pub(crate) struct PianoRollPanelState {
+    pub(crate) timeline_coord: TimelineCoord,
+}
+
+impl Default for PianoRollPanelState {
+    fn default() -> Self {
+        Self {
+            timeline_coord: TimelineCoord::new(100.0, 200.0, egui::Vec2::ZERO),
+        }
+    }
+}
+
 impl PianoRollState {
     pub(in crate::ui::editor) fn ui(
         &mut self,
         ui: &mut egui::Ui,
-        panel_state: &mut PanelViewState,
         state: &mut EditorState,
+        panel_state: &mut PianoRollPanelState,
     ) {
+        let timeline_coord = &mut panel_state.timeline_coord;
+
         let Some((track_id, region_id)) = state.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");
             return;
@@ -70,10 +85,6 @@ impl PianoRollState {
         let ruler_bottom_y = total_rect.min.y + PANEL_HEADER_HEIGHT;
         let ruler_screen_rect = total_rect.with_max_y(ruler_bottom_y);
         let note_grid_rect = total_rect.with_min_y(ruler_bottom_y);
-
-        let PanelViewState::PianoRoll(timeline_coord) = panel_state else {
-            return;
-        };
 
         // Calculate the total width and height of the scroll area content (128 MIDI notes)
         let (region_start, region_end) = region.bounds.tick_range(&state.project.data.tempo_map);

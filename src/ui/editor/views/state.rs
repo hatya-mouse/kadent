@@ -2,10 +2,10 @@ use crate::ui::editor::views::CodeEditorView;
 use crate::ui::editor::views::error_list::ErrorListView;
 use crate::ui::editor::views::inspector::InspectorView;
 use crate::ui::editor::{
-    AutomationState, DialogState, NodeGraphState, PanelView, PianoRollState, StatusBarView,
-    TimelineState, toolbar::ToolbarState, views::PanelViewState,
+    AutomationState, DialogState, NodeGraphState, PianoRollState, StatusBarView, TimelineState,
+    toolbar::ToolbarState, views::PanelViewState,
 };
-use std::collections::{HashMap, hash_map::Entry};
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Default)]
@@ -40,26 +40,6 @@ pub(crate) struct ViewStates {
 }
 
 impl ViewStates {
-    pub(crate) fn get_panel_state_or_insert<F>(
-        &mut self,
-        panel_id: Uuid,
-        desired_view: PanelView,
-        default_state: F,
-    ) -> &mut PanelViewState
-    where
-        F: FnOnce() -> PanelViewState,
-    {
-        match self.panel_states.entry(panel_id) {
-            Entry::Occupied(mut entry) => {
-                if entry.get().view() != desired_view {
-                    entry.insert(default_state());
-                }
-                entry.into_mut()
-            }
-            Entry::Vacant(entry) => entry.insert(default_state()),
-        }
-    }
-
     pub(crate) fn insert_panel_state(&mut self, panel_id: Uuid, state: PanelViewState) {
         self.panel_states.insert(panel_id, state);
     }
