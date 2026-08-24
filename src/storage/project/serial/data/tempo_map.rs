@@ -28,7 +28,7 @@ impl Decode for TempoMap {
 impl Encode for TempoEvent {
     fn encode(&self, e: &mut Encoder) -> Result<(), EncodeError> {
         e.field(0, &self.tick)?;
-        e.field(0, &self.bpm)?;
+        e.field(1, &self.bpm)?;
         Ok(())
     }
 }
