@@ -104,6 +104,7 @@ impl AutomationState {
             .frame(egui::Frame::new())
             .show_inside(ui, |ui| {
                 egui::ScrollArea::both()
+                    .id_salt("automation_scroll")
                     .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
                     .scroll_offset(timeline_coord.scroll)
                     .show(ui, |ui| {

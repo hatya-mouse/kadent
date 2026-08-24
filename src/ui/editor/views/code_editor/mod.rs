@@ -1,12 +1,10 @@
 mod file_browser;
 mod kasl_editor;
+mod tree_item;
 
 use crate::{
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
-    ui::{
-        components::splitter::Splitter,
-        editor::{actions::FileNode, views::PanelViewState},
-    },
+    ui::{components::splitter::Splitter, editor::actions::FileNode},
 };
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
@@ -50,16 +48,18 @@ impl CodeEditorView {
         panel_state: &mut CodeEditorPanelState,
     ) {
         let panel_rect = ui.available_rect_before_wrap();
-        let sidebar_rect = panel_rect.with_max_x(panel_rect.min.x + panel_state.file_list_width);
+
         egui::ScrollArea::vertical()
+            .id_salt("file_browser")
             .max_width(panel_state.file_list_width)
             .show(ui, |ui| {
-                self.file_browser(ui, panel_id);
+                self.file_browser(ui, panel_id, panel_state.file_list_width);
             });
 
         Splitter::new(&mut panel_state.file_list_width)
             .with_min(MIN_SIDEBAR_WIDTH)
             .with_max(MAX_SIDEBAR_WIDTH)
+            .with_height(panel_rect.height())
             .show(ui);
 
         self.kasl_editor(ui, panel_id);

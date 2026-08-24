@@ -26,6 +26,7 @@ impl InspectorView {
         );
 
         egui::ScrollArea::vertical()
+            .id_salt("inspector")
             .auto_shrink(false)
             .show(ui, |ui| match editor_state.selection {
                 Selection::Track(track_id) => {

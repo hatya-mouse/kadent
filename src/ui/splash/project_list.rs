@@ -13,6 +13,7 @@ impl SplashUi {
         let mut selected_path = None;
 
         egui::ScrollArea::vertical()
+            .id_salt("recent_projects")
             .content_margin(egui::Margin::same(CONTENT_MARGIN))
             .auto_shrink([false, false])
             .show(ui, |ui| {

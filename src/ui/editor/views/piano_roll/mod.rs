@@ -121,6 +121,7 @@ impl PianoRollState {
 
         // Draw the notes
         let scroll_res = egui::ScrollArea::both()
+            .id_salt("piano_roll")
             .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
             .scroll_offset(timeline_coord.scroll)
             .show(ui, |ui| {

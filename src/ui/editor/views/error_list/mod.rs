@@ -18,6 +18,7 @@ impl ErrorListView {
         );
 
         egui::ScrollArea::vertical()
+            .id_salt("error_list")
             .auto_shrink(false)
             .show(ui, |ui| {
                 ui.spacing_mut().item_spacing.y = 0.0;

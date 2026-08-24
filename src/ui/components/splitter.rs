@@ -36,8 +36,10 @@ impl<'a> Splitter<'a> {
     }
 
     pub(crate) fn show(&mut self, ui: &mut egui::Ui) -> egui::Response {
-        ui.take_available_height();
-        let height = self.height.unwrap_or_else(|| ui.available_height());
+        let height = self
+            .height
+            .unwrap_or_else(|| ui.available_rect_before_wrap().height())
+            .max(0.0);
         let (divider_rect, divider_resp) =
             ui.allocate_exact_size(egui::vec2(SPLITTER_WIDTH, height), egui::Sense::drag());
 

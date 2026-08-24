@@ -71,15 +71,18 @@ impl CodeEditorView {
         let min_rows = (ui.available_height() / row_height).ceil() as usize;
         let desired_rows = code_buffer.content.lines().count().max(min_rows);
 
-        egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
-            ui.add(
-                egui::TextEdit::multiline(&mut code_buffer.content)
-                    .code_editor()
-                    .desired_width(f32::INFINITY)
-                    .desired_rows(desired_rows)
-                    .lock_focus(true)
-                    .layouter(&mut layouter),
-            );
-        });
+        egui::ScrollArea::both()
+            .id_salt("kasl_editor")
+            .auto_shrink(false)
+            .show(ui, |ui| {
+                ui.add(
+                    egui::TextEdit::multiline(&mut code_buffer.content)
+                        .code_editor()
+                        .desired_width(f32::INFINITY)
+                        .desired_rows(desired_rows)
+                        .lock_focus(true)
+                        .layouter(&mut layouter),
+                );
+            });
     }
 }

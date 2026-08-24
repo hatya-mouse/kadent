@@ -21,10 +21,7 @@ pub(crate) use views::{
 };
 
 use crate::core::{
-    audio_engine::{
-        thread::{AudioCommand, AudioThread, AudioThreadHandle},
-        timing::TimePosition,
-    },
+    audio_engine::thread::{AudioCommand, AudioThread, AudioThreadHandle},
     metadata::TrackType,
 };
 use crate::{
@@ -36,7 +33,6 @@ use crate::{
     },
     ui::editor::actions::EditorAction,
     ui::{
-        components::ruler::RulerResponse,
         editor::state::{ActionDispatcher, AudioDeviceManager, MidiDeviceManager, TransportState},
         theme,
     },

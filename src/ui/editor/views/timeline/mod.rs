@@ -71,51 +71,54 @@ impl TimelineState {
             .frame(egui::Frame::new())
             .show_inside(ui, |ui| {
                 let panel_rect = ui.available_rect_before_wrap();
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        let divider_x = panel_rect.min.x + panel_state.track_list_width;
-                        let edit_panel_rect = panel_rect.with_min_x(divider_x + SPLITTER_WIDTH);
-                        self.track_list_panel(
-                            ui,
-                            state,
-                            &panel_state.timeline_coord,
-                            panel_state.track_list_width,
-                        );
+                egui::ScrollArea::vertical()
+                    .id_salt("timeline_vertical")
+                    .show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            let divider_x = panel_rect.min.x + panel_state.track_list_width;
+                            let edit_panel_rect = panel_rect.with_min_x(divider_x + SPLITTER_WIDTH);
+                            self.track_list_panel(
+                                ui,
+                                state,
+                                &panel_state.timeline_coord,
+                                panel_state.track_list_width,
+                            );
 
-                        Splitter::new(&mut panel_state.track_list_width)
-                            .with_min(MIN_SIDEBAR_WIDTH)
-                            .with_max(MAX_SIDEBAR_WIDTH)
-                            .with_height(panel_rect.height().max(0.0))
-                            .show(ui);
+                            Splitter::new(&mut panel_state.track_list_width)
+                                .with_min(MIN_SIDEBAR_WIDTH)
+                                .with_max(MAX_SIDEBAR_WIDTH)
+                                .with_height(panel_rect.height())
+                                .show(ui);
 
-                        let scroll_res = egui::ScrollArea::horizontal()
-                            .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                            .scroll_offset(panel_state.timeline_coord.scroll)
-                            .show(ui, |ui| {
-                                ui.set_min_height(panel_rect.height().max(0.0));
-                                self.track_edit_panel(
-                                    ui,
-                                    state,
-                                    &panel_state.timeline_coord,
-                                    timeline_width,
-                                    edit_panel_rect,
-                                )
-                            });
-                        let zoom_gesture_res = handle_timeline_zoom(
-                            ui,
-                            panel_rect.with_min_x(divider_x),
-                            &panel_state.timeline_coord,
-                            TIMELINE_LEFT_PADDING,
-                            MIN_TRACK_HEIGHT,
-                            MAX_TRACK_HEIGHT,
-                        );
-                        panel_state.timeline_coord.apply_scroll(
-                            bar_scroll_x,
-                            zoom_gesture_res,
-                            scroll_res.state.offset,
-                        );
+                            let scroll_res = egui::ScrollArea::horizontal()
+                                .id_salt("timeline_horizontal")
+                                .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)
+                                .scroll_offset(panel_state.timeline_coord.scroll)
+                                .show(ui, |ui| {
+                                    ui.set_min_height(panel_rect.height().max(0.0));
+                                    self.track_edit_panel(
+                                        ui,
+                                        state,
+                                        &panel_state.timeline_coord,
+                                        timeline_width,
+                                        edit_panel_rect,
+                                    )
+                                });
+                            let zoom_gesture_res = handle_timeline_zoom(
+                                ui,
+                                panel_rect.with_min_x(divider_x),
+                                &panel_state.timeline_coord,
+                                TIMELINE_LEFT_PADDING,
+                                MIN_TRACK_HEIGHT,
+                                MAX_TRACK_HEIGHT,
+                            );
+                            panel_state.timeline_coord.apply_scroll(
+                                bar_scroll_x,
+                                zoom_gesture_res,
+                                scroll_res.state.offset,
+                            );
+                        });
                     });
-                });
             });
     }
 }
