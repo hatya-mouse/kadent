@@ -12,15 +12,19 @@ impl CodeEditorView {
     pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: Uuid, file_list_width: f32) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
 
-        ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
-        let selected_file = dir_children(
-            ui,
-            &self.project_dir_cache,
-            code_buffer,
-            panel_id,
-            file_list_width,
-            0,
-        );
+        let selected_file = ui
+            .vertical(|ui| {
+                ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
+                dir_children(
+                    ui,
+                    &self.project_dir_cache,
+                    code_buffer,
+                    panel_id,
+                    file_list_width,
+                    0,
+                )
+            })
+            .inner;
 
         // Read the content at the path to the buffer
         if let Some(path) = selected_file
@@ -94,7 +98,7 @@ fn dir_expand_button(
     // Collapsing directory item
     let parent_dir_res = ui.add_sized(
         [file_list_width, FILE_TREE_ITEM_HEIGHT],
-        FileTreeItem::new(&node.name, 0).collapsible(!state.is_open()),
+        FileTreeItem::new(&node.name, indent).collapsible(!state.is_open()),
     );
     if parent_dir_res.clicked() {
         state.toggle(ui);

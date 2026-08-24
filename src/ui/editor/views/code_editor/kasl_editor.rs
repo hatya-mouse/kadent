@@ -35,10 +35,10 @@ impl CodeEditorView {
 
         let mut close_clicked = false;
         panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
-            ui.label(&file_name);
+            ui.label(egui::RichText::new(&file_name).strong());
             if small_icon_button(
                 ui,
-                egui::Image::new(include_image!("../../../../../assets/icons/tri_down.svg")),
+                egui::Image::new(include_image!("../../../../../assets/icons/x.svg")),
             )
             .clicked()
             {

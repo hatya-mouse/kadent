@@ -1,8 +1,9 @@
+use crate::ui::theme;
 use eframe::egui::{self, include_image};
 
-use crate::ui::theme;
-
-const INDENT_SIZE: f32 = 10.0;
+const INDENT_SIZE: f32 = 12.0;
+const ICON_SIZE: f32 = 18.0;
+const HORIZONTAL_PADDING: f32 = 4.0;
 
 pub(super) struct FileTreeItem<'a> {
     text: String,
@@ -62,17 +63,17 @@ impl egui::Widget for FileTreeItem<'_> {
             };
             ui.painter().rect_filled(rect, 0, bg_color);
 
-            let mut cursor_x = rect.min.x + self.indent as f32 * INDENT_SIZE;
+            let mut cursor_x = rect.min.x + HORIZONTAL_PADDING + self.indent as f32 * INDENT_SIZE;
 
             if let Some(icon) = self.left_icon {
-                let icon_size = egui::Vec2::splat(18.0);
+                let icon_size = egui::Vec2::splat(ICON_SIZE);
                 let icon_rect = egui::Rect::from_min_size(
                     egui::pos2(cursor_x, rect.center().y - icon_size.y * 0.5),
                     icon_size,
                 );
                 egui::Image::new(icon).paint_at(ui, icon_rect);
-                cursor_x = icon_rect.max.x + ui.spacing().icon_spacing;
             }
+            cursor_x += ICON_SIZE + ui.spacing().icon_spacing;
 
             let text_rect = egui::Rect::from_min_max(egui::pos2(cursor_x, rect.min.y), rect.max);
             let galley = ui.painter().layout(

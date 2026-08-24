@@ -48,20 +48,24 @@ impl CodeEditorView {
         panel_state: &mut CodeEditorPanelState,
     ) {
         let panel_rect = ui.available_rect_before_wrap();
+        ui.horizontal(|ui| {
+            ui.set_height(panel_rect.height());
+            ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
 
-        egui::ScrollArea::vertical()
-            .id_salt("file_browser")
-            .max_width(panel_state.file_list_width)
-            .show(ui, |ui| {
-                self.file_browser(ui, panel_id, panel_state.file_list_width);
-            });
+            egui::ScrollArea::vertical()
+                .id_salt("file_browser")
+                .max_width(panel_state.file_list_width)
+                .show(ui, |ui| {
+                    self.file_browser(ui, panel_id, panel_state.file_list_width);
+                });
 
-        Splitter::new(&mut panel_state.file_list_width)
-            .with_min(MIN_SIDEBAR_WIDTH)
-            .with_max(MAX_SIDEBAR_WIDTH)
-            .with_height(panel_rect.height())
-            .show(ui);
+            Splitter::new(&mut panel_state.file_list_width)
+                .with_min(MIN_SIDEBAR_WIDTH)
+                .with_max(MAX_SIDEBAR_WIDTH)
+                .with_height(panel_rect.height())
+                .show(ui);
 
-        self.kasl_editor(ui, panel_id);
+            self.kasl_editor(ui, panel_id);
+        });
     }
 }
