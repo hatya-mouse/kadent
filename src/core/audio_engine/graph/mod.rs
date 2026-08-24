@@ -66,12 +66,14 @@ impl Graph {
         input_sources: HashMap<InputKey, InputSource>,
         input_id: NodeID,
         output_id: NodeID,
+        next_node_id: u64,
     ) -> Self {
         Graph {
             nodes,
             input_sources,
             input_id,
             output_id,
+            next_node_id,
             ..Default::default()
         }
     }

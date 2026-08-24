@@ -1,3 +1,11 @@
+mod audio_track;
+mod automation;
+mod graph;
+mod node;
+mod note_track;
+mod tempo_map;
+mod track;
+
 use crate::core::audio_engine::{
     data_types::AudioContext,
     mixer::{ProjectData, TrackID},
@@ -6,14 +14,6 @@ use crate::core::audio_engine::{
 };
 use sode::{Decode, DecodeError, Encode, EncodeError, Encoder, ValueDecoder};
 use std::collections::HashMap;
-
-mod audio_track;
-mod automation;
-mod graph;
-mod node;
-mod note_track;
-mod tempo_map;
-mod track;
 
 fn restore_next_id<T>(used_ids: &[T]) -> u64
 where
