@@ -1,4 +1,3 @@
-use crate::ui::EditorState;
 use crate::{core::audio_engine::data_types::Ticks, ui::editor::EditorUi};
 use ringbuf::traits::Consumer;
 use std::{sync::atomic::Ordering, time::Instant};

@@ -26,7 +26,7 @@ impl EditorUi {
 
     fn render_node(&mut self, ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect) {
         let split_action = match node {
-            PanelNode::Leaf(view, id) => self.render_leaf(ui, view, *id, rect),
+            PanelNode::Leaf(view, state, id) => self.render_leaf(ui, view, state, *id, rect),
             _ => None,
         };
 

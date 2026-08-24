@@ -13,7 +13,7 @@ use crate::{
     core::{audio_engine::data_types::MidiEvent, midi_thread::MidiCommand},
     ui::{
         EditorState,
-        editor::{StatusHint, TimelineCoord, actions::EditorAction, utils::handle_timeline_zoom},
+        editor::{TimelineCoord, actions::EditorAction, utils::handle_timeline_zoom},
         theme,
     },
 };
@@ -217,14 +217,6 @@ impl PianoRollState {
             {
                 let new_duration = (note.duration + delta_ticks).max(Ticks::ZERO);
                 region.set_duration(note_id.2, new_duration);
-
-                self.views
-                    .status_bar
-                    .set_status_hint(StatusHint::NotePosition(
-                        note.start,
-                        note.duration + delta_ticks,
-                        note.pitch,
-                    ));
             }
         } else if resize_res.drag_stopped()
             && let Some(new_duration) = state
@@ -264,14 +256,6 @@ impl PianoRollState {
                 let new_pitch = (note.pitch + delta_pitch).clamp(0.0, 127.0);
                 region.set_start(note_id.2, new_start);
                 region.set_pitch(note_id.2, new_pitch);
-
-                self.views
-                    .status_bar
-                    .set_status_hint(StatusHint::NotePosition(
-                        new_start,
-                        note.duration,
-                        new_pitch,
-                    ));
             }
         } else if move_res.drag_stopped() {
             let committed = state

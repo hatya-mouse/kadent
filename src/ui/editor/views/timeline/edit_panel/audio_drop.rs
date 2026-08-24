@@ -1,6 +1,6 @@
 use crate::ui::{
     EditorState,
-    editor::{TimelineState, actions::EditorAction},
+    editor::{TimelineState, UiCommand, actions::EditorAction},
     theme,
 };
 use eframe::egui;
@@ -22,15 +22,17 @@ impl TimelineState {
 
         // Check if the file format is supported
         let Some(extension) = file_path.extension() else {
-            self.views
-                .status_bar
-                .show_temp_status("File format not supported", theme::error_fg());
+            state.ui_commands.push_command(UiCommand::ShowTempStatus(
+                "File format not supported".to_string(),
+                theme::error_fg(),
+            ));
             return;
         };
         if extension != "wav" {
-            self.views
-                .status_bar
-                .show_temp_status("File format not supported", theme::error_fg());
+            state.ui_commands.push_command(UiCommand::ShowTempStatus(
+                "File format not supported".to_string(),
+                theme::error_fg(),
+            ));
             return;
         }
 
@@ -43,10 +45,10 @@ impl TimelineState {
 
     pub(super) fn show_dragged_hint(&mut self, ui: &mut egui::Ui) {
         // Show the hover overlay for the dragged audio file
-        if self.views.timeline.dragging_audio_file.is_none() {
+        if self.dragging_audio_file.is_none() {
             return;
         }
-        self.views.timeline.dragging_audio_file = None;
+        self.dragging_audio_file = None;
 
         // Draw the hint overlay
         ui.painter()

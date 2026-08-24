@@ -20,7 +20,7 @@ use crate::{
 use eframe::egui;
 
 impl ToolbarState {
-    pub(super) fn toolbar(&mut self, ui: &mut egui::Ui, state: &mut EditorState) {
+    pub(super) fn ui(&mut self, ui: &mut egui::Ui, state: &mut EditorState) {
         ui.horizontal_centered(|ui| {
             ui.spacing_mut().button_padding = egui::vec2(0.0, 0.0);
 

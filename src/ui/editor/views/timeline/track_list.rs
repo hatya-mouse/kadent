@@ -1,13 +1,7 @@
-use crate::{
-    core::metadata::TrackType,
-    ui::{
-        EditorState,
-        editor::{
-            DialogState, TimelineState, actions::EditorAction, state::TimelineCoord,
-            views::AddTrackState,
-        },
-        theme,
-    },
+use crate::ui::{
+    EditorState,
+    editor::{DialogType, TimelineState, UiCommand, actions::EditorAction, state::TimelineCoord},
+    theme,
 };
 use eframe::egui::{self, include_image};
 
@@ -116,10 +110,9 @@ impl TimelineState {
             );
 
             if response.clicked() {
-                self.views.dialog = DialogState::AddTrack(AddTrackState {
-                    selected_track_type: TrackType::Audio,
-                    name: String::new(),
-                });
+                state
+                    .ui_commands
+                    .push_command(UiCommand::ShowDialog(DialogType::AddTrack));
             }
         });
     }

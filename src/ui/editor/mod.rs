@@ -1,6 +1,7 @@
 mod actions;
 mod background_results;
 mod device_fetching;
+mod dialog;
 mod frame_process;
 mod keyboard;
 mod panel;
@@ -11,12 +12,12 @@ mod toolbar;
 mod utils;
 mod views;
 
+pub(crate) use frame_process::PeakHold;
 pub(crate) use panel::{PanelNode, PanelView, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::{StatusBarView, StatusHint};
 pub(crate) use views::{
-    AutomationState, CodeBuffer, DialogState, NodeGraphState, PianoRollState, TimelineState,
-    ViewStates,
+    AutomationState, CodeBuffer, NodeGraphState, PianoRollState, TimelineState, ViewStates,
 };
 
 use crate::core::audio_engine::{
@@ -73,6 +74,10 @@ pub(crate) struct EditorState {
     /// Action dispatcher that stores the pending actions to be executed at the end of the frame.
     pub(crate) actions: ActionDispatcher,
 
+    // --- UI COMMAND ---
+    /// UI command dispatcher that stores the pending UI commands to be executed at the end of the frame.
+    pub(crate) ui_commands: UiCommandDispatcher,
+
     // --- DEBUG MODE ---
     /// Whether the editor is in the debug mode.
     pub(crate) debug_mode: bool,
@@ -103,9 +108,9 @@ impl EditorUi {
                 audio_device: AudioDeviceManager::default(),
                 midi_device: MidiDeviceManager::default(),
                 transport: TransportState::default(),
-
                 selection: Selection::default(),
                 actions: ActionDispatcher::new(background_handle),
+                ui_commands: UiCommandDispatcher::default(),
                 debug_mode: false,
             },
             layout: PanelNode::default(),
@@ -119,8 +124,9 @@ impl EditorUi {
         }));
 
         // Fetch the avaliable devices first
-        editor_ui.fetch_devices();
+        editor_ui.state.fetch_devices();
         editor_ui.state.audio_device.selected_output = editor_ui
+            .state
             .audio_device
             .default_output
             .as_ref()
@@ -131,7 +137,7 @@ impl EditorUi {
             .state
             .actions
             .push_action(EditorAction::UpdateDirCache);
-        editor_ui.modified_project();
+        editor_ui.state.actions.modified_project();
 
         // For each audio region, generate the waveforms
         editor_ui.generate_waveforms();
@@ -143,7 +149,7 @@ impl EditorUi {
         self.calculate_playhead();
         self.process_vu_value();
         self.update_preview_notes();
-        self.handle_keyboard(ui);
+        self.state.handle_keyboard(ui);
 
         egui::Panel::top(ui.id().with("toolbar"))
             .frame(
@@ -153,7 +159,7 @@ impl EditorUi {
             )
             .exact_size(44.0)
             .show_inside(ui, |ui| {
-                self.toolbar(ui);
+                self.views.toolbar.ui(ui, &mut self.state);
             });
 
         // The status bar should display the modification state from the last frame
@@ -165,7 +171,7 @@ impl EditorUi {
             )
             .exact_size(32.0)
             .show_inside(ui, |ui| {
-                self.status_bar(ui);
+                self.views.status_bar.ui(ui, &self.state);
             });
 
         // Reset the modification state from the last frame
@@ -182,8 +188,8 @@ impl EditorUi {
                 self.render_panels(ui, rect);
             });
 
-        self.track_dialog(ui);
-        self.update_project();
+        self.views.dialog.dialog(ui, &mut self.state);
+        self.state.update_project();
 
         // Request a repaint to update the playhead and the VU meter
         ui.ctx().request_repaint_after(Duration::from_millis(16));

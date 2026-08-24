@@ -28,7 +28,7 @@ impl CodeEditorView {
         &mut self,
         ui: &mut egui::Ui,
         panel_id: Uuid,
-        panel_state: Option<&mut PanelViewState>,
+        panel_state: &mut PanelViewState,
     ) {
         egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |ui| {
             self.file_browser(ui, panel_id);

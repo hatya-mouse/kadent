@@ -1,48 +1,69 @@
 use crate::{
     background_thread::BackgroundThreadResult,
-    ui::{EditorState, theme},
+    ui::{
+        editor::{EditorUi, UiCommand},
+        theme,
+    },
 };
 
-impl EditorState {
+impl EditorUi {
     pub(super) fn process_background_results(&mut self) {
-        while let Ok(result) = self.actions.background_handle.result_rx.try_recv() {
+        while let Ok(result) = self.state.actions.background_handle.result_rx.try_recv() {
             self.views.status_bar.current_task = None;
             match result {
                 BackgroundThreadResult::SavedProject(result) => match result {
                     Ok(_) => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Saved project", theme::successful_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Saved project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                     Err(_) => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Failed to save project", theme::error_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Failed to save project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                 },
                 BackgroundThreadResult::OpenedProject(ctx) => match ctx {
                     Some(proj_ctx) => {
                         self.set_proj_ctx(*proj_ctx);
-                        self.views
-                            .status_bar
-                            .show_temp_status("Opened project", theme::successful_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Opened project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                     None => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Failed to open project", theme::error_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Failed to open project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                 },
                 BackgroundThreadResult::WroteWav(result) => match result {
                     Ok(_) => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Exported project", theme::successful_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Exported project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                     Err(_) => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Failed to export project", theme::error_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Failed to export project".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                 },
                 BackgroundThreadResult::ImportedAudio {
@@ -52,14 +73,20 @@ impl EditorState {
                 } => match result {
                     Ok(decoded) => {
                         self.finish_audio_import(file_name, start, decoded);
-                        self.views
-                            .status_bar
-                            .show_temp_status("Imported audio", theme::successful_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Imported audio".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                     Err(_) => {
-                        self.views
-                            .status_bar
-                            .show_temp_status("Failed to import audio", theme::error_fg());
+                        self.state
+                            .ui_commands
+                            .push_command(UiCommand::ShowTempStatus(
+                                "Failed to import audio".to_string(),
+                                theme::successful_fg(),
+                            ));
                     }
                 },
                 BackgroundThreadResult::GeneratedWaveform {

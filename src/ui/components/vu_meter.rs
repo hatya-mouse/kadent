@@ -1,4 +1,4 @@
-use crate::{core::frame_process::PeakHold, ui::theme};
+use crate::ui::{editor::PeakHold, theme};
 use eframe::egui;
 
 const METER_GAP: f32 = 2.0;

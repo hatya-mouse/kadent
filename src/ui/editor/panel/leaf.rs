@@ -3,7 +3,7 @@ use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::{
         components::{dropdown::dropdown_button, panel_header::panel_header},
-        editor::{EditorUi, PanelView, SplitDir},
+        editor::{EditorUi, PanelView, SplitDir, views::PanelViewState},
         theme,
     },
 };
@@ -26,6 +26,7 @@ impl EditorUi {
         &mut self,
         ui: &mut egui::Ui,
         view: &mut PanelView,
+        panel_state: &mut PanelViewState,
         id: Uuid,
         rect: Rect,
     ) -> Option<SplitAction> {
@@ -45,7 +46,7 @@ impl EditorUi {
             let content_rect = ui.available_rect_before_wrap();
             ui.scope_builder(UiBuilder::new().id_salt(id).max_rect(content_rect), |ui| {
                 ui.set_clip_rect(content_rect);
-                self.render_view_content(ui, view, id);
+                self.render_view_content(ui, view, panel_state, id);
             });
 
             check_edge_drag(ui, rect)
@@ -54,22 +55,27 @@ impl EditorUi {
         result.inner
     }
 
-    fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, panel_id: Uuid) {
-        let panel_state = self.views.panel_states.get_mut(&panel_id);
+    fn render_view_content(
+        &mut self,
+        ui: &mut egui::Ui,
+        view: &PanelView,
+        panel_state: &mut PanelViewState,
+        panel_id: Uuid,
+    ) {
         match view {
-            PanelView::Timeline => self.views.timeline.ui(ui, panel_id),
-            PanelView::PianoRoll => self.views.piano_roll.ui(ui, panel_id),
-            PanelView::NodeGraph => self.views.node_graph.ui(ui),
+            PanelView::Timeline => self.views.timeline.ui(ui, panel_state, &mut self.state),
+            PanelView::PianoRoll => self.views.piano_roll.ui(ui, panel_state, &mut self.state),
+            PanelView::NodeGraph => self.views.node_graph.ui(ui, &mut self.state),
             PanelView::Inspector => self.views.inspector.ui(ui, &mut self.state),
             PanelView::ErrorList => self.views.error_list.ui(ui),
-            PanelView::Automation => self.views.automation.ui(ui, panel_id),
+            PanelView::Automation => self.views.automation.ui(ui, panel_id, &mut self.state),
             PanelView::CodeEditor => self.views.code_editor.ui(ui, panel_id, panel_state),
         }
     }
 
     fn render_view_header(&mut self, ui: &mut egui::Ui, view: &PanelView) {
         if view == &PanelView::NodeGraph {
-            self.node_graph_header(ui);
+            self.views.node_graph.header(ui);
         }
     }
 

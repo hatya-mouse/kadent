@@ -36,8 +36,8 @@ impl AutomationState {
     pub(in crate::ui::editor) fn ui(
         &self,
         ui: &mut egui::Ui,
-        state: &mut EditorState,
         panel_state: &mut PanelViewState,
+        state: &mut EditorState,
     ) {
         let PanelViewState::Automation(timeline_coord) = panel_state else {
             return;

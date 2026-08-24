@@ -14,10 +14,12 @@ use crate::{
 };
 use eframe::egui;
 
-impl EditorState {
-    pub(crate) fn track_dialog(&mut self, ui: &egui::Ui) {
-        let DialogState::AddTrack(mut state) =
-            std::mem::replace(&mut self.views.dialog, DialogState::None)
+impl DialogState {
+    pub(super) fn track_dialog(&mut self, ui: &egui::Ui, state: &mut EditorState) {
+        let DialogState::AddTrack {
+            selected_track_type,
+            name,
+        } = self
         else {
             return;
         };
@@ -30,24 +32,24 @@ impl EditorState {
                 cols[0].label("Track Type");
 
                 TrackType::all().iter().for_each(|track_type| {
-                    let selected = &state.selected_track_type == track_type;
+                    let selected = selected_track_type == track_type;
                     if cols[0]
                         .selectable_label(selected, track_type.to_string())
                         .clicked()
                     {
-                        state.selected_track_type = *track_type;
+                        *selected_track_type = *track_type;
                     }
                 });
 
                 cols[1].label("Track Name");
-                text_input(&mut cols[1], &mut state.name);
+                text_input(&mut cols[1], name);
 
                 cols[1].horizontal(|ui| {
                     if text_button(ui, "cancel_track_creation", "Cancel").clicked() {
                         should_close = true;
                     }
 
-                    let can_create = !state.name.trim().is_empty();
+                    let can_create = !name.trim().is_empty();
                     text_button_enabled(
                         can_create,
                         ui,
@@ -56,9 +58,9 @@ impl EditorState {
                     )
                     .clicked()
                     .then(|| {
-                        self.actions.push_action(EditorAction::AddTrack(
-                            state.selected_track_type,
-                            state.name.clone(),
+                        state.actions.push_action(EditorAction::AddTrack(
+                            *selected_track_type,
+                            name.clone(),
                             theme::default_track_color(),
                         ));
                         should_close = true;
@@ -68,9 +70,7 @@ impl EditorState {
         });
 
         if should_close || modal.should_close() {
-            self.views.dialog = DialogState::None;
-        } else {
-            self.views.dialog = DialogState::AddTrack(state);
+            *self = DialogState::None;
         }
     }
 }

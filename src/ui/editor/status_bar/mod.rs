@@ -9,7 +9,7 @@ use crate::{
 use eframe::egui;
 
 impl StatusBarView {
-    pub(super) fn status_bar(&mut self, ui: &mut egui::Ui, state: &EditorState) {
+    pub(super) fn ui(&mut self, ui: &mut egui::Ui, state: &EditorState) {
         ui.horizontal_centered(|ui| {
             if let Some(track_id) = state.selection.track_id()
                 && let Some(track_meta) = state.project.meta.get_track(&track_id)

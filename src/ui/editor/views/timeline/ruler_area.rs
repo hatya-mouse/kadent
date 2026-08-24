@@ -9,7 +9,7 @@ use crate::{
             icon_button::small_icon_button,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{StatusHint, state::TimelineCoord},
+        editor::state::TimelineCoord,
         theme,
     },
 };
@@ -80,7 +80,7 @@ impl TimelineState {
     fn project_range_indicator(
         &mut self,
         ui: &mut egui::Ui,
-        state: &EditorState,
+        state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         ruler_screen_rect: egui::Rect,
         scroll_x: f32,
@@ -153,10 +153,6 @@ impl TimelineState {
             state
                 .actions
                 .push_action(EditorAction::SetProjectRange(export_range));
-
-            self.views
-                .status_bar
-                .set_status_hint(StatusHint::ProjectRange(range_start, new_duration));
         } else if start_drag_res.dragged() {
             let drag_delta = start_drag_res.drag_delta();
             let ticks_delta = (drag_delta.x / ppt) as i64;
@@ -173,10 +169,6 @@ impl TimelineState {
                     start: new_start,
                     duration: new_duration,
                 }));
-
-            self.views
-                .status_bar
-                .set_status_hint(StatusHint::ProjectRange(new_start, new_duration));
         }
 
         // Confirm the change when the mouse is released
