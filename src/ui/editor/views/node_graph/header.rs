@@ -1,12 +1,21 @@
-use crate::{
-    ui::editor::actions::{AddibleNodes, EditorAction},
-    ui::{EditorState, components::icon_button::small_icon_button, theme},
+use crate::ui::{
+    EditorState,
+    components::icon_button::small_icon_button,
+    editor::{
+        NodeGraphState,
+        actions::{AddibleNodes, EditorAction},
+    },
+    theme,
 };
 use eframe::egui;
 use rand::seq::IteratorRandom;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn node_graph_header(&mut self, ui: &mut egui::Ui) {
+impl NodeGraphState {
+    pub(in crate::ui::editor) fn node_graph_header(
+        &mut self,
+        ui: &mut egui::Ui,
+        state: &mut EditorState,
+    ) {
         let mut node_to_add: Option<AddibleNodes> = None;
         let mut jump_to_random = false;
 
@@ -41,23 +50,24 @@ impl EditorState {
 
         // Jump to a random node's position
         if jump_to_random
-            && let Some(track_id) = self.selection.track_id()
-            && let Some(track_meta) = self.project.meta.get_track(&track_id)
+            && let Some(track_id) = state.selection.track_id()
+            && let Some(track_meta) = state.project.meta.get_track(&track_id)
             && let Some(node_meta) = track_meta.graph.nodes.values().choose(&mut rand::rng())
         {
-            self.views.node_graph.jump_to_pos = Some(node_meta.pos);
+            self.jump_to_pos = Some(node_meta.pos);
         }
 
         // Add a new node if the node is clicked on the add list
         if let Some(node_type) = node_to_add {
             // Get the currently selected track
-            let Some(track_id) = self.selection.track_id() else {
+            let Some(track_id) = state.selection.track_id() else {
                 return;
             };
 
-            let pan = self.views.node_graph.pan_offset;
+            let pan = self.pan_offset;
             let pos = egui::pos2(-pan.x + 20.0, -pan.y + 20.0);
-            self.actions
+            state
+                .actions
                 .push_action(EditorAction::AddNode(track_id, node_type, pos));
         }
     }

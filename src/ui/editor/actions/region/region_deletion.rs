@@ -1,16 +1,16 @@
-use crate::ui::EditorState;
 use crate::core::audio_engine::{mixer::TrackID, track::RegionID};
+use crate::ui::editor::EditorUi;
 
-impl EditorState {
+impl EditorUi {
     pub(crate) fn remove_region(&mut self, track_id: &TrackID, region_id: &RegionID) {
-        if let Some(track) = self.project.data.get_track_mut(track_id) {
+        if let Some(track) = self.state.project.data.get_track_mut(track_id) {
             track.remove_region(region_id);
         }
-        if let Some(track_meta) = self.project.meta.get_track_mut(track_id) {
+        if let Some(track_meta) = self.state.project.meta.get_track_mut(track_id) {
             track_meta.remove_region(region_id);
         }
 
-        self.selection.select_track(*track_id);
-        self.modified_project();
+        self.state.selection.select_track(*track_id);
+        self.state.actions.modified_project();
     }
 }

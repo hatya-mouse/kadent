@@ -76,27 +76,25 @@ pub(super) fn add_keyframe_gesture(
     }
 }
 
-impl EditorState {
-    pub(super) fn keyframe_click_gesture(
-        &mut self,
-        response: &Response,
-        keyframe_pos: &[(usize, CurveType, egui::Pos2)],
-    ) {
-        let Some(hover_pos) = response.hover_pos() else {
-            return;
-        };
-        let Some((track_id, node_id)) = self.selection.track_and_node_id() else {
-            return;
-        };
+pub(super) fn keyframe_click_gesture(
+    response: &Response,
+    keyframe_pos: &[(usize, CurveType, egui::Pos2)],
+    state: &mut EditorState,
+) {
+    let Some(hover_pos) = response.hover_pos() else {
+        return;
+    };
+    let Some((track_id, node_id)) = state.selection.track_and_node_id() else {
+        return;
+    };
 
-        for (index, _, pos) in keyframe_pos {
-            let rect = egui::Rect::from_center_size(*pos, egui::Vec2::splat(KEYFRAME_CLICK_SIZE));
+    for (index, _, pos) in keyframe_pos {
+        let rect = egui::Rect::from_center_size(*pos, egui::Vec2::splat(KEYFRAME_CLICK_SIZE));
 
-            // Select the keyframe when clicked
-            if response.clicked() && rect.contains(hover_pos) {
-                self.selection.select_keyframe(track_id, node_id, *index);
-                break;
-            }
+        // Select the keyframe when clicked
+        if response.clicked() && rect.contains(hover_pos) {
+            state.selection.select_keyframe(track_id, node_id, *index);
+            break;
         }
     }
 }

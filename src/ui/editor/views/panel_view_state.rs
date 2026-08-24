@@ -1,10 +1,11 @@
 use crate::ui::editor::{PanelView, TimelineCoord};
-use std::path::PathBuf;
 
 #[derive(Clone)]
 pub(crate) enum PanelViewState {
+    CodeEditor {
+        file_list_width: f32,
+    },
     Automation(TimelineCoord),
-    CodeEditor(Option<(PathBuf, String)>),
     PianoRoll(TimelineCoord),
     Timeline {
         follow_playhead: bool,
@@ -16,8 +17,8 @@ pub(crate) enum PanelViewState {
 impl PanelViewState {
     pub(crate) fn view(&self) -> PanelView {
         match self {
+            PanelViewState::CodeEditor { .. } => PanelView::CodeEditor,
             PanelViewState::Automation(_) => PanelView::Automation,
-            PanelViewState::CodeEditor(_) => PanelView::CodeEditor,
             PanelViewState::PianoRoll(_) => PanelView::PianoRoll,
             PanelViewState::Timeline { .. } => PanelView::Timeline,
         }

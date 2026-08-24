@@ -1,29 +1,33 @@
-use crate::core::audio_engine::{
-    mixer::TrackID,
-    timing::TimeBounds,
-    track::{RegionID, audio_track::AudioTrack},
-    utils::{samples_per_tick, seconds_to_samples},
-};
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand, WaveformLod},
     consts::{LARGE_BLOCK_SIZE, MEDIUM_BLOCK_SIZE, SMALL_BLOCK_SIZE},
     core::metadata::TrackType,
-    ui::{EditorState, theme},
+    ui::{EditorState, editor::TimelineState, theme},
+};
+use crate::{
+    core::audio_engine::{
+        mixer::TrackID,
+        timing::TimeBounds,
+        track::{RegionID, audio_track::AudioTrack},
+        utils::{samples_per_tick, seconds_to_samples},
+    },
+    ui::editor::EditorUi,
 };
 use eframe::egui;
 
 /// Space between waveform and top/bottom of the region
 const WAVEFORM_Y_CLEARANCE: f32 = 4.0;
 
-impl EditorState {
+impl EditorUi {
     // Generates waveforms for each region in the timeline.
     pub(crate) fn generate_waveforms(&mut self) {
         self.views.timeline.waveforms.clear();
 
         let mut commands = Vec::new();
-        for (track_id, track_meta) in &self.project.meta.tracks {
+        for (track_id, track_meta) in &self.state.project.meta.tracks {
             if track_meta.track_type == TrackType::Audio {
                 let Some(track) = self
+                    .state
                     .project
                     .data
                     .get_track(track_id)
@@ -48,19 +52,22 @@ impl EditorState {
 
         // Send the commands to the background thread for processing
         for command in commands {
-            self.push_background_job(command);
+            self.state.actions.push_background_job(command);
         }
     }
+}
 
+impl TimelineState {
     pub(super) fn draw_waveform_in(
         &self,
         ui: &egui::Ui,
+        state: &EditorState,
         track_id: TrackID,
         region_id: RegionID,
         region_rect: &egui::Rect,
     ) {
         // Get the region and the waveform LOD data
-        let Some(region) = self
+        let Some(region) = state
             .project
             .data
             .get_track(&track_id)
@@ -69,7 +76,7 @@ impl EditorState {
         else {
             return;
         };
-        let Some(region_meta) = self
+        let Some(region_meta) = state
             .project
             .meta
             .get_track(&track_id)
@@ -77,7 +84,7 @@ impl EditorState {
         else {
             return;
         };
-        let Some(waveform_lod) = self.views.timeline.waveforms.get(&(track_id, region_id)) else {
+        let Some(waveform_lod) = self.waveforms.get(&(track_id, region_id)) else {
             return;
         };
 
@@ -92,7 +99,7 @@ impl EditorState {
             &region_meta.bounds,
             waveform_lod.data.info.sample_rate,
             region.bpm,
-            self.project.data.audio_ctx.resolution,
+            state.project.data.audio_ctx.resolution,
         );
         if region_data_frames == 0 {
             return;

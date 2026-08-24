@@ -2,9 +2,8 @@ use super::SplitAction;
 use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::{
-        EditorState,
         components::{dropdown::dropdown_button, panel_header::panel_header},
-        editor::{PanelView, SplitDir},
+        editor::{EditorUi, PanelView, SplitDir},
         theme,
     },
 };
@@ -22,7 +21,7 @@ enum Edge {
     Bottom,
 }
 
-impl EditorState {
+impl EditorUi {
     pub(super) fn render_leaf(
         &mut self,
         ui: &mut egui::Ui,
@@ -56,14 +55,15 @@ impl EditorState {
     }
 
     fn render_view_content(&mut self, ui: &mut egui::Ui, view: &PanelView, panel_id: Uuid) {
+        let panel_state = self.views.panel_states.get_mut(&panel_id);
         match view {
-            PanelView::Timeline => self.timeline(ui, panel_id),
-            PanelView::PianoRoll => self.piano_roll(ui, panel_id),
-            PanelView::NodeGraph => self.node_graph(ui),
-            PanelView::Inspector => self.inspector(ui),
-            PanelView::ErrorList => self.error_list(ui),
-            PanelView::Automation => self.automation(ui, panel_id),
-            PanelView::CodeEditor => self.code_editor(ui, panel_id),
+            PanelView::Timeline => self.views.timeline.ui(ui, panel_id),
+            PanelView::PianoRoll => self.views.piano_roll.ui(ui, panel_id),
+            PanelView::NodeGraph => self.views.node_graph.ui(ui),
+            PanelView::Inspector => self.views.inspector.ui(ui, &mut self.state),
+            PanelView::ErrorList => self.views.error_list.ui(ui),
+            PanelView::Automation => self.views.automation.ui(ui, panel_id),
+            PanelView::CodeEditor => self.views.code_editor.ui(ui, panel_id, panel_state),
         }
     }
 

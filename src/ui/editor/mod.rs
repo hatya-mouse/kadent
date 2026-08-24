@@ -1,6 +1,7 @@
 mod actions;
 mod background_results;
 mod device_fetching;
+mod frame_process;
 mod keyboard;
 mod panel;
 mod preview_notes;
@@ -12,9 +13,9 @@ mod views;
 
 pub(crate) use panel::{PanelNode, PanelView, SplitDir};
 pub(crate) use state::*;
-pub(crate) use status_bar::{StatusBarState, StatusHint};
+pub(crate) use status_bar::{StatusBarView, StatusHint};
 pub(crate) use views::{
-    AutomationState, CodeEditorState, DialogState, NodeGraphState, PianoRollState, TimelineState,
+    AutomationState, CodeBuffer, DialogState, NodeGraphState, PianoRollState, TimelineState,
     ViewStates,
 };
 
@@ -23,7 +24,7 @@ use crate::core::audio_engine::{
     timing::TimePosition,
 };
 use crate::{
-    background_thread::{BackgroundThreadCommand, spawn_background_thread},
+    background_thread::spawn_background_thread,
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
@@ -66,12 +67,6 @@ pub(crate) struct EditorState {
     /// The transport state that stores the current playhead position.
     pub(crate) transport: TransportState,
 
-    // --- UI LAYOUT & VIEW STATES ---
-    /// Panel layout tree.
-    pub(crate) layout: PanelNode,
-    /// The states for the each panel views.
-    pub(crate) views: ViewStates,
-
     // --- BACKEND LOGIC ---
     /// Currently selected content.
     pub(crate) selection: Selection,
@@ -83,24 +78,38 @@ pub(crate) struct EditorState {
     pub(crate) debug_mode: bool,
 }
 
-impl EditorState {
-    pub(crate) fn new(proj_ctx: ProjectContext) -> EditorState {
+pub(crate) struct EditorUi {
+    // --- EDITOR STATE ---
+    pub(crate) state: EditorState,
+
+    // --- UI LAYOUT & VIEW STATES ---
+    /// Panel layout tree.
+    pub(crate) layout: PanelNode,
+    /// The states for the each panel views.
+    pub(crate) views: ViewStates,
+}
+
+impl EditorUi {
+    pub(crate) fn new(proj_ctx: ProjectContext) -> EditorUi {
         let (thread_handle, midi_producer) = AudioThread::spawn(proj_ctx.meta.export_ctx.clone());
         let background_handle = spawn_background_thread();
         let midi_tx = spawn_midi_thread(midi_producer);
 
-        let mut editor_ui = EditorState {
-            project: proj_ctx,
-            thread_handle,
-            midi_tx,
-            audio_device: AudioDeviceManager::default(),
-            midi_device: MidiDeviceManager::default(),
-            transport: TransportState::default(),
+        let mut editor_ui = EditorUi {
+            state: EditorState {
+                project: proj_ctx,
+                thread_handle,
+                midi_tx,
+                audio_device: AudioDeviceManager::default(),
+                midi_device: MidiDeviceManager::default(),
+                transport: TransportState::default(),
+
+                selection: Selection::default(),
+                actions: ActionDispatcher::new(background_handle),
+                debug_mode: false,
+            },
             layout: PanelNode::default(),
             views: ViewStates::default(),
-            selection: Selection::default(),
-            actions: ActionDispatcher::new(background_handle),
-            debug_mode: false,
         };
 
         // Load the kasl syntax set and create a syntect settings
@@ -111,14 +120,17 @@ impl EditorState {
 
         // Fetch the avaliable devices first
         editor_ui.fetch_devices();
-        editor_ui.audio_device.selected_output = editor_ui
+        editor_ui.state.audio_device.selected_output = editor_ui
             .audio_device
             .default_output
             .as_ref()
             .and_then(|device| device.id().ok());
 
         // Load the project structure and cache it
-        editor_ui.actions.push_action(EditorAction::UpdateDirCache);
+        editor_ui
+            .state
+            .actions
+            .push_action(EditorAction::UpdateDirCache);
         editor_ui.modified_project();
 
         // For each audio region, generate the waveforms
@@ -182,7 +194,9 @@ impl EditorState {
         // Process the result of the background thread
         self.process_background_results();
     }
+}
 
+impl EditorState {
     /// Checks if the project has been modified recently and sends an update command to the audio thread if necessary.
     /// Should not be called directly because this is automatically called.
     fn update_project(&mut self) {
@@ -201,26 +215,6 @@ impl EditorState {
                 println!("Failed to send project update command: {err}");
             }
         }
-    }
-
-    pub(crate) fn system_kasl_search_paths() -> Vec<String> {
-        let mut paths = Vec::new();
-        if let Some(app_data) = dirs::data_dir().map(|d| d.join("kadent"))
-            && let Some(s) = app_data.to_str()
-        {
-            paths.push(s.to_string());
-        }
-        if let Some(mut home) = dirs::home_dir() {
-            home.push(".kasl/std/");
-            if let Some(s) = home.to_str() {
-                paths.push(s.to_string());
-            }
-        }
-        paths
-    }
-
-    pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
-        self.actions.background_handle.command_tx.send(command).ok();
     }
 
     fn apply_ruler_res(&mut self, ruler_res: &RulerResponse) {

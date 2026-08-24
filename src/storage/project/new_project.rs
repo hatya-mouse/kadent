@@ -2,7 +2,6 @@ use crate::{
     consts::{DEFAULT_BUFFER_SIZE, DEFAULT_CHANNELS, DEFAULT_SAMPLE_RATE, PROJECT_FILE_EXTENSION},
     core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::project::save_project,
-    ui::EditorState,
 };
 use crate::{
     core::audio_engine::{
@@ -47,11 +46,27 @@ pub(crate) fn create_new_project(
         },
     );
     let project_meta = ProjectMeta {
-        kasl_search_paths: EditorState::system_kasl_search_paths(),
+        kasl_search_paths: system_kasl_search_paths(),
         export_ctx,
         ..Default::default()
     };
     save_project(&project_path, &project, &project_meta)?;
 
     Ok(ProjectContext::new(project_path, project, project_meta))
+}
+
+fn system_kasl_search_paths() -> Vec<String> {
+    let mut paths = Vec::new();
+    if let Some(app_data) = dirs::data_dir().map(|d| d.join("kadent"))
+        && let Some(s) = app_data.to_str()
+    {
+        paths.push(s.to_string());
+    }
+    if let Some(mut home) = dirs::home_dir() {
+        home.push(".kasl/std/");
+        if let Some(s) = home.to_str() {
+            paths.push(s.to_string());
+        }
+    }
+    paths
 }

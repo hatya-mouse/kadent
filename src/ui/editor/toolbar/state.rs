@@ -1,4 +1,4 @@
-use crate::core::frame_process::PeakHold;
+use crate::ui::editor::frame_process::PeakHold;
 
 #[derive(Default)]
 pub(crate) struct ToolbarState {

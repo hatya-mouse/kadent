@@ -1,8 +1,3 @@
-use crate::core::audio_engine::{
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, CurveType},
-};
 use crate::ui::{
     EditorState,
     components::{dropdown::dropdown_button, text_input::text_input_with_callback},
@@ -12,12 +7,21 @@ use crate::ui::{
     },
     theme,
 };
+use crate::{
+    core::audio_engine::{
+        graph::node_id::NodeID,
+        mixer::TrackID,
+        node::builtin::{AutomationNode, AutomationTrack, CurveType},
+    },
+    ui::editor::views::inspector::InspectorView,
+};
 use eframe::egui;
 
-impl EditorState {
+impl InspectorView {
     pub(super) fn keyframe_inspector(
         &mut self,
         ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
         track_id: &TrackID,
         node_id: &NodeID,
         keyframe_index: usize,
@@ -27,7 +31,7 @@ impl EditorState {
             ("keyframe_section", track_id, node_id, keyframe_index),
             "Keyframe",
             |ui| {
-                self.keyframe_inspector_item(ui, track_id, node_id, keyframe_index);
+                self.keyframe_inspector_item(ui, editor_state, track_id, node_id, keyframe_index);
             },
         );
     }
@@ -35,11 +39,12 @@ impl EditorState {
     fn keyframe_inspector_item(
         &mut self,
         ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
         track_id: &TrackID,
         node_id: &NodeID,
         keyframe_index: usize,
     ) {
-        let Some(track) = self
+        let Some(track) = editor_state
             .project
             .data
             .get_track_mut(track_id)
@@ -58,12 +63,14 @@ impl EditorState {
                 inspector_item(ui, "Value", |ui| {
                     text_input_with_callback(ui, keyframe.value.to_string(), |new_value| {
                         if let Ok(new_value) = new_value.parse::<f32>() {
-                            self.actions.push_action(EditorAction::SetKeyframeValue(
-                                *track_id,
-                                *node_id,
-                                keyframe_index,
-                                KeyframeValue::Float(new_value),
-                            ));
+                            editor_state
+                                .actions
+                                .push_action(EditorAction::SetKeyframeValue(
+                                    *track_id,
+                                    *node_id,
+                                    keyframe_index,
+                                    KeyframeValue::Float(new_value),
+                                ));
                         }
                     });
                 });
@@ -82,12 +89,14 @@ impl EditorState {
                                     )
                                     .clicked()
                                 {
-                                    self.actions.push_action(EditorAction::SetKeyframeCurveType(
-                                        *track_id,
-                                        *node_id,
-                                        keyframe_index,
-                                        *curve_type,
-                                    ));
+                                    editor_state.actions.push_action(
+                                        EditorAction::SetKeyframeCurveType(
+                                            *track_id,
+                                            *node_id,
+                                            keyframe_index,
+                                            *curve_type,
+                                        ),
+                                    );
                                 }
                             }
                         },
@@ -101,12 +110,14 @@ impl EditorState {
                 inspector_item(ui, "Value", |ui| {
                     text_input_with_callback(ui, keyframe.value.to_string(), |new_value| {
                         if let Ok(new_value) = new_value.parse::<i32>() {
-                            self.actions.push_action(EditorAction::SetKeyframeValue(
-                                *track_id,
-                                *node_id,
-                                keyframe_index,
-                                KeyframeValue::Int(new_value),
-                            ));
+                            editor_state
+                                .actions
+                                .push_action(EditorAction::SetKeyframeValue(
+                                    *track_id,
+                                    *node_id,
+                                    keyframe_index,
+                                    KeyframeValue::Int(new_value),
+                                ));
                         }
                     });
                 });
@@ -118,18 +129,20 @@ impl EditorState {
                 inspector_item(ui, "Value", |ui| {
                     let response = ui.checkbox(&mut keyframe.value, "Value");
                     if response.changed() {
-                        self.actions.push_action(EditorAction::SetKeyframeValue(
-                            *track_id,
-                            *node_id,
-                            keyframe_index,
-                            KeyframeValue::Bool(!keyframe.value),
-                        ));
+                        editor_state
+                            .actions
+                            .push_action(EditorAction::SetKeyframeValue(
+                                *track_id,
+                                *node_id,
+                                keyframe_index,
+                                KeyframeValue::Bool(!keyframe.value),
+                            ));
                     }
                 });
             }
         }
 
-        if self.debug_mode {
+        if editor_state.debug_mode {
             inspector_item(ui, "Keyframe Index", |ui| {
                 ui.label(
                     egui::RichText::new(format!("{}", keyframe_index))

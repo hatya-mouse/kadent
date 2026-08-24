@@ -95,6 +95,13 @@ impl NoteRegion {
         }
     }
 
+    /// Sets the note's velocity to the given velocity.
+    pub(crate) fn set_velocity(&mut self, id: &NoteID, velocity: f32) {
+        if let Some(note) = self.get_note_mut(id) {
+            note.velocity = velocity;
+        }
+    }
+
     // --- NOTE DATA GETTING ---
 
     /// Returns the start beat of the note.

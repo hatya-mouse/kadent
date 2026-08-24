@@ -1,20 +1,21 @@
-use crate::core::audio_engine::{
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType, CurveType},
-};
-use crate::ui::{
-    EditorState,
-    editor::actions::{KeyframeType, KeyframeValue},
+use crate::ui::editor::actions::{KeyframeType, KeyframeValue};
+use crate::{
+    core::audio_engine::{
+        graph::node_id::NodeID,
+        mixer::TrackID,
+        node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType, CurveType},
+    },
+    ui::editor::EditorUi,
 };
 
-impl EditorState {
+impl EditorUi {
     fn get_automation_node_mut(
         &mut self,
         track_id: &TrackID,
         node_id: &NodeID,
     ) -> Option<&mut AutomationNode> {
-        self.project
+        self.state
+            .project
             .data
             .get_track_mut(track_id)
             .and_then(|track| track.get_graph_mut().get_node_mut(node_id))
@@ -33,9 +34,10 @@ impl EditorState {
                 KeyframeType::Int(keyframe) => node.track.add_int_keyframe(keyframe),
                 KeyframeType::Bool(keyframe) => node.track.add_bool_keyframe(keyframe),
             };
-            self.selection
+            self.state
+                .selection
                 .select_keyframe(*track_id, *node_id, keyframe_index);
-            self.modified_project();
+            self.state.actions.modified_project();
         }
     }
 
@@ -47,7 +49,7 @@ impl EditorState {
     ) {
         if let Some(node) = self.get_automation_node_mut(track_id, node_id) {
             node.track.remove_keyframe(keyframe_index);
-            self.modified_project();
+            self.state.actions.modified_project();
         }
     }
 
@@ -64,7 +66,7 @@ impl EditorState {
                 KeyframeValue::Int(value) => node.track.set_int_value(keyframe_index, value),
                 KeyframeValue::Bool(value) => node.track.set_bool_value(keyframe_index, value),
             }
-            self.modified_project();
+            self.state.actions.modified_project();
         }
     }
 
@@ -77,7 +79,7 @@ impl EditorState {
     ) {
         if let Some(node) = self.get_automation_node_mut(track_id, node_id) {
             node.track.set_curve_type(keyframe_index, new_curve);
-            self.modified_project();
+            self.state.actions.modified_project();
         }
     }
 
@@ -99,7 +101,7 @@ impl EditorState {
                     node.track = AutomationTrack::new_bool();
                 }
             }
-            self.modified_project();
+            self.state.actions.modified_project();
         }
     }
 
@@ -114,13 +116,13 @@ impl EditorState {
                 AutomationTrack::Float { range, .. } => {
                     if let KeyframeValue::Float(max_value) = max_value {
                         *range = *range.start()..=max_value.max(*range.start());
-                        self.modified_project();
+                        self.state.actions.modified_project();
                     }
                 }
                 AutomationTrack::Int { range, .. } => {
                     if let KeyframeValue::Int(max_value) = max_value {
                         *range = *range.start()..=max_value.max(*range.start());
-                        self.modified_project();
+                        self.state.actions.modified_project();
                     }
                 }
                 AutomationTrack::Bool { .. } => (),
@@ -139,13 +141,13 @@ impl EditorState {
                 AutomationTrack::Float { range, .. } => {
                     if let KeyframeValue::Float(min_value) = min_value {
                         *range = min_value.min(*range.end())..=*range.end();
-                        self.modified_project();
+                        self.state.actions.modified_project();
                     }
                 }
                 AutomationTrack::Int { range, .. } => {
                     if let KeyframeValue::Int(min_value) = min_value {
                         *range = min_value.min(*range.end())..=*range.end();
-                        self.modified_project();
+                        self.state.actions.modified_project();
                     }
                 }
                 AutomationTrack::Bool { .. } => (),

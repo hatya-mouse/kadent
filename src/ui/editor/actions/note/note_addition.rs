@@ -1,16 +1,19 @@
-use crate::core::audio_engine::{
-    mixer::TrackID,
-    track::{
-        RegionID,
-        note_track::{Note, NoteTrack},
+use crate::{
+    core::audio_engine::{
+        mixer::TrackID,
+        track::{
+            RegionID,
+            note_track::{Note, NoteTrack},
+        },
     },
+    ui::editor::EditorUi,
 };
-use crate::ui::EditorState;
 
-impl EditorState {
+impl EditorUi {
     pub(crate) fn add_note(&mut self, track_id: &TrackID, region_id: &RegionID, note: Note) {
         // Set the note's start time
         if let Some(region) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -20,6 +23,6 @@ impl EditorState {
             region.add_note(note);
         }
 
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 }

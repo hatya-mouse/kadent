@@ -1,4 +1,5 @@
 use crate::core::audio_engine::{data_types::Ticks, timing::TimeBounds};
+use crate::ui::editor::TimelineState;
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, PANEL_HEADER_MARGIN, SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::editor::actions::EditorAction,
@@ -14,11 +15,12 @@ use crate::{
 };
 use eframe::egui;
 
-impl EditorState {
+impl TimelineState {
     /// Returns the new scroll position if the user scrolled the timeline, otherwise returns `None`.
     pub(super) fn ruler_area(
         &mut self,
         ui: &mut egui::Ui,
+        state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         visible_width: f32,
         timeline_width: f32,
@@ -40,7 +42,7 @@ impl EditorState {
         let ruler_config = RulerConfig::new(
             Ticks::ZERO,
             TIMELINE_LEFT_PADDING,
-            self.project.data.audio_ctx.resolution,
+            state.project.data.audio_ctx.resolution,
         );
         let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
             ui,
@@ -50,11 +52,17 @@ impl EditorState {
             timeline_width,
             visible_width,
         );
-        self.apply_ruler_res(&ruler_res);
+        state.apply_ruler_res(&ruler_res);
 
         // Add draggable project range indicator
         let ruler_rect = area_rect.with_min_y(area_rect.min.y + SCROLL_BAR_HEIGHT);
-        self.project_range_indicator(ui, timeline_coord, ruler_rect, timeline_coord.scroll.x);
+        self.project_range_indicator(
+            ui,
+            state,
+            timeline_coord,
+            ruler_rect,
+            timeline_coord.scroll.x,
+        );
 
         let vertical_separator_rect = egui::Rect::from_min_size(
             egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
@@ -72,16 +80,17 @@ impl EditorState {
     fn project_range_indicator(
         &mut self,
         ui: &mut egui::Ui,
+        state: &EditorState,
         timeline_coord: &TimelineCoord,
         ruler_screen_rect: egui::Rect,
         scroll_x: f32,
     ) {
         let ppb = timeline_coord.ppb;
-        let ppt = ppb / self.project.data.audio_ctx.resolution as f32;
-        let tempo_map = &self.project.data.tempo_map;
+        let ppt = ppb / state.project.data.audio_ctx.resolution as f32;
+        let tempo_map = &state.project.data.tempo_map;
         let origin_x = ruler_screen_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;
 
-        let (range_start, range_end) = self.project.data.export_range.tick_range(tempo_map);
+        let (range_start, range_end) = state.project.data.export_range.tick_range(tempo_map);
         let range_duration = range_end - range_start;
         let start_x = origin_x + range_start.0 as f32 * ppt;
         let end_x = origin_x + range_end.0 as f32 * ppt;
@@ -139,10 +148,11 @@ impl EditorState {
 
             // Avoid negative duration by using saturating_sub
             let new_duration = Ticks(range_duration.0.saturating_add(ticks_delta).max(0));
-            self.project
-                .data
-                .export_range
-                .set_duration_ticks(new_duration, tempo_map);
+            let mut export_range = state.project.data.export_range.clone();
+            export_range.set_duration_ticks(new_duration, tempo_map);
+            state
+                .actions
+                .push_action(EditorAction::SetProjectRange(export_range));
 
             self.views
                 .status_bar
@@ -157,10 +167,12 @@ impl EditorState {
             let start_delta = new_start.0 - range_start.0;
             let new_duration = Ticks(range_duration.0.saturating_sub(start_delta).max(0));
 
-            self.project.data.export_range = TimeBounds::Musical {
-                start: new_start,
-                duration: new_duration,
-            };
+            state
+                .actions
+                .push_action(EditorAction::SetProjectRange(TimeBounds::Musical {
+                    start: new_start,
+                    duration: new_duration,
+                }));
 
             self.views
                 .status_bar
@@ -169,8 +181,8 @@ impl EditorState {
 
         // Confirm the change when the mouse is released
         if end_drag_res.drag_stopped() || start_drag_res.drag_stopped() {
-            self.actions.push_action(EditorAction::SetProjectRange(
-                self.project.data.export_range.clone(),
+            state.actions.push_action(EditorAction::SetProjectRange(
+                state.project.data.export_range.clone(),
             ));
         }
     }

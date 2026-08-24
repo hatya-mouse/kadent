@@ -1,6 +1,5 @@
 use crate::ui::{
-    EditorState,
-    editor::{PanelNode, SplitDir},
+    editor::{EditorUi, PanelNode, SplitDir},
     theme,
 };
 use eframe::egui::{self, CursorIcon, Rect};
@@ -8,7 +7,7 @@ use eframe::egui::{self, CursorIcon, Rect};
 const DIVIDER_SIZE: f32 = 4.0;
 const MIN_COLLAPSE_SIZE: f32 = 60.0;
 
-impl EditorState {
+impl EditorUi {
     /// Returns Some(keep_first) when a panel should be collapsed on drag release.
     pub(super) fn render_split(
         &mut self,

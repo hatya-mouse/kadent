@@ -1,7 +1,9 @@
-use crate::core::audio_engine::thread::AudioError;
+use crate::ui::editor::views::CodeEditorView;
+use crate::ui::editor::views::error_list::ErrorListView;
+use crate::ui::editor::views::inspector::InspectorView;
 use crate::ui::editor::{
-    AutomationState, CodeEditorState, DialogState, NodeGraphState, PanelView, PianoRollState,
-    StatusBarState, TimelineState, toolbar::ToolbarState, views::PanelViewState,
+    AutomationState, DialogState, NodeGraphState, PanelView, PianoRollState, StatusBarView,
+    TimelineState, toolbar::ToolbarState, views::PanelViewState,
 };
 use std::collections::{HashMap, hash_map::Entry};
 use uuid::Uuid;
@@ -15,8 +17,12 @@ pub(crate) struct ViewStates {
     pub(crate) piano_roll: PianoRollState,
     /// The current node graph state.
     pub(crate) node_graph: NodeGraphState,
-    /// The current code editor state.
-    pub(crate) code_editor: CodeEditorState,
+    /// The code editor view.
+    pub(crate) code_editor: CodeEditorView,
+    /// The error list view.
+    pub(crate) error_list: ErrorListView,
+    /// The inspector view.
+    pub(crate) inspector: InspectorView,
     /// the current automation editor state.
     pub(crate) automation: AutomationState,
 
@@ -30,11 +36,7 @@ pub(crate) struct ViewStates {
     /// The current dialog state.
     pub(crate) dialog: DialogState,
     /// The current status bar state.
-    pub(crate) status_bar: StatusBarState,
-
-    // --- AUDIO ERRORS ---
-    /// Errors to be shown.
-    pub(crate) errors: Vec<AudioError>,
+    pub(crate) status_bar: StatusBarView,
 }
 
 impl ViewStates {

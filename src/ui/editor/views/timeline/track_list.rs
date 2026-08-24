@@ -1,29 +1,31 @@
-mod track_dialog;
-
 use crate::{
     core::metadata::TrackType,
     ui::{
         EditorState,
-        editor::{DialogState, actions::EditorAction, state::TimelineCoord, views::AddTrackState},
+        editor::{
+            DialogState, TimelineState, actions::EditorAction, state::TimelineCoord,
+            views::AddTrackState,
+        },
         theme,
     },
 };
 use eframe::egui::{self, include_image};
 
-impl EditorState {
+impl TimelineState {
     pub(super) fn track_list_panel(
         &mut self,
         ui: &mut egui::Ui,
+        state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         track_list_width: f32,
     ) {
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing = egui::vec2(8.0, 0.0);
 
-            for track_id in self.project.meta.track_order.clone() {
-                if let Some(track_meta) = self.project.meta.tracks.get(&track_id) {
+            for track_id in state.project.meta.track_order.clone() {
+                if let Some(track_meta) = state.project.meta.tracks.get(&track_id) {
                     // Change the background color of the selected track based on whether the track is selected
-                    let is_selected = Some(&track_id) == self.selection.track_id().as_ref();
+                    let is_selected = Some(&track_id) == state.selection.track_id().as_ref();
                     let bg_color = if is_selected {
                         theme::secondary_bg(ui.visuals().dark_mode)
                     } else {
@@ -58,8 +60,8 @@ impl EditorState {
                         theme::border(ui.visuals().dark_mode),
                     );
                     if response.clicked() {
-                        self.selection.select_track(track_id);
-                        self.actions.push_action(EditorAction::ArmTrack(track_id));
+                        state.selection.select_track(track_id);
+                        state.actions.push_action(EditorAction::ArmTrack(track_id));
                     }
                 }
             }
@@ -90,7 +92,7 @@ impl EditorState {
 
                             ui.add(
                                 egui::Image::new(include_image!(
-                                    "../../../../../../assets/icons/plus.svg"
+                                    "../../../../../assets/icons/plus.svg"
                                 ))
                                 .fit_to_exact_size(egui::vec2(20.0, 20.0))
                                 .tint(theme::primary_fg(ui.visuals().dark_mode)),

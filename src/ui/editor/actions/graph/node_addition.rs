@@ -1,6 +1,9 @@
-use crate::core::audio_engine::{
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack},
+use crate::{
+    core::audio_engine::{
+        mixer::TrackID,
+        node::builtin::{AutomationNode, AutomationTrack},
+    },
+    ui::editor::EditorUi,
 };
 use crate::{
     core::{
@@ -8,12 +11,11 @@ use crate::{
         metadata::{NodeMeta, NodeType},
     },
     storage::project::get_project_dir,
-    ui::EditorState,
     ui::editor::actions::AddibleNodes,
 };
 use eframe::egui;
 
-impl EditorState {
+impl EditorUi {
     pub(crate) fn add_node(
         &mut self,
         track_id: &TrackID,
@@ -28,12 +30,13 @@ impl EditorState {
 
     fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         let mut kasl_node = KaslNode::new();
-        let project_dir = get_project_dir(&self.project.path);
-        kasl_node.set_search_paths(self.project.meta.kasl_search_paths.clone());
+        let project_dir = get_project_dir(&self.state.project.path);
+        kasl_node.set_search_paths(self.state.project.meta.kasl_search_paths.clone());
         kasl_node.set_project_dir(project_dir);
 
         // Add the node to the project
         let Some(node_id) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -43,20 +46,20 @@ impl EditorState {
         };
 
         // Also add the node to the project meta with the given position
-        if let Some(track_meta) = self.project.meta.get_track_mut(track_id) {
+        if let Some(track_meta) = self.state.project.meta.get_track_mut(track_id) {
             track_meta.graph.set_node_meta(
                 node_id,
                 NodeMeta::new(NodeType::Kasl, "KASL Node".to_string(), pos),
             );
         }
 
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 
     fn add_automation_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
         // Add the node to the project
         let track = AutomationTrack::new_float(0.0..=1.0);
-        let Some(node_id) = self.project.data.get_track_mut(track_id).map(|t| {
+        let Some(node_id) = self.state.project.data.get_track_mut(track_id).map(|t| {
             t.get_graph_mut()
                 .add_node(Box::new(AutomationNode::new(track)))
         }) else {
@@ -64,13 +67,13 @@ impl EditorState {
         };
 
         // Also add the node to the project meta with the given position
-        if let Some(track_meta) = self.project.meta.get_track_mut(track_id) {
+        if let Some(track_meta) = self.state.project.meta.get_track_mut(track_id) {
             track_meta.graph.set_node_meta(
                 node_id,
                 NodeMeta::new(NodeType::Automation, "Automation Node".to_string(), pos),
             );
         }
 
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 }

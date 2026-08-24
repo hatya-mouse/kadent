@@ -1,14 +1,16 @@
-use crate::core::audio_engine::{
-    data_types::Ticks,
-    mixer::TrackID,
-    track::{
-        RegionID,
-        note_track::{NoteID, NoteTrack},
+use crate::{
+    core::audio_engine::{
+        data_types::Ticks,
+        mixer::TrackID,
+        track::{
+            RegionID,
+            note_track::{NoteID, NoteTrack},
+        },
     },
+    ui::editor::EditorUi,
 };
-use crate::ui::EditorState;
 
-impl EditorState {
+impl EditorUi {
     pub(crate) fn move_note(
         &mut self,
         track_id: &TrackID,
@@ -18,6 +20,7 @@ impl EditorState {
     ) {
         // Set the note's start time
         if let Some(region) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -27,7 +30,7 @@ impl EditorState {
             region.set_start(note_id, new_start);
         }
 
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 
     pub(crate) fn set_note_pitch(
@@ -38,6 +41,7 @@ impl EditorState {
         new_pitch: f32,
     ) {
         if let Some(region) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -46,7 +50,7 @@ impl EditorState {
         {
             region.set_pitch(note_id, new_pitch);
         }
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 
     pub(crate) fn set_note_duration(
@@ -58,6 +62,7 @@ impl EditorState {
     ) {
         // Set the note's duration
         if let Some(region) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -67,25 +72,27 @@ impl EditorState {
             region.set_duration(note_id, new_duration);
         }
 
-        self.modified_project();
+        self.state.actions.modified_project();
     }
 
-    // pub(crate) fn set_note_velocity(
-    //     &mut self,
-    //     track_id: &TrackID,
-    //     region_id: &RegionID,
-    //     note_id: &NoteID,
-    //     new_velocity: f32,
-    // ) {
-    //     if let Some(region) = self
-    //         .project
-    //         .get_track_mut(track_id)
-    //         .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
-    //         .and_then(|track| track.get_region_mut(region_id))
-    //     {
-    //         region.set_velocity(note_id, new_velocity);
-    //     }
+    pub(crate) fn set_note_velocity(
+        &mut self,
+        track_id: &TrackID,
+        region_id: &RegionID,
+        note_id: &NoteID,
+        new_velocity: f32,
+    ) {
+        if let Some(region) = self
+            .state
+            .project
+            .data
+            .get_track_mut(track_id)
+            .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
+            .and_then(|track| track.get_region_mut(region_id))
+        {
+            region.set_velocity(note_id, new_velocity);
+        }
 
-    //     self.modified_project();
-    // }
+        self.state.actions.modified_project();
+    }
 }

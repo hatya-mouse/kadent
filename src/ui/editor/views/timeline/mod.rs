@@ -13,50 +13,41 @@ use crate::{
     ui::{
         EditorState,
         components::panel_header::panel_header,
-        editor::{
-            PanelView, state::TimelineCoord, utils::handle_timeline_zoom, views::PanelViewState,
-        },
+        editor::{utils::handle_timeline_zoom, views::PanelViewState},
         theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
-use uuid::Uuid;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn timeline(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
+impl TimelineState {
+    pub(in crate::ui::editor) fn ui(
+        &mut self,
+        ui: &mut egui::Ui,
+        panel_state: &mut PanelViewState,
+        state: &mut EditorState,
+    ) {
         let panel_width = ui.available_width();
         ui.spacing_mut().item_spacing = egui::vec2(0.0, 0.0);
 
         let PanelViewState::Timeline {
-            mut follow_playhead,
-            mut track_list_width,
-            mut timeline_coord,
-        } = self
-            .views
-            .get_panel_state_or_insert(panel_id, PanelView::Timeline, || PanelViewState::Timeline {
-                follow_playhead: false,
-                track_list_width: 200.0,
-                timeline_coord: TimelineCoord::new(
-                    80.0,
-                    50.0,
-                    egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
-                ),
-            })
-            .clone()
+            follow_playhead,
+            track_list_width,
+            timeline_coord,
+        } = panel_state
         else {
             return;
         };
 
         // While following, keep the playhead centered in the visible track area
-        let visible_width = (panel_width - track_list_width).max(0.0);
-        if follow_playhead && self.transport.is_playing {
+        let visible_width = (panel_width - *track_list_width).max(0.0);
+        if *follow_playhead && state.transport.is_playing {
             timeline_coord.scroll.x =
                 self.follow_playhead_scroll_offset(&timeline_coord, visible_width);
         }
 
         // Clamp the timeline_scroll by zero and the end of the timeline content width
         // so that it never scrolls past the scrollable area
-        let timeline_width = self.timeline_content_width(&timeline_coord);
+        let timeline_width = state.timeline_content_width(&timeline_coord);
         let max_scroll = (timeline_width - visible_width).max(0.0);
         timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 
@@ -99,7 +90,7 @@ impl EditorState {
                             });
                         let zoom_gesture_res = handle_timeline_zoom(
                             ui,
-                            panel_rect.with_min_x(panel_rect.min.x + track_list_width),
+                            panel_rect.with_min_x(panel_rect.min.x + *track_list_width),
                             &timeline_coord,
                             TIMELINE_LEFT_PADDING,
                             MIN_TRACK_HEIGHT,
@@ -113,7 +104,7 @@ impl EditorState {
 
                         // Handle divider drag and then draw the divider
                         if divider_resp.dragged() {
-                            track_list_width = (track_list_width + divider_resp.drag_delta().x)
+                            *track_list_width = (*track_list_width + divider_resp.drag_delta().x)
                                 .min(panel_width * 0.5)
                                 .clamp(MIN_TRACK_LIST_WIDTH, MAX_TRACK_LIST_WIDTH);
                         }
@@ -134,12 +125,5 @@ impl EditorState {
                     });
                 });
             });
-
-        let new_panel_state = PanelViewState::Timeline {
-            follow_playhead,
-            track_list_width,
-            timeline_coord,
-        };
-        self.views.insert_panel_state(panel_id, new_panel_state);
     }
 }

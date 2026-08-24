@@ -13,8 +13,11 @@ use std::hash::Hash;
 
 const HEADER_HEIGHT: f32 = 32.0;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn inspector(&mut self, ui: &mut egui::Ui) {
+#[derive(Default)]
+pub(crate) struct InspectorView {}
+
+impl InspectorView {
+    pub(in crate::ui::editor) fn ui(&mut self, ui: &mut egui::Ui, editor_state: &mut EditorState) {
         // Fill the background
         ui.painter().rect_filled(
             ui.max_rect(),
@@ -24,27 +27,27 @@ impl EditorState {
 
         egui::ScrollArea::vertical()
             .auto_shrink(false)
-            .show(ui, |ui| match self.selection {
+            .show(ui, |ui| match editor_state.selection {
                 Selection::Track(track_id) => {
-                    self.track_inspector(ui, &track_id);
+                    self.track_inspector(ui, editor_state, &track_id);
                 }
                 Selection::Region(track_id, region_id) => {
-                    self.track_inspector(ui, &track_id);
-                    self.region_inspector(ui, &track_id, &region_id);
+                    self.track_inspector(ui, editor_state, &track_id);
+                    self.region_inspector(ui, editor_state, &track_id, &region_id);
                 }
                 Selection::Note(track_id, region_id, note_id) => {
-                    self.track_inspector(ui, &track_id);
-                    self.region_inspector(ui, &track_id, &region_id);
-                    self.note_inspector(ui, &track_id, &region_id, &note_id);
+                    self.track_inspector(ui, editor_state, &track_id);
+                    self.region_inspector(ui, editor_state, &track_id, &region_id);
+                    self.note_inspector(ui, editor_state, &track_id, &region_id, &note_id);
                 }
                 Selection::Node(track_id, node_id) => {
-                    self.track_inspector(ui, &track_id);
-                    self.node_inspector(ui, &track_id, &node_id);
+                    self.track_inspector(ui, editor_state, &track_id);
+                    self.node_inspector(ui, editor_state, &track_id, &node_id);
                 }
                 Selection::Keyframe(track_id, node_id, keyframe_index) => {
-                    self.track_inspector(ui, &track_id);
-                    self.node_inspector(ui, &track_id, &node_id);
-                    self.keyframe_inspector(ui, &track_id, &node_id, keyframe_index);
+                    self.track_inspector(ui, editor_state, &track_id);
+                    self.node_inspector(ui, editor_state, &track_id, &node_id);
+                    self.keyframe_inspector(ui, editor_state, &track_id, &node_id, keyframe_index);
                 }
                 Selection::None => {
                     ui.centered_and_justified(|ui| {

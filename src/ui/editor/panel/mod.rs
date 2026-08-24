@@ -4,7 +4,7 @@ mod split;
 
 pub(crate) use layout::{PanelNode, PanelView, SplitDir};
 
-use crate::ui::EditorState;
+use crate::ui::editor::EditorUi;
 use eframe::egui;
 use uuid::Uuid;
 
@@ -14,7 +14,7 @@ struct SplitAction {
     new_panel_first: bool,
 }
 
-impl EditorState {
+impl EditorUi {
     /// Renders the panel layout by recursively drawing the each nodes.
     pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
         // Extract the layout tree to avoid a simultaneous borrow of self

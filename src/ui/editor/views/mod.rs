@@ -10,7 +10,7 @@ mod state;
 mod timeline;
 
 pub(crate) use automation::AutomationState;
-pub(crate) use code_editor::CodeEditorState;
+pub(crate) use code_editor::{CodeBuffer, CodeEditorView};
 pub(crate) use dialog_state::{AddTrackState, DialogState};
 pub(crate) use node_graph::NodeGraphState;
 pub(crate) use panel_view_state::PanelViewState;

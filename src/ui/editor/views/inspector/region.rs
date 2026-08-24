@@ -1,16 +1,18 @@
 use super::{inspector_item, inspector_section};
 use crate::core::audio_engine::{mixer::TrackID, track::RegionID};
+use crate::ui::editor::views::inspector::InspectorView;
 use crate::ui::{EditorState, components::text_input::text_input, theme};
 use eframe::egui;
 
-impl EditorState {
+impl InspectorView {
     pub(super) fn region_inspector(
         &mut self,
         ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
         track_id: &TrackID,
         region_id: &RegionID,
     ) {
-        let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
+        let Some(track_meta) = editor_state.project.meta.get_track_mut(track_id) else {
             return;
         };
         let Some(region_meta) = track_meta.get_region_mut(region_id) else {
@@ -26,7 +28,7 @@ impl EditorState {
                     text_input(ui, &mut region_meta.name);
                 });
 
-                if self.debug_mode {
+                if editor_state.debug_mode {
                     ui.separator();
                     inspector_item(ui, "Region ID", |ui| {
                         ui.label(

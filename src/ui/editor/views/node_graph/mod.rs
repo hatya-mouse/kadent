@@ -2,9 +2,6 @@ mod edge;
 mod header;
 mod node;
 mod port;
-mod state;
-
-pub(crate) use state::NodeGraphState;
 
 use crate::core::audio_engine::graph::InputKey;
 use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
@@ -24,8 +21,32 @@ const EDGE_WIDTH: f32 = 4.0;
 // Height of the node header, which is the same as the height of the node title bar.
 const NODE_HEADER_HEGIHT: f32 = 24.0;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn node_graph(&mut self, ui: &mut egui::Ui) {
+pub(crate) struct NodeGraphState {
+    /// Currently being dragged edge, with the source and the mouse position.
+    pub(crate) ghost_edge: Option<((NodeID, usize), egui::Pos2)>,
+    /// The node that should disappear when dragging an edge, to avoid visual confusion.
+    pub(crate) dragged_edge: Option<(NodeID, usize, NodeID, usize)>,
+    /// User pan, relative to the content area top-left.
+    /// Combined with content_rect.min each frame, so the view follows panel moves/resizes.
+    pub(crate) pan_offset: egui::Vec2,
+    /// If set, pan will be updated this frame to center on this canvas-space position.
+    pub(crate) jump_to_pos: Option<egui::Pos2>,
+}
+
+impl Default for NodeGraphState {
+    fn default() -> Self {
+        Self {
+            ghost_edge: None,
+            dragged_edge: None,
+            // Start with a small margin so canvas (0, 0) is visible by default
+            pan_offset: egui::vec2(50.0, 50.0),
+            jump_to_pos: None,
+        }
+    }
+}
+
+impl NodeGraphState {
+    pub(in crate::ui::editor) fn ui(&mut self, ui: &mut egui::Ui, state: &mut EditorState) {
         let content_rect = ui.available_rect_before_wrap();
 
         // Allocate the full canvas rect for background interaction.
@@ -34,45 +55,40 @@ impl EditorState {
 
         // Middle mouse drag to pan
         if bg_response.dragged_by(egui::PointerButton::Middle) {
-            self.views.node_graph.pan_offset += bg_response.drag_delta();
+            self.pan_offset += bg_response.drag_delta();
         }
 
         // Center on a requested canvas position (e.g. "jump to random node")
-        if let Some(target) = self.views.node_graph.jump_to_pos.take() {
+        if let Some(target) = self.jump_to_pos.take() {
             let half_size = content_rect.size() * 0.5;
-            self.views.node_graph.pan_offset =
-                egui::vec2(half_size.x - target.x, half_size.y - target.y);
+            self.pan_offset = egui::vec2(half_size.x - target.x, half_size.y - target.y);
         }
 
         // view_transform converts canvas-space positions to screen-space each frame.
         // Adding content_rect.min ensures nodes follow panel moves and resizes automatically.
-        let view_transform = content_rect.min.to_vec2() + self.views.node_graph.pan_offset;
+        let view_transform = content_rect.min.to_vec2() + self.pan_offset;
 
-        let Some(track_id) = self.selection.track_id() else {
+        let Some(track_id) = state.selection.track_id() else {
             return;
         };
 
         // Collect what we need up front to avoid holding borrows during drawing
-        let node_ids: Vec<NodeID> = self
+        let node_ids: Vec<NodeID> = state
             .project
             .meta
             .get_track(&track_id)
             .map(|t| t.graph.nodes.keys().cloned().collect())
             .unwrap_or_default();
 
-        let edges = self
+        let edges = state
             .project
             .data
             .get_track(&track_id)
             .map(|t| t.get_graph().get_all_edges())
             .unwrap_or_default();
 
-        // Copy ghost/dragged edge before borrowing project_meta below
-        let ghost_edge = self.views.node_graph.ghost_edge;
-        let dragged_edge = self.views.node_graph.dragged_edge;
-
         // Draw edges behind nodes
-        if let Some(track_meta) = self.project.meta.get_track(&track_id) {
+        if let Some(track_meta) = state.project.meta.get_track(&track_id) {
             let painter = ui.painter();
             draw_edges(
                 ui,
@@ -80,23 +96,23 @@ impl EditorState {
                 &edges,
                 &track_meta.graph,
                 view_transform,
-                dragged_edge,
+                self.dragged_edge,
             );
 
             // Draw the ghost edge
-            if let Some(ghost) = ghost_edge {
+            if let Some(ghost) = self.ghost_edge {
                 draw_ghost_edge(ui, painter, &ghost, &track_meta.graph, view_transform);
             }
         }
 
         // Draw each node (on top of edges)
         for node_id in &node_ids {
-            self.draw_node(ui, node_id, view_transform);
+            self.draw_node(ui, state, node_id, view_transform);
         }
 
         // Handle ghost edge release after drawing nodes
-        if let Some(ghost) = ghost_edge {
-            self.handle_ghost_release(ui, ghost, &track_id, &node_ids, view_transform);
+        if let Some(ghost) = self.ghost_edge {
+            self.handle_ghost_release(ui, ghost, &track_id, &node_ids, view_transform, state);
         }
     }
 
@@ -107,6 +123,7 @@ impl EditorState {
         track_id: &TrackID,
         node_ids: &[NodeID],
         view_transform: egui::Vec2,
+        state: &mut EditorState,
     ) {
         // Check if the ghost node has been released in this very frame
         if !ui.input(|i| i.pointer.primary_released()) {
@@ -114,8 +131,12 @@ impl EditorState {
         }
 
         if let Some(mouse_pos) = ui.input(|i| i.pointer.hover_pos())
-            && let Some(track_meta) = self.project.meta.get_track(track_id)
-            && let Some(graph) = self.project.data.get_track(track_id).map(|t| t.get_graph())
+            && let Some(track_meta) = state.project.meta.get_track(track_id)
+            && let Some(graph) = state
+                .project
+                .data
+                .get_track(track_id)
+                .map(|t| t.get_graph())
         {
             let mut has_connected_to_input = false;
 
@@ -138,8 +159,8 @@ impl EditorState {
                     view_transform,
                 ) {
                     // Remove the dragged node from the project and add a new edge to the hovered port
-                    if let Some(old_edge) = self.views.node_graph.dragged_edge {
-                        self.actions.push_action(EditorAction::RemoveEdge(
+                    if let Some(old_edge) = self.dragged_edge {
+                        state.actions.push_action(EditorAction::RemoveEdge(
                             *track_id,
                             InputKey(old_edge.2, old_edge.3),
                         ));
@@ -147,7 +168,7 @@ impl EditorState {
 
                     // Add the new edge to the project
                     let new_edge = (ghost_edge.0.0, ghost_edge.0.1, *node_id, port);
-                    self.actions.push_action(EditorAction::AddEdge(
+                    state.actions.push_action(EditorAction::AddEdge(
                         *track_id,
                         (new_edge.0, new_edge.1),
                         InputKey(new_edge.2, new_edge.3),
@@ -163,8 +184,8 @@ impl EditorState {
             if !has_connected_to_input {
                 // If we didn't connect to an input, just remove the dragged edge from the project
                 // because it has released in empty space
-                if let Some(old_edge) = self.views.node_graph.dragged_edge {
-                    self.actions.push_action(EditorAction::RemoveEdge(
+                if let Some(old_edge) = self.dragged_edge {
+                    state.actions.push_action(EditorAction::RemoveEdge(
                         *track_id,
                         InputKey(old_edge.2, old_edge.3),
                     ));
@@ -173,7 +194,7 @@ impl EditorState {
         }
 
         // Clear the ghost node
-        self.views.node_graph.ghost_edge = None;
-        self.views.node_graph.dragged_edge = None;
+        self.ghost_edge = None;
+        self.dragged_edge = None;
     }
 }

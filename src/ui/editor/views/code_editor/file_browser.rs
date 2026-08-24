@@ -1,36 +1,36 @@
-use crate::{
-    ui::editor::actions::{FileNode, FileNodeKind},
-    ui::{EditorState, theme},
+use crate::ui::{
+    editor::{
+        actions::{FileNode, FileNodeKind},
+        views::code_editor::{CodeBuffer, CodeEditorView},
+    },
+    theme,
 };
 use eframe::egui;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use uuid::Uuid;
 
-impl EditorState {
-    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, id: Uuid) {
-        // Get the currently opened path for highlighting (empty path = nothing selected)
-        let opened_path: PathBuf = self
-            .views
-            .code_editor
-            .code_buffers
-            .get(&id)
-            .and_then(|b| b.as_ref())
-            .map(|(path, _)| path.clone())
-            .unwrap_or_default();
+impl CodeEditorView {
+    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
+        let code_buffer = self.code_buffers.entry(panel_id).or_default();
 
         let selected_file = ui
             .scope(|ui| {
                 *ui.style_mut() = theme::menu_style(ui);
-                dir_children(ui, &self.views.code_editor.project_dir_cache, &opened_path)
+                dir_children(ui, &self.project_dir_cache, code_buffer)
             })
             .inner;
 
         // Read the content at the path to the buffer
         if let Some(path) = selected_file
             && let Ok(content) = std::fs::read_to_string(&path)
-            && let Some(buffer) = self.views.code_editor.code_buffers.get_mut(&id)
         {
-            *buffer = Some((path, content));
+            self.code_buffers.insert(
+                panel_id,
+                CodeBuffer {
+                    path: Some(path),
+                    content,
+                },
+            );
         }
     }
 }
@@ -38,20 +38,20 @@ impl EditorState {
 fn dir_children(
     ui: &mut egui::Ui,
     children: &[FileNode],
-    opened_program: &Path,
+    code_buffer: &CodeBuffer,
 ) -> Option<PathBuf> {
     let mut response = None;
 
     for child in children {
         match &child.kind {
             FileNodeKind::Dir { .. } => {
-                let dir_res = dir_expand_button(ui, child, opened_program);
+                let dir_res = dir_expand_button(ui, child, code_buffer);
                 if dir_res.is_some() {
                     response = dir_res;
                 }
             }
             FileNodeKind::File => {
-                let is_opened = opened_program == child.path;
+                let is_opened = code_buffer.path.as_ref() == Some(&child.path);
                 let file_item_res = ui.selectable_label(is_opened, &child.name);
 
                 if file_item_res.interact(egui::Sense::click()).clicked() {
@@ -64,7 +64,11 @@ fn dir_children(
     response
 }
 
-fn dir_expand_button(ui: &mut egui::Ui, node: &FileNode, opened_program: &Path) -> Option<PathBuf> {
+fn dir_expand_button(
+    ui: &mut egui::Ui,
+    node: &FileNode,
+    code_buffer: &CodeBuffer,
+) -> Option<PathBuf> {
     // Ensure that the node is of Dir type before proceeding
     let FileNodeKind::Dir { children } = &node.kind else {
         return None;
@@ -90,7 +94,7 @@ fn dir_expand_button(ui: &mut egui::Ui, node: &FileNode, opened_program: &Path) 
     // Show the child components
     state
         .show_body_indented(&parent_dir_res, ui, |ui| {
-            dir_children(ui, children, opened_program)
+            dir_children(ui, children, code_buffer)
         })
         .and_then(|res| res.inner)
 }

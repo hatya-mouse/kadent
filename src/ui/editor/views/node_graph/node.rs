@@ -2,25 +2,29 @@ use super::{
     NODE_HEADER_HEGIHT, NODE_PADDING, NODE_WIDTH, PORT_RADIUS, PORT_ROW_HEIGHT,
     port::{calc_port_y, draw_ports},
 };
-use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::ui::{EditorState, theme};
+use crate::{
+    core::audio_engine::{graph::node_id::NodeID, mixer::TrackID},
+    ui::editor::NodeGraphState,
+};
 use eframe::egui::{self, Sense};
 
-impl EditorState {
+impl NodeGraphState {
     pub(super) fn draw_node(
         &mut self,
         ui: &mut egui::Ui,
+        state: &mut EditorState,
         node_id: &NodeID,
         view_transform: egui::Vec2,
     ) {
-        let Some(track_id) = self.selection.track_id() else {
+        let Some(track_id) = state.selection.track_id() else {
             return;
         };
 
         // Gather display data from the node and its meta.
         // Borrows end at the closing brace so we can take &mut self freely afterwards.
         let (input_names, output_names, pos, display_name) = {
-            let Some(node) = self
+            let Some(node) = state
                 .project
                 .data
                 .get_track(&track_id)
@@ -28,7 +32,7 @@ impl EditorState {
             else {
                 return;
             };
-            let Some(meta) = self
+            let Some(meta) = state
                 .project
                 .meta
                 .get_track(&track_id)
@@ -58,7 +62,7 @@ impl EditorState {
         let painter = ui.painter();
 
         // Draw the node background
-        let node_stroke = if self.selection.node_id() == Some(*node_id) {
+        let node_stroke = if state.selection.node_id() == Some(*node_id) {
             egui::Stroke::new(2.0, theme::region_selected(dark_mode))
         } else {
             theme::border(dark_mode)
@@ -101,29 +105,30 @@ impl EditorState {
 
         // Handle node gestures (click to select, drag to move)
         let response = ui.allocate_rect(node_rect, Sense::click_and_drag());
-        self.apply_node_gesture(response, node_id, &track_id);
+        self.apply_node_gesture(response, state, node_id, &track_id);
 
         // Handle output port drag to create ghost edges (allocated after node so ports take priority)
         self.handle_output_port_drags(ui, node_id, node_rect, output_names.len());
         // Handle input port drag to re-route existing edges
-        self.handle_input_port_drags(ui, node_id, &track_id, node_rect, input_names.len());
+        self.handle_input_port_drags(ui, state, node_id, &track_id, node_rect, input_names.len());
     }
 
     fn apply_node_gesture(
-        &mut self,
+        &self,
         response: egui::Response,
+        state: &mut EditorState,
         node_id: &NodeID,
         track_id: &TrackID,
     ) {
         // Click or drag to select the node
         if response.clicked() || response.dragged() {
-            self.selection.select_node(*track_id, *node_id);
+            state.selection.select_node(*track_id, *node_id);
         }
 
         // Drag to move the node; suppress when a ghost edge drag is in progress
         if response.dragged()
-            && self.views.node_graph.ghost_edge.is_none()
-            && let Some(meta) = self
+            && self.ghost_edge.is_none()
+            && let Some(meta) = state
                 .project
                 .meta
                 .get_track_mut(track_id)
@@ -154,13 +159,13 @@ impl EditorState {
                 let mouse_pos = ui
                     .input(|inp| inp.pointer.hover_pos())
                     .unwrap_or(port_center);
-                self.views.node_graph.ghost_edge = Some(((*node_id, current_row), mouse_pos));
+                self.ghost_edge = Some(((*node_id, current_row), mouse_pos));
             }
 
             // Update the position of the ghost edge
             if port_resp.dragged()
                 && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-                && let Some(ghost) = &mut self.views.node_graph.ghost_edge
+                && let Some(ghost) = &mut self.ghost_edge
             {
                 ghost.1 = pos;
             }
@@ -170,6 +175,7 @@ impl EditorState {
     fn handle_input_port_drags(
         &mut self,
         ui: &mut egui::Ui,
+        state: &mut EditorState,
         node_id: &NodeID,
         track_id: &TrackID,
         node_rect: egui::Rect,
@@ -187,7 +193,7 @@ impl EditorState {
             // If the drag has started, get the edge pointing toward the input port and create a ghost edge
             if port_resp.drag_started() {
                 // Find the edge connected to this input port
-                let found = self.project.data.get_track(track_id).and_then(|t| {
+                let found = state.project.data.get_track(track_id).and_then(|t| {
                     t.get_graph()
                         .get_all_edges()
                         .iter()
@@ -199,15 +205,15 @@ impl EditorState {
                     let mouse_pos = ui
                         .input(|inp| inp.pointer.hover_pos())
                         .unwrap_or(port_center);
-                    self.views.node_graph.ghost_edge = Some(((from_id, out_idx), mouse_pos));
-                    self.views.node_graph.dragged_edge = Some(edge);
+                    self.ghost_edge = Some(((from_id, out_idx), mouse_pos));
+                    self.dragged_edge = Some(edge);
                 }
             }
 
             // Update the position of the ghost edge
             if port_resp.dragged()
                 && let Some(pos) = ui.input(|inp| inp.pointer.hover_pos())
-                && let Some(ghost) = &mut self.views.node_graph.ghost_edge
+                && let Some(ghost) = &mut self.ghost_edge
             {
                 ghost.1 = pos;
             }

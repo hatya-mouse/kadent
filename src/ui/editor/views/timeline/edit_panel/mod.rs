@@ -4,14 +4,19 @@ mod track_row;
 mod waveform;
 
 use super::TIMELINE_LEFT_PADDING;
-use crate::ui::{EditorState, editor::state::TimelineCoord, theme};
-use eframe::egui;
 use crate::core::audio_engine::data_types::Ticks;
+use crate::ui::{
+    EditorState,
+    editor::{TimelineState, state::TimelineCoord},
+    theme,
+};
+use eframe::egui;
 
-impl EditorState {
+impl TimelineState {
     pub(crate) fn track_edit_panel(
         &mut self,
         ui: &mut egui::Ui,
+        state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         timeline_width: f32,
     ) {
@@ -23,7 +28,7 @@ impl EditorState {
         let available = ui.available_rect_before_wrap();
 
         // Draw each tracks
-        let track_order = self.project.meta.track_order.clone();
+        let track_order = state.project.meta.track_order.clone();
         for (i, track_id) in track_order.iter().enumerate() {
             let y = available.min.y + i as f32 * track_height;
             let row_rect = egui::Rect::from_min_size(
@@ -31,7 +36,14 @@ impl EditorState {
                 egui::vec2(available.width(), track_height),
             );
 
-            self.track_row(ui, timeline_coord, track_id, row_rect, available.min.y);
+            self.track_row(
+                ui,
+                state,
+                timeline_coord,
+                track_id,
+                row_rect,
+                available.min.y,
+            );
 
             // Draw a separator
             ui.painter().hline(
@@ -45,17 +57,23 @@ impl EditorState {
         }
 
         // Draw the playhead
-        self.playhead(ui, timeline_coord, available);
+        self.playhead(ui, state, timeline_coord, available);
 
         // Handle dragged or dropped file
-        self.try_resolve_audio_drop();
+        self.try_resolve_audio_drop(state);
         self.show_dragged_hint(ui);
     }
 
-    fn playhead(&self, ui: &mut egui::Ui, timeline_coord: &TimelineCoord, editor_rect: egui::Rect) {
+    fn playhead(
+        &self,
+        ui: &mut egui::Ui,
+        state: &EditorState,
+        timeline_coord: &TimelineCoord,
+        editor_rect: egui::Rect,
+    ) {
         let playhead_x = timeline_coord.ppb
-            * (self.transport.playhead_tick.0 as f32
-                / self.project.data.audio_ctx.resolution as f32);
+            * (state.transport.playhead_tick.0 as f32
+                / state.project.data.audio_ctx.resolution as f32);
 
         // Create a new painter to draw on the foreground layer
         ui.painter().vline(

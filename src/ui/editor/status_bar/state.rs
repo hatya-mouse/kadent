@@ -10,7 +10,7 @@ const TEMP_STATUS_IN: f32 = 0.2;
 const TEMP_STATUS_OUT: f32 = 0.5;
 
 #[derive(Default)]
-pub(crate) struct StatusBarState {
+pub(crate) struct StatusBarView {
     /// Temporary status notification shown in the right side of the status bar.
     pub(crate) temp_status: Option<TempStatusNotification>,
     /// Currently processing task to show in the status bar.
@@ -42,7 +42,7 @@ impl StatusHint {
     }
 }
 
-impl StatusBarState {
+impl StatusBarView {
     pub(crate) fn show_temp_status(&mut self, text: &str, color: egui::Color32) {
         if let Some(ref notif) = self.temp_status
             && notif.text == text

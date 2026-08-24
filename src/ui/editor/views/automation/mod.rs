@@ -1,9 +1,7 @@
 mod draw;
 mod gestures;
-mod state;
 
-pub(crate) use state::AutomationState;
-
+use crate::core::audio_engine::node::builtin::CurveType;
 use crate::core::audio_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
@@ -14,13 +12,12 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{PanelView, TimelineCoord, utils::handle_timeline_zoom, views::PanelViewState},
+        editor::{utils::handle_timeline_zoom, views::PanelViewState},
     },
 };
 use draw::{draw_automation_timeline, keyframe_positions};
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
-use gestures::add_keyframe_gesture;
-use uuid::Uuid;
+use gestures::{add_keyframe_gesture, keyframe_click_gesture};
 
 const STROKE_WIDTH: f32 = 2.0;
 const KEYFRAME_CIRCLE_RADIUS: f32 = 4.0;
@@ -29,31 +26,31 @@ const KEYFRAME_SQUARE_SIZE: f32 = 8.0;
 const MIN_AUTOMATION_SCALE: f32 = 1.0;
 const MAX_AUTOMATION_SCALE: f32 = 10.0;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn automation(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
-        let PanelViewState::Automation(mut timeline_coord) = self
-            .views
-            .get_panel_state_or_insert(panel_id, PanelView::Automation, || {
-                PanelViewState::Automation(TimelineCoord::new(
-                    80.0,
-                    1.0,
-                    egui::vec2(TIMELINE_LEFT_PADDING, 0.0),
-                ))
-            })
-            .clone()
-        else {
+#[derive(Default)]
+pub(crate) struct AutomationState {
+    /// The last used curve type for the new keyframe.
+    pub(crate) last_curve_type: Option<CurveType>,
+}
+
+impl AutomationState {
+    pub(in crate::ui::editor) fn ui(
+        &self,
+        ui: &mut egui::Ui,
+        state: &mut EditorState,
+        panel_state: &mut PanelViewState,
+    ) {
+        let PanelViewState::Automation(timeline_coord) = panel_state else {
             return;
         };
-        let resolution = self.project.data.audio_ctx.resolution;
-        let timeline_width = self.timeline_content_width(&timeline_coord);
+        let resolution = state.project.data.audio_ctx.resolution;
+        let timeline_width = state.timeline_content_width(&timeline_coord);
 
         // Get the track and the selected automation node
-        let (Some(track_id), Some(node_id)) = (self.selection.track_id(), self.selection.node_id())
-        else {
+        let Some((track_id, node_id)) = state.selection.track_and_node_id() else {
             centered_text(ui, "No Automation Node Selected");
             return;
         };
-        let Some(automation_node) = self
+        let Some(automation_node) = state
             .project
             .data
             .get_track(&track_id)
@@ -102,7 +99,7 @@ impl EditorState {
                             timeline_width,
                             scroll_rect.height() * timeline_coord.y_scale,
                         ));
-                        draw_automation_timeline(ui, &keyframe_pos, &self.selection, scroll_rect);
+                        draw_automation_timeline(ui, &keyframe_pos, &state.selection, scroll_rect);
                     })
             })
             .inner;
@@ -112,15 +109,15 @@ impl EditorState {
         if let Some(action) = add_keyframe_gesture(
             &response,
             track,
-            &self.views.automation.last_curve_type,
+            &self.last_curve_type,
             (track_id, node_id),
             &timeline_coord,
             scroll_rect,
             tpp,
         ) {
-            self.actions.push_action(action);
+            state.actions.push_action(action);
         }
-        self.keyframe_click_gesture(&response, &keyframe_pos);
+        keyframe_click_gesture(&response, &keyframe_pos, state);
 
         // Handle the zoom gesture and apply the scroll offset
         let zoom_gesture_res = handle_timeline_zoom(
@@ -133,9 +130,7 @@ impl EditorState {
         );
         timeline_coord.apply_scroll(bar_scroll_x, zoom_gesture_res, scroll_res.state.offset);
 
-        self.views
-            .insert_panel_state(panel_id, PanelViewState::Automation(timeline_coord));
-        self.apply_ruler_res(&ruler_res);
+        state.apply_ruler_res(&ruler_res);
 
         // match track {
         //     AutomationTrack::Float { keyframes, .. } => {}

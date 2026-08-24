@@ -1,24 +1,28 @@
 //! Renders the notes on the region box in the timeline.
 
-use crate::core::audio_engine::{
-    data_types::Ticks,
-    mixer::TrackID,
-    track::{RegionID, note_track::NoteTrack},
-};
 use crate::ui::{EditorState, theme};
+use crate::{
+    core::audio_engine::{
+        data_types::Ticks,
+        mixer::TrackID,
+        track::{RegionID, note_track::NoteTrack},
+    },
+    ui::editor::TimelineState,
+};
 use eframe::egui;
 
 const NOTE_HEIGHT_MULTIPLIER: f32 = 3.0;
 
-impl EditorState {
+impl TimelineState {
     pub(super) fn draw_notes_in(
         &self,
         ui: &egui::Ui,
+        state: &EditorState,
         track_id: &TrackID,
         region_id: &RegionID,
         region_rect: &egui::Rect,
     ) {
-        let Some(region) = self
+        let Some(region) = state
             .project
             .data
             .get_track(track_id)
@@ -31,7 +35,7 @@ impl EditorState {
         let rect_height = region_rect.height();
 
         // Calculate the pixels per ticks based on the region's duration and the width of the region rectangle
-        let region_duration = region.bounds.duration_ticks(&self.project.data.tempo_map);
+        let region_duration = region.bounds.duration_ticks(&state.project.data.tempo_map);
         let ppt = rect_width / region_duration.0 as f32;
         // Also calculate the y position per pitch
         let y_per_pitch = rect_height / 128.0;

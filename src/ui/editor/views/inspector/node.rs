@@ -1,8 +1,11 @@
 use super::{inspector_item, inspector_section};
-use crate::core::audio_engine::{
-    graph::node_id::NodeID,
-    mixer::TrackID,
-    node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
+use crate::{
+    core::audio_engine::{
+        graph::node_id::NodeID,
+        mixer::TrackID,
+        node::builtin::{AutomationNode, AutomationTrack, AutomationTrackType},
+    },
+    ui::editor::views::inspector::InspectorView,
 };
 use crate::{
     core::kasl_node::KaslNode,
@@ -19,15 +22,16 @@ use crate::{
 };
 use eframe::egui;
 
-impl EditorState {
+impl InspectorView {
     pub(super) fn node_inspector(
         &mut self,
         ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
         track_id: &TrackID,
         node_id: &NodeID,
     ) {
         inspector_section(ui, ("node_section", track_id, node_id), "Node", |ui| {
-            let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
+            let Some(track_meta) = editor_state.project.meta.get_track_mut(track_id) else {
                 return;
             };
             let Some(node_meta) = track_meta.graph.get_node_meta_mut(node_id) else {
@@ -38,9 +42,9 @@ impl EditorState {
                 text_input(ui, &mut node_meta.display_name);
             });
 
-            self.node_unique_inspector(ui, track_id, node_id);
+            self.node_unique_inspector(ui, editor_state, track_id, node_id);
 
-            if self.debug_mode {
+            if editor_state.debug_mode {
                 ui.separator();
                 inspector_item(ui, "Node ID", |ui| {
                     ui.label(
@@ -52,8 +56,14 @@ impl EditorState {
         });
     }
 
-    fn node_unique_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID, node_id: &NodeID) {
-        let Some(track) = self.project.data.get_track_mut(track_id) else {
+    fn node_unique_inspector(
+        &mut self,
+        ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
+        track_id: &TrackID,
+        node_id: &NodeID,
+    ) {
+        let Some(track) = editor_state.project.data.get_track_mut(track_id) else {
             return;
         };
         let Some(node) = track.get_graph_mut().get_node_mut(node_id) else {
@@ -73,7 +83,8 @@ impl EditorState {
 
             inspector_item(ui, "Compile", |ui| {
                 if text_button(ui, "compile_kasl", "Compile KASL").clicked() {
-                    self.actions
+                    editor_state
+                        .actions
                         .push_action(EditorAction::CompileKasl(*track_id, *node_id));
                 }
             });
@@ -94,11 +105,13 @@ impl EditorState {
                                 )
                                 .clicked()
                             {
-                                self.actions.push_action(EditorAction::SetAutomationType(
-                                    *track_id,
-                                    *node_id,
-                                    *track_type,
-                                ));
+                                editor_state
+                                    .actions
+                                    .push_action(EditorAction::SetAutomationType(
+                                        *track_id,
+                                        *node_id,
+                                        *track_type,
+                                    ));
                             }
                         }
                     },
@@ -110,24 +123,26 @@ impl EditorState {
                     inspector_item(ui, "Max", |ui| {
                         text_input_with_callback(ui, range.end().to_string(), |new_max| {
                             if let Ok(new_max) = new_max.parse::<f32>() {
-                                self.actions
-                                    .push_action(EditorAction::SetAutomationMaxValue(
+                                editor_state.actions.push_action(
+                                    EditorAction::SetAutomationMaxValue(
                                         *track_id,
                                         *node_id,
                                         KeyframeValue::Float(new_max),
-                                    ));
+                                    ),
+                                );
                             }
                         });
                     });
                     inspector_item(ui, "Min", |ui| {
                         text_input_with_callback(ui, range.start().to_string(), |new_min| {
                             if let Ok(new_min) = new_min.parse::<f32>() {
-                                self.actions
-                                    .push_action(EditorAction::SetAutomationMinValue(
+                                editor_state.actions.push_action(
+                                    EditorAction::SetAutomationMinValue(
                                         *track_id,
                                         *node_id,
                                         KeyframeValue::Float(new_min),
-                                    ));
+                                    ),
+                                );
                             }
                         });
                     });
@@ -136,24 +151,26 @@ impl EditorState {
                     inspector_item(ui, "Max", |ui| {
                         text_input_with_callback(ui, range.end().to_string(), |new_max| {
                             if let Ok(new_max) = new_max.parse::<i32>() {
-                                self.actions
-                                    .push_action(EditorAction::SetAutomationMaxValue(
+                                editor_state.actions.push_action(
+                                    EditorAction::SetAutomationMaxValue(
                                         *track_id,
                                         *node_id,
                                         KeyframeValue::Int(new_max),
-                                    ));
+                                    ),
+                                );
                             }
                         });
                     });
                     inspector_item(ui, "Min", |ui| {
                         text_input_with_callback(ui, range.start().to_string(), |new_min| {
                             if let Ok(new_min) = new_min.parse::<i32>() {
-                                self.actions
-                                    .push_action(EditorAction::SetAutomationMinValue(
+                                editor_state.actions.push_action(
+                                    EditorAction::SetAutomationMinValue(
                                         *track_id,
                                         *node_id,
                                         KeyframeValue::Int(new_min),
-                                    ));
+                                    ),
+                                );
                             }
                         });
                     });

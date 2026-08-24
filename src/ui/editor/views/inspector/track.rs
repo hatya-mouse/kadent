@@ -1,5 +1,6 @@
 use super::{inspector_item, inspector_section};
 use crate::core::audio_engine::mixer::TrackID;
+use crate::ui::editor::views::inspector::InspectorView;
 use crate::{
     ui::editor::actions::EditorAction,
     ui::{
@@ -12,10 +13,15 @@ use crate::{
 };
 use eframe::egui;
 
-impl EditorState {
-    pub(super) fn track_inspector(&mut self, ui: &mut egui::Ui, track_id: &TrackID) {
+impl InspectorView {
+    pub(super) fn track_inspector(
+        &mut self,
+        ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
+        track_id: &TrackID,
+    ) {
         inspector_section(ui, ("track_section", track_id), "Track", |ui| {
-            let Some(track_meta) = self.project.meta.get_track_mut(track_id) else {
+            let Some(track_meta) = editor_state.project.meta.get_track_mut(track_id) else {
                 return;
             };
 
@@ -29,13 +35,14 @@ impl EditorState {
 
             inspector_item(ui, "Delete", |ui| {
                 if text_button(ui, "delete_track", "Delete Track").clicked() {
-                    self.actions
+                    editor_state
+                        .actions
                         .push_action(EditorAction::RemoveTrack(*track_id));
-                    self.actions.push_action(EditorAction::DisarmTrack);
+                    editor_state.actions.push_action(EditorAction::DisarmTrack);
                 }
             });
 
-            if self.debug_mode {
+            if editor_state.debug_mode {
                 ui.separator();
                 inspector_item(ui, "Track ID", |ui| {
                     ui.label(

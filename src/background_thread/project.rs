@@ -1,13 +1,14 @@
 use crate::core::audio_engine::{data_types::PlaybackContext, mixer::ProjectData};
 use crate::storage::project::SaveError;
+use crate::ui::editor::CodeBuffer;
 use crate::{core::metadata::ProjectMeta, storage::project::save_project};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub(super) fn run_save_project(
     path: &Path,
     project: &ProjectData,
     project_meta: &ProjectMeta,
-    code_buffers: &[(PathBuf, String)],
+    code_buffers: &[CodeBuffer],
 ) -> Result<(), SaveError> {
     let program_res = save_programs(code_buffers);
     let proj_res = save_project(path, project, project_meta);
@@ -15,9 +16,11 @@ pub(super) fn run_save_project(
 }
 
 /// Save all opened programs to their respective file paths.
-fn save_programs(code_buffers: &[(PathBuf, String)]) -> std::io::Result<()> {
-    for (path, content) in code_buffers {
-        std::fs::write(path, content)?;
+fn save_programs(code_buffers: &[CodeBuffer]) -> std::io::Result<()> {
+    for code_buffer in code_buffers {
+        if let Some(ref path) = code_buffer.path {
+            std::fs::write(path, &code_buffer.content)?;
+        }
     }
     Ok(())
 }

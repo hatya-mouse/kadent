@@ -1,4 +1,7 @@
-use crate::{background_thread::BackgroundThreadHandle, ui::editor::actions::EditorAction};
+use crate::{
+    background_thread::{BackgroundThreadCommand, BackgroundThreadHandle},
+    ui::editor::actions::EditorAction,
+};
 use std::{collections::VecDeque, path::PathBuf, time::Instant};
 
 pub(crate) struct ActionDispatcher {
@@ -24,7 +27,18 @@ impl ActionDispatcher {
         }
     }
 
+    /// Pushes a editor action to the pending queue to be executed at the end of the frame.
     pub(crate) fn push_action(&mut self, action: EditorAction) {
         self.pending.push_back(action);
+    }
+
+    /// Marks the project as modified and updates the last edit time. Should be called whenever the project is modified.
+    pub(crate) fn modified_project(&mut self) {
+        self.last_edit_time = Some(Instant::now());
+    }
+
+    /// Pushes a command to the background thread for processing.
+    pub(crate) fn push_background_job(&mut self, command: BackgroundThreadCommand) {
+        self.background_handle.command_tx.send(command).ok();
     }
 }

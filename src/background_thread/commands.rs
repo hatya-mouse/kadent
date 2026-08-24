@@ -1,4 +1,5 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::ProjectContext};
+use crate::ui::editor::CodeBuffer;
 use crate::{
     core::audio_engine::{
         audio_data::{AudioData, AudioSource},
@@ -35,7 +36,7 @@ pub(crate) enum BackgroundThreadCommand {
         path: PathBuf,
         project: Box<ProjectData>,
         project_meta: Box<ProjectMeta>,
-        code_buffers: Vec<(PathBuf, String)>,
+        code_buffers: Vec<CodeBuffer>,
     },
     OpenProject {
         path: PathBuf,

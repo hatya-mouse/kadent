@@ -1,26 +1,13 @@
 use crate::core::audio_engine::data_types::MidiEvent;
-use crate::{core::midi_thread::MidiCommand, ui::EditorState};
+use crate::core::midi_thread::MidiCommand;
+use crate::ui::editor::EditorUi;
 
 const PREVIEW_NOTE_DURATION: std::time::Duration = std::time::Duration::from_millis(500);
 
-impl EditorState {
-    pub(super) fn play_note_feedback(&mut self, pitch: u8, velocity: u8) {
-        self.midi_tx
-            .send(MidiCommand::SendEvent(MidiEvent::NoteOn {
-                pitch,
-                velocity,
-            }))
-            .ok();
-        // Add the note to the preview notes with the current timestamp
-        self.views
-            .piano_roll
-            .preview_notes
-            .push((pitch, std::time::Instant::now()));
-    }
-
+impl EditorUi {
     pub(super) fn update_preview_notes(&mut self) {
         let now = std::time::Instant::now();
-        let tx = &self.midi_tx;
+        let tx = &self.state.midi_tx;
 
         self.views
             .piano_roll

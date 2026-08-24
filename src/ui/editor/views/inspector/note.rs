@@ -1,15 +1,19 @@
 use super::{inspector_item, inspector_section};
-use crate::core::audio_engine::{
-    mixer::TrackID,
-    track::{RegionID, note_track::NoteID},
-};
 use crate::ui::{EditorState, theme};
+use crate::{
+    core::audio_engine::{
+        mixer::TrackID,
+        track::{RegionID, note_track::NoteID},
+    },
+    ui::editor::views::inspector::InspectorView,
+};
 use eframe::egui;
 
-impl EditorState {
+impl InspectorView {
     pub(super) fn note_inspector(
         &mut self,
         ui: &mut egui::Ui,
+        editor_state: &mut EditorState,
         track_id: &TrackID,
         region_id: &RegionID,
         note_id: &NoteID,
@@ -19,7 +23,7 @@ impl EditorState {
             ("note_section", track_id, region_id, note_id),
             "Note",
             |ui| {
-                if self.debug_mode {
+                if editor_state.debug_mode {
                     ui.separator();
                     inspector_item(ui, "Note ID", |ui| {
                         ui.label(

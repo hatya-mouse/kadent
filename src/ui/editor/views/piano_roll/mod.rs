@@ -1,10 +1,7 @@
 mod note_grid;
 mod ruler;
-mod state;
 
-pub(crate) use state::PianoRollState;
-use uuid::Uuid;
-
+use crate::core::audio_engine::data_types::Ticks;
 use crate::core::audio_engine::track::note_track::NoteTrack;
 use crate::{
     consts::PANEL_HEADER_HEIGHT,
@@ -15,21 +12,35 @@ use crate::{
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
-        editor::{PanelView, state::TimelineCoord, views::PanelViewState},
+        editor::views::PanelViewState,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 use ruler::{note_grid_ruler, note_pitch_ruler};
+use std::time::Instant;
 
-impl EditorState {
-    pub(in crate::ui::editor) fn piano_roll(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
-        let Some((track_id, region_id)) = self.selection.track_and_region_id() else {
+#[derive(Default)]
+pub(crate) struct PianoRollState {
+    /// MIDI note numbers and Instants for currently playing preview notes.
+    pub(crate) preview_notes: Vec<(u8, Instant)>,
+    /// Length of the last edited note.
+    pub(crate) last_edited_note_length: Option<Ticks>,
+}
+
+impl PianoRollState {
+    pub(in crate::ui::editor) fn ui(
+        &mut self,
+        ui: &mut egui::Ui,
+        panel_state: &mut PanelViewState,
+        state: &mut EditorState,
+    ) {
+        let Some((track_id, region_id)) = state.selection.track_and_region_id() else {
             ui.label("Select a note region to edit");
             return;
         };
 
         // If the selected track is not a note track, we cannot edit it in the piano roll
-        if self
+        if state
             .project
             .meta
             .get_track(&track_id)
@@ -40,7 +51,7 @@ impl EditorState {
         }
 
         // Get the target region
-        let Some(track) = self
+        let Some(track) = state
             .project
             .data
             .tracks
@@ -60,18 +71,12 @@ impl EditorState {
         let ruler_screen_rect = total_rect.with_max_y(ruler_bottom_y);
         let note_grid_rect = total_rect.with_min_y(ruler_bottom_y);
 
-        let PanelViewState::PianoRoll(mut timeline_coord) = self
-            .views
-            .get_panel_state_or_insert(panel_id, PanelView::PianoRoll, || {
-                PanelViewState::PianoRoll(TimelineCoord::new(80.0, 10.0, egui::vec2(0.0, 0.0)))
-            })
-            .clone()
-        else {
+        let PanelViewState::PianoRoll(timeline_coord) = panel_state else {
             return;
         };
 
         // Calculate the total width and height of the scroll area content (128 MIDI notes)
-        let (region_start, region_end) = region.bounds.tick_range(&self.project.data.tempo_map);
+        let (region_start, region_end) = region.bounds.tick_range(&state.project.data.tempo_map);
         let region_duration = region_end - region_start;
         let last_note_end = region
             .notes
@@ -81,14 +86,14 @@ impl EditorState {
             .unwrap_or(0);
         let content_end_ticks = region_duration.0.max(last_note_end);
         let scroll_content_width = (content_end_ticks as f32
-            * timeline_coord.ppt(self.project.data.audio_ctx.resolution))
+            * timeline_coord.ppt(state.project.data.audio_ctx.resolution))
         .max(note_grid_rect.width());
         let scroll_content_height = (128.0 * timeline_coord.y_scale).max(note_grid_rect.height());
         let scroll_content_size = egui::vec2(scroll_content_width, scroll_content_height);
 
         let (bar_scroll_x, ruler_res) = panel_header(ui, egui::Margin::ZERO, |ui| {
             let ruler_config =
-                RulerConfig::new(region_start, 0.0, self.project.data.audio_ctx.resolution);
+                RulerConfig::new(region_start, 0.0, state.project.data.audio_ctx.resolution);
 
             // Show the ruler at the top of the note grid
             ruler_and_scroll_bar(
@@ -101,7 +106,7 @@ impl EditorState {
             )
         })
         .inner;
-        self.apply_ruler_res(&ruler_res);
+        state.apply_ruler_res(&ruler_res);
 
         // Draw the notes
         let scroll_res = egui::ScrollArea::both()
@@ -112,7 +117,7 @@ impl EditorState {
 
                 // Draw the note grid
                 let region_duration_beats = (region_duration.0 as f32
-                    / self.project.data.audio_ctx.resolution as f32)
+                    / state.project.data.audio_ctx.resolution as f32)
                     .ceil() as i32;
                 note_pitch_ruler(ui, &timeline_coord, note_grid_rect);
                 note_grid_ruler(ui, &timeline_coord, note_grid_rect, region_duration_beats);
@@ -120,7 +125,8 @@ impl EditorState {
                 // Then draw the notes on top of the note grid
                 self.draw_notes(
                     ui,
-                    &timeline_coord,
+                    state,
+                    timeline_coord,
                     note_grid_rect,
                     scroll_content_size,
                     track_id,
@@ -138,8 +144,5 @@ impl EditorState {
             timeline_coord.scroll.x.clamp(0.0, max_scroll_x),
             timeline_coord.scroll.y.clamp(0.0, max_scroll_y),
         );
-
-        self.views
-            .insert_panel_state(panel_id, PanelViewState::PianoRoll(timeline_coord.clone()));
     }
 }

@@ -1,13 +1,15 @@
-use crate::core::audio_engine::{
-    mixer::TrackID,
-    track::{
-        RegionID,
-        note_track::{NoteID, NoteTrack},
+use crate::{
+    core::audio_engine::{
+        mixer::TrackID,
+        track::{
+            RegionID,
+            note_track::{NoteID, NoteTrack},
+        },
     },
+    ui::editor::EditorUi,
 };
-use crate::ui::EditorState;
 
-impl EditorState {
+impl EditorUi {
     pub(crate) fn remove_note(
         &mut self,
         track_id: &TrackID,
@@ -16,6 +18,7 @@ impl EditorState {
     ) {
         // Set the note's start time
         if let Some(region) = self
+            .state
             .project
             .data
             .get_track_mut(track_id)
@@ -25,7 +28,7 @@ impl EditorState {
             region.remove_note(note_id);
         }
 
-        self.selection.select_region(*track_id, *region_id);
-        self.modified_project();
+        self.state.selection.select_region(*track_id, *region_id);
+        self.state.actions.modified_project();
     }
 }

@@ -5,27 +5,27 @@ mod graph;
 mod midi;
 mod note;
 mod project;
-mod project_updater;
 mod region;
 mod track;
 mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
 
-use crate::core::audio_engine::{
-    data_types::Ticks,
-    graph::{InputKey, node_id::NodeID},
-    mixer::TrackID,
-    node::builtin::{AutomationTrackType, CurveType, Keyframe},
-    thread::AudioResult,
-    timing::{TimeBounds, TimePosition},
-    track::{
-        RegionID,
-        note_track::{Note, NoteID},
-    },
-};
+use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType};
 use crate::{
-    background_thread::BackgroundThreadCommand, core::metadata::TrackType, ui::EditorState,
+    core::audio_engine::{
+        data_types::Ticks,
+        graph::{InputKey, node_id::NodeID},
+        mixer::TrackID,
+        node::builtin::{AutomationTrackType, CurveType, Keyframe},
+        thread::AudioResult,
+        timing::{TimeBounds, TimePosition},
+        track::{
+            RegionID,
+            note_track::{Note, NoteID},
+        },
+    },
+    ui::editor::EditorUi,
 };
 use eframe::egui;
 use midir::MidiInputPort;
@@ -189,10 +189,10 @@ pub(crate) enum EditorAction {
     DisarmTrack,
 }
 
-impl EditorState {
+impl EditorUi {
     /// Consume all pending actions and execute them in order.
     pub(crate) fn consume_actions(&mut self) {
-        let pending_actions: Vec<EditorAction> = self.actions.pending.drain(..).collect();
+        let pending_actions: Vec<EditorAction> = self.state.actions.pending.drain(..).collect();
         for action in pending_actions {
             match action {
                 // --- PROJECT ---
@@ -332,16 +332,16 @@ impl EditorState {
 
                 // --- MIDI ---
                 EditorAction::SetMidiInputPort(midi_in_port) => {
-                    self.set_midi_input_port(midi_in_port);
+                    self.state.set_midi_input_port(midi_in_port);
                 }
                 EditorAction::DisconnectMidiPort => {
-                    self.disconnect_midi_port();
+                    self.state.disconnect_midi_port();
                 }
                 EditorAction::ArmTrack(track_id) => {
-                    self.arm_track(track_id);
+                    self.state.arm_track(track_id);
                 }
                 EditorAction::DisarmTrack => {
-                    self.disarm_track();
+                    self.state.disarm_track();
                 }
             }
         }
@@ -350,18 +350,20 @@ impl EditorState {
     /// Handles result returned from the audio thread.
     pub(crate) fn process_audio_thread_result(&mut self) {
         // Wait for the audio thread to generate the samples and send them back
-        while let Ok(res) = self.thread_handle.result_rx.try_recv() {
+        while let Ok(res) = self.state.thread_handle.result_rx.try_recv() {
             match res {
                 Ok(AudioResult::ExportedAudio(samples)) => {
-                    let Some(export_path) = self.actions.pending_export_path.take() else {
+                    let Some(export_path) = self.state.actions.pending_export_path.take() else {
                         return;
                     };
 
-                    self.push_background_job(BackgroundThreadCommand::WriteWav {
-                        path: export_path,
-                        samples,
-                        export_ctx: self.project.meta.export_ctx.clone(),
-                    });
+                    self.state
+                        .actions
+                        .push_background_job(BackgroundThreadCommand::WriteWav {
+                            path: export_path,
+                            samples,
+                            export_ctx: self.state.project.meta.export_ctx.clone(),
+                        });
                 }
                 Err(_) => {
                     // self.pending_export_path.take();

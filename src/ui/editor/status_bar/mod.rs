@@ -1,6 +1,6 @@
 mod state;
 
-pub(crate) use state::{StatusBarState, StatusHint};
+pub(crate) use state::{StatusBarView, StatusHint};
 
 use crate::{
     background_thread::BackgroundTaskStatus,
@@ -8,22 +8,22 @@ use crate::{
 };
 use eframe::egui;
 
-impl EditorState {
-    pub(super) fn status_bar(&mut self, ui: &mut egui::Ui) {
+impl StatusBarView {
+    pub(super) fn status_bar(&mut self, ui: &mut egui::Ui, state: &EditorState) {
         ui.horizontal_centered(|ui| {
-            if let Some(track_id) = self.selection.track_id()
-                && let Some(track_meta) = self.project.meta.get_track(&track_id)
+            if let Some(track_id) = state.selection.track_id()
+                && let Some(track_meta) = state.project.meta.get_track(&track_id)
             {
                 status_text(ui, &format!("Selection: {}", track_meta.name));
 
-                if let Some(region_id) = self.selection.region_id()
+                if let Some(region_id) = state.selection.region_id()
                     && let Some(region_meta) = track_meta.get_region(&region_id)
                 {
                     status_text(ui, "—");
                     status_text(ui, &region_meta.name);
                 }
 
-                if let Some(node_id) = self.selection.node_id()
+                if let Some(node_id) = state.selection.node_id()
                     && let Some(node_meta) = track_meta.graph.get_node_meta(&node_id)
                 {
                     status_text(ui, "—");
@@ -31,7 +31,7 @@ impl EditorState {
                 }
             }
 
-            if let Some(task) = &self.views.status_bar.current_task {
+            if let Some(task) = &self.current_task {
                 status_text(
                     ui,
                     match task {
@@ -44,21 +44,21 @@ impl EditorState {
                 );
             }
 
-            self.modification_text(ui);
+            self.modification_text(ui, state);
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                self.views.status_bar.notification_text(ui);
+                self.notification_text(ui);
             });
         });
     }
 
-    fn modification_text(&self, ui: &mut egui::Ui) {
-        if self.views.status_bar.status_hint.is_none() {
+    fn modification_text(&self, ui: &mut egui::Ui, state: &EditorState) {
+        if self.status_hint.is_none() {
             return;
         }
 
-        let resolution = self.project.data.audio_ctx.resolution as f32;
-        let hint_string = match self.views.status_bar.status_hint {
+        let resolution = state.project.data.audio_ctx.resolution as f32;
+        let hint_string = match self.status_hint {
             StatusHint::None => unreachable!(),
             StatusHint::ProjectRange(start_ticks, duration_ticks) => {
                 let start_beats = start_ticks.0 as f32 / resolution;

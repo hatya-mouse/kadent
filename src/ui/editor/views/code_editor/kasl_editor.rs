@@ -1,34 +1,26 @@
 use crate::{
     consts::PANEL_HEADER_MARGIN,
     ui::{
-        EditorState,
         components::{icon_button::small_icon_button, panel_header::panel_header},
-        editor::{PanelView, views::PanelViewState},
+        editor::views::code_editor::CodeEditorView,
     },
 };
 use eframe::egui::{self, TextBuffer, include_image};
 use egui_extras::syntax_highlighting::{CodeTheme, highlight_with};
 use uuid::Uuid;
 
-impl EditorState {
+impl CodeEditorView {
     pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
+        let code_buffer = self.code_buffers.entry(panel_id).or_default();
+
         // Get the theme and syntect settings for syntax highlighting
         let theme = CodeTheme::from_memory(ui.ctx(), ui.style());
-        let Some(syntect_settings) = self.views.code_editor.syntect_settings.clone() else {
-            return;
-        };
-        // Then get the panel state
-        let PanelViewState::CodeEditor(code_buffer) =
-            self.views
-                .get_panel_state_or_insert(panel_id, PanelView::CodeEditor, || {
-                    PanelViewState::CodeEditor(None)
-                })
-        else {
+        let Some(syntect_settings) = self.syntect_settings.clone() else {
             return;
         };
 
         // Show a placeholder when no file is open
-        let Some(code_buffer) = code_buffer else {
+        let Some(path) = code_buffer.path.as_ref() else {
             ui.centered_and_justified(|ui| {
                 ui.label("Select a file to edit");
             });
@@ -36,8 +28,7 @@ impl EditorState {
         };
 
         // Show filename and close button in the header
-        let file_name = code_buffer
-            .0
+        let file_name = path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
@@ -56,8 +47,7 @@ impl EditorState {
         });
 
         if close_clicked {
-            self.views
-                .insert_panel_state(panel_id, PanelViewState::CodeEditor(None));
+            code_buffer.path = None;
             return;
         }
 
@@ -79,11 +69,11 @@ impl EditorState {
         // Compute the minimum rows needed to fill the available vertical space
         let row_height = ui.text_style_height(&egui::TextStyle::Monospace);
         let min_rows = (ui.available_height() / row_height).ceil() as usize;
-        let desired_rows = code_buffer.1.lines().count().max(min_rows);
+        let desired_rows = code_buffer.content.lines().count().max(min_rows);
 
         egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
             ui.add(
-                egui::TextEdit::multiline(&mut code_buffer.1)
+                egui::TextEdit::multiline(&mut code_buffer.content)
                     .code_editor()
                     .desired_width(f32::INFINITY)
                     .desired_rows(desired_rows)
