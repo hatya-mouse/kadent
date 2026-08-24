@@ -6,6 +6,7 @@ mod midi;
 mod note;
 mod project;
 mod region;
+mod storage;
 mod track;
 mod transport;
 
@@ -84,6 +85,15 @@ pub(crate) enum EditorAction {
     // --- STORAGE ---
     /// Updates the cache of the file tree.
     UpdateDirCache,
+    /// Creates a new file at the given path.
+    /// `(path)`
+    CreateFile(PathBuf),
+    /// Creates a new directory at the given path.
+    /// `(path)`
+    CreateDirectory(PathBuf),
+    /// Moves a file to the trash.
+    /// `(path)`
+    MoveFileToTrash(PathBuf),
 
     // --- TRANSPORT ---
     /// Start plyaing the project.
@@ -215,6 +225,15 @@ impl EditorUi {
                 // --- STORAGE ---
                 EditorAction::UpdateDirCache => {
                     self.update_dir_cache();
+                }
+                EditorAction::CreateFile(path) => {
+                    self.create_file(&path);
+                }
+                EditorAction::CreateDirectory(path) => {
+                    self.create_dir(&path);
+                }
+                EditorAction::MoveFileToTrash(path) => {
+                    self.move_file_to_trash(&path);
                 }
 
                 // --- TRANSPORT ---

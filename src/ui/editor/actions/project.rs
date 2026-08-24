@@ -82,14 +82,6 @@ impl EditorUi {
             });
     }
 
-    pub(super) fn update_dir_cache(&mut self) {
-        if let Some(project_dir_path) = self.state.project.path.parent()
-            && project_dir_path.is_dir()
-        {
-            self.views.code_editor.project_dir_cache = recursively_create_graph(project_dir_path);
-        }
-    }
-
     /// Sets the project context.
     pub(crate) fn set_proj_ctx(&mut self, proj_ctx: ProjectContext) {
         self.state.project = proj_ctx;
@@ -107,29 +99,5 @@ impl EditorUi {
     pub(super) fn set_project_range(&mut self, bounds: TimeBounds) {
         self.state.project.data.export_range = bounds;
         self.state.actions.modified_project();
-    }
-}
-
-/// Recursively create a graph of the project directory structure.
-fn recursively_create_graph(path: &Path) -> Vec<FileNode> {
-    if let Ok(files) = std::fs::read_dir(path) {
-        files
-            .filter_map(|file| {
-                file.map(|file| FileNode {
-                    path: file.path(),
-                    name: file.file_name().to_string_lossy().to_string(),
-                    kind: if file.path().is_dir() {
-                        FileNodeKind::Dir {
-                            children: recursively_create_graph(&file.path()),
-                        }
-                    } else {
-                        FileNodeKind::File
-                    },
-                })
-                .ok()
-            })
-            .collect()
-    } else {
-        Vec::new()
     }
 }

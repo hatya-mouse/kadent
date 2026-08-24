@@ -74,7 +74,9 @@ impl EditorUi {
                 self.views.automation.ui(ui, &mut self.state, panel_state)
             }
             PanelViewState::CodeEditor(panel_state) => {
-                self.views.code_editor.ui(ui, panel_id, panel_state)
+                self.views
+                    .code_editor
+                    .ui(ui, &mut self.state.actions, panel_id, panel_state)
             }
         }
     }

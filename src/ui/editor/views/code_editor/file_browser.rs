@@ -1,6 +1,10 @@
-use crate::ui::editor::{
-    actions::{FileNode, FileNodeKind},
-    views::code_editor::{CodeBuffer, CodeEditorView, tree_item::FileTreeItem},
+use crate::ui::{
+    editor::{
+        actions::{EditorAction, FileNode, FileNodeKind},
+        state::ActionDispatcher,
+        views::code_editor::{CodeBuffer, CodeEditorView, tree_item::FileTreeItem},
+    },
+    theme,
 };
 use eframe::egui;
 use std::path::PathBuf;
@@ -9,7 +13,13 @@ use uuid::Uuid;
 const FILE_TREE_ITEM_HEIGHT: f32 = 25.0;
 
 impl CodeEditorView {
-    pub(super) fn file_browser(&mut self, ui: &mut egui::Ui, panel_id: Uuid, file_list_width: f32) {
+    pub(super) fn file_browser(
+        &mut self,
+        ui: &mut egui::Ui,
+        actions: &mut ActionDispatcher,
+        panel_id: Uuid,
+        file_list_width: f32,
+    ) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
 
         let selected_file = ui
@@ -17,6 +27,7 @@ impl CodeEditorView {
                 ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
                 dir_children(
                     ui,
+                    actions,
                     &self.project_dir_cache,
                     code_buffer,
                     panel_id,
@@ -43,6 +54,7 @@ impl CodeEditorView {
 
 fn dir_children(
     ui: &mut egui::Ui,
+    actions: &mut ActionDispatcher,
     children: &[FileNode],
     code_buffer: &CodeBuffer,
     panel_id: Uuid,
@@ -54,8 +66,15 @@ fn dir_children(
     for child in children {
         match &child.kind {
             FileNodeKind::Dir { .. } => {
-                let dir_res =
-                    dir_expand_button(ui, child, code_buffer, panel_id, file_list_width, indent);
+                let dir_res = dir_expand_button(
+                    ui,
+                    actions,
+                    child,
+                    code_buffer,
+                    panel_id,
+                    file_list_width,
+                    indent,
+                );
                 if dir_res.is_some() {
                     response = dir_res;
                 }
@@ -66,6 +85,15 @@ fn dir_children(
                     [file_list_width, FILE_TREE_ITEM_HEIGHT],
                     FileTreeItem::new(&child.name, indent).highlighted(is_opened),
                 );
+
+                file_item_res.context_menu(|ui| {
+                    *ui.style_mut() = theme::menu_style(ui);
+
+                    if ui.selectable_label(false, "Trash").clicked() {
+                        actions.push_action(EditorAction::MoveFileToTrash(child.path.clone()));
+                        actions.push_action(EditorAction::UpdateDirCache);
+                    }
+                });
 
                 if file_item_res.interact(egui::Sense::click()).clicked() {
                     response = Some(child.path.clone());
@@ -79,6 +107,7 @@ fn dir_children(
 
 fn dir_expand_button(
     ui: &mut egui::Ui,
+    actions: &mut ActionDispatcher,
     node: &FileNode,
     code_buffer: &CodeBuffer,
     panel_id: Uuid,
@@ -104,11 +133,34 @@ fn dir_expand_button(
         state.toggle(ui);
     }
 
+    // Add context menu for adding new files or directories
+    parent_dir_res.context_menu(|ui| {
+        *ui.style_mut() = theme::menu_style(ui);
+
+        if ui.selectable_label(false, "New File").clicked() {
+            actions.push_action(EditorAction::CreateFile(
+                node.path.with_file_name("untitled.kasl"),
+            ));
+            actions.push_action(EditorAction::UpdateDirCache);
+        }
+        if ui.selectable_label(false, "New Folder").clicked() {
+            actions.push_action(EditorAction::CreateDirectory(
+                node.path.with_file_name("Untitled Folder"),
+            ));
+            actions.push_action(EditorAction::UpdateDirCache);
+        }
+        if ui.selectable_label(false, "Trash").clicked() {
+            actions.push_action(EditorAction::MoveFileToTrash(node.path.clone()));
+            actions.push_action(EditorAction::UpdateDirCache);
+        }
+    });
+
     // Show the child components
     state
         .show_body_unindented(ui, |ui| {
             dir_children(
                 ui,
+                actions,
                 children,
                 code_buffer,
                 panel_id,

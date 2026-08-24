@@ -57,7 +57,7 @@ pub(crate) const MAX_TRACK_HEIGHT: f32 = 200.0;
 /// Extra pixels of empty space inserted before zero beat.
 pub(crate) const TIMELINE_LEFT_PADDING: f32 = 50.0;
 /// Extra pixels of empty space appended after the last region or project range end.
-pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
+pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 800.0;
 /// The minimum pixels per beat.
 pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
 /// The maximum pixels per beat.

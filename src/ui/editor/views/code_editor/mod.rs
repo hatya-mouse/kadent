@@ -4,7 +4,10 @@ mod tree_item;
 
 use crate::{
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
-    ui::{components::splitter::Splitter, editor::actions::FileNode},
+    ui::{
+        components::splitter::Splitter,
+        editor::{actions::FileNode, state::ActionDispatcher},
+    },
 };
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
@@ -44,6 +47,7 @@ impl CodeEditorView {
     pub(in crate::ui::editor) fn ui(
         &mut self,
         ui: &mut egui::Ui,
+        actions: &mut ActionDispatcher,
         panel_id: Uuid,
         panel_state: &mut CodeEditorPanelState,
     ) {
@@ -56,7 +60,7 @@ impl CodeEditorView {
                 .id_salt("file_browser")
                 .max_width(panel_state.file_list_width)
                 .show(ui, |ui| {
-                    self.file_browser(ui, panel_id, panel_state.file_list_width);
+                    self.file_browser(ui, actions, panel_id, panel_state.file_list_width);
                 });
 
             Splitter::new(&mut panel_state.file_list_width)
