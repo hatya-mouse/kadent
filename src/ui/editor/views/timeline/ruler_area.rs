@@ -62,7 +62,7 @@ impl TimelineState {
 
         let vertical_separator_rect = egui::Rect::from_min_size(
             egui::pos2(
-                panel_rect.min.x + panel_state.track_list_width - 1.0,
+                panel_rect.min.x + panel_state.track_list_width,
                 panel_rect.min.y,
             ),
             egui::vec2(2.0, PANEL_HEADER_HEIGHT),

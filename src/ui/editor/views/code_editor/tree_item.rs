@@ -71,7 +71,9 @@ impl egui::Widget for FileTreeItem<'_> {
                     egui::pos2(cursor_x, rect.center().y - icon_size.y * 0.5),
                     icon_size,
                 );
-                egui::Image::new(icon).paint_at(ui, icon_rect);
+                egui::Image::new(icon)
+                    .tint(theme::primary_fg(ui.visuals().dark_mode))
+                    .paint_at(ui, icon_rect);
             }
             cursor_x += ICON_SIZE + ui.spacing().icon_spacing;
 
