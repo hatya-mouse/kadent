@@ -41,7 +41,7 @@ pub(crate) struct AutomationPanelState {
 impl Default for AutomationPanelState {
     fn default() -> Self {
         Self {
-            timeline_coord: TimelineCoord::new(100.0, 200.0, egui::Vec2::ZERO),
+            timeline_coord: TimelineCoord::new(100.0, 1.0, egui::Vec2::ZERO),
         }
     }
 }
