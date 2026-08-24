@@ -1,5 +1,6 @@
 use crate::core::audio_engine::{data_types::Ticks, timing::TimeBounds};
 use crate::ui::editor::TimelineState;
+use crate::ui::editor::views::TimelinePanelState;
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, PANEL_HEADER_MARGIN, SCROLL_BAR_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::editor::actions::EditorAction,
@@ -21,22 +22,23 @@ impl TimelineState {
         &mut self,
         ui: &mut egui::Ui,
         state: &mut EditorState,
-        timeline_coord: &TimelineCoord,
+        panel_state: &mut TimelinePanelState,
         visible_width: f32,
         timeline_width: f32,
-        track_list_width: f32,
-        follow_playhead: &mut bool,
     ) -> Option<f32> {
         let panel_rect = ui.available_rect_before_wrap();
 
         let corner_rect = egui::Rect::from_min_size(
             panel_rect.min,
-            egui::vec2(track_list_width, PANEL_HEADER_HEIGHT),
+            egui::vec2(panel_state.track_list_width, PANEL_HEADER_HEIGHT),
         );
-        follow_playhead_button(ui, corner_rect, follow_playhead);
+        follow_playhead_button(ui, corner_rect, &mut panel_state.follow_playhead);
 
         let area_rect = egui::Rect::from_min_max(
-            egui::pos2(panel_rect.min.x + track_list_width, panel_rect.min.y),
+            egui::pos2(
+                panel_rect.min.x + panel_state.track_list_width,
+                panel_rect.min.y,
+            ),
             egui::pos2(panel_rect.max.x, panel_rect.min.y + PANEL_HEADER_HEIGHT),
         );
         let ruler_config = RulerConfig::new(
@@ -47,7 +49,7 @@ impl TimelineState {
         let (new_scroll_x, ruler_res) = ruler_and_scroll_bar(
             ui,
             area_rect,
-            timeline_coord,
+            &panel_state.timeline_coord,
             &ruler_config,
             timeline_width,
             visible_width,
@@ -56,16 +58,13 @@ impl TimelineState {
 
         // Add draggable project range indicator
         let ruler_rect = area_rect.with_min_y(area_rect.min.y + SCROLL_BAR_HEIGHT);
-        self.project_range_indicator(
-            ui,
-            state,
-            timeline_coord,
-            ruler_rect,
-            timeline_coord.scroll.x,
-        );
+        self.project_range_indicator(ui, state, &panel_state.timeline_coord, ruler_rect);
 
         let vertical_separator_rect = egui::Rect::from_min_size(
-            egui::pos2(panel_rect.min.x + track_list_width - 1.0, panel_rect.min.y),
+            egui::pos2(
+                panel_rect.min.x + panel_state.track_list_width - 1.0,
+                panel_rect.min.y,
+            ),
             egui::vec2(2.0, PANEL_HEADER_HEIGHT),
         );
         ui.painter().rect_filled(
@@ -83,12 +82,11 @@ impl TimelineState {
         state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         ruler_screen_rect: egui::Rect,
-        scroll_x: f32,
     ) {
         let ppb = timeline_coord.ppb;
         let ppt = ppb / state.project.data.audio_ctx.resolution as f32;
         let tempo_map = &state.project.data.tempo_map;
-        let origin_x = ruler_screen_rect.min.x - scroll_x + TIMELINE_LEFT_PADDING;
+        let origin_x = ruler_screen_rect.min.x - timeline_coord.scroll.x + TIMELINE_LEFT_PADDING;
 
         let (range_start, range_end) = state.project.data.export_range.tick_range(tempo_map);
         let range_duration = range_end - range_start;

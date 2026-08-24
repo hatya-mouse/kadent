@@ -6,6 +6,7 @@ pub(super) mod dropdown;
 pub(super) mod icon_button;
 pub(super) mod panel_header;
 pub(super) mod ruler;
+pub(super) mod splitter;
 pub(super) mod text_button;
 pub(super) mod text_input;
 pub(super) mod toolbar_group;

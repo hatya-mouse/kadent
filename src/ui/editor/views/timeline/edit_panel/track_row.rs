@@ -21,6 +21,8 @@ use crate::{
 };
 use eframe::egui;
 
+const RESIZABLE_WIDTH: f32 = 5.0;
+
 impl TimelineState {
     pub(super) fn track_row(
         &mut self,
@@ -29,9 +31,16 @@ impl TimelineState {
         timeline_coord: &TimelineCoord,
         track_id: &TrackID,
         row_rect: egui::Rect,
-        content_top: f32,
+        edit_panel_rect: egui::Rect,
     ) {
-        self.draw_regions(ui, state, timeline_coord, track_id, row_rect, content_top);
+        self.draw_regions(
+            ui,
+            state,
+            timeline_coord,
+            track_id,
+            row_rect,
+            edit_panel_rect,
+        );
         self.track_row_gestures(ui, state, timeline_coord, track_id, row_rect);
     }
 
@@ -42,7 +51,7 @@ impl TimelineState {
         timeline_coord: &TimelineCoord,
         track_id: &TrackID,
         row_rect: egui::Rect,
-        content_top: f32,
+        edit_panel_rect: egui::Rect,
     ) {
         // Get the track metadata
         let Some(track_meta) = state.project.meta.get_track(track_id) else {
@@ -75,27 +84,20 @@ impl TimelineState {
                 egui::vec2(w, row_rect.height() - 4.0),
             );
 
-            // Create a rect on the right side of the region to drag and resize the region
-            let draggable_width = 5.0;
-            let resize_rect = egui::Rect::from_min_size(
-                egui::pos2(x + w - draggable_width, row_rect.min.y + 2.0),
-                egui::vec2(draggable_width, row_rect.height() - 4.0),
-            );
-
             // Handle gestures on the region (dragging and resizing)
-            let move_res = self.region_gestures(
+            let move_rect = region_rect.intersect(edit_panel_rect);
+            let move_res = self.handle_move_gesture(
                 ui,
                 state,
                 timeline_coord,
                 track_id,
                 &region_id,
-                region_rect,
-                resize_rect,
-                content_top,
+                move_rect,
             );
+            let is_dragged = move_res.dragged();
 
             // While being dragged, follow the pointer vertically
-            let y_offset = if move_res.dragged() {
+            let y_offset = if is_dragged {
                 ui.input(|i| i.pointer.press_origin())
                     .zip(move_res.interact_pointer_pos())
                     .map(|(origin, cur)| cur.y - origin.y)
@@ -103,6 +105,7 @@ impl TimelineState {
             } else {
                 0.0
             };
+            let dragged_region_rect = region_rect.translate(egui::vec2(0.0, y_offset));
 
             // Draw the region box and the name
             let Some(track_meta) = state.project.meta.get_track(track_id) else {
@@ -112,26 +115,14 @@ impl TimelineState {
                 continue;
             };
 
-            // Calculate the region's position and size based on the updated bounds
-            let tempo_map = &state.project.data.tempo_map;
-            let (current_start, current_end) = region_meta.bounds.tick_range(tempo_map);
-            let current_duration = current_end - current_start;
-
-            let new_region_x =
-                row_rect.min.x + TIMELINE_LEFT_PADDING + current_start.0 as f32 * ppt;
-            let new_region_width = (current_duration.0 as f32 * ppt).max(8.0);
-            let new_region_rect = egui::Rect::from_min_size(
-                egui::pos2(new_region_x, row_rect.min.y + 2.0),
-                egui::vec2(new_region_width, row_rect.height() - 4.0),
-            );
-            let draw_rect = new_region_rect.translate(egui::vec2(0.0, y_offset));
-
-            // Draw on the foreground layer unclipped so that the region is not clipped
-            let region_painter = if y_offset != 0.0 {
+            // While being dragged, draw the region on the foreground layer so it appears above other regions
+            let region_painter = if is_dragged {
                 ui.ctx()
                     .layer_painter(egui::LayerId::new(egui::Order::Foreground, ui.id()))
+                    .with_clip_rect(dragged_region_rect)
             } else {
-                ui.painter().with_clip_rect(draw_rect)
+                ui.painter()
+                    .with_clip_rect(edit_panel_rect.intersect(dragged_region_rect))
             };
 
             // Highlight the stroke if the region is selected
@@ -142,14 +133,17 @@ impl TimelineState {
             };
 
             region_painter.rect(
-                draw_rect,
-                4.0,
+                dragged_region_rect,
+                0,
                 track_meta.color.gamma_multiply(0.8),
                 stroke,
                 egui::StrokeKind::Inside,
             );
             region_painter.text(
-                egui::pos2(draw_rect.min.x + 4.0, draw_rect.min.y + 2.0),
+                egui::pos2(
+                    dragged_region_rect.min.x + 4.0,
+                    dragged_region_rect.min.y + 2.0,
+                ),
                 egui::Align2::LEFT_TOP,
                 &region_meta.name,
                 egui::FontId::proportional(11.0),
@@ -157,10 +151,23 @@ impl TimelineState {
             );
 
             if track_meta.track_type == TrackType::Audio {
-                self.draw_waveform_in(ui, state, *track_id, region_id, &draw_rect);
+                self.draw_waveform_in(ui, state, *track_id, region_id, &dragged_region_rect);
             } else {
-                self.draw_notes_in(ui, state, track_id, &region_id, &draw_rect);
+                self.draw_notes_in(ui, state, track_id, &region_id, &dragged_region_rect);
             }
+
+            // Finally handle resize gesture
+            let resize_rect = region_rect
+                .with_min_x(region_rect.max.x - RESIZABLE_WIDTH)
+                .intersect(edit_panel_rect);
+            self.handle_resize_gesture(
+                ui,
+                state,
+                timeline_coord,
+                track_id,
+                &region_id,
+                resize_rect,
+            );
         }
     }
 
@@ -212,68 +219,19 @@ impl TimelineState {
         }
     }
 
-    fn region_gestures(
+    fn handle_move_gesture(
         &mut self,
         ui: &mut egui::Ui,
         state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         track_id: &TrackID,
         region_id: &RegionID,
-        region_rect: egui::Rect,
-        resize_rect: egui::Rect,
-        content_top: f32,
+        move_rect: egui::Rect,
     ) -> egui::Response {
         let resolution = state.project.data.audio_ctx.resolution;
         let tpp = timeline_coord.tpp(resolution);
-
-        // Get gestures on the region
-        let move_res = ui.allocate_rect(region_rect, egui::Sense::drag());
-        let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
-
-        if resize_res.hovered() {
-            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
-        }
-
-        // Support resize
-        if resize_res.dragged() {
-            // Select the region
-            state.selection.select_region(*track_id, *region_id);
-            state.actions.push_action(EditorAction::ArmTrack(*track_id));
-
-            // Calculate the new duration from the drag amount
-            let delta_ticks = Ticks((resize_res.drag_delta().x * tpp) as i64);
-            if let Some(region) = state
-                .project
-                .meta
-                .get_track_mut(track_id)
-                .and_then(|track| track.get_region_mut(region_id))
-            {
-                let (region_start, region_end) =
-                    region.bounds.tick_range(&state.project.data.tempo_map);
-                let region_duration = region_end - region_start;
-
-                let new_duration = (region_duration + delta_ticks).max(Ticks::ZERO);
-                region.bounds = TimeBounds::Musical {
-                    start: region_start,
-                    duration: new_duration,
-                };
-            }
-            return move_res;
-        } else if resize_res.drag_stopped()
-            && let Some(new_duration) = state
-                .project
-                .meta
-                .get_track(track_id)
-                .and_then(|track| track.get_region(region_id))
-                .map(|region| region.bounds.duration_ticks(&state.project.data.tempo_map))
-        {
-            state.actions.push_action(EditorAction::SetRegionDuration(
-                *track_id,
-                *region_id,
-                TimePosition::Musical(new_duration),
-            ));
-            return move_res;
-        }
+        let move_res = ui.allocate_rect(move_rect, egui::Sense::drag());
+        let content_top = ui.available_rect_before_wrap().min.y;
 
         // Drag to move
         if move_res.dragged() {
@@ -322,6 +280,63 @@ impl TimelineState {
         }
 
         move_res
+    }
+
+    fn handle_resize_gesture(
+        &mut self,
+        ui: &mut egui::Ui,
+        state: &mut EditorState,
+        timeline_coord: &TimelineCoord,
+        track_id: &TrackID,
+        region_id: &RegionID,
+        resize_rect: egui::Rect,
+    ) {
+        let resolution = state.project.data.audio_ctx.resolution;
+        let tpp = timeline_coord.tpp(resolution);
+        let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
+
+        if resize_res.hovered() {
+            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+        }
+
+        // Support resize
+        if resize_res.dragged() {
+            // Select the region
+            state.selection.select_region(*track_id, *region_id);
+            state.actions.push_action(EditorAction::ArmTrack(*track_id));
+
+            // Calculate the new duration from the drag amount
+            let delta_ticks = Ticks((resize_res.drag_delta().x * tpp) as i64);
+            if let Some(region) = state
+                .project
+                .meta
+                .get_track_mut(track_id)
+                .and_then(|track| track.get_region_mut(region_id))
+            {
+                let (region_start, region_end) =
+                    region.bounds.tick_range(&state.project.data.tempo_map);
+                let region_duration = region_end - region_start;
+
+                let new_duration = (region_duration + delta_ticks).max(Ticks::ZERO);
+                region.bounds = TimeBounds::Musical {
+                    start: region_start,
+                    duration: new_duration,
+                };
+            }
+        } else if resize_res.drag_stopped()
+            && let Some(new_duration) = state
+                .project
+                .meta
+                .get_track(track_id)
+                .and_then(|track| track.get_region(region_id))
+                .map(|region| region.bounds.duration_ticks(&state.project.data.tempo_map))
+        {
+            state.actions.push_action(EditorAction::SetRegionDuration(
+                *track_id,
+                *region_id,
+                TimePosition::Musical(new_duration),
+            ));
+        }
     }
 }
 

@@ -19,12 +19,12 @@ impl TimelineState {
         state: &mut EditorState,
         timeline_coord: &TimelineCoord,
         timeline_width: f32,
+        edit_panel_rect: egui::Rect,
     ) {
         let track_height = timeline_coord.y_scale;
 
         // Ensure the scroll area extends past the project range end (or last region end)
         ui.set_min_width(timeline_width);
-
         let available = ui.available_rect_before_wrap();
 
         // Draw each tracks
@@ -42,14 +42,14 @@ impl TimelineState {
                 timeline_coord,
                 track_id,
                 row_rect,
-                available.min.y,
+                edit_panel_rect,
             );
 
             // Draw a separator
             ui.painter().hline(
                 egui::Rangef {
-                    min: available.min.x,
-                    max: available.min.x + available.width(),
+                    min: edit_panel_rect.min.x,
+                    max: edit_panel_rect.min.x + edit_panel_rect.width(),
                 },
                 y + track_height,
                 theme::border(ui.visuals().dark_mode),

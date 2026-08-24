@@ -50,10 +50,6 @@ pub(crate) const PANEL_HEADER_MARGIN: egui::Margin = egui::Margin::symmetric(8, 
 
 /// The height of the timeline scroll bar.
 pub(crate) const SCROLL_BAR_HEIGHT: f32 = 12.0;
-/// The minimum width of the track list panel in pixels.
-pub(crate) const MIN_TRACK_LIST_WIDTH: f32 = 100.0;
-/// The maximum width of the track list panel in pixels.
-pub(crate) const MAX_TRACK_LIST_WIDTH: f32 = 800.0;
 /// The minimum height of the track row in pixels.
 pub(crate) const MIN_TRACK_HEIGHT: f32 = 30.0;
 /// The maximum height of the track row in pixels.
@@ -66,3 +62,9 @@ pub(crate) const TIMELINE_RIGHT_PADDING: f32 = 200.0;
 pub(crate) const TIMELINE_MIN_PPB: f32 = 1.0;
 /// The maximum pixels per beat.
 pub(crate) const TIMELINE_MAX_PPB: f32 = 4000.0;
+
+// --- UI ---
+/// The minimum width of the sidebar in pixels.
+pub(crate) const MIN_SIDEBAR_WIDTH: f32 = 100.0;
+/// The maximum width of the sidebar in pixels.
+pub(crate) const MAX_SIDEBAR_WIDTH: f32 = 800.0;

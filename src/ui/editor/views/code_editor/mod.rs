@@ -1,7 +1,13 @@
 mod file_browser;
 mod kasl_editor;
 
-use crate::ui::editor::{actions::FileNode, views::PanelViewState};
+use crate::{
+    consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
+    ui::{
+        components::splitter::Splitter,
+        editor::{actions::FileNode, views::PanelViewState},
+    },
+};
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
@@ -43,14 +49,19 @@ impl CodeEditorView {
         panel_id: Uuid,
         panel_state: &mut CodeEditorPanelState,
     ) {
-        egui::Panel::left(ui.id().with("code_editor_left")).show_inside(ui, |ui| {
-            self.file_browser(ui, panel_id);
-        });
-
-        egui::CentralPanel::default()
-            .frame(egui::Frame::new())
-            .show_inside(ui, |ui| {
-                self.kasl_editor(ui, panel_id);
+        let panel_rect = ui.available_rect_before_wrap();
+        let sidebar_rect = panel_rect.with_max_x(panel_rect.min.x + panel_state.file_list_width);
+        egui::ScrollArea::vertical()
+            .max_width(panel_state.file_list_width)
+            .show(ui, |ui| {
+                self.file_browser(ui, panel_id);
             });
+
+        Splitter::new(&mut panel_state.file_list_width)
+            .with_min(MIN_SIDEBAR_WIDTH)
+            .with_max(MAX_SIDEBAR_WIDTH)
+            .show(ui);
+
+        self.kasl_editor(ui, panel_id);
     }
 }
