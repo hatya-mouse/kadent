@@ -3,6 +3,7 @@ use crate::{
         mixer::TrackID,
         node::builtin::{AutomationNode, AutomationTrack},
     },
+    storage::app_state::AppPreferences,
     ui::editor::EditorUi,
 };
 use crate::{
@@ -21,17 +22,24 @@ impl EditorUi {
         track_id: &TrackID,
         node_type: &AddibleNodes,
         pos: egui::Pos2,
+        preferences: &AppPreferences,
     ) {
         match node_type {
-            AddibleNodes::Kasl => self.add_kasl_node(track_id, pos),
+            AddibleNodes::Kasl => self.add_kasl_node(track_id, pos, preferences),
             AddibleNodes::Automation => self.add_automation_node(track_id, pos),
         }
     }
 
-    fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2) {
+    fn add_kasl_node(&mut self, track_id: &TrackID, pos: egui::Pos2, preferences: &AppPreferences) {
         let mut kasl_node = KaslNode::new();
         let project_dir = get_project_dir(&self.state.project.path);
-        kasl_node.set_search_paths(self.state.project.meta.kasl_search_paths.clone());
+        kasl_node.set_search_paths(
+            preferences
+                .kasl_std_path
+                .iter()
+                .cloned()
+                .collect::<Vec<_>>(),
+        );
         kasl_node.set_project_dir(project_dir);
 
         // Add the node to the project

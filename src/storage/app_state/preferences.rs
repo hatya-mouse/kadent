@@ -3,12 +3,11 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::{self, Read, Write},
-    path::PathBuf,
 };
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub(crate) struct AppPreferences {
-    pub(crate) kasl_std_path: Option<PathBuf>,
+    pub(crate) kasl_std_path: Option<String>,
 }
 
 pub(crate) fn load_preferences() -> AppPreferences {

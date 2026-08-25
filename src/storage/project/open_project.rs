@@ -1,14 +1,17 @@
 use crate::{
     core::{metadata::ProjectMeta, project_ctx::ProjectContext},
     storage::{
-        app_state::add_and_store_recent_projects,
+        app_state::{AppPreferences, add_and_store_recent_projects},
         project::{get_project_dir, init::init_nodes, load_project},
     },
 };
 use std::path::PathBuf;
 
 /// Opens the project file at the given path, returning the transition data if successful.
-pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<ProjectContext> {
+pub(crate) fn open_project_to_ctx(
+    project_path: PathBuf,
+    preferences: &AppPreferences,
+) -> Option<ProjectContext> {
     // Store the project to recent projects
     add_and_store_recent_projects(&project_path);
 
@@ -19,7 +22,7 @@ pub(crate) fn open_project_to_ctx(project_path: PathBuf) -> Option<ProjectContex
             let project_dir = get_project_dir(&project_path);
             init_nodes(
                 &mut decodable_proj.data,
-                &project_meta.kasl_search_paths,
+                preferences.kasl_std_path.clone(),
                 &project_dir,
                 &project_meta.export_ctx,
             );

@@ -1,4 +1,5 @@
 use crate::core::{metadata::ProjectMeta, project_ctx::ProjectContext};
+use crate::storage::app_state::AppPreferences;
 use crate::ui::editor::CodeBuffer;
 use crate::{
     core::audio_engine::{
@@ -40,6 +41,7 @@ pub(crate) enum BackgroundThreadCommand {
     },
     OpenProject {
         path: PathBuf,
+        preferences: AppPreferences,
     },
     WriteWav {
         path: PathBuf,

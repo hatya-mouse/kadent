@@ -7,17 +7,18 @@ use std::path::Path;
 /// Initialize all nodes in the project data.
 pub(crate) fn init_nodes(
     project: &mut ProjectData,
-    search_paths: &[String],
+    search_path: Option<String>,
     project_dir: &Path,
     playback_ctx: &PlaybackContext,
 ) {
+    let search_paths = search_path.into_iter().collect::<Vec<_>>();
     for track in project.tracks.values_mut() {
         for node in track.get_graph_mut().get_node_map_mut().values_mut() {
             node.update_type_info();
 
             // For the KASL node, set the search paths and project directory, then compile it
             if let Some(kasl_node) = node.as_any_mut().downcast_mut::<KaslNode>() {
-                kasl_node.set_search_paths(search_paths.to_vec());
+                kasl_node.set_search_paths(search_paths.clone());
                 kasl_node.set_project_dir(project_dir.to_path_buf());
 
                 if let Err(errors) = kasl_node.compile(playback_ctx) {

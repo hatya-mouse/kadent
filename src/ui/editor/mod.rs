@@ -20,10 +20,6 @@ pub(crate) use views::{
     AutomationState, CodeBuffer, NodeGraphState, PianoRollState, TimelineState, ViewStates,
 };
 
-use crate::core::{
-    audio_engine::thread::{AudioCommand, AudioThread, AudioThreadHandle},
-    metadata::TrackType,
-};
 use crate::{
     background_thread::spawn_background_thread,
     core::{
@@ -36,6 +32,13 @@ use crate::{
         editor::state::{ActionDispatcher, AudioDeviceManager, MidiDeviceManager, TransportState},
         theme,
     },
+};
+use crate::{
+    core::{
+        audio_engine::thread::{AudioCommand, AudioThread, AudioThreadHandle},
+        metadata::TrackType,
+    },
+    storage::app_state::AppPreferences,
 };
 use cpal::traits::DeviceTrait;
 use eframe::egui;
@@ -144,7 +147,7 @@ impl EditorUi {
         editor_ui
     }
 
-    pub(crate) fn editor_ui(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn ui(&mut self, ui: &mut egui::Ui, preferences: &AppPreferences) {
         self.calculate_playhead();
         self.process_vu_value();
         self.update_preview_notes();
@@ -191,7 +194,7 @@ impl EditorUi {
         ui.ctx().request_repaint_after(Duration::from_millis(16));
 
         // Execute all pending actions
-        self.consume_actions();
+        self.consume_actions(preferences);
         // Also consume the UI commands
         self.consume_ui_commands();
         // Process the result of the background thread

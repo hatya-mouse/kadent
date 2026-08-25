@@ -1,7 +1,10 @@
 use crate::{
     consts::PROJECT_FILE_EXTENSION,
     core::project_ctx::ProjectContext,
-    storage::project::open_project_to_ctx,
+    storage::{
+        app_state::{AppPreferences, load_preferences},
+        project::open_project_to_ctx,
+    },
     ui::{SplashUi, editor::EditorUi, theme},
 };
 use eframe::{self, egui};
@@ -9,6 +12,7 @@ use std::path::PathBuf;
 
 pub(crate) struct KadentApp {
     pub(crate) state: AppState,
+    pub(crate) preferences: AppPreferences,
 }
 
 pub(crate) enum AppState {
@@ -23,19 +27,24 @@ enum GetDroppedFileResult {
 
 impl KadentApp {
     pub(crate) fn new(cc: &eframe::CreationContext, initial_project: Option<PathBuf>) -> Self {
+        // Load the preferences
+        let preferences = load_preferences();
+
         egui_extras::install_image_loaders(&cc.egui_ctx);
         Self::setup_fonts(&cc.egui_ctx);
         Self::base_style(&cc.egui_ctx);
 
         if let Some(initial_project) = initial_project
-            && let Some(editor_ctx) = open_project_to_ctx(initial_project)
+            && let Some(editor_ctx) = open_project_to_ctx(initial_project, &preferences)
         {
             return KadentApp {
                 state: AppState::Editor(Box::new(EditorUi::new(editor_ctx))),
+                preferences,
             };
         }
         KadentApp {
             state: AppState::Splash(Box::default()),
+            preferences,
         }
     }
 
@@ -53,7 +62,7 @@ impl KadentApp {
                 let path = file.path();
                 if let Some(extension) = path.extension() {
                     if extension == PROJECT_FILE_EXTENSION {
-                        return open_project_to_ctx(path.to_path_buf())
+                        return open_project_to_ctx(path.to_path_buf(), &self.preferences)
                             .map(|ctx| GetDroppedFileResult::ProjectData(Box::new(ctx)));
                     } else if extension == "wav" {
                         return Some(GetDroppedFileResult::AudioFile(path.to_path_buf()));
@@ -93,7 +102,7 @@ impl eframe::App for KadentApp {
                             .fill(theme::primary_bg(ui.visuals().dark_mode))
                             .inner_margin(0),
                     )
-                    .show(ui, |ui| splash.splash_ui(ui))
+                    .show(ui, |ui| splash.ui(ui, &mut self.preferences))
                     .inner
                 {
                     // If the splash screen returned an editor context, switch to the editor UI
@@ -106,7 +115,7 @@ impl eframe::App for KadentApp {
             }
             AppState::Editor(editor) => {
                 // If we're in the editor state, just show the editor UI
-                editor.editor_ui(ui);
+                editor.ui(ui, &self.preferences);
 
                 if let Some(GetDroppedFileResult::AudioFile(dropped_path)) = dropped_file {
                     editor.audio_dropped(dropped_path);

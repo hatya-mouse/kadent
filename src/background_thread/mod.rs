@@ -56,8 +56,10 @@ fn background_thread(
                 &project_meta,
                 &code_buffers,
             )),
-            BackgroundThreadCommand::OpenProject { path } => {
-                BackgroundThreadResult::OpenedProject(open_project_to_ctx(path).map(Box::new))
+            BackgroundThreadCommand::OpenProject { path, preferences } => {
+                BackgroundThreadResult::OpenedProject(
+                    open_project_to_ctx(path, &preferences).map(Box::new),
+                )
             }
             BackgroundThreadCommand::WriteWav {
                 path,

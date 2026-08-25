@@ -5,6 +5,7 @@ pub(crate) mod state;
 
 use crate::{
     core::project_ctx::ProjectContext,
+    storage::app_state::AppPreferences,
     ui::{splash::state::SplashUiState, theme},
     utils::version_string,
 };
@@ -30,7 +31,11 @@ impl Default for SplashUi {
 }
 
 impl SplashUi {
-    pub(crate) fn splash_ui(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
+    pub(crate) fn ui(
+        &mut self,
+        ui: &mut egui::Ui,
+        preferences: &mut AppPreferences,
+    ) -> Option<ProjectContext> {
         let mut ctx = None;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {

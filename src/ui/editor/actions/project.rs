@@ -1,4 +1,5 @@
 use crate::core::audio_engine::{data_types::Ticks, thread::AudioCommand, timing::TimeBounds};
+use crate::storage::app_state::AppPreferences;
 use crate::ui::editor::{EditorUi, UiCommand};
 use crate::{
     background_thread::{BackgroundTaskStatus, BackgroundThreadCommand},
@@ -39,11 +40,14 @@ impl EditorUi {
             });
     }
 
-    pub(super) fn open_project(&mut self, proj_path: PathBuf) {
+    pub(super) fn open_project(&mut self, proj_path: PathBuf, preferences: &AppPreferences) {
         self.views.status_bar.current_task = Some(BackgroundTaskStatus::Open);
         self.state
             .actions
-            .push_background_job(BackgroundThreadCommand::OpenProject { path: proj_path });
+            .push_background_job(BackgroundThreadCommand::OpenProject {
+                path: proj_path,
+                preferences: preferences.clone(),
+            });
     }
 
     pub(super) fn export_project(&mut self, path: &Path) {

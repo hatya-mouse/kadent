@@ -13,6 +13,7 @@ mod transport;
 pub(crate) use project::{FileNode, FileNodeKind};
 use uuid::Uuid;
 
+use crate::storage::app_state::AppPreferences;
 use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType};
 use crate::{
     core::audio_engine::{
@@ -211,7 +212,7 @@ pub(crate) enum EditorAction {
 
 impl EditorUi {
     /// Consume all pending actions and execute them in order.
-    pub(crate) fn consume_actions(&mut self) {
+    pub(crate) fn consume_actions(&mut self, preferences: &AppPreferences) {
         let pending_actions: Vec<EditorAction> = self.state.actions.pending.drain(..).collect();
         for action in pending_actions {
             match action {
@@ -220,7 +221,7 @@ impl EditorUi {
                     self.save_all();
                 }
                 EditorAction::OpenProject(path) => {
-                    self.open_project(path);
+                    self.open_project(path, preferences);
                 }
                 EditorAction::ExportProject(path) => {
                     self.export_project(&path);
@@ -298,7 +299,7 @@ impl EditorUi {
 
                 // --- NODE ---
                 EditorAction::AddNode(ref track_id, ref node_type, pos) => {
-                    self.add_node(track_id, node_type, pos)
+                    self.add_node(track_id, node_type, pos, preferences)
                 }
                 EditorAction::RemoveEdge(ref track_id, to) => {
                     self.remove_edge(track_id, &to);
