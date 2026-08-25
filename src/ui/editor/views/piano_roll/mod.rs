@@ -51,7 +51,7 @@ pub(crate) struct PianoRollPanelState {
 impl Default for PianoRollPanelState {
     fn default() -> Self {
         Self {
-            timeline_coord: TimelineCoord::new(100.0, 200.0, egui::Vec2::ZERO),
+            timeline_coord: TimelineCoord::new(100.0, 16.0, egui::Vec2::ZERO),
         }
     }
 }
