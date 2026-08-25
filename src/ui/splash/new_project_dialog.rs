@@ -63,13 +63,14 @@ impl SplashUi {
                 )
                 .clicked()
                 .then(|| {
-                    if let Some(project_dir) = dialog_state.project_dir.clone() {
+                    if let Some(parent_dir) = dialog_state.project_dir.clone() {
                         should_close = true;
-                        let project_path = project_dir
+                        let root_path = parent_dir.join(&dialog_state.project_name);
+                        let project_path = root_path
                             .join(&dialog_state.project_name)
                             .with_added_extension(PROJECT_FILE_EXTENSION);
                         add_and_store_recent_projects(&project_path);
-                        create_new_project(&dialog_state.project_name, project_dir).ok()
+                        create_new_project(&dialog_state.project_name, root_path).ok()
                     } else {
                         None
                     }

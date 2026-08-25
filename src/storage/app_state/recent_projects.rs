@@ -31,6 +31,7 @@ pub(crate) fn load_recent_projects() -> Vec<RecentProjData> {
     // Create RecentProjData from paths
     paths
         .iter()
+        .filter(|path| path.try_exists().unwrap_or(false))
         .map(|path| RecentProjData {
             name: path
                 .file_name()
@@ -46,6 +47,7 @@ pub(crate) fn add_and_store_recent_projects(project_path: &Path) {
     let mut recent_projects: Vec<PathBuf> = load_recent_projects()
         .into_iter()
         .map(|proj| proj.path)
+        .filter(|path| path.try_exists().unwrap_or(false))
         .collect();
 
     // Add the project at the first

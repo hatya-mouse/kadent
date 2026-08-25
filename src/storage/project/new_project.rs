@@ -15,10 +15,9 @@ use std::path::PathBuf;
 
 pub(crate) fn create_new_project(
     project_name: &str,
-    parent_path: PathBuf,
+    root_path: PathBuf,
 ) -> Result<ProjectContext, SaveError> {
     // 1. Generate paths for each subdirectories
-    let root_path = parent_path.join(project_name);
     let src_dir = root_path.join("src");
     let assets_dir = root_path.join("assets");
     let project_path = root_path
