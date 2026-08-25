@@ -34,7 +34,11 @@ pub(crate) fn toolbar_icon_button_colored(
     response
 }
 
-pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::Response {
+pub(crate) fn small_icon_button_highlighted(
+    ui: &mut egui::Ui,
+    image: egui::Image,
+    is_highlighted: bool,
+) -> egui::Response {
     ui.scope(|ui| {
         ui.visuals_mut().widgets.inactive.weak_bg_fill = egui::Color32::TRANSPARENT;
         ui.visuals_mut().widgets.inactive.bg_stroke = egui::Stroke::NONE;
@@ -54,7 +58,7 @@ pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::
             .corner_radius(CORNER_RADIUS),
         );
 
-        if response.is_pointer_button_down_on() {
+        if response.is_pointer_button_down_on() || is_highlighted {
             ui.painter()
                 .rect_filled(response.rect, CORNER_RADIUS, theme::icon_button_active());
         } else if response.hovered() {
@@ -65,4 +69,8 @@ pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::
         response
     })
     .inner
+}
+
+pub(crate) fn small_icon_button(ui: &mut egui::Ui, image: egui::Image) -> egui::Response {
+    small_icon_button_highlighted(ui, image, false)
 }

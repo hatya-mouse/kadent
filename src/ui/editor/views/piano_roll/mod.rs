@@ -1,23 +1,29 @@
+mod gestures;
+mod header;
 mod note_grid;
 mod ruler;
 
-use crate::core::audio_engine::data_types::Ticks;
-use crate::core::audio_engine::track::note_track::NoteTrack;
-use crate::ui::editor::TimelineCoord;
-use crate::{
-    consts::PANEL_HEADER_HEIGHT,
-    core::metadata::TrackType,
-    ui::{
-        EditorState,
-        components::{
-            panel_header::panel_header,
-            ruler::{RulerConfig, ruler_and_scroll_bar},
-        },
+use crate::consts::PANEL_HEADER_HEIGHT;
+use crate::core::{
+    audio_engine::{data_types::Ticks, track::note_track::NoteTrack},
+    metadata::TrackType,
+};
+use crate::ui::editor::utils::handle_timeline_zoom;
+use crate::ui::{
+    EditorState,
+    components::not_available_text::not_available_text,
+    components::{
+        panel_header::panel_header,
+        ruler::{RulerConfig, ruler_and_scroll_bar},
     },
+    editor::TimelineCoord,
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
 use ruler::{note_grid_ruler, note_pitch_ruler};
 use std::time::Instant;
+
+const MIN_NOTE_HEIGHT: f32 = 2.0;
+const MAX_NOTE_HEIGHT: f32 = 30.0;
 
 #[derive(Default)]
 pub(crate) struct PianoRollState {
@@ -25,6 +31,16 @@ pub(crate) struct PianoRollState {
     pub(crate) preview_notes: Vec<(u8, Instant)>,
     /// Length of the last edited note.
     pub(crate) last_edited_note_length: Option<Ticks>,
+    /// The currently selected tool.
+    pub(crate) selected_tool: PianoRollTool,
+}
+
+#[derive(Default, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PianoRollTool {
+    #[default]
+    Normal,
+    Add,
+    Remove,
 }
 
 #[derive(Clone, Debug)]
@@ -50,7 +66,7 @@ impl PianoRollState {
         let timeline_coord = &mut panel_state.timeline_coord;
 
         let Some((track_id, region_id)) = state.selection.track_and_region_id() else {
-            ui.label("Select a note region to edit");
+            not_available_text(ui, "Select a note region to edit");
             return;
         };
 
@@ -61,7 +77,7 @@ impl PianoRollState {
             .get_track(&track_id)
             .is_none_or(|track| track.track_type != TrackType::Note)
         {
-            ui.label("Select a note region to edit");
+            not_available_text(ui, "Select a note region to edit");
             return;
         }
 
@@ -73,7 +89,7 @@ impl PianoRollState {
             .get_mut(&track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
         else {
-            ui.label("Select a note region to edit");
+            not_available_text(ui, "Select a note region to edit");
             return;
         };
         let Some(region) = track.get_region_mut(&region_id) else {
@@ -140,13 +156,31 @@ impl PianoRollState {
                     state,
                     timeline_coord,
                     note_grid_rect,
-                    scroll_content_size,
                     track_id,
                     region_id,
-                )
+                );
             });
 
-        timeline_coord.apply_scroll(bar_scroll_x, scroll_res.inner, scroll_res.state.offset);
+        // Handle note tool gestures
+        self.note_grid_gestures(
+            ui,
+            state,
+            timeline_coord,
+            note_grid_rect,
+            scroll_content_size.y,
+            &(track_id, region_id),
+        );
+
+        // Handle the zoom gesture and apply the scroll offset
+        let zoom_gesture_res = handle_timeline_zoom(
+            ui,
+            note_grid_rect,
+            timeline_coord,
+            0.0,
+            MIN_NOTE_HEIGHT,
+            MAX_NOTE_HEIGHT,
+        );
+        timeline_coord.apply_scroll(bar_scroll_x, zoom_gesture_res, scroll_res.state.offset);
 
         // Clamp the scroll by zero and the end of the content so that it never exceeds the content
         // especially when zooming out

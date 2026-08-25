@@ -70,7 +70,7 @@ impl TimelineState {
 
         egui::CentralPanel::default()
             .frame(egui::Frame::new())
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 let panel_rect = ui.available_rect_before_wrap();
                 egui::ScrollArea::vertical()
                     .id_salt("timeline_vertical")

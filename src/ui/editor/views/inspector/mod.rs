@@ -6,10 +6,12 @@ mod track;
 
 use crate::{
     fonts::RichTextExt,
-    ui::{EditorState, components::centered_text::centered_text, editor::state::Selection, theme},
+    ui::{
+        EditorState, components::not_available_text::not_available_text, editor::state::Selection,
+        theme,
+    },
 };
-use eframe::egui;
-use std::hash::Hash;
+use eframe::egui::{self, AsIdSalt};
 
 const HEADER_HEIGHT: f32 = 32.0;
 
@@ -51,7 +53,7 @@ impl InspectorView {
                     self.keyframe_inspector(ui, editor_state, &track_id, &node_id, keyframe_index);
                 }
                 Selection::None => {
-                    centered_text(ui, theme::not_available_label("No selection"));
+                    not_available_text(ui, "No selection");
                 }
             });
     }
@@ -59,7 +61,7 @@ impl InspectorView {
 
 fn inspector_section(
     ui: &mut egui::Ui,
-    unique_id: impl Hash,
+    unique_id: impl AsIdSalt,
     title: impl Into<String>,
     add_contents: impl FnOnce(&mut egui::Ui),
 ) {

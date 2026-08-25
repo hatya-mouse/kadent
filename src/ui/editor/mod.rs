@@ -157,7 +157,7 @@ impl EditorUi {
                     .inner_margin(egui::Margin::symmetric(12, 0)),
             )
             .exact_size(44.0)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 self.views.toolbar.ui(ui, &mut self.state);
             });
 
@@ -169,7 +169,7 @@ impl EditorUi {
                     .inner_margin(egui::Margin::symmetric(12, 0)),
             )
             .exact_size(32.0)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 self.views.status_bar.ui(ui, &self.state);
             });
 
@@ -179,7 +179,7 @@ impl EditorUi {
                     .fill(theme::primary_bg(ui.visuals().dark_mode))
                     .inner_margin(0),
             )
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 let rect = ui.available_rect_before_wrap();
                 self.render_panels(ui, rect);
             });

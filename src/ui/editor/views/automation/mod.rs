@@ -4,13 +4,12 @@ mod gestures;
 use crate::core::audio_engine::node::builtin::CurveType;
 use crate::core::audio_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use crate::ui::editor::TimelineCoord;
-use crate::ui::theme;
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::{
         EditorState,
         components::{
-            centered_text::centered_text,
+            not_available_text::not_available_text,
             panel_header::panel_header,
             ruler::{RulerConfig, ruler_and_scroll_bar},
         },
@@ -60,10 +59,7 @@ impl AutomationState {
 
         // Get the track and the selected automation node
         let Some((track_id, node_id)) = state.selection.track_and_node_id() else {
-            centered_text(
-                ui,
-                theme::not_available_label("No Automation Node Selected"),
-            );
+            not_available_text(ui, "No Automation Node Selected");
             return;
         };
         let Some(automation_node) = state
@@ -73,10 +69,7 @@ impl AutomationState {
             .and_then(|track| track.get_graph().get_node(&node_id))
             .and_then(|node| node.as_any().downcast_ref::<AutomationNode>())
         else {
-            centered_text(
-                ui,
-                theme::not_available_label("No Automation Node Selected"),
-            );
+            not_available_text(ui, "No Automation Node Selected");
             return;
         };
 
@@ -109,7 +102,7 @@ impl AutomationState {
         // Draw the automation timeline and keyframes
         let scroll_res = egui::CentralPanel::default()
             .frame(egui::Frame::new())
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 egui::ScrollArea::both()
                     .id_salt("automation_scroll")
                     .scroll_bar_visibility(ScrollBarVisibility::AlwaysHidden)

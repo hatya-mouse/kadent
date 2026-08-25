@@ -2,7 +2,7 @@ use crate::{
     core::project_ctx::ProjectContext,
     fonts::RichTextExt,
     storage::project::open_project_to_ctx,
-    ui::{SplashUi, components::centered_text::centered_text, theme},
+    ui::{SplashUi, components::not_available_text::not_available_text, theme},
 };
 use eframe::egui;
 
@@ -19,15 +19,12 @@ impl SplashUi {
             .show(ui, |ui| {
                 let item_width = (ui.available_width() - CONTENT_MARGIN as f32 * 2.0).max(0.0);
                 let Ok(recent_projects) = self.splash_state.recent_projects.lock() else {
-                    centered_text(
-                        ui,
-                        theme::not_available_label("Failed to load recent projects"),
-                    );
+                    not_available_text(ui, "Failed to load recent projects");
                     return;
                 };
 
                 if recent_projects.is_empty() {
-                    centered_text(ui, theme::not_available_label("No recent projects found"));
+                    not_available_text(ui, "No recent projects found");
                     return;
                 }
 

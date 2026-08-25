@@ -59,7 +59,7 @@ pub(super) fn output_callback(
                 while let Some(command) = ctx.command_cons.try_pop() {
                     match command {
                         AudioCommand::Seek(seek_position) => {
-                            let playhead_sample = seek_position.to_sample(
+                            let playhead_sample = seek_position.in_sample(
                                 &mixer.project.tempo_map,
                                 mixer.playback_ctx.sample_rate,
                             );
@@ -68,7 +68,7 @@ pub(super) fn output_callback(
                                 .playhead
                                 .store(playhead_sample as u64, Ordering::Relaxed);
 
-                            let playhead_tick = seek_position.to_ticks(&mixer.project.tempo_map);
+                            let playhead_tick = seek_position.in_ticks(&mixer.project.tempo_map);
                             state
                                 .playhead_tick
                                 .store(playhead_tick.0, Ordering::Relaxed);

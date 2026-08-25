@@ -1,5 +1,6 @@
 use crate::ui::{
-    components::centered_text::centered_text, editor::views::code_editor::CodeEditorView, theme,
+    components::not_available_text::not_available_text, editor::views::code_editor::CodeEditorView,
+    theme,
 };
 use eframe::egui::{self, TextBuffer};
 use egui_extras::syntax_highlighting::{CodeTheme, highlight_with};
@@ -11,7 +12,7 @@ impl CodeEditorView {
     pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
         if code_buffer.path.is_none() {
-            centered_text(ui, theme::not_available_label("Select a file to edit"));
+            not_available_text(ui, "Select a file to edit");
             return;
         }
 

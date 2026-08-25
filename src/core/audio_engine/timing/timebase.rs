@@ -15,16 +15,8 @@ pub(crate) enum TimePosition {
 }
 
 impl TimePosition {
-    /// Returns the timebase of the time bounds.
-    pub(crate) fn timebase(&self) -> Timebase {
-        match *self {
-            TimePosition::Musical(_) => Timebase::Musical,
-            TimePosition::Time(_) => Timebase::Time,
-        }
-    }
-
     /// Converts the time position to ticks using the given tempo map.
-    pub(crate) fn to_ticks(&self, tempo_map: &TempoMap) -> Ticks {
+    pub(crate) fn in_ticks(&self, tempo_map: &TempoMap) -> Ticks {
         match *self {
             TimePosition::Musical(ticks) => ticks,
             TimePosition::Time(seconds) => tempo_map.seconds_to_ticks(seconds),
@@ -32,7 +24,7 @@ impl TimePosition {
     }
 
     /// Converts the time position to seconds using the given tempo map.
-    pub(crate) fn to_seconds(&self, tempo_map: &TempoMap) -> f64 {
+    pub(crate) fn in_seconds(&self, tempo_map: &TempoMap) -> f64 {
         match *self {
             TimePosition::Musical(ticks) => tempo_map.ticks_to_seconds(ticks),
             TimePosition::Time(seconds) => seconds,
@@ -40,7 +32,7 @@ impl TimePosition {
     }
 
     /// Converts the time position to seconds using the given tempo map.
-    pub(crate) fn to_sample(&self, tempo_map: &TempoMap, sample_rate: u64) -> usize {
+    pub(crate) fn in_sample(&self, tempo_map: &TempoMap, sample_rate: u64) -> usize {
         match *self {
             TimePosition::Musical(ticks) => tempo_map.ticks_to_samples(ticks, sample_rate),
             TimePosition::Time(seconds) => seconds_to_samples(seconds, sample_rate),

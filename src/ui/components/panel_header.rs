@@ -14,7 +14,7 @@ pub(crate) fn panel_header<R>(
         )
         .exact_size(PANEL_HEADER_HEIGHT)
         .show_separator_line(false)
-        .show_inside(ui, |ui| {
+        .show(ui, |ui| {
             ui.spacing_mut().button_padding = egui::vec2(0.0, 0.0);
             ui.horizontal_centered(|ui| add_contents(ui)).inner
         });

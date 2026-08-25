@@ -1,12 +1,11 @@
 use crate::ui::{components::card_button::card_button, theme};
-use eframe::egui;
-use std::hash::Hash;
+use eframe::egui::{self, AsIdSalt};
 
 const ICON_SIZE: f32 = 16.0;
 
 pub(crate) fn dropdown_button<R>(
     ui: &mut egui::Ui,
-    id: impl Hash,
+    id: impl AsIdSalt,
     selected_text: impl Into<String>,
     content: impl FnOnce(&mut egui::Ui) -> R,
 ) -> Option<egui::InnerResponse<R>> {

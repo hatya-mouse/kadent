@@ -49,15 +49,15 @@ impl KadentApp {
 
     fn get_dropped_file(&self, ui: &egui::Ui) -> Option<GetDroppedFileResult> {
         ui.ctx().input(|input| {
-            if let Some(file) = input.raw.dropped_files.first()
-                && let Some(path) = &file.path
-                && let Some(extension) = path.extension()
-            {
-                if extension == PROJECT_FILE_EXTENSION {
-                    return open_project_to_ctx(path.clone())
-                        .map(|ctx| GetDroppedFileResult::ProjectData(Box::new(ctx)));
-                } else if extension == "wav" {
-                    return Some(GetDroppedFileResult::AudioFile(path.clone()));
+            if let Some(file) = input.raw.dropped_files.first() {
+                let path = file.path();
+                if let Some(extension) = path.extension() {
+                    if extension == PROJECT_FILE_EXTENSION {
+                        return open_project_to_ctx(path.to_path_buf())
+                            .map(|ctx| GetDroppedFileResult::ProjectData(Box::new(ctx)));
+                    } else if extension == "wav" {
+                        return Some(GetDroppedFileResult::AudioFile(path.to_path_buf()));
+                    }
                 }
             }
 
@@ -93,7 +93,7 @@ impl eframe::App for KadentApp {
                             .fill(theme::primary_bg(ui.visuals().dark_mode))
                             .inner_margin(0),
                     )
-                    .show_inside(ui, |ui| splash.splash_ui(ui))
+                    .show(ui, |ui| splash.splash_ui(ui))
                     .inner
                 {
                     // If the splash screen returned an editor context, switch to the editor UI

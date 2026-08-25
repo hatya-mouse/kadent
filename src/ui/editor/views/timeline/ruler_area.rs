@@ -1,4 +1,5 @@
 use crate::core::audio_engine::{data_types::Ticks, timing::TimeBounds};
+use crate::ui::components::icon_button::small_icon_button_highlighted;
 use crate::ui::editor::TimelineState;
 use crate::ui::editor::views::TimelinePanelState;
 use crate::{
@@ -6,10 +7,7 @@ use crate::{
     ui::editor::actions::EditorAction,
     ui::{
         EditorState,
-        components::{
-            icon_button::small_icon_button,
-            ruler::{RulerConfig, ruler_and_scroll_bar},
-        },
+        components::ruler::{RulerConfig, ruler_and_scroll_bar},
         editor::state::TimelineCoord,
         theme,
     },
@@ -178,23 +176,18 @@ impl TimelineState {
     }
 }
 
-/// Draws the follow-playhead toggle in the corner cell above the track list, toggling
-/// `follow_playhead` when clicked.
+/// Draws the follow playhead button, toggling `follow_playhead` when clicked.
 fn follow_playhead_button(ui: &mut egui::Ui, corner_rect: egui::Rect, follow_playhead: &mut bool) {
     ui.scope_builder(
         egui::UiBuilder::new().max_rect(corner_rect.shrink2(PANEL_HEADER_MARGIN.right_bottom())),
         |ui| {
             ui.horizontal_centered(|ui| {
                 let icon = egui::include_image!("../../../../../assets/icons/playhead_follow.svg");
-                let response = small_icon_button(ui, egui::Image::new(icon));
+                let response =
+                    small_icon_button_highlighted(ui, egui::Image::new(icon), *follow_playhead);
                 if response.clicked() {
                     *follow_playhead = !*follow_playhead;
                 }
-                if *follow_playhead {
-                    ui.painter()
-                        .rect_filled(response.rect, 6.0, theme::icon_button_active());
-                }
-                response.on_hover_text("Follow playhead");
             });
         },
     );

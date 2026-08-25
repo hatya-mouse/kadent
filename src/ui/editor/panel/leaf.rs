@@ -83,6 +83,7 @@ impl EditorUi {
 
     fn render_view_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState, panel_id: Uuid) {
         match view {
+            PanelViewState::PianoRoll(_) => self.views.piano_roll.header(ui),
             PanelViewState::NodeGraph => self.views.node_graph.header(ui, &mut self.state),
             PanelViewState::CodeEditor(_) => {
                 self.views.code_editor.header(ui, &mut self.state, panel_id)

@@ -423,7 +423,7 @@ impl AutomationTrack {
                 keyframe_samples,
                 float_cursor,
             } => {
-                for (sample, chunk) in (playhead..buffer_end).zip(buffer.chunks_exact_mut(4)) {
+                for (sample, chunk) in (playhead..buffer_end).zip(buffer.as_chunks_mut::<4>().0) {
                     let value = float_cursor
                         .get_interpolated_value(keyframes, keyframe_samples, sample)
                         .clamp(*range.start(), *range.end());
@@ -436,7 +436,7 @@ impl AutomationTrack {
                 keyframe_samples,
                 automation_cursor,
             } => {
-                for (sample, chunk) in (playhead..buffer_end).zip(buffer.chunks_exact_mut(4)) {
+                for (sample, chunk) in (playhead..buffer_end).zip(buffer.as_chunks_mut::<4>().0) {
                     let value = automation_cursor
                         .get_constant_keyframe_value::<i32>(keyframes, keyframe_samples, sample)
                         .clamp(*range.start(), *range.end());

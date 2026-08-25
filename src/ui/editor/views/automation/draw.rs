@@ -1,9 +1,9 @@
-use crate::core::audio_engine::{
-    data_types::Ticks,
-    node::builtin::{AutomationTrack, CurveType},
-};
 use crate::{
     consts::TIMELINE_LEFT_PADDING,
+    core::audio_engine::{
+        data_types::Ticks,
+        node::builtin::{AutomationTrack, CurveType},
+    },
     ui::{
         editor::{
             Selection, TimelineCoord,

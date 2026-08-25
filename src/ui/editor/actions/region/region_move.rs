@@ -185,11 +185,11 @@ impl EditorUi {
         let new_bounds = match original_bounds.timebase() {
             Timebase::Musical => TimeBounds::Musical {
                 start: original_bounds.start_tick(tempo_map),
-                duration: new_duration.to_ticks(tempo_map),
+                duration: new_duration.in_ticks(tempo_map),
             },
             Timebase::Time => TimeBounds::Time {
                 start_seconds: original_bounds.start_seconds(tempo_map),
-                duration_seconds: new_duration.to_seconds(tempo_map),
+                duration_seconds: new_duration.in_seconds(tempo_map),
             },
         };
 
@@ -216,11 +216,11 @@ impl EditorUi {
         let tempo_map = &self.state.project.data.tempo_map;
         match original_bounds.timebase() {
             Timebase::Musical => TimeBounds::Musical {
-                start: new_start.to_ticks(tempo_map),
+                start: new_start.in_ticks(tempo_map),
                 duration: original_bounds.duration_ticks(tempo_map),
             },
             Timebase::Time => TimeBounds::Time {
-                start_seconds: new_start.to_seconds(tempo_map),
+                start_seconds: new_start.in_seconds(tempo_map),
                 duration_seconds: original_bounds.duration_seconds(tempo_map),
             },
         }
