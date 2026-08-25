@@ -13,6 +13,8 @@ pub(crate) const PROJECT_FILE_EXTENSION: &str = "kdp";
 /// The current file version of Kadent project files.
 pub(crate) const KADENT_FILE_VERSION: u64 = 0;
 
+/// A relative path to preferences data file. Relative to `dirs::data_dir()`.
+pub(crate) const PREFERENCES_PATH: &str = "preferences.json";
 /// A relative path to recent projects data file. Relative to `dirs::data_dir()`.
 pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";
 /// The maximum number of recent projects shown in the splash screen.

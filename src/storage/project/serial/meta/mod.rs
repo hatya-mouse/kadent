@@ -12,8 +12,7 @@ impl Encode for ProjectMeta {
     fn encode(&self, e: &mut Encoder) -> Result<(), EncodeError> {
         e.field(0, &self.tracks)?;
         e.field(1, &self.track_order)?;
-        e.field(2, &self.kasl_search_paths)?;
-        e.field(3, &self.export_ctx)?;
+        e.field(2, &self.export_ctx)?;
         Ok(())
     }
 }
@@ -24,7 +23,6 @@ impl Decode for ProjectMeta {
         Ok(ProjectMeta {
             tracks: d.field(0)?.ok_or(DecodeError::InvalidData)?,
             track_order: d.field(1)?.ok_or(DecodeError::InvalidData)?,
-            kasl_search_paths: d.field(2)?.ok_or(DecodeError::InvalidData)?,
             export_ctx: d.field(3)?.ok_or(DecodeError::InvalidData)?,
         })
     }

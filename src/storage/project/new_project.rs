@@ -45,7 +45,6 @@ pub(crate) fn create_new_project(
         },
     );
     let project_meta = ProjectMeta {
-        kasl_search_paths: system_kasl_search_paths(),
         export_ctx,
         ..Default::default()
     };

@@ -16,7 +16,6 @@ use std::collections::HashMap;
 pub(crate) struct ProjectMeta {
     pub(crate) tracks: HashMap<TrackID, TrackMeta>,
     pub(crate) track_order: Vec<TrackID>,
-    pub(crate) kasl_search_paths: Vec<String>,
     pub(crate) export_ctx: PlaybackContext,
 }
 
@@ -40,7 +39,6 @@ impl ProjectMeta {
         ProjectMeta {
             tracks: meta.tracks,
             track_order: meta.track_order,
-            kasl_search_paths: meta.kasl_search_paths,
             export_ctx,
         }
     }
