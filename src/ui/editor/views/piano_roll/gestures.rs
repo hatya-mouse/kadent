@@ -12,14 +12,17 @@ use crate::{
     },
     ui::{
         EditorState,
-        editor::{PianoRollState, TimelineCoord, actions::EditorAction},
+        editor::{
+            PianoRollState, TimelineCoord, actions::EditorAction, views::piano_roll::PianoRollTool,
+        },
     },
 };
 use eframe::egui;
 
 impl PianoRollState {
-    // Handle gestures on the note grid, such as adding notes and zooming,
-    // and returns the new scroll timeline coordinate that preserves the scroll position after zooming.
+    // --- CLICK GESTURES ---
+
+    // Handles note grid clicking gestures.
     pub(super) fn note_grid_gestures(
         &mut self,
         ui: &mut egui::Ui,
@@ -29,40 +32,67 @@ impl PianoRollState {
         scroll_content_height: f32,
         region_id: &(TrackID, RegionID),
     ) {
+        let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
+        let should_add = match self.selected_tool {
+            PianoRollTool::Normal => response.double_clicked(),
+            PianoRollTool::Add => response.clicked(),
+            _ => false,
+        };
+
+        if should_add {
+            self.add_note_by_response(
+                &response,
+                state,
+                timeline_coord,
+                note_grid_rect,
+                scroll_content_height,
+                region_id,
+            );
+        }
+    }
+
+    fn add_note_by_response(
+        &mut self,
+        response: &egui::Response,
+        state: &mut EditorState,
+        timeline_coord: &TimelineCoord,
+        note_grid_rect: egui::Rect,
+        scroll_content_height: f32,
+        region_id: &(TrackID, RegionID),
+    ) {
         let resolution = state.project.data.audio_ctx.resolution;
         let note_height = timeline_coord.y_scale;
         let scroll_amount = timeline_coord.scroll;
-        let response = ui.allocate_rect(note_grid_rect, egui::Sense::click());
 
-        if response.double_clicked() {
-            // Add a new note when double clicked
-            if let Some(click_pos) = response.interact_pointer_pos() {
-                // Calculate the note start beats and the pitch
-                let (start, pitch) = calc_note_position(
-                    timeline_coord.tpp(resolution),
-                    click_pos,
-                    note_grid_rect,
-                    note_height,
-                    scroll_content_height,
-                    scroll_amount,
-                );
+        // Add a new note when double clicked
+        if let Some(click_pos) = response.interact_pointer_pos() {
+            // Calculate the note start beats and the pitch
+            let (start, pitch) = calc_note_position(
+                timeline_coord.tpp(resolution),
+                click_pos,
+                note_grid_rect,
+                note_height,
+                scroll_content_height,
+                scroll_amount,
+            );
 
-                // Set the length of the note to the lenght of the last edited note
-                let note_duration = self
-                    .last_edited_note_length
-                    .unwrap_or(Ticks(state.project.data.audio_ctx.resolution as i64));
+            // Set the length of the note to the lenght of the last edited note
+            let note_duration = self
+                .last_edited_note_length
+                .unwrap_or(Ticks(state.project.data.audio_ctx.resolution as i64));
 
-                // Add a note at the position
-                let note = Note::new(start, note_duration, pitch, 1.0);
-                state
-                    .actions
-                    .push_action(EditorAction::AddNote(region_id.0, region_id.1, note));
+            // Add a note at the position
+            let note = Note::new(start, note_duration, pitch, 1.0);
+            state
+                .actions
+                .push_action(EditorAction::AddNote(region_id.0, region_id.1, note));
 
-                // Play the note for feedback
-                self.play_note_feedback(state, pitch, 1.0);
-            }
+            // Play the note for feedback
+            self.play_note_feedback(state, pitch, 1.0);
         }
     }
+
+    // --- NOTE GESTURES ---
 
     pub(super) fn note_controls(
         &mut self,
