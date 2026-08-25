@@ -9,18 +9,18 @@ debug = true
 
 [dependencies]
 dirs = "6.0.0"
-eframe = "0.34.3"
-egui_extras = { version = "0.34.3", features = ["all_loaders", "syntect"] }
+eframe = "0.36.1"
+egui_extras = { version = "0.36.1", features = ["all_loaders", "syntect"] }
 hound = "3.5.1"
-kasl = { version = "0.2.35", features = ["cranelift"] }
+kasl = { version = "0.2.40", features = ["cranelift"] }
 midir = "0.11.0"
 rfd = "0.17.2"
-ringbuf = "0.5.0"
-serde_json = "1.0.150"
-cpal = "0.18.1"
+ringbuf = "0.5.1"
+serde_json = "1.0.151"
+cpal = "0.18.2"
 syntect = "5.3.0"
-uuid = { version = "1.24.1", features = ["v4"] }
-sode = "0.1.0"
+uuid = { version = "1.25.0", features = ["v4"] }
+sode = "0.1.4"
 rayon = "1.12.0"
 rand = "0.10.2"
 trash = "5.2.6"
