@@ -105,20 +105,30 @@ impl PianoRollState {
         note: &Note,
         note_rect: egui::Rect,
     ) {
-        // Create a rect on the right side of the note to drag and resize the note
-        let resize_rect = note_rect.with_min_x(note_rect.max.x - RESIZABLE_WIDTH);
+        if self.selected_tool == PianoRollTool::Normal {
+            // Create a rect on the right side of the note to drag and resize the note
+            let resize_rect = note_rect.with_min_x(note_rect.max.x - RESIZABLE_WIDTH);
 
-        // Get gestures on the note
-        let move_res = ui.allocate_rect(note_rect, egui::Sense::drag());
-        let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
+            // Get gestures on the note
+            let move_res = ui.allocate_rect(note_rect, egui::Sense::drag());
+            let resize_res = ui.allocate_rect(resize_rect, egui::Sense::drag());
 
-        // If the resize area is hovered, show the resize cursor
-        if resize_res.hovered() {
-            ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+            // If the resize area is hovered, show the resize cursor
+            if resize_res.hovered() {
+                ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+            }
+
+            self.handle_note_resize(state, timeline_coord, note_id, note, &resize_res);
+            self.handle_note_move(state, timeline_coord, note_id, note, &move_res);
+        } else if self.selected_tool == PianoRollTool::Remove {
+            // On remove tool, clicking note should remove it
+            let remove_res = ui.allocate_rect(note_rect, egui::Sense::click());
+            if remove_res.clicked() {
+                state
+                    .actions
+                    .push_action(EditorAction::RemoveNote(*note_id.0, *note_id.1, *note_id.2));
+            }
         }
-
-        self.handle_note_resize(state, timeline_coord, note_id, note, &resize_res);
-        self.handle_note_move(state, timeline_coord, note_id, note, &move_res);
     }
 
     fn handle_note_resize(

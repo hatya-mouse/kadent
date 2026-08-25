@@ -30,13 +30,13 @@ pub(crate) struct PianoRollState {
     /// MIDI note numbers and Instants for currently playing preview notes.
     pub(crate) preview_notes: Vec<(u8, Instant)>,
     /// Length of the last edited note.
-    pub(crate) last_edited_note_length: Option<Ticks>,
+    last_edited_note_length: Option<Ticks>,
     /// The currently selected tool.
-    pub(crate) selected_tool: PianoRollTool,
+    selected_tool: PianoRollTool,
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum PianoRollTool {
+enum PianoRollTool {
     #[default]
     Normal,
     Add,
