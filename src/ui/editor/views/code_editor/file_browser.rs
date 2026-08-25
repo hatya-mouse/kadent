@@ -105,6 +105,11 @@ fn dir_children(
                 }
             }
             FileNodeKind::File => {
+                // Skip hidden files
+                if child.name.starts_with('.') {
+                    continue;
+                }
+
                 let is_opened = code_buffer.path.as_ref() == Some(&child.path);
                 let file_item_res = ui.add_sized(
                     [file_list_width, FILE_TREE_ITEM_HEIGHT],
@@ -139,6 +144,11 @@ fn dir_expand_button(
     file_list_width: f32,
     indent: i32,
 ) -> Option<PathBuf> {
+    // Skip hidden files
+    if node.name.starts_with('.') {
+        return None;
+    }
+
     // Ensure that the node is of Dir type before proceeding
     let FileNodeKind::Dir { children } = &node.kind else {
         return None;
@@ -162,20 +172,21 @@ fn dir_expand_button(
     parent_dir_res.context_menu(|ui| {
         *ui.style_mut() = theme::menu_style(ui);
 
+        let full_path = node.path.with_file_name(&node.name);
         if ui.selectable_label(false, "New File").clicked() {
             actions.push_action(EditorAction::CreateFile(
-                node.path.with_file_name("untitled.kasl"),
+                full_path.with_file_name("untitled.kasl"),
             ));
             actions.push_action(EditorAction::UpdateDirCache);
         }
         if ui.selectable_label(false, "New Folder").clicked() {
             actions.push_action(EditorAction::CreateDirectory(
-                node.path.with_file_name("Untitled Folder"),
+                full_path.with_file_name("Untitled Folder"),
             ));
             actions.push_action(EditorAction::UpdateDirCache);
         }
         if ui.selectable_label(false, "Trash").clicked() {
-            actions.push_action(EditorAction::MoveFileToTrash(node.path.clone()));
+            actions.push_action(EditorAction::MoveFileToTrash(full_path.clone()));
             actions.push_action(EditorAction::UpdateDirCache);
         }
     });

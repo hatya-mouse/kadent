@@ -13,17 +13,23 @@ impl CodeEditorView {
     pub(crate) fn header(&mut self, ui: &mut egui::Ui, state: &mut EditorState, panel_id: Uuid) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
 
-        // Show a placeholder when no file is open
+        // Show filename and close button in the header
+        if small_icon_button(
+            ui,
+            egui::Image::new(include_image!("../../../../../assets/icons/reload.svg")),
+        )
+        .clicked()
+        {
+            state.actions.push_action(EditorAction::UpdateDirCache);
+        }
+
         let Some(path) = code_buffer.path.as_ref() else {
             return;
         };
-
-        // Show filename and close button in the header
         let file_name = path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
-
         if code_buffer.is_modified {
             ui.label(egui::RichText::new(&file_name).strong().bold());
         } else {
