@@ -17,6 +17,7 @@ use crate::{
             splitter::{SPLITTER_WIDTH, Splitter},
         },
         editor::{TimelineCoord, utils::handle_timeline_zoom},
+        theme,
     },
 };
 use eframe::egui::{self, scroll_area::ScrollBarVisibility};
@@ -76,13 +77,19 @@ impl TimelineState {
                     .show(ui, |ui| {
                         ui.horizontal(|ui| {
                             let divider_x = panel_rect.min.x + panel_state.track_list_width;
+                            // let track_list_rect = panel_rect.with_max_x(divider_x);
                             let edit_panel_rect = panel_rect.with_min_x(divider_x + SPLITTER_WIDTH);
-                            self.track_list_panel(
-                                ui,
-                                state,
-                                &panel_state.timeline_coord,
-                                panel_state.track_list_width,
-                            );
+
+                            egui::Frame::new()
+                                .fill(theme::secondary_bg(ui.visuals().dark_mode))
+                                .show(ui, |ui| {
+                                    self.track_list_panel(
+                                        ui,
+                                        state,
+                                        &panel_state.timeline_coord,
+                                        panel_state.track_list_width,
+                                    );
+                                });
 
                             Splitter::new(&mut panel_state.track_list_width)
                                 .with_min(MIN_SIDEBAR_WIDTH)

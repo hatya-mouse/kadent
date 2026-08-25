@@ -18,9 +18,7 @@ pub(super) fn run_save_project(
 /// Save all opened programs to their respective file paths.
 fn save_programs(code_buffers: &[CodeBuffer]) -> std::io::Result<()> {
     for code_buffer in code_buffers {
-        if let Some(ref path) = code_buffer.path {
-            std::fs::write(path, &code_buffer.content)?;
-        }
+        code_buffer.save_to_file()?;
     }
     Ok(())
 }

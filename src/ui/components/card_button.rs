@@ -1,9 +1,12 @@
 use crate::ui::theme;
 use eframe::egui;
 
+const CARD_BUTTON_MARGIN: egui::Margin = egui::Margin::symmetric(8, 3);
+
 /// A card like button that shows a background color when hovered.
 pub(crate) fn card_button_enabled<R>(
     enabled: bool,
+    highlighted: bool,
     ui: &mut egui::Ui,
     id: egui::Id,
     desired_size: Option<egui::Vec2>,
@@ -22,10 +25,28 @@ pub(crate) fn card_button_enabled<R>(
                 ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
             }
 
+            if highlighted {
+                ui.visuals_mut().widgets.active.fg_stroke =
+                    egui::Stroke::new(1.0, theme::selected_fg());
+                ui.visuals_mut().widgets.inactive.fg_stroke =
+                    egui::Stroke::new(1.0, theme::selected_fg());
+                ui.visuals_mut().widgets.open.fg_stroke =
+                    egui::Stroke::new(1.0, theme::selected_fg());
+                ui.visuals_mut().widgets.hovered.fg_stroke =
+                    egui::Stroke::new(1.0, theme::selected_fg());
+                ui.visuals_mut().widgets.noninteractive.fg_stroke =
+                    egui::Stroke::new(1.0, theme::selected_fg());
+            }
+
             egui::Frame::new()
                 .corner_radius(6.0)
+                .fill(if highlighted {
+                    theme::selected_bg()
+                } else {
+                    egui::Color32::TRANSPARENT
+                })
                 .stroke(theme::border(ui.visuals().dark_mode))
-                .inner_margin(egui::Margin::symmetric(6, 2))
+                .inner_margin(CARD_BUTTON_MARGIN)
                 .multiply_with_opacity(if enabled { 1.0 } else { 0.5 })
                 .show(ui, add_contents)
                 .response
@@ -64,5 +85,15 @@ pub(crate) fn card_button<R>(
     desired_size: Option<egui::Vec2>,
     add_contents: impl FnOnce(&mut egui::Ui) -> R,
 ) -> egui::Response {
-    card_button_enabled(true, ui, id, desired_size, add_contents)
+    card_button_enabled(true, false, ui, id, desired_size, add_contents)
+}
+
+/// A card like button that is highlighted.
+pub(crate) fn card_button_highlighted<R>(
+    ui: &mut egui::Ui,
+    id: egui::Id,
+    desired_size: Option<egui::Vec2>,
+    add_contents: impl FnOnce(&mut egui::Ui) -> R,
+) -> egui::Response {
+    card_button_enabled(true, true, ui, id, desired_size, add_contents)
 }

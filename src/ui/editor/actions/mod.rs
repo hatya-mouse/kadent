@@ -11,6 +11,7 @@ mod track;
 mod transport;
 
 pub(crate) use project::{FileNode, FileNodeKind};
+use uuid::Uuid;
 
 use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType};
 use crate::{
@@ -94,6 +95,12 @@ pub(crate) enum EditorAction {
     /// Moves a file to the trash.
     /// `(path)`
     MoveFileToTrash(PathBuf),
+    /// Saves the given code buffer to disk.
+    /// `(panel_id)`
+    SaveCodeBuffer(Uuid),
+    /// Opens a file in the code editor, replacing the current buffer.
+    /// `(panel_id, path)`
+    OpenFileInCodeEditor(Uuid, PathBuf),
 
     // --- TRANSPORT ---
     /// Start plyaing the project.
@@ -234,6 +241,12 @@ impl EditorUi {
                 }
                 EditorAction::MoveFileToTrash(path) => {
                     self.move_file_to_trash(&path);
+                }
+                EditorAction::SaveCodeBuffer(panel_id) => {
+                    self.save_code_buffer(panel_id);
+                }
+                EditorAction::OpenFileInCodeEditor(panel_id, path) => {
+                    self.open_file_in_code_editor(panel_id, path);
                 }
 
                 // --- TRANSPORT ---

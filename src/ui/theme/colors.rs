@@ -43,9 +43,9 @@ pub(crate) fn primary_bg(dark_mode: bool) -> Color32 {
 
 pub(crate) fn secondary_bg(dark_mode: bool) -> Color32 {
     if dark_mode {
-        Color32::from_rgb(33, 35, 41)
+        Color32::from_rgb(33, 35, 44)
     } else {
-        Color32::from_rgb(240, 245, 248)
+        Color32::from_rgb(243, 245, 247)
     }
 }
 

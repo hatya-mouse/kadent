@@ -1,8 +1,13 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use crate::ui::editor::{
-    EditorUi,
-    actions::{FileNode, FileNodeKind},
+use uuid::Uuid;
+
+use crate::ui::{
+    editor::{
+        EditorUi, UiCommand,
+        actions::{FileNode, FileNodeKind},
+    },
+    theme,
 };
 
 impl EditorUi {
@@ -38,6 +43,28 @@ impl EditorUi {
         if let Err(err) = trash::delete(path) {
             eprintln!("Failed to move file to trash: {}", err);
         }
+    }
+
+    pub(super) fn save_code_buffer(&mut self, panel_id: Uuid) {
+        if let Some(code_buffer) = self.views.code_editor.code_buffers.get_mut(&panel_id) {
+            if let Err(error) = code_buffer.save_to_file() {
+                println!("Failed to save code buffer: {}", error);
+                self.state
+                    .ui_commands
+                    .push_command(UiCommand::ShowTempStatus(
+                        "Could not save the file".to_string(),
+                        theme::error_fg(),
+                    ));
+            } else {
+                code_buffer.is_modified = false;
+            }
+        }
+    }
+
+    pub(super) fn open_file_in_code_editor(&mut self, panel_id: Uuid, path: PathBuf) {
+        self.views
+            .code_editor
+            .set_code_buffer(panel_id, path, &mut self.state);
     }
 }
 

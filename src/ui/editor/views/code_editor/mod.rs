@@ -1,13 +1,11 @@
 mod file_browser;
+mod header;
 mod kasl_editor;
 mod tree_item;
 
 use crate::{
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
-    ui::{
-        components::splitter::Splitter,
-        editor::{actions::FileNode, state::ActionDispatcher},
-    },
+    ui::{EditorState, components::splitter::Splitter, editor::actions::FileNode, theme},
 };
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
@@ -28,6 +26,16 @@ pub(crate) struct CodeEditorView {
 pub(crate) struct CodeBuffer {
     pub(crate) path: Option<PathBuf>,
     pub(crate) content: String,
+    pub(crate) is_modified: bool,
+}
+
+impl CodeBuffer {
+    pub(crate) fn save_to_file(&self) -> std::io::Result<()> {
+        if let Some(path) = &self.path {
+            std::fs::write(path, &self.content)?;
+        }
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -47,20 +55,26 @@ impl CodeEditorView {
     pub(in crate::ui::editor) fn ui(
         &mut self,
         ui: &mut egui::Ui,
-        actions: &mut ActionDispatcher,
+        state: &mut EditorState,
         panel_id: Uuid,
         panel_state: &mut CodeEditorPanelState,
     ) {
         let panel_rect = ui.available_rect_before_wrap();
+
         ui.horizontal(|ui| {
             ui.set_height(panel_rect.height());
             ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
 
-            egui::ScrollArea::vertical()
-                .id_salt("file_browser")
-                .max_width(panel_state.file_list_width)
+            egui::Frame::new()
+                .fill(theme::secondary_bg(ui.visuals().dark_mode))
                 .show(ui, |ui| {
-                    self.file_browser(ui, actions, panel_id, panel_state.file_list_width);
+                    ui.set_height(panel_rect.height());
+                    egui::ScrollArea::vertical()
+                        .id_salt("file_browser")
+                        .max_width(panel_state.file_list_width)
+                        .show(ui, |ui| {
+                            self.file_browser(ui, state, panel_id, panel_state.file_list_width);
+                        });
                 });
 
             Splitter::new(&mut panel_state.file_list_width)

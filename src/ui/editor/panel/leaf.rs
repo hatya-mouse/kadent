@@ -37,7 +37,7 @@ impl EditorUi {
             // Remove the spacing between header and content
             ui.spacing_mut().item_spacing.y = 0.0;
 
-            self.render_header(ui, view);
+            self.render_header(ui, view, id);
 
             // Clip the content to the area below the header
             // Without this, painter-based content (node graph, piano roll) would draw
@@ -76,18 +76,22 @@ impl EditorUi {
             PanelViewState::CodeEditor(panel_state) => {
                 self.views
                     .code_editor
-                    .ui(ui, &mut self.state.actions, panel_id, panel_state)
+                    .ui(ui, &mut self.state, panel_id, panel_state)
             }
         }
     }
 
-    fn render_view_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState) {
-        if matches!(view, PanelViewState::NodeGraph) {
-            self.views.node_graph.header(ui, &mut self.state);
+    fn render_view_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState, panel_id: Uuid) {
+        match view {
+            PanelViewState::NodeGraph => self.views.node_graph.header(ui, &mut self.state),
+            PanelViewState::CodeEditor(_) => {
+                self.views.code_editor.header(ui, &mut self.state, panel_id)
+            }
+            _ => (),
         }
     }
 
-    fn render_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState) {
+    fn render_header(&mut self, ui: &mut egui::Ui, view: &mut PanelViewState, panel_id: Uuid) {
         let selected_variant = view.variant();
         let response = panel_header(ui, PANEL_HEADER_MARGIN, |ui| {
             ui.set_min_width(ui.available_width());
@@ -109,7 +113,7 @@ impl EditorUi {
             );
 
             // Add the PanelVariant-specific header content
-            self.render_view_header(ui, view);
+            self.render_view_header(ui, view, panel_id);
         });
 
         let stroke = ui.visuals().widgets.noninteractive.bg_stroke;

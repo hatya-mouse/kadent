@@ -13,6 +13,10 @@ impl EditorUi {
             match result {
                 BackgroundThreadResult::SavedProject(result) => match result {
                     Ok(_) => {
+                        for code_buffer in self.views.code_editor.code_buffers.values_mut() {
+                            code_buffer.is_modified = false;
+                        }
+
                         self.state
                             .ui_commands
                             .push_command(UiCommand::ShowTempStatus(

@@ -6,7 +6,7 @@ mod track;
 
 use crate::{
     fonts::RichTextExt,
-    ui::{EditorState, editor::state::Selection, theme},
+    ui::{EditorState, components::centered_text::centered_text, editor::state::Selection, theme},
 };
 use eframe::egui;
 use std::hash::Hash;
@@ -51,13 +51,7 @@ impl InspectorView {
                     self.keyframe_inspector(ui, editor_state, &track_id, &node_id, keyframe_index);
                 }
                 Selection::None => {
-                    ui.centered_and_justified(|ui| {
-                        ui.label(
-                            egui::RichText::new("No selection")
-                                .size(theme::normal_font_size())
-                                .color(theme::secondary_fg(ui.visuals().dark_mode)),
-                        );
-                    });
+                    centered_text(ui, theme::not_available_label("No selection"));
                 }
             });
     }

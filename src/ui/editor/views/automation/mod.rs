@@ -4,6 +4,7 @@ mod gestures;
 use crate::core::audio_engine::node::builtin::CurveType;
 use crate::core::audio_engine::{data_types::Ticks, node::builtin::AutomationNode};
 use crate::ui::editor::TimelineCoord;
+use crate::ui::theme;
 use crate::{
     consts::{PANEL_HEADER_HEIGHT, TIMELINE_LEFT_PADDING},
     ui::{
@@ -59,7 +60,10 @@ impl AutomationState {
 
         // Get the track and the selected automation node
         let Some((track_id, node_id)) = state.selection.track_and_node_id() else {
-            centered_text(ui, "No Automation Node Selected");
+            centered_text(
+                ui,
+                theme::not_available_label("No Automation Node Selected"),
+            );
             return;
         };
         let Some(automation_node) = state
@@ -69,14 +73,17 @@ impl AutomationState {
             .and_then(|track| track.get_graph().get_node(&node_id))
             .and_then(|node| node.as_any().downcast_ref::<AutomationNode>())
         else {
-            centered_text(ui, "No Automation Node Selected");
+            centered_text(
+                ui,
+                theme::not_available_label("No Automation Node Selected"),
+            );
             return;
         };
 
         let available_rect = ui.available_rect_before_wrap();
         let ruler_bottom_y = available_rect.min.y + PANEL_HEADER_HEIGHT;
-        let ruler_rect = available_rect.with_max_y(ruler_bottom_y);
-        let scroll_rect = available_rect.with_min_y(ruler_bottom_y);
+        let ruler_rect = available_rect.with_max_y(ruler_bottom_y.max(available_rect.min.y));
+        let scroll_rect = available_rect.with_min_y(ruler_bottom_y.min(available_rect.max.y));
         let max_scroll = (timeline_width - available_rect.width()).max(0.0);
         timeline_coord.scroll.x = timeline_coord.scroll.x.clamp(0.0, max_scroll);
 

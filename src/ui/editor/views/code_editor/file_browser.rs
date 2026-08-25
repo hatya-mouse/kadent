@@ -1,5 +1,7 @@
 use crate::ui::{
+    EditorState,
     editor::{
+        DialogType, UiCommand,
         actions::{EditorAction, FileNode, FileNodeKind},
         state::ActionDispatcher,
         views::code_editor::{CodeBuffer, CodeEditorView, tree_item::FileTreeItem},
@@ -16,7 +18,7 @@ impl CodeEditorView {
     pub(super) fn file_browser(
         &mut self,
         ui: &mut egui::Ui,
-        actions: &mut ActionDispatcher,
+        state: &mut EditorState,
         panel_id: Uuid,
         file_list_width: f32,
     ) {
@@ -27,7 +29,7 @@ impl CodeEditorView {
                 ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
                 dir_children(
                     ui,
-                    actions,
+                    &mut state.actions,
                     &self.project_dir_cache,
                     code_buffer,
                     panel_id,
@@ -37,17 +39,40 @@ impl CodeEditorView {
             })
             .inner;
 
-        // Read the content at the path to the buffer
-        if let Some(path) = selected_file
-            && let Ok(content) = std::fs::read_to_string(&path)
-        {
+        // Read the content at the path to the buffer if a file is selected
+        if let Some(path) = selected_file {
+            if let Some(existing_buffer) = self.code_buffers.get_mut(&panel_id)
+                && existing_buffer.is_modified
+            {
+                state.ui_commands.push_command(UiCommand::ShowDialog(
+                    DialogType::ChangeCodeBuffer { panel_id, path },
+                ));
+            } else {
+                self.set_code_buffer(panel_id, path, state);
+            }
+        }
+    }
+
+    pub(crate) fn set_code_buffer(
+        &mut self,
+        panel_id: Uuid,
+        path: PathBuf,
+        state: &mut EditorState,
+    ) {
+        if let Ok(content) = std::fs::read_to_string(&path) {
             self.code_buffers.insert(
                 panel_id,
                 CodeBuffer {
                     path: Some(path),
                     content,
+                    is_modified: false,
                 },
             );
+        } else {
+            state.ui_commands.push_command(UiCommand::ShowTempStatus(
+                "Could not open the file".to_string(),
+                theme::error_fg(),
+            ));
         }
     }
 }

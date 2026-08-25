@@ -210,6 +210,9 @@ impl EditorUi {
                             name: String::new(),
                         };
                     }
+                    DialogType::ChangeCodeBuffer { panel_id, path } => {
+                        self.views.dialog = DialogState::ChangeCodeBuffer { panel_id, path };
+                    }
                 },
                 UiCommand::ShowTempStatus(message, color) => {
                     self.views.status_bar.show_temp_status(&message, color);

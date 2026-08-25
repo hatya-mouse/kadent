@@ -2,7 +2,7 @@ use crate::ui::{components::card_button::card_button, theme};
 use eframe::egui;
 use std::hash::Hash;
 
-const ICON_SIZE: f32 = 18.0;
+const ICON_SIZE: f32 = 16.0;
 
 pub(crate) fn dropdown_button<R>(
     ui: &mut egui::Ui,

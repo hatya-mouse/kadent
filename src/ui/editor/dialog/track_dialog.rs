@@ -4,7 +4,7 @@ use crate::{
     ui::{
         EditorState,
         components::{
-            dialog::dialog,
+            dialog::{dialog, dialog_bold_label},
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
@@ -28,9 +28,9 @@ impl DialogState {
 
         let modal = dialog(ui, "Add Track", |ui| {
             ui.columns(2, |cols| {
-                *cols[0].style_mut() = theme::menu_style(&cols[0]);
-                cols[0].label("Track Type");
+                dialog_bold_label(&mut cols[0], "Track Type");
 
+                *cols[0].style_mut() = theme::menu_style(&cols[0]);
                 TrackType::all().iter().for_each(|track_type| {
                     let selected = selected_track_type == track_type;
                     if cols[0]
@@ -41,7 +41,7 @@ impl DialogState {
                     }
                 });
 
-                cols[1].label("Track Name");
+                dialog_bold_label(&mut cols[1], "Track Name");
                 text_input(&mut cols[1], name);
 
                 cols[1].horizontal(|ui| {
@@ -52,6 +52,7 @@ impl DialogState {
                     let can_create = !name.trim().is_empty();
                     text_button_enabled(
                         can_create,
+                        true,
                         ui,
                         "create_track",
                         egui::RichText::new("Create Track").bold(),

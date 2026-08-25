@@ -6,7 +6,7 @@ use crate::{
     ui::{
         SplashUi,
         components::{
-            dialog::dialog,
+            dialog::{dialog, dialog_bold_label},
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
@@ -20,10 +20,10 @@ impl SplashUi {
 
         let mut should_close = false;
         let modal = dialog(ui, "Create Project", |ui| {
-            ui.label("Project Name");
+            dialog_bold_label(ui, "Project Name");
             text_input(ui, &mut dialog_state.project_name);
 
-            ui.label("Project Folder");
+            dialog_bold_label(ui, "Project Folder");
             ui.label(
                 egui::RichText::new(
                     dialog_state
@@ -57,6 +57,7 @@ impl SplashUi {
                         .is_some_and(|path| path.is_dir());
                 text_button_enabled(
                     can_create,
+                    true,
                     ui,
                     "create_project",
                     egui::RichText::new("Create Project").bold(),
