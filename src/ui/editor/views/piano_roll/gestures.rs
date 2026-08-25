@@ -19,6 +19,8 @@ use crate::{
 };
 use eframe::egui;
 
+const RESIZABLE_WIDTH: f32 = 5.0;
+
 impl PianoRollState {
     // --- CLICK GESTURES ---
 
@@ -102,10 +104,9 @@ impl PianoRollState {
         note_id: (&TrackID, &RegionID, &NoteID),
         note: &Note,
         note_rect: egui::Rect,
-        resize_rect: egui::Rect,
     ) {
-        let note_height = timeline_coord.y_scale;
-        let resolution = state.project.data.audio_ctx.resolution;
+        // Create a rect on the right side of the note to drag and resize the note
+        let resize_rect = note_rect.with_min_x(note_rect.max.x - RESIZABLE_WIDTH);
 
         // Get gestures on the note
         let move_res = ui.allocate_rect(note_rect, egui::Sense::drag());
@@ -115,6 +116,20 @@ impl PianoRollState {
         if resize_res.hovered() {
             ui.set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
         }
+
+        self.handle_note_resize(state, timeline_coord, note_id, note, &resize_res);
+        self.handle_note_move(state, timeline_coord, note_id, note, &move_res);
+    }
+
+    fn handle_note_resize(
+        &mut self,
+        state: &mut EditorState,
+        timeline_coord: &TimelineCoord,
+        note_id: (&TrackID, &RegionID, &NoteID),
+        note: &Note,
+        resize_res: &egui::Response,
+    ) {
+        let resolution = state.project.data.audio_ctx.resolution;
 
         // Handle resize
         if resize_res.dragged() {
@@ -154,6 +169,18 @@ impl PianoRollState {
                 new_duration,
             ));
         }
+    }
+
+    fn handle_note_move(
+        &mut self,
+        state: &mut EditorState,
+        timeline_coord: &TimelineCoord,
+        note_id: (&TrackID, &RegionID, &NoteID),
+        note: &Note,
+        move_res: &egui::Response,
+    ) {
+        let note_height = timeline_coord.y_scale;
+        let resolution = state.project.data.audio_ctx.resolution;
 
         if move_res.dragged() {
             let delta_ticks =

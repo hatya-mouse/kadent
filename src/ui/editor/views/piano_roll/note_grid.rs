@@ -62,13 +62,6 @@ impl PianoRollState {
                 egui::vec2(note_width, note_height),
             );
 
-            // Create a rect on the right side of the note to drag and resize the note
-            let draggable_width = 5.0;
-            let resize_rect = egui::Rect::from_min_size(
-                egui::pos2(note_x + note_width - draggable_width, note_y + 2.0),
-                egui::vec2(draggable_width, note_height - 4.0),
-            );
-
             // Handle note gestures
             self.note_controls(
                 ui,
@@ -77,7 +70,6 @@ impl PianoRollState {
                 (&track_id, &region_id, &note_id),
                 &note,
                 note_rect,
-                resize_rect,
             );
 
             // Highlight the selected note
