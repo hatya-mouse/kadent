@@ -61,6 +61,18 @@ impl EditorUi {
         }
     }
 
+    pub(super) fn move_file(&mut self, from: &Path, to: &Path) {
+        if let Err(err) = std::fs::rename(from, to) {
+            eprintln!("Failed to move file: {}", err);
+            self.state
+                .ui_commands
+                .push_command(UiCommand::ShowTempStatus(
+                    "Could not move the file".to_string(),
+                    theme::error_fg(),
+                ));
+        }
+    }
+
     pub(super) fn open_file_in_code_editor(&mut self, panel_id: Uuid, path: PathBuf) {
         self.views
             .code_editor

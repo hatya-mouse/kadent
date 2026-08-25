@@ -44,7 +44,11 @@ impl<'a> FileTreeItem<'a> {
 impl egui::Widget for FileTreeItem<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let size = ui.available_size();
-        let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
+        let (mut rect, response) = ui.allocate_exact_size(size, egui::Sense::click_and_drag());
+
+        if response.dragged() {
+            rect = rect.translate(response.total_drag_delta().unwrap_or_default());
+        }
 
         if ui.is_rect_visible(rect) {
             let bg_color = if self.is_highlighted {

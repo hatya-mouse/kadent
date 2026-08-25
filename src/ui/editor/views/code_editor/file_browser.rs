@@ -14,6 +14,20 @@ use uuid::Uuid;
 
 const FILE_TREE_ITEM_HEIGHT: f32 = 25.0;
 
+struct FileTreeContext<'a> {
+    actions: &'a mut ActionDispatcher,
+    code_buffer: &'a CodeBuffer,
+    item_rects: &'a mut Vec<FileTreeDragTarget>,
+    dropped_path: Option<PathBuf>,
+    panel_id: Uuid,
+    file_list_width: f32,
+}
+
+struct FileTreeDragTarget {
+    rect: egui::Rect,
+    path: PathBuf,
+}
+
 impl CodeEditorView {
     pub(super) fn file_browser(
         &mut self,
@@ -23,21 +37,39 @@ impl CodeEditorView {
         file_list_width: f32,
     ) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
+        let mut item_rects = Vec::new();
+        let mut ctx = FileTreeContext {
+            actions: &mut state.actions,
+            code_buffer,
+            item_rects: &mut item_rects,
+            dropped_path: None,
+            panel_id,
+            file_list_width,
+        };
 
         let selected_file = ui
             .vertical(|ui| {
                 ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
-                dir_children(
-                    ui,
-                    &mut state.actions,
-                    &self.project_dir_cache,
-                    code_buffer,
-                    panel_id,
-                    file_list_width,
-                    0,
-                )
+                dir_children(ui, &self.project_dir_cache, &mut ctx, 0)
             })
             .inner;
+
+        if let Some(dropped_path) = ctx.dropped_path
+            && let Some(file_name) = dropped_path.file_name()
+            && let Some(pointer_pos) = ui.input(|i| i.pointer.hover_pos())
+        {
+            let target = item_rects
+                .iter()
+                .find(|item| item.path != dropped_path && item.rect.contains(pointer_pos));
+
+            if let Some(target_item) = target {
+                let target_path = target_item.path.join(file_name);
+                state
+                    .actions
+                    .push_action(EditorAction::MoveFile(dropped_path, target_path));
+                state.actions.push_action(EditorAction::UpdateDirCache);
+            }
+        }
 
         // Read the content at the path to the buffer if a file is selected
         if let Some(path) = selected_file {
@@ -79,11 +111,8 @@ impl CodeEditorView {
 
 fn dir_children(
     ui: &mut egui::Ui,
-    actions: &mut ActionDispatcher,
     children: &[FileNode],
-    code_buffer: &CodeBuffer,
-    panel_id: Uuid,
-    file_list_width: f32,
+    ctx: &mut FileTreeContext,
     indent: i32,
 ) -> Option<PathBuf> {
     let mut response = None;
@@ -91,15 +120,7 @@ fn dir_children(
     for child in children {
         match &child.kind {
             FileNodeKind::Dir { .. } => {
-                let dir_res = dir_expand_button(
-                    ui,
-                    actions,
-                    child,
-                    code_buffer,
-                    panel_id,
-                    file_list_width,
-                    indent,
-                );
+                let dir_res = dir_expand_button(ui, child, ctx, indent);
                 if dir_res.is_some() {
                     response = dir_res;
                 }
@@ -110,18 +131,29 @@ fn dir_children(
                     continue;
                 }
 
-                let is_opened = code_buffer.path.as_ref() == Some(&child.path);
+                let is_opened = ctx.code_buffer.path.as_ref() == Some(&child.path);
                 let file_item_res = ui.add_sized(
-                    [file_list_width, FILE_TREE_ITEM_HEIGHT],
+                    [ctx.file_list_width, FILE_TREE_ITEM_HEIGHT],
                     FileTreeItem::new(&child.name, indent).highlighted(is_opened),
                 );
+                if let Some(parent_path) = child.path.parent() {
+                    ctx.item_rects.push(FileTreeDragTarget {
+                        rect: file_item_res.rect,
+                        path: parent_path.to_path_buf(),
+                    });
+                }
+
+                if file_item_res.drag_stopped() {
+                    ctx.dropped_path = Some(child.path.clone());
+                }
 
                 file_item_res.context_menu(|ui| {
                     *ui.style_mut() = theme::menu_style(ui);
 
                     if ui.selectable_label(false, "Trash").clicked() {
-                        actions.push_action(EditorAction::MoveFileToTrash(child.path.clone()));
-                        actions.push_action(EditorAction::UpdateDirCache);
+                        ctx.actions
+                            .push_action(EditorAction::MoveFileToTrash(child.path.clone()));
+                        ctx.actions.push_action(EditorAction::UpdateDirCache);
                     }
                 });
 
@@ -137,11 +169,8 @@ fn dir_children(
 
 fn dir_expand_button(
     ui: &mut egui::Ui,
-    actions: &mut ActionDispatcher,
     node: &FileNode,
-    code_buffer: &CodeBuffer,
-    panel_id: Uuid,
-    file_list_width: f32,
+    ctx: &mut FileTreeContext,
     indent: i32,
 ) -> Option<PathBuf> {
     // Skip hidden files
@@ -155,54 +184,51 @@ fn dir_expand_button(
     };
 
     // Manage expand state using persistent ID based on the node's path
-    let id = ui.id().with(panel_id).with(&node.path).with(indent);
+    let id = ui.id().with(ctx.panel_id).with(&node.path).with(indent);
     let mut state =
         egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, false);
 
     // Collapsing directory item
     let parent_dir_res = ui.add_sized(
-        [file_list_width, FILE_TREE_ITEM_HEIGHT],
+        [ctx.file_list_width, FILE_TREE_ITEM_HEIGHT],
         FileTreeItem::new(&node.name, indent).collapsible(!state.is_open()),
     );
+    ctx.item_rects.push(FileTreeDragTarget {
+        rect: parent_dir_res.rect,
+        path: node.path.clone(),
+    });
     if parent_dir_res.clicked() {
         state.toggle(ui);
+    }
+
+    if parent_dir_res.drag_stopped() {
+        ctx.dropped_path = Some(node.path.clone());
     }
 
     // Add context menu for adding new files or directories
     parent_dir_res.context_menu(|ui| {
         *ui.style_mut() = theme::menu_style(ui);
 
-        let full_path = node.path.with_file_name(&node.name);
         if ui.selectable_label(false, "New File").clicked() {
-            actions.push_action(EditorAction::CreateFile(
-                full_path.with_file_name("untitled.kasl"),
-            ));
-            actions.push_action(EditorAction::UpdateDirCache);
+            ctx.actions
+                .push_action(EditorAction::CreateFile(node.path.join("untitled.kasl")));
+            ctx.actions.push_action(EditorAction::UpdateDirCache);
         }
         if ui.selectable_label(false, "New Folder").clicked() {
-            actions.push_action(EditorAction::CreateDirectory(
-                full_path.with_file_name("Untitled Folder"),
+            ctx.actions.push_action(EditorAction::CreateDirectory(
+                node.path.join("Untitled Folder"),
             ));
-            actions.push_action(EditorAction::UpdateDirCache);
+            ctx.actions.push_action(EditorAction::UpdateDirCache);
         }
         if ui.selectable_label(false, "Trash").clicked() {
-            actions.push_action(EditorAction::MoveFileToTrash(full_path.clone()));
-            actions.push_action(EditorAction::UpdateDirCache);
+            ctx.actions
+                .push_action(EditorAction::MoveFileToTrash(node.path.clone()));
+            ctx.actions.push_action(EditorAction::UpdateDirCache);
         }
     });
 
     // Show the child components
     state
-        .show_body_unindented(ui, |ui| {
-            dir_children(
-                ui,
-                actions,
-                children,
-                code_buffer,
-                panel_id,
-                file_list_width,
-                indent + 1,
-            )
-        })
+        .show_body_unindented(ui, |ui| dir_children(ui, children, ctx, indent + 1))
         .and_then(|res| res.inner)
 }
