@@ -99,6 +99,9 @@ pub(crate) enum EditorAction {
     /// Saves the given code buffer to disk.
     /// `(panel_id)`
     SaveCodeBuffer(Uuid),
+    /// Closes the file in the code editor without saving it to disk.
+    /// `(panel_id)`
+    CloseCodeBuffer(Uuid),
     /// Moves the given file or directory to the the given path.
     /// `(from, to)`
     MoveFile(PathBuf, PathBuf),
@@ -248,6 +251,9 @@ impl EditorUi {
                 }
                 EditorAction::SaveCodeBuffer(panel_id) => {
                     self.save_code_buffer(panel_id);
+                }
+                EditorAction::CloseCodeBuffer(panel_id) => {
+                    self.close_code_buffer(panel_id);
                 }
                 EditorAction::MoveFile(from, to) => {
                     self.move_file(&from, &to);

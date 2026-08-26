@@ -3,7 +3,7 @@ use crate::{
     ui::{
         EditorState,
         components::icon_button::small_icon_button,
-        editor::{actions::EditorAction, views::CodeEditorView},
+        editor::{DialogType, UiCommand, actions::EditorAction, views::CodeEditorView},
     },
 };
 use eframe::egui::{self, include_image};
@@ -43,7 +43,13 @@ impl CodeEditorView {
             )
             .clicked()
             {
-                code_buffer.path = None;
+                if code_buffer.is_modified {
+                    state.ui_commands.push_command(UiCommand::ShowDialog(
+                        DialogType::CloseCodeBuffer { panel_id },
+                    ));
+                } else {
+                    code_buffer.path = None;
+                }
             }
 
             if small_icon_button(

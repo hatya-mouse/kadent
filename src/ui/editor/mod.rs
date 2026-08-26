@@ -216,6 +216,9 @@ impl EditorUi {
                     DialogType::ChangeCodeBuffer { panel_id, path } => {
                         self.views.dialog = DialogState::ChangeCodeBuffer { panel_id, path };
                     }
+                    DialogType::CloseCodeBuffer { panel_id } => {
+                        self.views.dialog = DialogState::CloseCodeBuffer { panel_id };
+                    }
                     DialogType::RenameFile { path } => {
                         let initial_name = path
                             .file_name()

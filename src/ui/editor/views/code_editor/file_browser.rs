@@ -66,9 +66,20 @@ impl CodeEditorView {
 
             if let Some(target_item) = target {
                 let target_path = target_item.path.join(file_name);
+
+                // If any code buffer is opening the dropped file, update its path to the new location
+                for buffer in self.code_buffers.values_mut() {
+                    if let Some(buffer_path) = &buffer.path
+                        && *buffer_path == dropped_path
+                    {
+                        buffer.path = Some(target_path.clone());
+                    }
+                }
+
+                // Move the file to the new location
                 state
                     .actions
-                    .push_action(EditorAction::MoveFile(dropped_path, target_path));
+                    .push_action(EditorAction::MoveFile(dropped_path, target_path.clone()));
                 state.actions.push_action(EditorAction::UpdateDirCache);
             }
         }

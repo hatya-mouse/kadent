@@ -61,6 +61,12 @@ impl EditorUi {
         }
     }
 
+    pub(super) fn close_code_buffer(&mut self, panel_id: Uuid) {
+        if let Some(code_buffer) = self.views.code_editor.code_buffers.get_mut(&panel_id) {
+            code_buffer.path = None;
+        }
+    }
+
     pub(super) fn move_file(&mut self, from: &Path, to: &Path) {
         if let Err(err) = std::fs::rename(from, to) {
             eprintln!("Failed to move file: {}", err);

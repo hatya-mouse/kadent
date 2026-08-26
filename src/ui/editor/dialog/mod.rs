@@ -1,4 +1,5 @@
 mod change_code_buffer;
+mod close_code_buffer;
 mod rename_file;
 mod track_dialog;
 
@@ -14,6 +15,9 @@ impl DialogState {
             }
             DialogState::ChangeCodeBuffer { .. } => {
                 self.change_code_buffer_dialog(ui, state);
+            }
+            DialogState::CloseCodeBuffer { .. } => {
+                self.close_code_buffer_dialog(ui, state);
             }
             DialogState::RenameFile { .. } => {
                 self.rename_file_dialog(ui, state);

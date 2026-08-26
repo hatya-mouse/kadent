@@ -14,6 +14,9 @@ pub(crate) enum DialogState {
         panel_id: Uuid,
         path: PathBuf,
     },
+    CloseCodeBuffer {
+        panel_id: Uuid,
+    },
     RenameFile {
         path: PathBuf,
         new_name: String,
@@ -23,5 +26,6 @@ pub(crate) enum DialogState {
 pub(crate) enum DialogType {
     AddTrack,
     ChangeCodeBuffer { panel_id: Uuid, path: PathBuf },
+    CloseCodeBuffer { panel_id: Uuid },
     RenameFile { path: PathBuf },
 }
