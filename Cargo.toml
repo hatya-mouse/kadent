@@ -12,7 +12,7 @@ dirs = "6.0.0"
 eframe = "0.36.1"
 egui_extras = { version = "0.36.1", features = ["all_loaders", "syntect"] }
 hound = "3.5.1"
-kasl = { version = "0.2.40", features = ["cranelift"] }
+kasl = { version = "0.2.41", features = ["cranelift"] }
 midir = "0.11.0"
 rfd = "0.17.2"
 ringbuf = "0.5.1"
