@@ -16,7 +16,7 @@ impl NoteTrack {
         let mut notes: Vec<Note> = Vec::new();
 
         // Convert the local start Ticks to global Ticks by adding the start of the region
-        for (_, region) in self.regions.iter() {
+        for region in self.regions.values() {
             let (region_start, region_end) = region.bounds.tick_range(tempo_map);
             let region_duration = (region_end - region_start).max(Ticks::ZERO);
 

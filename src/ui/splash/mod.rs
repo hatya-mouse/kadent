@@ -57,7 +57,7 @@ impl SplashUi {
                 egui::vec2(splash_control_width, full_height),
                 egui::Layout::top_down(egui::Align::LEFT),
                 |ui| {
-                    if let Some(t) = self.splash_controls(ui) {
+                    if let Some(t) = self.splash_controls(ui, preferences) {
                         ctx = Some(t);
                     }
                 },
@@ -70,7 +70,7 @@ impl SplashUi {
                     egui::vec2(project_list_width, full_height),
                     egui::Layout::top_down(egui::Align::LEFT),
                     |ui| {
-                        if let Some(t) = self.project_list(ui) {
+                        if let Some(t) = self.project_list(ui, preferences) {
                             ctx = Some(t);
                         }
                     },

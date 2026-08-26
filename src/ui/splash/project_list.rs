@@ -1,7 +1,7 @@
 use crate::{
     core::project_ctx::ProjectContext,
     fonts::RichTextExt,
-    storage::project::open_project_to_ctx,
+    storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{SplashUi, components::not_available_text::not_available_text, theme},
 };
 use eframe::egui;
@@ -9,7 +9,11 @@ use eframe::egui;
 const CONTENT_MARGIN: i8 = 12;
 
 impl SplashUi {
-    pub(super) fn project_list(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
+    pub(super) fn project_list(
+        &mut self,
+        ui: &mut egui::Ui,
+        preferences: &AppPreferences,
+    ) -> Option<ProjectContext> {
         let mut selected_path = None;
 
         egui::ScrollArea::vertical()
@@ -82,7 +86,7 @@ impl SplashUi {
 
         // Open the project is any is selected
         if let Some(path) = selected_path {
-            open_project_to_ctx(path)
+            open_project_to_ctx(path, preferences)
         } else {
             None
         }

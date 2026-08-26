@@ -40,10 +40,6 @@ pub(crate) struct ViewStates {
 }
 
 impl ViewStates {
-    pub(crate) fn insert_panel_state(&mut self, panel_id: Uuid, state: PanelViewState) {
-        self.panel_states.insert(panel_id, state);
-    }
-
     pub(crate) fn remove_panel_states(&mut self, panel_ids: &[Uuid]) {
         for panel_id in panel_ids {
             self.panel_states.remove(panel_id);

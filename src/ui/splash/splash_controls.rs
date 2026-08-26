@@ -1,7 +1,7 @@
 use crate::{
     core::project_ctx::ProjectContext,
     fonts::RichTextExt,
-    storage::project::open_project_to_ctx,
+    storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{
         SplashUi, components::card_button::card_button, splash::state::NewProjectDialogState, theme,
     },
@@ -13,7 +13,11 @@ const BUTTON_HEIGHT: f32 = 44.0;
 const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 2.0;
 
 impl SplashUi {
-    pub(super) fn splash_controls(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
+    pub(super) fn splash_controls(
+        &mut self,
+        ui: &mut egui::Ui,
+        preferences: &AppPreferences,
+    ) -> Option<ProjectContext> {
         ui.vertical_centered(|ui| {
             let full_width = ui.available_width();
             let full_height = ui.available_height();
@@ -72,7 +76,7 @@ impl SplashUi {
             if open_project_res.clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_file()
             {
-                return open_project_to_ctx(project_dir);
+                return open_project_to_ctx(project_dir, preferences);
             }
 
             None

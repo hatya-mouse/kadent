@@ -187,16 +187,6 @@ impl TimeBounds {
 
     // --- TICKS SETTER ---
 
-    /// Sets the start tick of the time bounds.
-    pub(crate) fn set_start_tick(&mut self, tick: Ticks, tempo_map: &TempoMap) {
-        match self {
-            TimeBounds::Musical { start, .. } => *start = tick,
-            TimeBounds::Time { start_seconds, .. } => {
-                *start_seconds = tempo_map.ticks_to_seconds(tick)
-            }
-        }
-    }
-
     /// Sets the duration of the time bounds.
     pub(crate) fn set_duration_ticks(&mut self, duration: Ticks, tempo_map: &TempoMap) {
         match self {
