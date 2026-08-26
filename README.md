@@ -8,6 +8,42 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 - Live performance with MIDI controller
 - Project save & load
 
+# Building from Source
+
+## Using Taskfile
+
+### Debug Run
+
+```bash
+task dev
+```
+
+### Release
+
+```bash
+task build
+```
+
+### Package
+
+```bash
+task package -- <target>
+```
+
+## Without Taskfile
+
+### Debug Run
+
+```bash
+cargo run
+```
+
+### Release
+
+```bash
+cargo build --release
+```
+
 # Profiling
 
 ```bash
@@ -21,53 +57,54 @@ samply record ./target/profiling/kadent
 src/
 ├── background_thread
 ├── core
-│   ├── audio_engine
-│   │   ├── audio_data
-│   │   ├── data_types
-│   │   ├── graph
-│   │   ├── mixer
-│   │   ├── node
-│   │   │   └── builtin
-│   │   │       └── automation_node
-│   │   ├── thread
-│   │   ├── timing
-│   │   └── track
-│   │       ├── audio_track
-│   │       │   └── track_impl
-│   │       └── note_track
-│   │           └── track_impl
-│   ├── kasl_node
-│   └── metadata
+│   ├── audio_engine
+│   │   ├── audio_data
+│   │   ├── data_types
+│   │   ├── graph
+│   │   ├── mixer
+│   │   ├── node
+│   │   │   └── builtin
+│   │   │       └── automation_node
+│   │   ├── thread
+│   │   ├── timing
+│   │   └── track
+│   │       ├── audio_track
+│   │       │   └── track_impl
+│   │       └── note_track
+│   │           └── track_impl
+│   ├── kasl_node
+│   └── metadata
 ├── storage
-│   ├── app_state
-│   └── project
-│       ├── serial
-│       └── stored
+│   ├── app_state
+│   └── project
+│       └── serial
+│           ├── data
+│           └── meta
 └── ui
     ├── components
     ├── editor
-    │   ├── actions
-    │   │   ├── graph
-    │   │   ├── note
-    │   │   └── region
-    │   ├── panel
-    │   ├── state
-    │   ├── status_bar
-    │   ├── toolbar
-    │   └── views
-    │       ├── automation
-    │       ├── code_editor
-    │       ├── error_list
-    │       ├── inspector
-    │       ├── node_graph
-    │       ├── piano_roll
-    │       └── timeline
-    │           ├── edit_panel
-    │           └── track_list
+    │   ├── actions
+    │   │   ├── graph
+    │   │   ├── note
+    │   │   └── region
+    │   ├── dialog
+    │   ├── panel
+    │   ├── state
+    │   ├── status_bar
+    │   ├── toolbar
+    │   └── views
+    │       ├── automation
+    │       ├── code_editor
+    │       ├── error_list
+    │       ├── inspector
+    │       ├── node_graph
+    │       ├── piano_roll
+    │       └── timeline
+    │           └── edit_panel
     ├── splash
     └── theme
 
-48 directories
+49 directories
 ```
 
 ## `core/`

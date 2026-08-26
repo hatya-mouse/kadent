@@ -1,6 +1,7 @@
 use crate::{
-    consts::{KADENT_DATA_DIR_NAME, KASL_LIB_PATH},
+    core::stdlib_installer::{default_kasl_lib_directory, install_kasl_stdlib},
     fonts::RichTextExt,
+    storage::app_state::{AppPreferences, save_preferences},
     ui::{
         components::{
             dialog::{dialog, dialog_bold_label},
@@ -10,7 +11,7 @@ use crate::{
     },
 };
 use eframe::egui;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub(super) struct InstallStdLibDialogState {
     /// The error message to display if the installation fails.
@@ -21,7 +22,7 @@ pub(super) struct InstallStdLibDialogState {
 
 impl Default for InstallStdLibDialogState {
     fn default() -> Self {
-        let install_dir = kasl_lib_directory();
+        let install_dir = default_kasl_lib_directory();
         Self {
             error_message: None,
             install_dir,
@@ -30,7 +31,11 @@ impl Default for InstallStdLibDialogState {
 }
 
 impl SplashDialogState {
-    pub(super) fn install_std_lib_dialog(&mut self, ui: &mut egui::Ui) {
+    pub(super) fn install_std_lib_dialog(
+        &mut self,
+        ui: &mut egui::Ui,
+        preferences: &mut AppPreferences,
+    ) {
         let SplashDialogState::InstallStdLib(dialog_state) = self else {
             return;
         };
@@ -84,7 +89,16 @@ impl SplashDialogState {
                             dialog_state.error_message = Some(e.to_string());
                         }
                         Ok(()) => {
-                            should_close = true;
+                            preferences.kasl_std_path =
+                                install_dir.clone().into_os_string().into_string().ok();
+                            match save_preferences(preferences) {
+                                Err(e) => {
+                                    dialog_state.error_message = Some(e.to_string());
+                                }
+                                Ok(()) => {
+                                    should_close = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -95,31 +109,4 @@ impl SplashDialogState {
             *self = SplashDialogState::None;
         }
     }
-}
-
-fn install_kasl_stdlib(install_dir: &Path) -> std::io::Result<()> {
-    let source = Path::new("/path/to/kasl/std");
-    copy_dir_recursive(source, install_dir)
-}
-
-fn kasl_lib_directory() -> Option<PathBuf> {
-    dirs::data_dir().map(|d| d.join(KADENT_DATA_DIR_NAME).join(KASL_LIB_PATH))
-}
-
-fn copy_dir_recursive(source: &Path, destination: &Path) -> std::io::Result<()> {
-    std::fs::create_dir_all(destination)?;
-
-    for entry in std::fs::read_dir(source)? {
-        let entry = entry?;
-        let source_path = entry.path();
-        let destination_path = destination.join(entry.file_name());
-
-        if source_path.is_dir() {
-            copy_dir_recursive(&source_path, &destination_path)?;
-        } else {
-            std::fs::copy(&source_path, &destination_path)?;
-        }
-    }
-
-    Ok(())
 }

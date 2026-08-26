@@ -51,10 +51,10 @@ impl SplashDialogState {
                         path.to_string_lossy().to_string()
                     }),
             );
-            if text_button(ui, "select_folder", "Select Folder").clicked() {
-                if let Some(project_dir) = rfd::FileDialog::new().pick_folder() {
-                    dialog_state.project_dir = Some(project_dir);
-                }
+            if text_button(ui, "select_folder", "Select Folder").clicked()
+                && let Some(project_dir) = rfd::FileDialog::new().pick_folder()
+            {
+                dialog_state.project_dir = Some(project_dir);
             }
 
             ui.add_space(4.0);

@@ -28,11 +28,3 @@ serde = "1.0.229"
 
 [build-dependencies]
 syntect = "5.3.0"
-
-[package.metadata.bundle]
-name = "Kadent"
-identifier = "com.hatya.kadent"
-version = "0.1.0"
-category = "Music"
-copyright = "© 2026 Shuntaro Kasatani"
-osx_info_plist_exts = ["info_ext.plist"]

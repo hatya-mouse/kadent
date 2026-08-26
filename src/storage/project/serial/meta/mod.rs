@@ -23,7 +23,7 @@ impl Decode for ProjectMeta {
         Ok(ProjectMeta {
             tracks: d.field(0)?.ok_or(DecodeError::InvalidData)?,
             track_order: d.field(1)?.ok_or(DecodeError::InvalidData)?,
-            export_ctx: d.field(3)?.ok_or(DecodeError::InvalidData)?,
+            export_ctx: d.field(2)?.ok_or(DecodeError::InvalidData)?,
         })
     }
 }

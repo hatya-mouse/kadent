@@ -21,9 +21,37 @@ tasks:
             - cargo build --release
 
     package:
-        desc: Bundle the application for the platform
+        desc: Bundle the application for the target platform
+        vars:
+            # Sets a default fallback if you don't type 'target=...' on the CLI
+            TARGET: '{{.target | default "aarch64-apple-darwin"}}'
+            BINARY_NAME: kadent
+            APP_NAME: Kadent
         cmds:
-            - cargo install cargo-bundle
-            - cargo bundle
-            # - codesign --options runtime --entitlements entitlements.plist --sign - target/release/Kadent.app/Contents/MacOS/Kadent
-            # - codesign --deep --sign - target/release/Kadent.app
+            # Recreate the dist directory for the target platform
+            - rm -rf "./dist/{{.TARGET}}"
+            - rm -rf ./tmp
+            - mkdir -p "./dist/{{.TARGET}}"
+            # Clone the latest KASL Standard Library from GitHub
+            - git clone https://github.com/hatya-mouse/kasl-std ./tmp
+            # Compile the project for the target platform
+            - cargo build --release --target "{{.TARGET}}"
+            # Create a directory structure and copy the binary and resources to the dist directory
+            - |
+              if [[ "{{.TARGET}}" == *"darwin"* ]]; then
+                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
+                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
+                cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
+                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+              elif [[ "{{.TARGET}}" == *"windows"* ]]; then
+                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe" "./dist/{{.TARGET}}/{{.APP_NAME}}"
+                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+              else
+                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
+                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+              fi
+            # Clean up the temporary KASL Standard Library clone
+            - rm -rf ./tmp

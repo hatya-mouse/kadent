@@ -45,7 +45,7 @@ impl SplashUi {
             let full_height = ui.available_height();
             ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 0.0);
 
-            let base_control_width = (full_width * 0.4).max(400.0).min(full_width);
+            let base_control_width = (full_width * 0.5).max(400.0).min(full_width);
             let project_list_width = full_width - base_control_width;
             let show_project_list = full_width - base_control_width >= PROJECT_LIST_THRESHOLD;
             let splash_control_width = if show_project_list {
@@ -90,7 +90,7 @@ impl SplashUi {
             }
         });
 
-        if let Some(t) = self.splash_state.dialog.show_dialog(ui) {
+        if let Some(t) = self.splash_state.dialog.show_dialog(ui, preferences) {
             ctx = Some(t);
         }
 

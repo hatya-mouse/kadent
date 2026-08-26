@@ -16,7 +16,7 @@ use eframe::egui;
 
 const BUTTON_WIDTH: f32 = 300.0;
 const BUTTON_HEIGHT: f32 = 44.0;
-const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 2.0;
+const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 3.0;
 
 impl SplashUi {
     pub(super) fn splash_controls(
@@ -87,31 +87,35 @@ impl SplashUi {
                 return open_project_to_ctx(project_dir, preferences);
             }
 
-            // --- KASL STANDARD LIBRARY INSTALLATION ---
-            let install_std_res = card_button(
-                ui,
-                ui.id().with("install-kasl-std"),
-                Some(button_size),
-                |ui| {
-                    ui.vertical_centered(|ui| {
-                        ui.label(
-                            egui::RichText::new("Install KASL Standard Library")
-                                .strong()
-                                .bold()
-                                .size(theme::large_font_size()),
-                        );
-                        ui.label(
-                            egui::RichText::new(
-                                "Install the KASL standard library to your system.",
-                            )
-                            .weak(),
-                        );
-                    });
-                },
-            );
-            if install_std_res.clicked() {
-                self.splash_state.dialog =
-                    SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
+            if preferences.kasl_std_path.is_none() {
+                ui.add_space(12.0);
+
+                // --- KASL STANDARD LIBRARY INSTALLATION ---
+                let install_std_res = card_button(
+                    ui,
+                    ui.id().with("install-kasl-std"),
+                    Some(button_size),
+                    |ui| {
+                        ui.vertical_centered(|ui| {
+                            ui.label(
+                                egui::RichText::new("Install KASL Standard Library")
+                                    .strong()
+                                    .bold()
+                                    .size(theme::large_font_size()),
+                            );
+                            ui.label(
+                                egui::RichText::new(
+                                    "Install the KASL standard library to your system.",
+                                )
+                                .weak(),
+                            );
+                        });
+                    },
+                );
+                if install_std_res.clicked() {
+                    self.splash_state.dialog =
+                        SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
+                }
             }
 
             None

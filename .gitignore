@@ -1,2 +1,6 @@
 /target
 /Information
+
+# Build directories
+/dist
+/tmp
