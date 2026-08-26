@@ -1,3 +1,5 @@
+mod dialog;
+mod install_std_dialog;
 mod new_project_dialog;
 mod project_list;
 mod splash_controls;
@@ -63,6 +65,7 @@ impl SplashUi {
                 },
             );
 
+            // If the remaining width is larger than that threshold, show the project list
             if show_project_list {
                 let separator_x = ui.cursor().min.x;
 
@@ -87,7 +90,7 @@ impl SplashUi {
             }
         });
 
-        if let Some(t) = self.new_project_dialog(ui) {
+        if let Some(t) = self.splash_state.dialog.show_dialog(ui) {
             ctx = Some(t);
         }
 

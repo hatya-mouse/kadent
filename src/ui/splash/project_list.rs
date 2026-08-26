@@ -23,12 +23,12 @@ impl SplashUi {
             .show(ui, |ui| {
                 let item_width = (ui.available_width() - CONTENT_MARGIN as f32 * 2.0).max(0.0);
                 let Ok(recent_projects) = self.splash_state.recent_projects.lock() else {
-                    not_available_text(ui, "Failed to load recent projects");
+                    not_available_text(ui, "Failed to Load Recent Projects");
                     return;
                 };
 
                 if recent_projects.is_empty() {
-                    not_available_text(ui, "No recent projects found");
+                    not_available_text(ui, "No Recent Projects");
                     return;
                 }
 

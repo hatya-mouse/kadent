@@ -66,7 +66,7 @@ impl PianoRollState {
         let timeline_coord = &mut panel_state.timeline_coord;
 
         let Some((track_id, region_id)) = state.selection.track_and_region_id() else {
-            not_available_text(ui, "Select a note region to edit");
+            not_available_text(ui, "Select a Note Region to Edit");
             return;
         };
 
@@ -77,7 +77,7 @@ impl PianoRollState {
             .get_track(&track_id)
             .is_none_or(|track| track.track_type != TrackType::Note)
         {
-            not_available_text(ui, "Select a note region to edit");
+            not_available_text(ui, "Select a Note Region to Edit");
             return;
         }
 
@@ -89,7 +89,7 @@ impl PianoRollState {
             .get_mut(&track_id)
             .and_then(|track| track.as_any_mut().downcast_mut::<NoteTrack>())
         else {
-            not_available_text(ui, "Select a note region to edit");
+            not_available_text(ui, "Select a Note Region to Edit");
             return;
         };
         let Some(region) = track.get_region_mut(&region_id) else {

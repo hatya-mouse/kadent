@@ -4,19 +4,38 @@ use crate::{
     fonts::RichTextExt,
     storage::{app_state::add_and_store_recent_projects, project::create_new_project},
     ui::{
-        SplashUi,
         components::{
             dialog::{dialog, dialog_bold_label},
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
+        splash::state::SplashDialogState,
     },
 };
 use eframe::egui;
+use std::path::PathBuf;
 
-impl SplashUi {
+pub(super) struct NewProjectDialogState {
+    /// The name of the new project.
+    pub(super) project_name: String,
+    /// The directory where the new project will be created.
+    pub(super) project_dir: Option<PathBuf>,
+}
+
+impl Default for NewProjectDialogState {
+    fn default() -> Self {
+        Self {
+            project_name: "Project".to_string(),
+            project_dir: None,
+        }
+    }
+}
+
+impl SplashDialogState {
     pub(super) fn new_project_dialog(&mut self, ui: &mut egui::Ui) -> Option<ProjectContext> {
-        let mut dialog_state = self.splash_state.new_project_state.take()?;
+        let SplashDialogState::NewProject(dialog_state) = self else {
+            return None;
+        };
 
         let mut should_close = false;
         let modal = dialog(ui, "Create Project", |ui| {
@@ -25,23 +44,18 @@ impl SplashUi {
 
             dialog_bold_label(ui, "Project Folder");
             ui.label(
-                egui::RichText::new(
-                    dialog_state
-                        .project_dir
-                        .as_ref()
-                        .map_or("No folder selected".to_string(), |path| {
-                            path.to_string_lossy().to_string()
-                        }),
-                )
-                .strong(),
+                dialog_state
+                    .project_dir
+                    .as_ref()
+                    .map_or("No Folder Selected".to_string(), |path| {
+                        path.to_string_lossy().to_string()
+                    }),
             );
-            text_button(ui, "select_folder", "Select Folder")
-                .clicked()
-                .then(|| {
-                    if let Some(project_dir) = rfd::FileDialog::new().pick_folder() {
-                        dialog_state.project_dir = Some(project_dir);
-                    }
-                });
+            if text_button(ui, "select_folder", "Select Folder").clicked() {
+                if let Some(project_dir) = rfd::FileDialog::new().pick_folder() {
+                    dialog_state.project_dir = Some(project_dir);
+                }
+            }
 
             ui.add_space(4.0);
 
@@ -81,9 +95,7 @@ impl SplashUi {
         });
 
         if should_close || modal.should_close() {
-            self.splash_state.new_project_state = None;
-        } else {
-            self.splash_state.new_project_state = Some(dialog_state);
+            *self = SplashDialogState::None;
         }
 
         modal.inner.inner

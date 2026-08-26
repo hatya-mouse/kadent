@@ -12,7 +12,7 @@ impl CodeEditorView {
     pub(super) fn kasl_editor(&mut self, ui: &mut egui::Ui, panel_id: Uuid) {
         let code_buffer = self.code_buffers.entry(panel_id).or_default();
         if code_buffer.path.is_none() {
-            not_available_text(ui, "Select a file to edit");
+            not_available_text(ui, "Select a File to Edit");
             return;
         }
 

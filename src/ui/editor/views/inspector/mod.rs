@@ -53,7 +53,7 @@ impl InspectorView {
                     self.keyframe_inspector(ui, editor_state, &track_id, &node_id, keyframe_index);
                 }
                 Selection::None => {
-                    not_available_text(ui, "No selection");
+                    not_available_text(ui, "No Selection");
                 }
             });
     }

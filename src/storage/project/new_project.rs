@@ -52,19 +52,3 @@ pub(crate) fn create_new_project(
 
     Ok(ProjectContext::new(project_path, project, project_meta))
 }
-
-fn system_kasl_search_paths() -> Vec<String> {
-    let mut paths = Vec::new();
-    if let Some(app_data) = dirs::data_dir().map(|d| d.join("kadent"))
-        && let Some(s) = app_data.to_str()
-    {
-        paths.push(s.to_string());
-    }
-    if let Some(mut home) = dirs::home_dir() {
-        home.push(".kasl/std/");
-        if let Some(s) = home.to_str() {
-            paths.push(s.to_string());
-        }
-    }
-    paths
-}

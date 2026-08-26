@@ -13,10 +13,12 @@ pub(crate) const PROJECT_FILE_EXTENSION: &str = "kdp";
 /// The current file version of Kadent project files.
 pub(crate) const KADENT_FILE_VERSION: u64 = 0;
 
-/// A relative path to preferences data file. Relative to `dirs::data_dir()`.
+/// A relative path to preferences data file. Relative to `dirs::data_dir().unwrap().join(KADENT_DATA_DIR_NAME)`.
 pub(crate) const PREFERENCES_PATH: &str = "preferences.json";
-/// A relative path to recent projects data file. Relative to `dirs::data_dir()`.
+/// A relative path to recent projects data file. Relative to `dirs::data_dir().unwrap().join(KADENT_DATA_DIR_NAME)`.
 pub(crate) const RECENT_PROJCETS_PATH: &str = "recent_projects.json";
+/// A relative path to kasl library installation directory. Relative to `dirs::data_dir().unwrap().join(KADENT_DATA_DIR_NAME)`.
+pub(crate) const KASL_LIB_PATH: &str = "kasl_lib";
 /// The maximum number of recent projects shown in the splash screen.
 pub(crate) const RECENT_PROJCETS_MAX_NUM: usize = 20;
 

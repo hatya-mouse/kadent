@@ -3,7 +3,13 @@ use crate::{
     fonts::RichTextExt,
     storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{
-        SplashUi, components::card_button::card_button, splash::state::NewProjectDialogState, theme,
+        SplashUi,
+        components::card_button::card_button,
+        splash::{
+            install_std_dialog::InstallStdLibDialogState,
+            new_project_dialog::NewProjectDialogState, state::SplashDialogState,
+        },
+        theme,
     },
 };
 use eframe::egui;
@@ -40,8 +46,9 @@ impl SplashUi {
 
             let button_size = egui::vec2(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+            // --- NEW PROJECT BUTTON ---
             let new_project_res =
-                card_button(ui, ui.id().with("New Project"), Some(button_size), |ui| {
+                card_button(ui, ui.id().with("new-project"), Some(button_size), |ui| {
                     ui.vertical_centered(|ui| {
                         ui.label(
                             egui::RichText::new("New Project")
@@ -52,10 +59,16 @@ impl SplashUi {
                         ui.label(egui::RichText::new("Create a fresh .kdp project.").weak());
                     });
                 });
+            if new_project_res.clicked() {
+                self.splash_state.dialog =
+                    SplashDialogState::NewProject(NewProjectDialogState::default());
+            }
+
             ui.add_space(12.0);
 
+            // --- OPEN PROJECT BUTTON ---
             let open_project_res =
-                card_button(ui, ui.id().with("Open Project"), Some(button_size), |ui| {
+                card_button(ui, ui.id().with("open-project"), Some(button_size), |ui| {
                     ui.vertical_centered(|ui| {
                         ui.label(
                             egui::RichText::new("Open Project")
@@ -68,15 +81,37 @@ impl SplashUi {
                         );
                     });
                 });
-
-            if new_project_res.clicked() {
-                self.splash_state.new_project_state = Some(NewProjectDialogState::default());
-            }
-
             if open_project_res.clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_file()
             {
                 return open_project_to_ctx(project_dir, preferences);
+            }
+
+            // --- KASL STANDARD LIBRARY INSTALLATION ---
+            let install_std_res = card_button(
+                ui,
+                ui.id().with("install-kasl-std"),
+                Some(button_size),
+                |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            egui::RichText::new("Install KASL Standard Library")
+                                .strong()
+                                .bold()
+                                .size(theme::large_font_size()),
+                        );
+                        ui.label(
+                            egui::RichText::new(
+                                "Install the KASL standard library to your system.",
+                            )
+                            .weak(),
+                        );
+                    });
+                },
+            );
+            if install_std_res.clicked() {
+                self.splash_state.dialog =
+                    SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
             }
 
             None
