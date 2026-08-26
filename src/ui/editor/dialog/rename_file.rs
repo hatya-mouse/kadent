@@ -36,6 +36,7 @@ impl DialogState {
                     state
                         .actions
                         .push_action(EditorAction::MoveFile(path.clone(), new_path));
+                    state.actions.push_action(EditorAction::UpdateDirCache);
                     should_close = true;
                 }
             });
