@@ -216,6 +216,16 @@ impl EditorUi {
                     DialogType::ChangeCodeBuffer { panel_id, path } => {
                         self.views.dialog = DialogState::ChangeCodeBuffer { panel_id, path };
                     }
+                    DialogType::RenameFile { path } => {
+                        let initial_name = path
+                            .file_name()
+                            .and_then(|file_name| file_name.to_os_string().into_string().ok())
+                            .unwrap_or_default();
+                        self.views.dialog = DialogState::RenameFile {
+                            path,
+                            new_name: initial_name,
+                        };
+                    }
                 },
                 UiCommand::ShowTempStatus(message, color) => {
                     self.views.status_bar.show_temp_status(&message, color);

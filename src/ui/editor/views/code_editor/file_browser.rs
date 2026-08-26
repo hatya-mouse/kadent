@@ -1,7 +1,7 @@
 use crate::ui::{
     EditorState,
     editor::{
-        DialogType, UiCommand,
+        DialogType, UiCommand, UiCommandDispatcher,
         actions::{EditorAction, FileNode, FileNodeKind},
         state::ActionDispatcher,
         views::code_editor::{CodeBuffer, CodeEditorView, tree_item::FileTreeItem},
@@ -16,6 +16,7 @@ const FILE_TREE_ITEM_HEIGHT: f32 = 25.0;
 
 struct FileTreeContext<'a> {
     actions: &'a mut ActionDispatcher,
+    ui_commands: &'a mut UiCommandDispatcher,
     code_buffer: &'a CodeBuffer,
     item_rects: &'a mut Vec<FileTreeDragTarget>,
     dropped_path: Option<PathBuf>,
@@ -40,6 +41,7 @@ impl CodeEditorView {
         let mut item_rects = Vec::new();
         let mut ctx = FileTreeContext {
             actions: &mut state.actions,
+            ui_commands: &mut state.ui_commands,
             code_buffer,
             item_rects: &mut item_rects,
             dropped_path: None,
@@ -148,13 +150,7 @@ fn dir_children(
                 }
 
                 file_item_res.context_menu(|ui| {
-                    *ui.style_mut() = theme::menu_style(ui);
-
-                    if ui.selectable_label(false, "Trash").clicked() {
-                        ctx.actions
-                            .push_action(EditorAction::MoveFileToTrash(child.path.clone()));
-                        ctx.actions.push_action(EditorAction::UpdateDirCache);
-                    }
+                    file_context_menu(ui, ctx, child);
                 });
 
                 if file_item_res.interact(egui::Sense::click()).clicked() {
@@ -207,28 +203,54 @@ fn dir_expand_button(
 
     // Add context menu for adding new files or directories
     parent_dir_res.context_menu(|ui| {
-        *ui.style_mut() = theme::menu_style(ui);
-
-        if ui.selectable_label(false, "New File").clicked() {
-            ctx.actions
-                .push_action(EditorAction::CreateFile(node.path.join("untitled.kasl")));
-            ctx.actions.push_action(EditorAction::UpdateDirCache);
-        }
-        if ui.selectable_label(false, "New Folder").clicked() {
-            ctx.actions.push_action(EditorAction::CreateDirectory(
-                node.path.join("Untitled Folder"),
-            ));
-            ctx.actions.push_action(EditorAction::UpdateDirCache);
-        }
-        if ui.selectable_label(false, "Trash").clicked() {
-            ctx.actions
-                .push_action(EditorAction::MoveFileToTrash(node.path.clone()));
-            ctx.actions.push_action(EditorAction::UpdateDirCache);
-        }
+        dir_context_menu(ui, ctx, node);
     });
 
     // Show the child components
     state
         .show_body_unindented(ui, |ui| dir_children(ui, children, ctx, indent + 1))
         .and_then(|res| res.inner)
+}
+
+fn file_context_menu(ui: &mut egui::Ui, ctx: &mut FileTreeContext, node: &FileNode) {
+    *ui.style_mut() = theme::menu_style(ui);
+
+    if ui.selectable_label(false, "Rename").clicked() {
+        ctx.ui_commands
+            .push_command(UiCommand::ShowDialog(DialogType::RenameFile {
+                path: node.path.clone(),
+            }));
+    }
+    if ui.selectable_label(false, "Trash").clicked() {
+        ctx.actions
+            .push_action(EditorAction::MoveFileToTrash(node.path.clone()));
+        ctx.actions.push_action(EditorAction::UpdateDirCache);
+    }
+}
+
+fn dir_context_menu(ui: &mut egui::Ui, ctx: &mut FileTreeContext, node: &FileNode) {
+    *ui.style_mut() = theme::menu_style(ui);
+
+    if ui.selectable_label(false, "Rename").clicked() {
+        ctx.ui_commands
+            .push_command(UiCommand::ShowDialog(DialogType::RenameFile {
+                path: node.path.clone(),
+            }));
+    }
+    if ui.selectable_label(false, "New File").clicked() {
+        ctx.actions
+            .push_action(EditorAction::CreateFile(node.path.join("untitled.kasl")));
+        ctx.actions.push_action(EditorAction::UpdateDirCache);
+    }
+    if ui.selectable_label(false, "New Folder").clicked() {
+        ctx.actions.push_action(EditorAction::CreateDirectory(
+            node.path.join("Untitled Folder"),
+        ));
+        ctx.actions.push_action(EditorAction::UpdateDirCache);
+    }
+    if ui.selectable_label(false, "Trash").clicked() {
+        ctx.actions
+            .push_action(EditorAction::MoveFileToTrash(node.path.clone()));
+        ctx.actions.push_action(EditorAction::UpdateDirCache);
+    }
 }

@@ -1,4 +1,5 @@
 mod change_code_buffer;
+mod rename_file;
 mod track_dialog;
 
 use crate::ui::{EditorState, editor::DialogState};
@@ -13,6 +14,9 @@ impl DialogState {
             }
             DialogState::ChangeCodeBuffer { .. } => {
                 self.change_code_buffer_dialog(ui, state);
+            }
+            DialogState::RenameFile { .. } => {
+                self.rename_file_dialog(ui, state);
             }
         }
     }
