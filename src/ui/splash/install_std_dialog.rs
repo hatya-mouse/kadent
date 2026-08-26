@@ -15,9 +15,11 @@ use std::path::PathBuf;
 
 pub(super) struct InstallStdLibDialogState {
     /// The error message to display if the installation fails.
-    pub(super) error_message: Option<String>,
+    error_message: Option<String>,
     /// The directory where the KASL standard library will be installed.
-    pub(super) install_dir: Option<PathBuf>,
+    install_dir: Option<PathBuf>,
+    /// Whether the installation was successful.
+    successful: bool,
 }
 
 impl Default for InstallStdLibDialogState {
@@ -26,6 +28,7 @@ impl Default for InstallStdLibDialogState {
         Self {
             error_message: None,
             install_dir,
+            successful: false,
         }
     }
 }
@@ -69,11 +72,11 @@ impl SplashDialogState {
             }
 
             ui.horizontal(|ui| {
-                if text_button(ui, "cancel_install", "Cancel").clicked() {
+                if text_button(ui, "close_dialog", "Close").clicked() {
                     should_close = true;
                 }
 
-                let can_install = dialog_state.install_dir.is_some();
+                let can_install = dialog_state.install_dir.is_some() && !dialog_state.successful;
                 if text_button_enabled(
                     can_install,
                     true,
@@ -96,13 +99,17 @@ impl SplashDialogState {
                                     dialog_state.error_message = Some(e.to_string());
                                 }
                                 Ok(()) => {
-                                    should_close = true;
+                                    dialog_state.successful = true;
                                 }
                             }
                         }
                     }
                 }
-            })
+            });
+
+            if dialog_state.successful {
+                dialog_bold_label(ui, "Installation was successful!");
+            }
         });
 
         if should_close || modal.should_close() {

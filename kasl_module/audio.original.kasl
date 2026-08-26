@@ -12,27 +12,27 @@ let max_events = 4
 
 typealias Sample = [Float; 64] // Same as max_channels
 
-func zero_sample() -> Sample {{
+func zero_sample() -> Sample {
     return [0.0; max_channels]
-}}
+}
 
-struct Event {{
+struct Event {
     // -1 = not set, 0 = note off, 1 = note on
     var type = -1
     // A MIDI note number.
     var pitch = 0.0
     // A MIDI velocity value.
     var velocity = 0.0
-}}
+}
 
-struct EventSlot {{
+struct EventSlot {
     // An array of events in the slot.
     var events = [Event(); max_events]
     // The number of events in the slot.
     var count = 0
-}}
+}
 
-struct Voice {{
+struct Voice {
     // Whether the voice is currently active.
     var is_active = false
     // A MIDI note number.
@@ -42,68 +42,68 @@ struct Voice {{
     // The age of the voice in seconds.
     var age = 0.0
 
-    static func new(pitch: Float, velocity: Float) -> Voice {{
+    static func new(pitch: Float, velocity: Float) -> Voice {
         var voice = Voice()
         voice.is_active = true
         voice.pitch = pitch
         voice.velocity = velocity
         voice.age = 0.0
         return voice
-    }}
-}}
+    }
+}
 
-struct Allocator {{
+struct Allocator {
     var voices = [Voice(); max_voices]
 
-    func update(slot: EventSlot) {{
+    func update(slot: EventSlot) {
         var i = 0
-        loop max_events {{
+        loop max_events {
             let event = slot.events[i]
-            if event.type == 1 {{
+            if event.type == 1 {
                 self.allocate_voice(event.pitch, event.velocity)
-            }} else if event.type == 0 {{
+            } else if event.type == 0 {
                 self.release_voice(event.pitch)
-            }}
+            }
             i = i + 1
-        }}
+        }
 
         i = 0
-        loop max_voices {{
-            if self.voices[i].is_active {{
+        loop max_voices {
+            if self.voices[i].is_active {
                 self.voices[i].age = self.voices[i].age + seconds_per_sample
-            }}
+            }
             i = i + 1
-        }}
-    }}
+        }
+    }
 
-    func allocate_voice(pitch: Float, velocity: Float) {{
+    func allocate_voice(pitch: Float, velocity: Float) {
         var i = 0
         var oldest_index = 0
         var max_age = -1.0
 
-        loop max_voices {{
-            if !self.voices[i].is_active {{
+        loop max_voices {
+            if !self.voices[i].is_active {
                 self.voices[i] = Voice.new(pitch, velocity)
                 return
-            }}
+            }
 
-            if self.voices[i].age > max_age {{
+            if self.voices[i].age > max_age {
                 max_age = self.voices[i].age
                 oldest_index = i
-            }}
+            }
             i = i + 1
-        }}
+        }
 
         self.voices[oldest_index] = Voice.new(pitch, velocity)
-    }}
+    }
 
-    func release_voice(pitch: Float) {{
+    func release_voice(pitch: Float) {
         var i = 0
-        loop max_voices {{
-            if self.voices[i].is_active && self.voices[i].pitch == pitch {{
+        loop max_voices {
+            if self.voices[i].is_active && self.voices[i].pitch == pitch {
                 self.voices[i].is_active = false
-            }}
+            }
             i = i + 1
-        }}
-    }}
-}}
+        }
+    }
+}

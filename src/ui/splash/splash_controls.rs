@@ -4,7 +4,7 @@ use crate::{
     storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{
         SplashUi,
-        components::card_button::card_button,
+        components::card_button::{card_button, card_button_enabled},
         splash::{
             install_std_dialog::InstallStdLibDialogState,
             new_project_dialog::NewProjectDialogState, state::SplashDialogState,
@@ -87,35 +87,41 @@ impl SplashUi {
                 return open_project_to_ctx(project_dir, preferences);
             }
 
-            if preferences.kasl_std_path.is_none() {
-                ui.add_space(12.0);
+            ui.add_space(12.0);
 
-                // --- KASL STANDARD LIBRARY INSTALLATION ---
-                let install_std_res = card_button(
-                    ui,
-                    ui.id().with("install-kasl-std"),
-                    Some(button_size),
-                    |ui| {
-                        ui.vertical_centered(|ui| {
-                            ui.label(
-                                egui::RichText::new("Install KASL Standard Library")
-                                    .strong()
-                                    .bold()
-                                    .size(theme::large_font_size()),
-                            );
-                            ui.label(
-                                egui::RichText::new(
-                                    "Install the KASL standard library to your system.",
-                                )
-                                .weak(),
-                            );
-                        });
-                    },
-                );
-                if install_std_res.clicked() {
-                    self.splash_state.dialog =
-                        SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
-                }
+            // --- KASL STANDARD LIBRARY INSTALLATION ---
+            let is_installed = preferences.kasl_std_path.is_some();
+            let install_button_text = if is_installed {
+                "KASL Standard Library Installed"
+            } else {
+                "Install KASL Standard Library"
+            };
+            let install_button_description = if is_installed {
+                "The KASL standard library is already installed."
+            } else {
+                "Install the KASL standard library to your system."
+            };
+            let install_std_res = card_button_enabled(
+                !is_installed,
+                false,
+                ui,
+                ui.id().with("install-kasl-std"),
+                Some(button_size),
+                |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            egui::RichText::new(install_button_text)
+                                .strong()
+                                .bold()
+                                .size(theme::large_font_size()),
+                        );
+                        ui.label(egui::RichText::new(install_button_description).weak());
+                    });
+                },
+            );
+            if install_std_res.clicked() {
+                self.splash_state.dialog =
+                    SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
             }
 
             None

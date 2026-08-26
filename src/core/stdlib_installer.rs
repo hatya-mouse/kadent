@@ -9,7 +9,7 @@ pub(crate) fn default_kasl_lib_directory() -> Option<PathBuf> {
 /// Installs the KASL standard library to the specified directory.
 pub(crate) fn install_kasl_stdlib(install_dir: &Path) -> std::io::Result<()> {
     let source = bundled_kasl_stdlib()?;
-    copy_dir_recursive(&source, install_dir)
+    copy_dir_recursive(&source, &install_dir.join("std"))
 }
 
 /// Returns a path to the bundled KASL standard library for the current operating system.
@@ -30,6 +30,7 @@ fn bundled_kasl_stdlib() -> std::io::Result<PathBuf> {
 fn get_bundled_stdlib_path_from_exe_dir(exe_dir: &Path) -> std::io::Result<PathBuf> {
     exe_dir
         .parent()
+        .and_then(|parent| parent.parent())
         .ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
@@ -41,7 +42,7 @@ fn get_bundled_stdlib_path_from_exe_dir(exe_dir: &Path) -> std::io::Result<PathB
 
 #[cfg(not(target_os = "macos"))]
 fn get_bundled_stdlib_path_from_exe_dir(exe_dir: &Path) -> std::io::Result<PathBuf> {
-    Ok(exe_dir.join("Resources").join("std"))
+    Ok(exe_dir.join("resources").join("std"))
 }
 
 /// Recursively copies the contents of the source directory to the destination directory.

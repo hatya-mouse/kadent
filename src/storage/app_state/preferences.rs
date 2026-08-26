@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::{self, Read, Write},
+    path::Path,
 };
 
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -25,7 +26,10 @@ pub(crate) fn load_preferences() -> AppPreferences {
         return AppPreferences::default();
     }
 
-    serde_json::from_str(&json_string).unwrap_or_default()
+    let loaded_preferences = serde_json::from_str(&json_string).unwrap_or_default();
+
+    // Validate the loaded preferences
+    validate_preferences(loaded_preferences)
 }
 
 pub(crate) fn save_preferences(preferences: &AppPreferences) -> io::Result<()> {
@@ -40,4 +44,17 @@ pub(crate) fn save_preferences(preferences: &AppPreferences) -> io::Result<()> {
 
     let mut file = File::create(&full_path)?;
     file.write_all(json_string.as_bytes())
+}
+
+fn validate_preferences(preferences: AppPreferences) -> AppPreferences {
+    let mut validated = preferences;
+
+    // Validate kasl_std_path
+    if let Some(ref path) = validated.kasl_std_path
+        && !Path::new(path).exists()
+    {
+        validated.kasl_std_path = None;
+    }
+
+    validated
 }
