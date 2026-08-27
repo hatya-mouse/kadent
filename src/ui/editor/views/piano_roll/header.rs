@@ -1,5 +1,5 @@
 use crate::ui::{
-    components::icon_button::small_icon_button_highlighted,
+    components::toolbar_button::small_icon_button_highlighted,
     editor::{PianoRollState, views::piano_roll::PianoRollTool},
 };
 use eframe::egui::{self, include_image};
@@ -17,16 +17,19 @@ impl PianoRollState {
             ui,
             egui::Image::new(cursor_icon),
             *selected_tool == PianoRollTool::Normal,
+            true,
         );
         let pencil_res = small_icon_button_highlighted(
             ui,
             egui::Image::new(pencil_icon),
             *selected_tool == PianoRollTool::Add,
+            true,
         );
         let eraser_res = small_icon_button_highlighted(
             ui,
             egui::Image::new(eraser_icon),
             *selected_tool == PianoRollTool::Remove,
+            true,
         );
 
         if normal_res.clicked() {

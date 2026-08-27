@@ -1,5 +1,5 @@
 use crate::core::audio_engine::{data_types::Ticks, timing::TimeBounds};
-use crate::ui::components::icon_button::small_icon_button_highlighted;
+use crate::ui::components::toolbar_button::small_icon_button_highlighted;
 use crate::ui::editor::TimelineState;
 use crate::ui::editor::views::TimelinePanelState;
 use crate::{
@@ -183,8 +183,12 @@ fn follow_playhead_button(ui: &mut egui::Ui, corner_rect: egui::Rect, follow_pla
         |ui| {
             ui.horizontal_centered(|ui| {
                 let icon = egui::include_image!("../../../../../assets/icons/playhead_follow.svg");
-                let response =
-                    small_icon_button_highlighted(ui, egui::Image::new(icon), *follow_playhead);
+                let response = small_icon_button_highlighted(
+                    ui,
+                    egui::Image::new(icon),
+                    *follow_playhead,
+                    true,
+                );
                 if response.clicked() {
                     *follow_playhead = !*follow_playhead;
                 }

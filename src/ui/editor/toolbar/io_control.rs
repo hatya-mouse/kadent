@@ -2,7 +2,7 @@ use crate::core::audio_engine::thread::AudioCommand;
 use crate::{
     ui::editor::actions::EditorAction,
     ui::{
-        components::icon_button::toolbar_icon_button,
+        components::toolbar_button::toolbar_icon_button,
         theme,
         {EditorState, editor::toolbar::toolbar_group},
     },

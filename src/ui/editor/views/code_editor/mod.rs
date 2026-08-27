@@ -37,7 +37,7 @@ pub(crate) struct CodeEditorView {
 #[derive(Default, Clone)]
 pub(crate) struct CodeBuffer {
     /// The path to the file being edited, if any.
-    path: Option<PathBuf>,
+    pub(crate) path: Option<PathBuf>,
     /// The content of the file being edited.
     content: String,
     /// Whether the buffer has been modified since last save.

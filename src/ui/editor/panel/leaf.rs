@@ -88,8 +88,10 @@ impl EditorUi {
         match view {
             PanelViewState::PianoRoll(_) => self.views.piano_roll.header(ui),
             PanelViewState::NodeGraph => self.views.node_graph.header(ui, &mut self.state),
-            PanelViewState::CodeEditor(_) => {
-                self.views.code_editor.header(ui, &mut self.state, panel_id)
+            PanelViewState::CodeEditor(panel_state) => {
+                self.views
+                    .code_editor
+                    .header(ui, &mut self.state, panel_id, panel_state)
             }
             _ => (),
         }

@@ -1,6 +1,6 @@
 use crate::ui::{
     EditorState,
-    components::{icon_button::toolbar_icon_button, toolbar_group::toolbar_group},
+    components::{toolbar_button::toolbar_icon_button, toolbar_group::toolbar_group},
     editor::actions::EditorAction,
 };
 use eframe::egui;

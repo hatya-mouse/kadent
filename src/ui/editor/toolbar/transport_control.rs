@@ -3,7 +3,7 @@ use crate::{
     ui::{
         EditorState,
         components::{
-            icon_button::{toolbar_icon_button, toolbar_icon_button_colored},
+            toolbar_button::{toolbar_icon_button, toolbar_icon_button_colored},
             toolbar_group::toolbar_group,
         },
         theme,

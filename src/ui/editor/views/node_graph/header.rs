@@ -1,6 +1,6 @@
 use crate::ui::{
     EditorState,
-    components::icon_button::small_icon_button,
+    components::toolbar_button::small_icon_button,
     editor::{
         NodeGraphState,
         actions::{AddibleNodes, EditorAction},
@@ -21,6 +21,7 @@ impl NodeGraphState {
             let plus_button = small_icon_button(
                 ui,
                 egui::Image::new(egui::include_image!("../../../../../assets/icons/plus.svg")),
+                true,
             );
             egui::Popup::menu(&plus_button)
                 .style(theme::menu_style(ui))
@@ -37,6 +38,7 @@ impl NodeGraphState {
                 egui::Image::new(egui::include_image!(
                     "../../../../../assets/icons/crosshair.svg"
                 )),
+                true,
             )
             .on_hover_text("Jump to a random node");
             if jump_button.clicked() {
