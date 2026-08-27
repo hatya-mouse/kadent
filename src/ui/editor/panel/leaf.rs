@@ -72,7 +72,6 @@ impl EditorUi {
             }
             PanelViewState::NodeGraph => self.views.node_graph.ui(ui, &mut self.state),
             PanelViewState::Inspector => self.views.inspector.ui(ui, &mut self.state),
-            PanelViewState::ErrorList => self.views.error_list.ui(ui),
             PanelViewState::Automation(panel_state) => {
                 self.views.automation.ui(ui, &mut self.state, panel_state)
             }
@@ -80,7 +79,7 @@ impl EditorUi {
                 self.views
                     .code_editor
                     .ui(ui, &mut self.state, panel_id, panel_state, preferences)
-            }
+            } // PanelViewState::ErrorList => self.views.error_list.ui(ui),
         }
     }
 

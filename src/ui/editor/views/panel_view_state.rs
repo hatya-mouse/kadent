@@ -9,9 +9,9 @@ pub(crate) enum PanelViewState {
     PianoRoll(PianoRollPanelState),
     NodeGraph,
     Inspector,
-    ErrorList,
     Automation(AutomationPanelState),
     CodeEditor(CodeEditorPanelState),
+    // ErrorList,
 }
 
 impl PanelViewState {
@@ -21,9 +21,9 @@ impl PanelViewState {
             PanelViewState::PianoRoll(_) => PanelVariant::PianoRoll,
             PanelViewState::NodeGraph => PanelVariant::NodeGraph,
             PanelViewState::Inspector => PanelVariant::Inspector,
-            PanelViewState::ErrorList => PanelVariant::ErrorList,
             PanelViewState::Automation(_) => PanelVariant::Automation,
             PanelViewState::CodeEditor { .. } => PanelVariant::CodeEditor,
+            // PanelViewState::ErrorList => PanelVariant::ErrorList,
         }
     }
 
@@ -33,9 +33,9 @@ impl PanelViewState {
             PanelVariant::PianoRoll => PanelViewState::PianoRoll(PianoRollPanelState::default()),
             PanelVariant::NodeGraph => PanelViewState::NodeGraph,
             PanelVariant::Inspector => PanelViewState::Inspector,
-            PanelVariant::ErrorList => PanelViewState::ErrorList,
             PanelVariant::Automation => PanelViewState::Automation(AutomationPanelState::default()),
             PanelVariant::CodeEditor => PanelViewState::CodeEditor(CodeEditorPanelState::default()),
+            // PanelVariant::ErrorList => PanelViewState::ErrorList,
         }
     }
 }

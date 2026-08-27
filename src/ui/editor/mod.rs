@@ -16,8 +16,10 @@ pub(crate) use frame_process::PeakHold;
 pub(crate) use panel::{PanelNode, PanelVariant, SplitDir};
 pub(crate) use state::*;
 pub(crate) use status_bar::StatusBarView;
+pub(crate) use toolbar::ToolbarState;
 pub(crate) use views::{
-    AutomationState, CodeBuffer, NodeGraphState, PianoRollState, TimelineState, ViewStates,
+    AutomationState, CodeBuffer, CodeEditorView, ErrorListView, InspectorView, NodeGraphState,
+    PanelViewState, PianoRollState, TimelineState, ViewStates,
 };
 
 use crate::{

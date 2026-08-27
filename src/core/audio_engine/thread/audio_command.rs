@@ -21,7 +21,7 @@ pub(crate) enum AudioCommand {
 
 #[derive(Clone)]
 pub(crate) enum AudioResult {
-    ExportedAudio(Vec<f32>),
+    ExportedAudio(Vec<f32>, PlaybackContext),
 }
 
 pub(crate) enum AudioError {
@@ -31,6 +31,8 @@ pub(crate) enum AudioError {
     ThreadSpawnFailed(String),
     /// CPAL stream error has occured during playback.
     PlayStreamError(cpal::Error),
+    /// CPAL stream error has occured during stream building.
+    BuildStreamError(cpal::Error),
     /// An audio command failed, which means that it is likely that the audio thread is frozen or crashed.
     CommandFailed(AudioCommand),
 }

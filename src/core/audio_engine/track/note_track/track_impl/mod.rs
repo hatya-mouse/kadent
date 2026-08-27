@@ -62,6 +62,7 @@ impl Track for NoteTrack {
 
     fn prepare(
         &mut self,
+
         _audio_pool: &mut AudioFilePool,
         tempo_map: &TempoMap,
         _audio_ctx: &AudioContext,
@@ -83,6 +84,7 @@ impl Track for NoteTrack {
 
     fn process_to_local_buffer(
         &mut self,
+        _is_exporting: bool,
         is_playing: bool,
         playhead: usize,
         tempo_map: &TempoMap,

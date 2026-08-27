@@ -39,6 +39,7 @@ fn error_message(error: &AudioError) -> String {
         }
         AudioError::ThreadSpawnFailed(e) => format!("Failed to spawn thread: {e}"),
         AudioError::PlayStreamError(e) => format!("Play stream error: {e}"),
+        AudioError::BuildStreamError(e) => format!("Build stream error: {e}"),
         AudioError::CommandFailed(_) => "Audio command failed".to_string(),
     }
 }
@@ -47,6 +48,7 @@ fn track_error_message(error: &TrackError) -> String {
     match error {
         TrackError::GraphError(e) => graph_error_message(e),
         TrackError::ThreadSpawnFailed(e) => format!("Failed to spawn thread: {e}"),
+        TrackError::RenderWorkerPanicked => format!("Audio thread render worker has panicked"),
     }
 }
 

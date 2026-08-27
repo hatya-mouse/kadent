@@ -71,13 +71,13 @@ pub(super) fn audio_thread(
         .default_output_config()
         .map(|config| config.config())
         .unwrap_or(project_config);
-    let mut stream = Some(output_callback(
+    let mut stream = output_callback(
         callback_ctx.clone(),
         current_device.clone(),
         output_config,
         callback_state.clone(),
         latest_mixer.clone(),
-    ));
+    );
 
     if let Some(stream) = stream.as_ref()
         && let Err(err) = stream.play()
@@ -206,11 +206,11 @@ fn recreate_output_callback(
         .map(|config| config.config())
         .unwrap_or(project_config);
     // Then get the latest mixer to pass to the new output callback
-    *stream = Some(output_callback(
+    *stream = output_callback(
         callback_ctx.clone(),
         current_device.clone(),
         output_config,
         callback_state.clone(),
         latest_mixer.clone(),
-    ));
+    );
 }

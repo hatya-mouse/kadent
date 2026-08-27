@@ -1,7 +1,7 @@
 mod process;
 mod render_worker;
 
-pub(super) use render_worker::TrackSyncState;
+pub(super) use render_worker::{ExportWaitState, RenderWorker, TrackSyncState};
 
 use crate::core::audio_engine::{
     MAX_CHANNELS,
@@ -16,10 +16,7 @@ use crate::core::audio_engine::{
     },
 };
 use ringbuf::traits::{Consumer, Split};
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
+use std::sync::{Arc, atomic::AtomicBool};
 
 impl Track for AudioTrack {
     // --- CLONING ---
@@ -79,8 +76,8 @@ impl Track for AudioTrack {
         }
 
         // Stop the old render worker by setting the is_running flag to false
-        if let Some(should_worker_stop) = &self.should_worker_stop {
-            should_worker_stop.store(true, Ordering::SeqCst);
+        if let Some(worker) = self.render_worker.take() {
+            worker.join_thread()?;
         }
 
         // Create a new ring buffer and is_running flag for the new render worker
@@ -88,25 +85,31 @@ impl Track for AudioTrack {
         let (prod, cons) = ringbuf::HeapRb::<f32>::new(ringbuf_size).split();
         self.ringbuf_cons = Some(cons);
 
-        let should_worker_stop = Arc::new(AtomicBool::new(true));
-        should_worker_stop.store(false, Ordering::SeqCst);
-        self.should_worker_stop = Some(should_worker_stop.clone());
-
         // Create a sync state to share the playback position between threads
         let sync_state = TrackSyncState::new();
         self.sync_state = Some(sync_state.clone());
 
+        // Create an export wait state to signal when the new data is available
+        let export_wait_state = Arc::new(ExportWaitState::new());
+        self.export_wait_state = Some(export_wait_state.clone());
+
         // Spawn a new render worker thread
-        spawn_render_worker(
+        let should_stop = Arc::new(AtomicBool::new(false));
+        let handle = spawn_render_worker(
             prod,
             self.regions.values().cloned().collect(),
             tempo_map.clone(),
             playback_ctx.clone(),
-            should_worker_stop,
+            should_stop.clone(),
             sync_state,
-            0,
+            export_wait_state,
         )
         .map_err(|e| TrackError::ThreadSpawnFailed(e.to_string()))?;
+        self.render_worker = Some(RenderWorker {
+            should_stop,
+            handle,
+        });
+
         self.is_first_process = true;
 
         // Initialize the local buffers
@@ -119,6 +122,7 @@ impl Track for AudioTrack {
 
     fn process_to_local_buffer(
         &mut self,
+        is_exporting: bool,
         is_playing: bool,
         playhead: usize,
         _tempo_map: &TempoMap,
@@ -133,6 +137,11 @@ impl Track for AudioTrack {
 
         if is_playing {
             let buffer_len = MAX_CHANNELS * playback_ctx.buffer_size;
+
+            if is_exporting {
+                self.wait_for_rendered_samples(buffer_len);
+            }
+
             if let Some(ringbuf_cons) = &mut self.ringbuf_cons {
                 // Pop the rendered audio from the ring buffer into the local buffer
                 let popped = ringbuf_cons.pop_slice(&mut self.graph_input_buffer[..buffer_len]);

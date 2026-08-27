@@ -1,9 +1,6 @@
-use crate::ui::editor::views::CodeEditorView;
-use crate::ui::editor::views::error_list::ErrorListView;
-use crate::ui::editor::views::inspector::InspectorView;
 use crate::ui::editor::{
-    AutomationState, DialogState, NodeGraphState, PianoRollState, StatusBarView, TimelineState,
-    toolbar::ToolbarState, views::PanelViewState,
+    AutomationState, CodeEditorView, DialogState, ErrorListView, InspectorView, NodeGraphState,
+    PanelViewState, PianoRollState, StatusBarView, TimelineState, ToolbarState,
 };
 use std::collections::HashMap;
 use uuid::Uuid;

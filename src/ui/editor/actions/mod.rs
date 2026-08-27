@@ -397,7 +397,7 @@ impl EditorUi {
         // Wait for the audio thread to generate the samples and send them back
         while let Ok(res) = self.state.thread_handle.result_rx.try_recv() {
             match res {
-                Ok(AudioResult::ExportedAudio(samples)) => {
+                Ok(AudioResult::ExportedAudio(samples, export_ctx)) => {
                     let Some(export_path) = self.state.actions.pending_export_path.take() else {
                         return;
                     };
@@ -407,7 +407,7 @@ impl EditorUi {
                         .push_background_job(BackgroundThreadCommand::WriteWav {
                             path: export_path,
                             samples,
-                            export_ctx: self.state.project.meta.export_ctx.clone(),
+                            export_ctx,
                         });
                 }
                 Err(_) => {

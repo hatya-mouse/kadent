@@ -11,7 +11,7 @@ pub(crate) enum PanelVariant {
     NodeGraph,
     PianoRoll,
     CodeEditor,
-    ErrorList,
+    // ErrorList,
 }
 
 impl Display for PanelVariant {
@@ -23,7 +23,7 @@ impl Display for PanelVariant {
             PanelVariant::NodeGraph => write!(f, "Node Graph"),
             PanelVariant::PianoRoll => write!(f, "Piano Roll"),
             PanelVariant::CodeEditor => write!(f, "Code Editor"),
-            PanelVariant::ErrorList => write!(f, "Error List"),
+            // PanelVariant::ErrorList => write!(f, "Error List"),
         }
     }
 }
@@ -37,7 +37,7 @@ impl PanelVariant {
             PanelVariant::NodeGraph,
             PanelVariant::PianoRoll,
             PanelVariant::CodeEditor,
-            PanelVariant::ErrorList,
+            // PanelVariant::ErrorList,
         ]
     }
 }

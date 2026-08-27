@@ -37,7 +37,13 @@ impl Mixer {
     // --- MIXING PROCESS ---
 
     /// Processes the tracks in the mixer at the specified playhead.
-    pub(crate) fn process(&mut self, is_playing: bool, playhead: usize, output: &mut [f32]) {
+    pub(crate) fn process(
+        &mut self,
+        is_exporting: bool,
+        is_playing: bool,
+        playhead: usize,
+        output: &mut [f32],
+    ) {
         // Fill the output buffer with zeros before processing
         output.fill(0.0);
 
@@ -48,6 +54,7 @@ impl Mixer {
             .par_bridge()
             .for_each(|track| {
                 track.process_to_local_buffer(
+                    is_exporting,
                     is_playing,
                     playhead,
                     &self.project.tempo_map,

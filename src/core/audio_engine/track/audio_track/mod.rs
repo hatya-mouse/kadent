@@ -7,15 +7,12 @@ pub(crate) use audio_region::AudioRegion;
 use crate::core::audio_engine::{
     graph::Graph,
     node::builtin::{AudioInputNode, AudioOutputNode},
-    track::{RegionID, audio_track::track_impl::TrackSyncState},
-};
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
+    track::{
+        RegionID,
+        audio_track::track_impl::{ExportWaitState, RenderWorker, TrackSyncState},
     },
 };
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Default)]
 pub(crate) struct AudioTrack {
@@ -30,8 +27,10 @@ pub(crate) struct AudioTrack {
     // --- RENDER WORKER THREAD ---
     /// The ring buffer to receive the rendered audio data from the render thread.
     ringbuf_cons: Option<ringbuf::HeapCons<f32>>,
-    /// Whether the worker thread should be running.
-    should_worker_stop: Option<Arc<AtomicBool>>,
+    /// The currently running render worker.
+    render_worker: Option<RenderWorker>,
+    /// An export wait state to wait until the new data is available when exporting.
+    export_wait_state: Option<Arc<ExportWaitState>>,
     /// A sync state to synchronize the playhead position with the render worker thread.
     sync_state: Option<TrackSyncState>,
     /// A flag to indicate whether the render this is the first call to process() function.
@@ -56,7 +55,8 @@ impl AudioTrack {
             regions: HashMap::new(),
             graph_input_buffer: Vec::new(),
             ringbuf_cons: None,
-            should_worker_stop: None,
+            render_worker: None,
+            export_wait_state: None,
             sync_state: None,
             is_first_process: true,
             local_buffer: Vec::new(),
@@ -74,7 +74,8 @@ impl AudioTrack {
             regions,
             graph_input_buffer: Vec::new(),
             ringbuf_cons: None,
-            should_worker_stop: None,
+            render_worker: None,
+            export_wait_state: None,
             sync_state: None,
             is_first_process: true,
             local_buffer: Vec::new(),
@@ -118,7 +119,8 @@ impl Clone for AudioTrack {
             regions: self.regions.clone(),
             graph_input_buffer: self.graph_input_buffer.clone(),
             ringbuf_cons: None,
-            should_worker_stop: None,
+            render_worker: None,
+            export_wait_state: None,
             sync_state: None,
             is_first_process: self.is_first_process,
             local_buffer: self.local_buffer.clone(),
@@ -130,8 +132,8 @@ impl Clone for AudioTrack {
 impl Drop for AudioTrack {
     fn drop(&mut self) {
         // If the worker thread is running, signal it to stop
-        if let Some(should_worker_stop) = &self.should_worker_stop {
-            should_worker_stop.store(true, Ordering::SeqCst);
+        if let Some(worker) = &self.render_worker {
+            worker.signal_stop();
         }
     }
 }

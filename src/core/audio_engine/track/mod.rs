@@ -44,6 +44,7 @@ pub(crate) trait Track: Send + Any {
     /// Prepares the track for processing.
     fn prepare(
         &mut self,
+
         audio_pool: &mut AudioFilePool,
         tempo_map: &TempoMap,
         audio_ctx: &AudioContext,
@@ -53,6 +54,7 @@ pub(crate) trait Track: Send + Any {
     /// Processes the track and writes the processed output to the local buffer.
     fn process_to_local_buffer(
         &mut self,
+        is_exporting: bool,
         is_playing: bool,
         playhead: usize,
         tempo_map: &TempoMap,

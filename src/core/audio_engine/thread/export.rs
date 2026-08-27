@@ -23,7 +23,7 @@ pub(super) fn spawn_export_thread(
 
             // Don't abort the export even if some track fails to prepare
             let mut audio_pool = AudioFilePool::default();
-            let (mut mixer, errors) = project.prepare(&mut audio_pool, playback_ctx);
+            let (mut mixer, errors) = project.prepare(&mut audio_pool, playback_ctx.clone());
             for (track_id, err) in errors {
                 result_tx
                     .send(Err(AudioError::TrackPrepareFailed(track_id, err)))
@@ -38,14 +38,14 @@ pub(super) fn spawn_export_thread(
             let mut playhead = start_sample;
 
             while playhead < end_sample {
-                mixer.process(true, playhead, &mut buf);
-                let frames = (end_sample - playhead).min(buffer_size);
+                mixer.process(true, true, playhead, &mut buf);
+                let frames = buffer_size.min(end_sample - playhead);
                 output.extend_from_slice(&buf[..frames * channels]);
                 playhead += frames;
             }
 
             result_tx
-                .send(Ok(AudioResult::ExportedAudio(output)))
+                .send(Ok(AudioResult::ExportedAudio(output, playback_ctx)))
                 .unwrap();
         });
 
