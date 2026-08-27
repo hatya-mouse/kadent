@@ -27,4 +27,8 @@ impl ErrorListView {
                 }
             });
     }
+
+    pub(in crate::ui::editor) fn push_error(&mut self, error: AudioError) {
+        self.errors.push(error);
+    }
 }

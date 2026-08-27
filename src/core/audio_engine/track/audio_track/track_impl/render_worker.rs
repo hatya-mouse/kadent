@@ -110,7 +110,8 @@ pub(super) fn spawn_render_worker(
                         );
                     }
 
-                    if let Ok(_guard) = export_wait_state.state.lock() {
+                    {
+                        let _guard = export_wait_state.state.try_lock();
                         // Push the rendered buffer into the ring buffer
                         producer.push_slice(&render_buf);
                         // Notify the export thread that new data is available

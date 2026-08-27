@@ -18,8 +18,7 @@ impl EditorUi {
         {
             self.views
                 .error_list
-                .errors
-                .push(AudioError::CommandFailed(command));
+                .push_error(AudioError::CommandFailed(command));
         } else {
             self.state.transport.is_playing = true;
         }
@@ -36,8 +35,7 @@ impl EditorUi {
         {
             self.views
                 .error_list
-                .errors
-                .push(AudioError::CommandFailed(command));
+                .push_error(AudioError::CommandFailed(command));
         } else {
             self.state.transport.is_playing = false;
         }
@@ -54,8 +52,7 @@ impl EditorUi {
         {
             self.views
                 .error_list
-                .errors
-                .push(AudioError::CommandFailed(command));
+                .push_error(AudioError::CommandFailed(command));
         }
     }
 }

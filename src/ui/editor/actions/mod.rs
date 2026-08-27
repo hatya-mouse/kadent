@@ -410,9 +410,11 @@ impl EditorUi {
                             export_ctx,
                         });
                 }
-                Err(_) => {
+                Err(error) => {
                     // self.pending_export_path.take();
                     // self.ui_state.status_bar_state.show_temp_status("Failed to export project", theme::error_fg());
+                    println!("Error from audio thread: {:?}", error);
+                    self.views.error_list.push_error(error);
                 }
             }
         }

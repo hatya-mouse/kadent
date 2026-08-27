@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::core::audio_engine::{
     data_types::PlaybackContext,
     mixer::{ProjectData, TrackID},
@@ -19,11 +21,32 @@ pub(crate) enum AudioCommand {
     DisarmTrack,
 }
 
+impl Debug for AudioCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AudioCommand::Play => write!(f, "Play"),
+            AudioCommand::Pause => write!(f, "Pause"),
+            AudioCommand::Seek(pos) => write!(f, "Seek({:?})", pos),
+            AudioCommand::UpdateProject(_) => write!(f, "UpdateProject(Project)"),
+            AudioCommand::ExportAudio(_, playback_ctx) => {
+                write!(f, "ExportAudio(Project, {:?})", playback_ctx)
+            }
+            AudioCommand::ArmTrack(track_id) => write!(f, "ArmTrack({:?})", track_id),
+            AudioCommand::SetOutputDevice(_) => write!(f, "SetOutputDevice(Debug)"),
+            AudioCommand::SetPlaybackCtx(playback_ctx) => {
+                write!(f, "SetPlaybackCtx({:?})", playback_ctx)
+            }
+            AudioCommand::DisarmTrack => write!(f, "DisarmTrack"),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub(crate) enum AudioResult {
     ExportedAudio(Vec<f32>, PlaybackContext),
 }
 
+#[derive(Debug)]
 pub(crate) enum AudioError {
     /// The track preparation failed for a specific track because of an error in the node graph.
     TrackPrepareFailed(TrackID, TrackError),
