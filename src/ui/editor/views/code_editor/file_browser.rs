@@ -9,7 +9,7 @@ use crate::ui::{
     theme,
 };
 use eframe::egui;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 use uuid::Uuid;
 
 const FILE_TREE_ITEM_HEIGHT: f32 = 25.0;
@@ -111,6 +111,9 @@ impl CodeEditorView {
                     path: Some(path),
                     content,
                     is_modified: false,
+                    has_modified_since_last_lint: false,
+                    errors: Vec::new(),
+                    last_edit_time: Some(Instant::now()),
                 },
             );
         } else {

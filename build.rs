@@ -1,6 +1,3 @@
-use std::path::Path;
-use std::process::Command;
-
 fn main() {
     // Run this once during development to create the dump file
     let mut builder = syntect::parsing::SyntaxSetBuilder::new();

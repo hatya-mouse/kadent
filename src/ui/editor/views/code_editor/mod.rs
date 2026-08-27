@@ -4,13 +4,17 @@ mod kasl_editor;
 mod tree_item;
 
 use crate::{
+    background_thread::BackgroundThreadCommand,
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
     ui::{EditorState, components::splitter::Splitter, editor::actions::FileNode, theme},
 };
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use kasl::core::error::ErrorRecord;
+use std::{collections::HashMap, path::PathBuf, sync::Arc, time::Instant};
 use uuid::Uuid;
+
+const LINT_DELAY_MS: u64 = 1000;
 
 #[derive(Default)]
 pub(crate) struct CodeEditorView {
@@ -24,9 +28,18 @@ pub(crate) struct CodeEditorView {
 
 #[derive(Default, Clone)]
 pub(crate) struct CodeBuffer {
+    /// The path to the file being edited, if any.
     pub(crate) path: Option<PathBuf>,
+    /// The content of the file being edited.
     pub(crate) content: String,
+    /// Whether the buffer has been modified since last save.
     pub(crate) is_modified: bool,
+    /// Whether the buffer has been modified since last lint.
+    pub(crate) has_modified_since_last_lint: bool,
+    /// The list of errors found in the buffer.
+    pub(crate) errors: Vec<ErrorRecord>,
+    /// The time of the last edit, used to determine when to send a lint request.
+    pub(crate) last_edit_time: Option<Instant>,
 }
 
 impl CodeBuffer {
@@ -85,5 +98,27 @@ impl CodeEditorView {
 
             self.kasl_editor(ui, panel_id);
         });
+
+        self.lint_buffers(state);
+    }
+
+    /// Checks if the buffer has been modified recently and sends an lint request to the background thread if necessary.
+    fn lint_buffers(&mut self, state: &mut EditorState) {
+        for (buffer_id, buffer) in self.code_buffers.iter_mut() {
+            if let Some(t) = buffer.last_edit_time
+                && t.elapsed() > std::time::Duration::from_millis(LINT_DELAY_MS)
+            {
+                buffer.last_edit_time = None;
+                buffer.has_modified_since_last_lint = false;
+
+                // Send a lint request to the background thread
+                state
+                    .actions
+                    .push_background_job(BackgroundThreadCommand::LintKasl {
+                        buffer_id: *buffer_id,
+                        code: buffer.content.clone(),
+                    });
+            }
+        }
     }
 }

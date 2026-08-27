@@ -4,6 +4,8 @@ use crate::ui::{
 };
 use eframe::egui::{self, TextBuffer};
 use egui_extras::syntax_highlighting::{CodeTheme, highlight_with};
+use kasl::core::error::ErrorRecord;
+use std::time::Instant;
 use uuid::Uuid;
 
 const CODE_EDITOR_MARGIN: egui::Margin = egui::Margin::symmetric(6, 4);
@@ -33,6 +35,14 @@ impl CodeEditorView {
                 "kasl",
                 &syntect_settings,
             );
+
+            // Highlight the errors
+            highlight_errors(
+                &mut layout_job,
+                &code_buffer.errors,
+                code_buffer.has_modified_since_last_lint,
+            );
+
             layout_job.wrap.max_width = f32::INFINITY;
             ui.fonts_mut(|fonts| fonts.layout_job(layout_job))
         };
@@ -46,25 +56,71 @@ impl CodeEditorView {
             .id_salt("kasl_editor")
             .auto_shrink(false)
             .show(ui, |ui| {
-                ui.add(
-                    egui::TextEdit::multiline(&mut code_buffer.content)
-                        .frame(
-                            egui::Frame::new()
-                                .inner_margin(CODE_EDITOR_MARGIN)
-                                .fill(theme::primary_bg(ui.visuals().dark_mode)),
-                        )
-                        .id_salt(&code_buffer.path)
-                        .code_editor()
-                        .desired_width(f32::INFINITY)
-                        .desired_rows(desired_rows)
-                        .lock_focus(true)
-                        .layouter(&mut layouter),
-                )
+                ui.horizontal(|ui| {
+                    egui::Frame::new()
+                        .inner_margin(CODE_EDITOR_MARGIN)
+                        .fill(theme::primary_bg(ui.visuals().dark_mode))
+                        .show(ui, |ui| {
+                            ui.vertical(|ui| {
+                                for line_number in 1..=desired_rows {
+                                    ui.label(
+                                        egui::RichText::new(line_number.to_string()).monospace(),
+                                    );
+                                }
+                            });
+                        });
+
+                    ui.add(
+                        egui::TextEdit::multiline(&mut code_buffer.content)
+                            .frame(
+                                egui::Frame::new()
+                                    .inner_margin(CODE_EDITOR_MARGIN)
+                                    .fill(theme::primary_bg(ui.visuals().dark_mode)),
+                            )
+                            .id_salt(&code_buffer.path)
+                            .code_editor()
+                            .desired_width(f32::INFINITY)
+                            .desired_rows(desired_rows)
+                            .lock_focus(true)
+                            .layouter(&mut layouter),
+                    )
+                })
             })
+            .inner
             .inner;
 
         if text_edit_response.changed() {
             code_buffer.is_modified = true;
+            code_buffer.has_modified_since_last_lint = true;
+            code_buffer.last_edit_time = Some(Instant::now())
+        }
+    }
+}
+
+fn highlight_errors(
+    layout_job: &mut egui::text::LayoutJob,
+    errors: &[ErrorRecord],
+    has_modified_since_last_lint: bool,
+) {
+    let error_color = if has_modified_since_last_lint {
+        egui::Color32::GRAY
+    } else {
+        theme::error_fg()
+    };
+
+    for error in errors.iter() {
+        for range in &error.ranges {
+            let start = range.start;
+            let end = range.end;
+
+            for section in &mut layout_job.sections {
+                let section_start = section.byte_range.start.0;
+                let section_end = section.byte_range.end.0;
+
+                if start < section_end && end > section_start {
+                    section.format.underline = egui::Stroke::new(1.5, error_color);
+                }
+            }
         }
     }
 }

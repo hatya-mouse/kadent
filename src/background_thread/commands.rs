@@ -10,7 +10,9 @@ use crate::{
     },
     storage::project::SaveError,
 };
+use kasl::core::error::ErrorRecord;
 use std::path::PathBuf;
+use uuid::Uuid;
 
 pub(crate) struct DecodedAudio {
     pub(crate) path: PathBuf,
@@ -58,6 +60,10 @@ pub(crate) enum BackgroundThreadCommand {
         region_id: RegionID,
         source: AudioSource,
     },
+    LintKasl {
+        buffer_id: Uuid,
+        code: String,
+    },
 }
 
 pub(crate) enum BackgroundThreadResult {
@@ -73,6 +79,10 @@ pub(crate) enum BackgroundThreadResult {
         track_id: TrackID,
         region_id: RegionID,
         waveform: WaveformLod,
+    },
+    LintKasl {
+        buffer_id: Uuid,
+        errors: Vec<ErrorRecord>,
     },
 }
 
