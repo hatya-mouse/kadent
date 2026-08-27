@@ -14,12 +14,7 @@ use kasl::core::{
 };
 use uuid::Uuid;
 
-const ERROR_MARGIN: egui::Margin = egui::Margin {
-    left: 8,
-    right: 8,
-    top: 6,
-    bottom: 8,
-};
+const ERROR_MARGIN: egui::Margin = egui::Margin::same(8);
 const ERROR_ID_MARGIN: egui::Margin = egui::Margin {
     left: 3,
     right: 6,
