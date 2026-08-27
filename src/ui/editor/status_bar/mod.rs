@@ -35,9 +35,9 @@ impl StatusBarView {
                 status_text(
                     ui,
                     match task {
-                        BackgroundTaskStatus::Save => "Saving ProjectData...",
-                        BackgroundTaskStatus::Open => "Opening ProjectData...",
-                        BackgroundTaskStatus::Export => "Exporting ProjectData...",
+                        BackgroundTaskStatus::Save => "Saving Project...",
+                        BackgroundTaskStatus::Open => "Opening Project...",
+                        BackgroundTaskStatus::Export => "Exporting Project...",
                         BackgroundTaskStatus::Import => "Importing File...",
                         BackgroundTaskStatus::GenerateWaveform => "Generating Waveform...",
                     },
