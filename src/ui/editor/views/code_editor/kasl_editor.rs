@@ -11,12 +11,17 @@ use eframe::egui::{
     text::{CCursor, CCursorRange},
 };
 use egui_extras::syntax_highlighting::{CodeTheme, highlight_with};
+use kasl::core::error::Severity;
 use std::time::Instant;
 use uuid::Uuid;
 
 const LINE_NUMBER_WIDTH: f32 = 40.0;
 const LINE_NUMBER_MARGIN: egui::Vec2 = egui::vec2(6.0, 4.0);
 const CODE_EDITOR_MARGIN: egui::Margin = egui::Margin::symmetric(6, 4);
+
+const COMPILER_BUG_COLOR: egui::Color32 = egui::Color32::from_rgb(185, 101, 218);
+const ERROR_COLOR: egui::Color32 = egui::Color32::from_rgb(245, 34, 56);
+const WARNING_COLOR: egui::Color32 = egui::Color32::from_rgb(222, 164, 54);
 
 impl CodeEditorView {
     pub(super) fn kasl_editor(
@@ -140,13 +145,17 @@ fn highlight_errors(layout_job: &mut egui::text::LayoutJob, errors: &BufferError
         ..
     } = errors;
 
-    let error_color = if *has_modified_since_last_lint {
-        egui::Color32::GRAY
-    } else {
-        theme::error_fg()
-    };
-
     for record in records.iter() {
+        let error_color = if *has_modified_since_last_lint {
+            egui::Color32::GRAY
+        } else {
+            match record.severity {
+                Severity::CompilerBug => COMPILER_BUG_COLOR,
+                Severity::Error => ERROR_COLOR,
+                Severity::Warning => WARNING_COLOR,
+            }
+        };
+
         for range in &record.ranges {
             let start = range.start;
             let mut end = range.end;

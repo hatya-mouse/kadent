@@ -121,11 +121,8 @@ fn error_button(ui: &mut egui::Ui, code_buffer: &CodeBuffer) -> egui::Response {
         })
         .response
     } else {
-        small_icon_button(
-            ui,
-            egui::Image::new(include_image!("../../../../../assets/icons/warning.svg")),
-            false,
-        )
+        let no_error_icon = include_image!("../../../../../assets/icons/no_error.svg");
+        small_icon_button(ui, egui::Image::new(no_error_icon), false)
     }
 }
 
