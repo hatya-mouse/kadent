@@ -1,6 +1,9 @@
-use crate::ui::{
-    editor::{EditorUi, PanelNode, SplitDir},
-    theme,
+use crate::{
+    storage::app_state::AppPreferences,
+    ui::{
+        editor::{EditorUi, PanelNode, SplitDir},
+        theme,
+    },
 };
 use eframe::egui::{self, CursorIcon, Rect};
 
@@ -17,13 +20,14 @@ impl EditorUi {
         first: &mut PanelNode,
         second: &mut PanelNode,
         rect: Rect,
+        preferences: &AppPreferences,
     ) -> Option<bool> {
         let (first_rect, div_rect, second_rect) = split_rects(rect, dir, *ratio);
         if panel_size(dir, first_rect) >= 1.0 {
-            self.render_node(ui, first, first_rect);
+            self.render_node(ui, first, first_rect, preferences);
         }
         if panel_size(dir, second_rect) >= 1.0 {
-            self.render_node(ui, second, second_rect);
+            self.render_node(ui, second, second_rect, preferences);
         }
         render_divider(ui, div_rect, dir, ratio, rect)
     }

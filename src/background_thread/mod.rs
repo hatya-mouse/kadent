@@ -2,6 +2,7 @@
 
 mod audio_import;
 mod commands;
+mod kasl_linter;
 mod project;
 mod waveform;
 
@@ -13,6 +14,7 @@ pub(crate) use commands::{
 use crate::{
     background_thread::{
         audio_import::run_decode_wav,
+        kasl_linter::lint_kasl,
         project::{run_save_project, run_write_wav},
         waveform::run_generate_waveform,
     },
@@ -89,6 +91,15 @@ fn background_thread(
                     region_id,
                     waveform,
                 }
+            }
+            BackgroundThreadCommand::LintKasl {
+                buffer_id,
+                code,
+                file_path,
+                search_paths,
+            } => {
+                let errors = lint_kasl(&code, search_paths, &file_path);
+                BackgroundThreadResult::LintedKasl { buffer_id, errors }
             }
         };
         result_tx.send(result).ok();

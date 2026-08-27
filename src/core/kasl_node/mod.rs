@@ -95,6 +95,16 @@ impl KaslNode {
             return Ok(false);
         }
 
+        let mut search_paths = self
+            .search_paths
+            .clone()
+            .iter()
+            .map(PathBuf::from)
+            .collect::<Vec<_>>();
+        if let Some(local_path) = PathBuf::from(file_path).parent() {
+            search_paths.push(local_path.to_path_buf());
+        }
+
         // Clean up the old states
         self.deallocate_states();
         // Drop the old backend and the program
@@ -104,8 +114,9 @@ impl KaslNode {
 
         // Create a compiler
         let mut compiler = KaslCompiler::default();
+
         // Add the search paths to the compiler
-        compiler.set_search_paths(self.search_paths.iter().map(PathBuf::from).collect());
+        compiler.set_search_paths(search_paths);
         let audio_module = format!(
             include_str!("../../../kasl_module/audio.kasl"),
             playback_ctx.channels, playback_ctx.sample_rate, playback_ctx.buffer_size,

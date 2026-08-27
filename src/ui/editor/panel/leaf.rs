@@ -1,6 +1,7 @@
 use super::SplitAction;
 use crate::{
     consts::PANEL_HEADER_MARGIN,
+    storage::app_state::AppPreferences,
     ui::{
         components::{dropdown::dropdown_button, panel_header::panel_header},
         editor::{EditorUi, PanelVariant, SplitDir, views::PanelViewState},
@@ -28,6 +29,7 @@ impl EditorUi {
         view: &mut PanelViewState,
         id: Uuid,
         rect: Rect,
+        preferences: &AppPreferences,
     ) -> Option<SplitAction> {
         // Use a scoped child UI with a unique ID derived from the panel position
         // This ensures scroll state and widget IDs are independent per panel
@@ -45,7 +47,7 @@ impl EditorUi {
             let content_rect = ui.available_rect_before_wrap();
             ui.scope_builder(UiBuilder::new().id_salt(id).max_rect(content_rect), |ui| {
                 ui.set_clip_rect(content_rect);
-                self.render_view_content(ui, view, id);
+                self.render_view_content(ui, view, id, preferences);
             });
 
             check_edge_drag(ui, rect)
@@ -59,6 +61,7 @@ impl EditorUi {
         ui: &mut egui::Ui,
         view: &mut PanelViewState,
         panel_id: Uuid,
+        preferences: &AppPreferences,
     ) {
         match view {
             PanelViewState::Timeline(panel_state) => {
@@ -76,7 +79,7 @@ impl EditorUi {
             PanelViewState::CodeEditor(panel_state) => {
                 self.views
                     .code_editor
-                    .ui(ui, &mut self.state, panel_id, panel_state)
+                    .ui(ui, &mut self.state, panel_id, panel_state, preferences)
             }
         }
     }

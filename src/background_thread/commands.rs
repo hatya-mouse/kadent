@@ -63,6 +63,8 @@ pub(crate) enum BackgroundThreadCommand {
     LintKasl {
         buffer_id: Uuid,
         code: String,
+        file_path: PathBuf,
+        search_paths: Vec<PathBuf>,
     },
 }
 
@@ -80,7 +82,7 @@ pub(crate) enum BackgroundThreadResult {
         region_id: RegionID,
         waveform: WaveformLod,
     },
-    LintKasl {
+    LintedKasl {
         buffer_id: Uuid,
         errors: Vec<ErrorRecord>,
     },

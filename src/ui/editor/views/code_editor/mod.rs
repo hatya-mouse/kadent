@@ -6,6 +6,7 @@ mod tree_item;
 use crate::{
     background_thread::BackgroundThreadCommand,
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
+    storage::app_state::AppPreferences,
     ui::{EditorState, components::splitter::Splitter, editor::actions::FileNode, theme},
 };
 use eframe::egui;
@@ -40,6 +41,8 @@ pub(crate) struct CodeBuffer {
     pub(crate) errors: Vec<ErrorRecord>,
     /// The time of the last edit, used to determine when to send a lint request.
     pub(crate) last_edit_time: Option<Instant>,
+    /// The scroll offset of the editor, used to render line numbers.
+    pub(crate) scroll_offset: egui::Vec2,
 }
 
 impl CodeBuffer {
@@ -71,6 +74,7 @@ impl CodeEditorView {
         state: &mut EditorState,
         panel_id: Uuid,
         panel_state: &mut CodeEditorPanelState,
+        preferences: &AppPreferences,
     ) {
         let panel_rect = ui.available_rect_before_wrap();
 
@@ -99,11 +103,21 @@ impl CodeEditorView {
             self.kasl_editor(ui, panel_id);
         });
 
-        self.lint_buffers(state);
+        self.lint_buffers(state, preferences);
+    }
+
+    pub(in crate::ui::editor) fn set_lint_errors(
+        &mut self,
+        buffer_id: Uuid,
+        errors: Vec<ErrorRecord>,
+    ) {
+        if let Some(buffer) = self.code_buffers.get_mut(&buffer_id) {
+            buffer.errors = errors;
+        }
     }
 
     /// Checks if the buffer has been modified recently and sends an lint request to the background thread if necessary.
-    fn lint_buffers(&mut self, state: &mut EditorState) {
+    fn lint_buffers(&mut self, state: &mut EditorState, preferences: &AppPreferences) {
         for (buffer_id, buffer) in self.code_buffers.iter_mut() {
             if let Some(t) = buffer.last_edit_time
                 && t.elapsed() > std::time::Duration::from_millis(LINT_DELAY_MS)
@@ -112,12 +126,20 @@ impl CodeEditorView {
                 buffer.has_modified_since_last_lint = false;
 
                 // Send a lint request to the background thread
-                state
-                    .actions
-                    .push_background_job(BackgroundThreadCommand::LintKasl {
-                        buffer_id: *buffer_id,
-                        code: buffer.content.clone(),
-                    });
+                if let Some(file_path) = buffer.path.clone() {
+                    state
+                        .actions
+                        .push_background_job(BackgroundThreadCommand::LintKasl {
+                            buffer_id: *buffer_id,
+                            code: buffer.content.clone(),
+                            search_paths: preferences
+                                .kasl_std_path
+                                .clone()
+                                .map(|p| vec![PathBuf::from(p)])
+                                .unwrap_or_default(),
+                            file_path,
+                        });
+                }
             }
         }
     }

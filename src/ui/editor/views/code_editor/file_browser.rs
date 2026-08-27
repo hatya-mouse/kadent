@@ -114,6 +114,7 @@ impl CodeEditorView {
                     has_modified_since_last_lint: false,
                     errors: Vec::new(),
                     last_edit_time: Some(Instant::now()),
+                    scroll_offset: egui::Vec2::ZERO,
                 },
             );
         } else {

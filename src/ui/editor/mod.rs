@@ -184,7 +184,7 @@ impl EditorUi {
             )
             .show(ui, |ui| {
                 let rect = ui.available_rect_before_wrap();
-                self.render_panels(ui, rect);
+                self.render_panels(ui, rect, preferences);
             });
 
         self.views.dialog.dialog(ui, &mut self.state);

@@ -4,9 +4,12 @@ mod split;
 
 pub(crate) use layout::{PanelNode, PanelVariant, SplitDir};
 
-use crate::ui::editor::{
-    EditorUi,
-    views::{PanelViewState, TimelinePanelState},
+use crate::{
+    storage::app_state::AppPreferences,
+    ui::editor::{
+        EditorUi,
+        views::{PanelViewState, TimelinePanelState},
+    },
 };
 use eframe::egui;
 use uuid::Uuid;
@@ -19,17 +22,28 @@ struct SplitAction {
 
 impl EditorUi {
     /// Renders the panel layout by recursively drawing the each nodes.
-    pub(in crate::ui) fn render_panels(&mut self, ui: &mut egui::Ui, rect: egui::Rect) {
+    pub(in crate::ui) fn render_panels(
+        &mut self,
+        ui: &mut egui::Ui,
+        rect: egui::Rect,
+        preferences: &AppPreferences,
+    ) {
         // Extract the layout tree to avoid a simultaneous borrow of self
         let mut layout = std::mem::take(&mut self.layout);
-        self.render_node(ui, &mut layout, rect);
+        self.render_node(ui, &mut layout, rect, preferences);
 
         self.layout = layout;
     }
 
-    fn render_node(&mut self, ui: &mut egui::Ui, node: &mut PanelNode, rect: egui::Rect) {
+    fn render_node(
+        &mut self,
+        ui: &mut egui::Ui,
+        node: &mut PanelNode,
+        rect: egui::Rect,
+        preferences: &AppPreferences,
+    ) {
         let split_action = match node {
-            PanelNode::Leaf(view, id) => self.render_leaf(ui, view, *id, rect),
+            PanelNode::Leaf(view, id) => self.render_leaf(ui, view, *id, rect, preferences),
             _ => None,
         };
 
@@ -39,7 +53,7 @@ impl EditorUi {
                 ratio,
                 first,
                 second,
-            } => self.render_split(ui, *dir, ratio, first, second, rect),
+            } => self.render_split(ui, *dir, ratio, first, second, rect, preferences),
             _ => None,
         };
 
