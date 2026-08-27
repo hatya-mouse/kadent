@@ -14,5 +14,5 @@ pub(crate) mod utils;
 pub(crate) const MAX_CHANNELS: usize = 16;
 /// Number of events to be processed in a single frame.
 pub(crate) const MAX_EVENTS: usize = 4;
-/// Duration to wait for the audio thread to process commands and events.
+/// Duration to wait in threads.
 pub(crate) const THREAD_WAIT_DURATION: Duration = Duration::from_millis(5);

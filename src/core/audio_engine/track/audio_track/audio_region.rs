@@ -108,14 +108,16 @@ impl AudioRegion {
         let Some(audio_data) = &self.audio_data else {
             return;
         };
-        let data_sample_rate = audio_data.info.sample_rate;
-        let sample_rate_ratio = data_sample_rate as f64 / playback_ctx.sample_rate as f64;
 
         // Skip processing if the region is entirely outside the buffer
         let buffer_end = playhead + playback_ctx.buffer_size;
         if buffer_end <= self.sample_bounds.0 || playhead >= self.sample_bounds.1 {
             return;
         }
+
+        let data_channels = audio_data.info.channels;
+        let data_sample_rate = audio_data.info.sample_rate;
+        let sample_rate_ratio = data_sample_rate as f64 / playback_ctx.sample_rate as f64;
 
         // Calculate where to start and end reading from the audio data
         // This is to handle edge cases like below:
@@ -144,7 +146,6 @@ impl AudioRegion {
             }
 
             // Calculate the number of ticks in the current section
-            let data_channels = audio_data.info.channels;
             let (data_start, data_end) = match self.bounds {
                 TimeBounds::Musical { start, .. } => {
                     // Calculate the start and end sample positions in the audio data for the current section
@@ -201,8 +202,15 @@ impl AudioRegion {
 
                 // Resample the audio data based on the resample ratio calculated by the tempo map
                 if (resample_ratio - 1.0).abs() < 1e-6 {
-                    self.resampled_buffer.clear();
-                    self.resampled_buffer.extend_from_slice(data);
+                    // Interleave and add the resampled data to the buffer, which must have MAX_CHANNELS channels
+                    if current_write_index < buffer.len() {
+                        add_samples_interleaved(
+                            data,
+                            &mut buffer[current_write_index..],
+                            audio_data.info.channels,
+                            MAX_CHANNELS,
+                        );
+                    }
                 } else {
                     resample_channels(
                         data,
@@ -211,17 +219,17 @@ impl AudioRegion {
                         audio_data.info.channels,
                         resample_ratio,
                     );
-                };
 
-                // Interleave and add the resampled data to the buffer, which must have MAX_CHANNELS channels
-                if current_write_index < buffer.len() {
-                    add_samples_interleaved(
-                        &self.resampled_buffer,
-                        &mut buffer[current_write_index..],
-                        audio_data.info.channels,
-                        MAX_CHANNELS,
-                    );
-                }
+                    // Interleave and add the resampled data to the buffer, which must have MAX_CHANNELS channels
+                    if current_write_index < buffer.len() {
+                        add_samples_interleaved(
+                            &self.resampled_buffer,
+                            &mut buffer[current_write_index..],
+                            audio_data.info.channels,
+                            MAX_CHANNELS,
+                        );
+                    }
+                };
             }
 
             // Advance the destination offset
