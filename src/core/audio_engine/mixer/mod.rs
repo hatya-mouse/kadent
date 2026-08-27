@@ -75,7 +75,10 @@ impl Mixer {
                 let dst_sample_offset = sample * channels;
 
                 for channel in 0..channels {
-                    output[dst_sample_offset + channel] += local_buf[src_sample_offset + channel];
+                    output[dst_sample_offset + channel] += local_buf
+                        .get(src_sample_offset + channel)
+                        .copied()
+                        .unwrap_or_default();
                 }
             }
         }
