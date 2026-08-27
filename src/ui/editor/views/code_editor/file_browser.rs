@@ -4,12 +4,14 @@ use crate::ui::{
         DialogType, UiCommand, UiCommandDispatcher,
         actions::{EditorAction, FileNode, FileNodeKind},
         state::ActionDispatcher,
-        views::code_editor::{CodeBuffer, CodeEditorView, tree_item::FileTreeItem},
+        views::code_editor::{
+            BufferErrorState, CodeBuffer, CodeEditorView, tree_item::FileTreeItem,
+        },
     },
     theme,
 };
 use eframe::egui;
-use std::{path::PathBuf, time::Instant};
+use std::path::PathBuf;
 use uuid::Uuid;
 
 const FILE_TREE_ITEM_HEIGHT: f32 = 25.0;
@@ -111,11 +113,8 @@ impl CodeEditorView {
                     path: Some(path),
                     content,
                     is_modified: false,
-                    has_modified_since_last_lint: false,
-                    errors: Vec::new(),
-                    byte_offsets: Vec::new(),
-                    last_edit_time: Some(Instant::now()),
                     scroll_offset: egui::Vec2::ZERO,
+                    errors: BufferErrorState::default(),
                 },
             );
         } else {

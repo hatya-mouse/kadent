@@ -30,11 +30,6 @@ impl<'a> HSplitter<'a> {
         self
     }
 
-    pub(crate) fn with_width(mut self, width: f32) -> Self {
-        self.width = Some(width);
-        self
-    }
-
     pub(crate) fn show(&mut self, ui: &mut egui::Ui) -> egui::Response {
         let width = self
             .width
