@@ -14,7 +14,7 @@ use crate::{
         EditorState,
         components::{
             panel_header::panel_header,
-            splitter::{SPLITTER_WIDTH, Splitter},
+            v_splitter::{SPLITTER_WIDTH, VSplitter},
         },
         editor::{TimelineCoord, utils::handle_timeline_zoom},
         theme,
@@ -91,7 +91,7 @@ impl TimelineState {
                                     );
                                 });
 
-                            Splitter::new(&mut panel_state.track_list_width)
+                            VSplitter::new(&mut panel_state.track_list_width)
                                 .with_min(MIN_SIDEBAR_WIDTH)
                                 .with_max(MAX_SIDEBAR_WIDTH)
                                 .with_height(panel_rect.height())

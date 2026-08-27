@@ -48,6 +48,7 @@ impl CodeEditorView {
             highlight_errors(
                 &mut layout_job,
                 &code_buffer.errors,
+                &code_buffer.byte_offsets,
                 code_buffer.has_modified_since_last_lint,
             );
 
@@ -114,6 +115,7 @@ impl CodeEditorView {
 fn highlight_errors(
     layout_job: &mut egui::text::LayoutJob,
     errors: &[ErrorRecord],
+    byte_offsets: &[usize],
     has_modified_since_last_lint: bool,
 ) {
     let error_color = if has_modified_since_last_lint {
@@ -124,8 +126,11 @@ fn highlight_errors(
 
     for error in errors.iter() {
         for range in &error.ranges {
-            let start = range.start;
-            let end = range.end;
+            let start = byte_offsets.get(range.start).copied().unwrap_or_default();
+            let mut end = byte_offsets.get(range.end).copied().unwrap_or_default();
+            if start == end {
+                end += 1;
+            }
 
             for section in &mut layout_job.sections {
                 let section_start = section.byte_range.start.0;

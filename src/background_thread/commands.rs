@@ -84,6 +84,7 @@ pub(crate) enum BackgroundThreadResult {
     },
     LintedKasl {
         buffer_id: Uuid,
+        byte_offsets: Vec<usize>,
         errors: Vec<ErrorRecord>,
     },
 }

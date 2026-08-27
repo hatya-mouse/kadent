@@ -3,14 +3,14 @@ use eframe::egui;
 
 pub(crate) const SPLITTER_WIDTH: f32 = 2.0;
 
-pub(crate) struct Splitter<'a> {
+pub(crate) struct VSplitter<'a> {
     width: &'a mut f32,
     min: f32,
     max: f32,
     height: Option<f32>,
 }
 
-impl<'a> Splitter<'a> {
+impl<'a> VSplitter<'a> {
     pub(crate) fn new(width: &'a mut f32) -> Self {
         Self {
             width,

@@ -103,8 +103,14 @@ impl EditorUi {
                         .waveforms
                         .insert((track_id, region_id), waveform);
                 }
-                BackgroundThreadResult::LintedKasl { buffer_id, errors } => {
-                    self.views.code_editor.set_lint_errors(buffer_id, errors);
+                BackgroundThreadResult::LintedKasl {
+                    buffer_id,
+                    byte_offsets,
+                    errors,
+                } => {
+                    self.views
+                        .code_editor
+                        .set_lint_errors(buffer_id, byte_offsets, errors);
                 }
             }
         }

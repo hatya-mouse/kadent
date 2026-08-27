@@ -14,7 +14,7 @@ pub(crate) use commands::{
 use crate::{
     background_thread::{
         audio_import::run_decode_wav,
-        kasl_linter::lint_kasl,
+        kasl_linter::{char_to_byte_offsets, lint_kasl},
         project::{run_save_project, run_write_wav},
         waveform::run_generate_waveform,
     },
@@ -99,7 +99,12 @@ fn background_thread(
                 search_paths,
             } => {
                 let errors = lint_kasl(&code, search_paths, &file_path);
-                BackgroundThreadResult::LintedKasl { buffer_id, errors }
+                let byte_offsets = char_to_byte_offsets(&code);
+                BackgroundThreadResult::LintedKasl {
+                    buffer_id,
+                    byte_offsets,
+                    errors,
+                }
             }
         };
         result_tx.send(result).ok();

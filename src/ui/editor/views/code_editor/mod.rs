@@ -7,7 +7,7 @@ use crate::{
     background_thread::BackgroundThreadCommand,
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
     storage::app_state::AppPreferences,
-    ui::{EditorState, components::splitter::Splitter, editor::actions::FileNode, theme},
+    ui::{EditorState, components::v_splitter::VSplitter, editor::actions::FileNode, theme},
 };
 use eframe::egui;
 use egui_extras::syntax_highlighting::SyntectSettings;
@@ -39,6 +39,8 @@ pub(crate) struct CodeBuffer {
     pub(crate) has_modified_since_last_lint: bool,
     /// The list of errors found in the buffer.
     pub(crate) errors: Vec<ErrorRecord>,
+    /// The position of the character in bytes to calculate where to shown an error.
+    pub(crate) byte_offsets: Vec<usize>,
     /// The time of the last edit, used to determine when to send a lint request.
     pub(crate) last_edit_time: Option<Instant>,
     /// The scroll offset of the editor, used to render line numbers.
@@ -94,7 +96,7 @@ impl CodeEditorView {
                         });
                 });
 
-            Splitter::new(&mut panel_state.file_list_width)
+            VSplitter::new(&mut panel_state.file_list_width)
                 .with_min(MIN_SIDEBAR_WIDTH)
                 .with_max(MAX_SIDEBAR_WIDTH)
                 .with_height(panel_rect.height())
@@ -109,10 +111,12 @@ impl CodeEditorView {
     pub(in crate::ui::editor) fn set_lint_errors(
         &mut self,
         buffer_id: Uuid,
+        byte_offsets: Vec<usize>,
         errors: Vec<ErrorRecord>,
     ) {
         if let Some(buffer) = self.code_buffers.get_mut(&buffer_id) {
             buffer.errors = errors;
+            buffer.byte_offsets = byte_offsets;
         }
     }
 
