@@ -11,7 +11,7 @@ pub(crate) mod track;
 pub(crate) mod utils;
 
 /// Maximum supported number of channels for audio output.
-pub(crate) const MAX_CHANNELS: usize = 64;
+pub(crate) const MAX_CHANNELS: usize = 16;
 /// Number of events to be processed in a single frame.
 pub(crate) const MAX_EVENTS: usize = 4;
 /// Duration to wait for the audio thread to process commands and events.

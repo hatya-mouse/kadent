@@ -6,11 +6,11 @@ let buffer_size = {}
 
 let seconds_per_sample = 1.0 / std.convert.int_to_float(sample_rate)
 // These must be as the same as the number defined in kadent_engine
-let max_channels = 64
+let max_channels = 16
 let max_voices = 16
 let max_events = 4
 
-typealias Sample = [Float; 64] // Same as max_channels
+typealias Sample = [Float; 16] // Same as max_channels
 
 func zero_sample() -> Sample {
     return [0.0; max_channels]
