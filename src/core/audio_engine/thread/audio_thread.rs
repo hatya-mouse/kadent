@@ -118,12 +118,6 @@ pub(super) fn audio_thread(
                 }
                 AudioCommand::SetOutputDevice(device) => {
                     output_state.device = device;
-                    reprepare_mixer(
-                        latest_mixer.clone(),
-                        prepare_state.clone(),
-                        &output_state,
-                        &default_ctx,
-                    );
                     recreate_output_callback(
                         &mut output_state,
                         &callback_ctx,
@@ -131,6 +125,12 @@ pub(super) fn audio_thread(
                         &mut midi_sub_prod,
                         &latest_mixer,
                         &mut default_ctx,
+                    );
+                    reprepare_mixer(
+                        latest_mixer.clone(),
+                        prepare_state.clone(),
+                        &output_state,
+                        &default_ctx,
                     );
 
                     if let Some(stream) = output_state.stream.as_ref()
@@ -143,12 +143,6 @@ pub(super) fn audio_thread(
                 }
                 AudioCommand::SetDefaultCtx(new_default_ctx) => {
                     default_ctx = new_default_ctx;
-                    reprepare_mixer(
-                        latest_mixer.clone(),
-                        prepare_state.clone(),
-                        &output_state,
-                        &default_ctx,
-                    );
                     recreate_output_callback(
                         &mut output_state,
                         &callback_ctx,
@@ -156,6 +150,12 @@ pub(super) fn audio_thread(
                         &mut midi_sub_prod,
                         &latest_mixer,
                         &mut default_ctx,
+                    );
+                    reprepare_mixer(
+                        latest_mixer.clone(),
+                        prepare_state.clone(),
+                        &output_state,
+                        &default_ctx,
                     );
 
                     if let Some(stream) = output_state.stream.as_ref()

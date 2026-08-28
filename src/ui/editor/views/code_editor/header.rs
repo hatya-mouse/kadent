@@ -92,15 +92,18 @@ fn error_button(ui: &mut egui::Ui, code_buffer: &CodeBuffer) -> egui::Response {
     let compiler_bug_count = records
         .iter()
         .filter(|e| matches!(e.severity, Severity::CompilerBug))
-        .count();
+        .map(|e| e.ranges.len())
+        .sum();
     let error_count = records
         .iter()
         .filter(|e| matches!(e.severity, Severity::Error))
-        .count();
+        .map(|e| e.ranges.len())
+        .sum();
     let warning_count = records
         .iter()
         .filter(|e| matches!(e.severity, Severity::Warning))
-        .count();
+        .map(|e| e.ranges.len())
+        .sum();
     let has_any_error = compiler_bug_count != 0 || error_count != 0 || warning_count != 0;
 
     if has_any_error {
