@@ -44,13 +44,9 @@ pub(super) fn io_control(ui: &mut egui::Ui, state: &mut EditorState) {
 
                         if ui.selectable_label(is_selected, &device_name).clicked() && !is_selected
                         {
-                            // Select the label when clicked
-                            state.audio_device.selected_output = device_id;
                             state
-                                .thread_handle
-                                .audio_command_tx
-                                .send(AudioCommand::SetOutputDevice(device.clone()))
-                                .ok();
+                                .actions
+                                .push_action(EditorAction::SetAudioOutputDevice(device.clone()));
                         }
                     };
 

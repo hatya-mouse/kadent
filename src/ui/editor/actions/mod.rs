@@ -1,6 +1,7 @@
 //! Processes the actions that are executed in the UI thread at the end of the frame.
 
 mod automation;
+mod device;
 mod graph;
 mod midi;
 mod note;
@@ -14,6 +15,7 @@ pub(crate) use project::{FileNode, FileNodeKind};
 use uuid::Uuid;
 
 use crate::core::audio_engine::graph::OutputKey;
+use crate::core::audio_engine::thread::AudioError;
 use crate::storage::app_state::AppPreferences;
 use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType};
 use crate::{
@@ -201,6 +203,11 @@ pub(crate) enum EditorAction {
     /// `(track_id, region_id, note_id)`
     RemoveNote(TrackID, RegionID, NoteID),
 
+    // --- AUDIO DEVICE ---
+    /// Set the output audio device to the given device.
+    /// `(device)`
+    SetAudioOutputDevice(cpal::Device),
+
     // --- MIDI ---
     /// Set the MIDI input port to the given port.
     /// `(midi_in_port)`
@@ -376,6 +383,11 @@ impl EditorUi {
                     self.remove_note(track_id, region_id, note_id)
                 }
 
+                // --- AUDIO DEVICE ---
+                EditorAction::SetAudioOutputDevice(device) => {
+                    self.state.set_audio_output_device(device);
+                }
+
                 // --- MIDI ---
                 EditorAction::SetMidiInputPort(midi_in_port) => {
                     self.state.set_midi_input_port(midi_in_port);
@@ -414,8 +426,19 @@ impl EditorUi {
                 Err(error) => {
                     // self.pending_export_path.take();
                     // self.ui_state.status_bar_state.show_temp_status("Failed to export project", theme::error_fg());
+                    // self.views.error_list.push_error(error);
                     println!("Error from audio thread: {:?}", error);
-                    self.views.error_list.push_error(error);
+
+                    if let AudioError::PlayStreamError(cpal_error) = error
+                        && let cpal::ErrorKind::DeviceChanged = cpal_error.kind()
+                    {
+                        self.state.fetch_devices();
+                        if let Some(device) = self.state.audio_device.default_output.clone() {
+                            self.state
+                                .actions
+                                .push_action(EditorAction::SetAudioOutputDevice(device));
+                        }
+                    }
                 }
             }
         }

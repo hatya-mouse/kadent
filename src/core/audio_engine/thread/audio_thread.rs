@@ -205,7 +205,15 @@ fn recreate_output_callback(
 
     callback_ctx.lock().unwrap().midi_cons = new_sub_cons;
 
+    let old_sample_rate = output_state.config.sample_rate as f32;
     output_state.config = resolve_output_config(&output_state.device, default_ctx);
+    let sample_rate_ratio = output_state.config.sample_rate as f32 / old_sample_rate;
+    let new_sample_rate =
+        callback_state.playhead.load(Ordering::Relaxed) as f32 * sample_rate_ratio;
+    callback_state
+        .playhead
+        .store(new_sample_rate as u64, Ordering::Relaxed);
+
     // Then get the latest mixer to pass to the new output callback
     output_state.stream = output_callback(
         callback_ctx.clone(),
