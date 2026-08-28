@@ -44,7 +44,6 @@ pub(crate) trait Track: Send + Any {
     /// Prepares the track for processing.
     fn prepare(
         &mut self,
-
         audio_pool: &mut AudioFilePool,
         tempo_map: &TempoMap,
         audio_ctx: &AudioContext,

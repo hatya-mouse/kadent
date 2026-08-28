@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     core::audio_engine::{
-        graph::{Graph, InputKey, InputSource, node_id::NodeID},
+        graph::{Graph, InputKey, InputSource, OutputKey, node_id::NodeID},
         node::Node,
     },
     storage::project::serial::data::restore_next_id,
@@ -67,16 +67,13 @@ impl Decode for InputKey {
 impl Encode for InputSource {
     fn encode(&self, e: &mut Encoder) -> Result<(), EncodeError> {
         match self {
-            InputSource::Edge(node_id, output_index) => {
+            InputSource::Edge(OutputKey(node_id, output_index)) => {
                 let index_u64: u64 = (*output_index)
                     .try_into()
                     .map_err(|_| EncodeError::InvalidLength)?;
                 e.field(0, &0u32)?;
                 e.field(1, node_id)?;
                 e.field(2, &index_u64)?;
-            }
-            InputSource::Keyframe => {
-                e.field(0, &1u32)?;
             }
             InputSource::Zero => {
                 e.field(0, &2u32)?;
@@ -97,9 +94,8 @@ impl Decode for InputSource {
                 let index_usize: usize = index_u64
                     .try_into()
                     .map_err(|_| DecodeError::InvalidLength)?;
-                Ok(InputSource::Edge(node_id, index_usize))
+                Ok(InputSource::Edge(OutputKey(node_id, index_usize)))
             }
-            1 => Ok(InputSource::Keyframe),
             2 => Ok(InputSource::Zero),
             _ => Err(DecodeError::InvalidData),
         }

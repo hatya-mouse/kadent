@@ -3,7 +3,7 @@ mod header;
 mod node;
 mod port;
 
-use crate::core::audio_engine::graph::InputKey;
+use crate::core::audio_engine::graph::{InputKey, OutputKey};
 use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
 use crate::{ui::EditorState, ui::editor::actions::EditorAction};
 use edge::{draw_edges, draw_ghost_edge};
@@ -170,7 +170,7 @@ impl NodeGraphState {
                     let new_edge = (ghost_edge.0.0, ghost_edge.0.1, *node_id, port);
                     state.actions.push_action(EditorAction::AddEdge(
                         *track_id,
-                        (new_edge.0, new_edge.1),
+                        OutputKey(new_edge.0, new_edge.1),
                         InputKey(new_edge.2, new_edge.3),
                     ));
 

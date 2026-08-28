@@ -29,7 +29,7 @@ pub(crate) struct KaslNode {
     input_types: Vec<TypeInfo>,
     output_types: Vec<TypeInfo>,
 
-    states: Vec<*mut ()>,
+    states: Vec<Vec<u8>>,
     program: Option<*const u8>,
     is_first_process: bool,
 
@@ -45,9 +45,10 @@ impl KaslNode {
     }
 
     pub(crate) fn with_path(path: String) -> Self {
-        let mut node = Self::default();
-        node.file_path = Some(path);
-        node
+        KaslNode {
+            file_path: Some(path),
+            ..Default::default()
+        }
     }
 
     pub(crate) fn set_search_paths(&mut self, paths: Vec<String>) {
@@ -165,32 +166,15 @@ impl KaslNode {
     }
 
     fn allocate_states(&mut self, blueprint: &IOBlueprint) {
-        // Allocate the state memory based of the blueprint
+        // Allocate the state memory based on the blueprint
         for state_item in blueprint.get_states() {
-            let layout = std::alloc::Layout::from_size_align(
-                state_item.actual_size as usize,
-                state_item.align as usize,
-            )
-            .unwrap();
-            let ptr = unsafe { std::alloc::alloc_zeroed(layout) as *mut () };
-            self.states.push(ptr);
+            let buffer = vec![0u8; state_item.actual_size as usize];
+            self.states.push(buffer);
         }
     }
 
     fn deallocate_states(&mut self) {
         // De-allocate the allocated states
-        for (ptr, state_item) in self
-            .states
-            .iter()
-            .zip(self.blueprint.iter().flat_map(|b| b.get_states()))
-        {
-            let layout = std::alloc::Layout::from_size_align(
-                state_item.actual_size as usize,
-                state_item.align as usize,
-            )
-            .unwrap();
-            unsafe { std::alloc::dealloc(*ptr as *mut u8, layout) };
-        }
         self.states.clear();
     }
 }
@@ -293,13 +277,16 @@ impl Node for KaslNode {
 
     fn process(
         &mut self,
-        inputs: &[*const u8],
-        outputs: &[*mut u8],
+        inputs: &[&[u8]],
+        outputs: &mut [&mut [u8]],
         _playhead: usize,
         playback_ctx: &PlaybackContext,
     ) {
-        let inputs: Vec<*const ()> = inputs.iter().map(|p| *p as *const ()).collect();
-        let outputs: Vec<*mut ()> = outputs.iter().map(|p| *p as *mut ()).collect();
+        let inputs: Vec<*const ()> = inputs.iter().map(|p| p.as_ptr() as *const ()).collect();
+        let outputs: Vec<*mut ()> = outputs
+            .iter_mut()
+            .map(|p| p.as_mut_ptr() as *mut ())
+            .collect();
 
         // Return if the program pointer is null
         if self.program.is_none_or(|program| program.is_null()) {
@@ -312,7 +299,11 @@ impl Node for KaslNode {
                 self.program.unwrap(),
                 &inputs,
                 &outputs,
-                &self.states,
+                &self
+                    .states
+                    .iter_mut()
+                    .map(|buffer| buffer.as_mut_ptr() as *mut ())
+                    .collect::<Vec<_>>(),
                 if self.is_first_process { 1 } else { 0 },
                 playback_ctx.buffer_size as i32,
             );
@@ -346,13 +337,6 @@ impl Clone for KaslNode {
             last_source: None,
             last_playback_key: None,
         }
-    }
-}
-
-impl Drop for KaslNode {
-    fn drop(&mut self) {
-        // De-allocate the allocated states
-        self.deallocate_states();
     }
 }
 

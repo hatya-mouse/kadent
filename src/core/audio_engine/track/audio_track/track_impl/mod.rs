@@ -160,11 +160,11 @@ impl Track for AudioTrack {
             self.graph_input_buffer.fill(0.0);
         }
 
-        let input_ptr = self.graph_input_buffer.as_ptr() as *const u8;
-        let output_ptr = self.local_buffer.as_mut_ptr() as *mut u8;
+        let input_slice = bytemuck::cast_slice(&self.graph_input_buffer);
+        let output_slice = bytemuck::cast_slice_mut(&mut self.local_buffer);
 
         self.graph
-            .process(&[input_ptr], &[output_ptr], playhead, playback_ctx);
+            .process(&[input_slice], &mut [output_slice], playhead, playback_ctx);
     }
 
     fn get_local_buffer(&self) -> &[f32] {

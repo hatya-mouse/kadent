@@ -42,8 +42,8 @@ pub(crate) trait Node: Send + Any {
     /// Processes the given input pointer and writes the output to the output pointer.
     fn process(
         &mut self,
-        inputs: &[*const u8],
-        outputs: &[*mut u8],
+        inputs: &[&[u8]],
+        outputs: &mut [&mut [u8]],
         playhead: usize,
         playback_ctx: &PlaybackContext,
     );

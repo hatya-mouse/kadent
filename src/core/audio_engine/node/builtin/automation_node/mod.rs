@@ -14,7 +14,6 @@ use crate::core::audio_engine::{
     node::Node,
     timing::TempoMap,
 };
-use std::slice;
 
 #[derive(Clone)]
 pub(crate) struct AutomationNode {
@@ -87,15 +86,13 @@ impl Node for AutomationNode {
 
     fn process(
         &mut self,
-        _inputs: &[*const u8],
-        outputs: &[*mut u8],
+        _inputs: &[&[u8]],
+        outputs: &mut [&mut [u8]],
         playhead: usize,
         playback_ctx: &PlaybackContext,
     ) {
-        if let Some(&output) = outputs.first() {
-            let data_len = self.output_type.actual_size(playback_ctx.buffer_size);
-            let slice: &mut [u8] = unsafe { slice::from_raw_parts_mut(output, data_len) };
-            self.track.process(slice, playhead, playback_ctx);
+        if let Some(output) = outputs.first_mut() {
+            self.track.process(output, playhead, playback_ctx);
         }
     }
 

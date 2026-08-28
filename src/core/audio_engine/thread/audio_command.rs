@@ -17,7 +17,7 @@ pub(crate) enum AudioCommand {
     ExportAudio(Box<ProjectData>, PlaybackContext),
     ArmTrack(TrackID),
     SetOutputDevice(Device),
-    SetPlaybackCtx(PlaybackContext),
+    SetDefaultCtx(PlaybackContext),
     DisarmTrack,
 }
 
@@ -33,8 +33,8 @@ impl Debug for AudioCommand {
             }
             AudioCommand::ArmTrack(track_id) => write!(f, "ArmTrack({:?})", track_id),
             AudioCommand::SetOutputDevice(_) => write!(f, "SetOutputDevice(Debug)"),
-            AudioCommand::SetPlaybackCtx(playback_ctx) => {
-                write!(f, "SetPlaybackCtx({:?})", playback_ctx)
+            AudioCommand::SetDefaultCtx(playback_ctx) => {
+                write!(f, "SetDefaultCtx({:?})", playback_ctx)
             }
             AudioCommand::DisarmTrack => write!(f, "DisarmTrack"),
         }

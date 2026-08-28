@@ -16,6 +16,12 @@ use std::sync::{
     mpsc,
 };
 
+struct OutputState {
+    device: cpal::Device,
+    config: cpal::StreamConfig,
+    stream: Option<cpal::Stream>,
+}
+
 pub(super) fn audio_thread(
     command_rx: mpsc::Receiver<AudioCommand>,
     result_tx: mpsc::Sender<Result<AudioResult, AudioError>>,
@@ -23,13 +29,11 @@ pub(super) fn audio_thread(
     vu_prod: ringbuf::HeapProd<f32>,
     playhead: Arc<AtomicU64>,
     playhead_tick: Arc<AtomicI64>,
-    playback_ctx: PlaybackContext,
+    mut default_ctx: PlaybackContext,
 ) {
     let (mut command_prod, command_cons) = ringbuf::HeapRb::<AudioCommand>::new(64).split();
     let (mut midi_sub_prod, midi_sub_cons) = ringbuf::HeapRb::<MidiEvent>::new(64).split();
 
-    // The latest playback context, tied to the latest prepared mixer.
-    let mut latest_playback_ctx = playback_ctx;
     // A variable to hold the latest prepared mixer, which will be used by the output callback
     let latest_mixer = Arc::new(Mutex::new(None));
     // Manage is_playing using Arc
@@ -46,16 +50,11 @@ pub(super) fn audio_thread(
 
     // Get a cpal device
     let host = cpal::default_host();
-    let mut current_device = host
+    let initial_device = host
         .default_output_device()
         .expect("Expect a default output device");
 
     // Create an output callback
-    let mut project_config = cpal::StreamConfig {
-        channels: latest_playback_ctx.channels as u16,
-        sample_rate: latest_playback_ctx.sample_rate as u32,
-        buffer_size: cpal::BufferSize::Fixed(latest_playback_ctx.buffer_size as u32),
-    };
     let callback_ctx = Arc::new(Mutex::new(OutputCallbackContext {
         command_cons,
         midi_cons: midi_sub_cons,
@@ -67,19 +66,20 @@ pub(super) fn audio_thread(
         playhead_tick,
         is_playing: is_playing.clone(),
     };
-    let output_config = current_device
-        .default_output_config()
-        .map(|config| config.config())
-        .unwrap_or(project_config);
-    let mut stream = output_callback(
+    let mut output_state = OutputState {
+        config: resolve_output_config(&initial_device, &default_ctx),
+        device: initial_device,
+        stream: None,
+    };
+    output_state.stream = output_callback(
         callback_ctx.clone(),
-        current_device.clone(),
-        output_config,
+        output_state.device.clone(),
+        output_state.config,
         callback_state.clone(),
         latest_mixer.clone(),
     );
 
-    if let Some(stream) = stream.as_ref()
+    if let Some(stream) = output_state.stream.as_ref()
         && let Err(err) = stream.play()
     {
         result_tx
@@ -105,34 +105,35 @@ pub(super) fn audio_thread(
                     is_playing.store(false, Ordering::Release);
                 }
                 AudioCommand::UpdateProject(new_project) => {
-                    // TODO: Use project config to select the best output stream config
-                    project_config = cpal::StreamConfig {
-                        channels: latest_playback_ctx.channels as u16,
-                        sample_rate: latest_playback_ctx.sample_rate as u32,
-                        buffer_size: cpal::BufferSize::Fixed(
-                            latest_playback_ctx.buffer_size as u32,
-                        ),
-                    };
-
-                    prepare_state.request_preparation(new_project, latest_playback_ctx.clone());
+                    // The latest playback context, tied to the latest prepared mixer.
+                    let output_playback_ctx = PlaybackContext::from_stream_config(
+                        &output_state.config,
+                        default_ctx.buffer_size,
+                    );
+                    prepare_state.request_preparation(new_project, output_playback_ctx);
                 }
                 AudioCommand::ExportAudio(project, playback_ctx) => {
                     let result_tx = result_tx.clone();
                     export::spawn_export_thread(result_tx, *project, playback_ctx);
                 }
                 AudioCommand::SetOutputDevice(device) => {
-                    current_device = device;
+                    output_state.device = device;
+                    reprepare_mixer(
+                        latest_mixer.clone(),
+                        prepare_state.clone(),
+                        &output_state,
+                        &default_ctx,
+                    );
                     recreate_output_callback(
-                        &mut stream,
-                        project_config,
-                        &current_device,
+                        &mut output_state,
                         &callback_ctx,
                         callback_state.clone(),
                         &mut midi_sub_prod,
                         &latest_mixer,
+                        &mut default_ctx,
                     );
 
-                    if let Some(stream) = stream.as_ref()
+                    if let Some(stream) = output_state.stream.as_ref()
                         && let Err(err) = stream.play()
                     {
                         result_tx
@@ -140,19 +141,24 @@ pub(super) fn audio_thread(
                             .unwrap();
                     }
                 }
-                AudioCommand::SetPlaybackCtx(new_playback_ctx) => {
-                    latest_playback_ctx = new_playback_ctx;
+                AudioCommand::SetDefaultCtx(new_default_ctx) => {
+                    default_ctx = new_default_ctx;
+                    reprepare_mixer(
+                        latest_mixer.clone(),
+                        prepare_state.clone(),
+                        &output_state,
+                        &default_ctx,
+                    );
                     recreate_output_callback(
-                        &mut stream,
-                        project_config,
-                        &current_device,
+                        &mut output_state,
                         &callback_ctx,
                         callback_state.clone(),
                         &mut midi_sub_prod,
                         &latest_mixer,
+                        &mut default_ctx,
                     );
 
-                    if let Some(stream) = stream.as_ref()
+                    if let Some(stream) = output_state.stream.as_ref()
                         && let Err(err) = stream.play()
                     {
                         result_tx
@@ -184,15 +190,14 @@ pub(super) fn audio_thread(
 }
 
 fn recreate_output_callback(
-    stream: &mut Option<cpal::Stream>,
-    project_config: cpal::StreamConfig,
-    current_device: &cpal::Device,
+    output_state: &mut OutputState,
     callback_ctx: &Arc<Mutex<OutputCallbackContext>>,
     callback_state: OutputCallbackState,
     midi_sub_prod: &mut ringbuf::HeapProd<MidiEvent>,
     latest_mixer: &Arc<Mutex<Option<Mixer>>>,
+    default_ctx: &mut PlaybackContext,
 ) {
-    stream.take();
+    output_state.stream.take();
 
     // Create a new MIDI ring buffer and split it into producer and consumer
     let (new_sub_prod, new_sub_cons) = ringbuf::HeapRb::<MidiEvent>::new(64).split();
@@ -200,17 +205,42 @@ fn recreate_output_callback(
 
     callback_ctx.lock().unwrap().midi_cons = new_sub_cons;
 
-    // Create a config
-    let output_config = current_device
-        .default_output_config()
-        .map(|config| config.config())
-        .unwrap_or(project_config);
+    output_state.config = resolve_output_config(&output_state.device, default_ctx);
     // Then get the latest mixer to pass to the new output callback
-    *stream = output_callback(
+    output_state.stream = output_callback(
         callback_ctx.clone(),
-        current_device.clone(),
-        output_config,
+        output_state.device.clone(),
+        output_state.config,
         callback_state.clone(),
         latest_mixer.clone(),
     );
+}
+
+/// Prepares the project in the existing mixer and updates the playback context.
+fn reprepare_mixer(
+    latest_mixer: Arc<Mutex<Option<Mixer>>>,
+    prepare_state: Arc<PrepareState>,
+    output_state: &OutputState,
+    default_ctx: &PlaybackContext,
+) {
+    if let Ok(mut guard) = latest_mixer.lock()
+        && let Some(mixer) = guard.take()
+    {
+        let project = mixer.take_project();
+        let output_playback_ctx =
+            PlaybackContext::from_stream_config(&output_state.config, default_ctx.buffer_size);
+        prepare_state.request_preparation(Box::new(project), output_playback_ctx);
+    }
+}
+
+/// Resolves the output configuration for the given device, falling back to the provided playback context if necessary.
+fn resolve_output_config(device: &cpal::Device, fallback: &PlaybackContext) -> cpal::StreamConfig {
+    device
+        .default_output_config()
+        .map(|config| config.config())
+        .unwrap_or_else(|_| cpal::StreamConfig {
+            channels: fallback.channels as u16,
+            sample_rate: fallback.sample_rate as u32,
+            buffer_size: cpal::BufferSize::Fixed(fallback.buffer_size as u32),
+        })
 }

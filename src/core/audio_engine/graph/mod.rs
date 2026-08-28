@@ -10,13 +10,15 @@ use crate::core::audio_engine::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub(crate) struct InputKey(pub(crate) NodeID, pub(crate) usize);
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub(crate) struct OutputKey(pub(crate) NodeID, pub(crate) usize);
 
 #[derive(Debug, Clone)]
 pub(crate) enum InputSource {
-    Edge(NodeID, usize),
-    Keyframe,
+    Edge(OutputKey),
     Zero,
 }
 
@@ -32,13 +34,11 @@ pub(crate) struct Graph {
     // --- PROCESSING DATA ---
     sorted_nodes: Vec<NodeID>,
     /// Allocated buffers for the output of each node, which are used as input for the connected nodes.
-    output_buffers: HashMap<(NodeID, usize), Vec<u8>>,
-    /// Allocated buffers for the calculated keyframe values.
-    keyframe_buffers: HashMap<InputKey, Vec<u8>>,
-    /// Stores pointers to the input buffers of each node, which may be the same as the node output buffers of the connected node.
-    node_inputs: HashMap<NodeID, Vec<*const u8>>,
-    /// Stores pointers to the output buffers of each node.
-    node_outputs: HashMap<NodeID, Vec<*mut u8>>,
+    /// Index of outer vector corresponds to the output index of the node.
+    output_buffers: HashMap<NodeID, Vec<Vec<u8>>>,
+    /// Cached input sources for each node, which are used to get the input buffers for processing.
+    node_inputs: HashMap<NodeID, Vec<InputSource>>,
+    /// Zero buffer used for nodes that have no input connected.
     zero_buffer: Vec<u8>,
 
     // --- MISC ---
@@ -135,7 +135,7 @@ impl Graph {
         self.input_sources
             .retain(|&InputKey(to_node, _), _| to_node != *id);
         self.input_sources.retain(|&InputKey(_, _), source| {
-            if let InputSource::Edge(from_node, _) = source {
+            if let InputSource::Edge(OutputKey(from_node, _)) = source {
                 *from_node != *id
             } else {
                 true
@@ -149,11 +149,7 @@ impl Graph {
 
     /// Connects the node's output to another node's input, and returns an error if the type of the output and input are not the same, or if the node is not found.
     /// This function overwrites the existing edge if it exists.
-    pub(crate) fn add_edge(
-        &mut self,
-        from: (NodeID, usize),
-        to: InputKey,
-    ) -> Result<(), GraphError> {
+    pub(crate) fn add_edge(&mut self, from: OutputKey, to: InputKey) -> Result<(), GraphError> {
         // Check if the type of the output and input are the same
         let output_type = self
             .nodes
@@ -170,8 +166,7 @@ impl Graph {
             return Err(GraphError::NodeTypeMismatch((from.0, from.1, to.0, to.1)));
         }
 
-        self.input_sources
-            .insert(to, InputSource::Edge(from.0, from.1));
+        self.input_sources.insert(to, InputSource::Edge(from));
         Ok(())
     }
 
@@ -190,7 +185,7 @@ impl Graph {
         self.input_sources
             .iter()
             .filter_map(|(InputKey(to_node, to_input), source)| {
-                if let InputSource::Edge(from_node, from_output) = source {
+                if let InputSource::Edge(OutputKey(from_node, from_output)) = source {
                     Some((*from_node, *from_output, *to_node, *to_input))
                 } else {
                     None
@@ -214,13 +209,11 @@ impl Graph {
     fn allocate_output_buffer(
         node_id: &NodeID,
         node: &dyn Node,
-        output_buffers: &mut HashMap<(NodeID, usize), Vec<u8>>,
-        node_outputs: &mut HashMap<NodeID, Vec<*mut u8>>,
+        output_buffers: &mut HashMap<NodeID, Vec<Vec<u8>>>,
         playback_ctx: &PlaybackContext,
     ) -> Result<(), GraphError> {
-        // Ensure an output buffer exists even for nodes with no outputs
-        node_outputs.entry(*node_id).or_default();
-        // Create a buffer for all outputs
+        // Create buffers for all outputs
+        let mut buffers = Vec::with_capacity(node.get_output_len());
         for output_index in 0..node.get_output_len() {
             let output_type = node
                 .get_output_type(output_index)
@@ -228,17 +221,9 @@ impl Graph {
             let buffer = vec![0u8; output_type.actual_size(playback_ctx.buffer_size)];
 
             // Insert the output buffer to the output_buffers
-            output_buffers.insert((*node_id, output_index), buffer);
-
-            // Register the pointer to the buffer in the node_outputs map
-            let Some(ptr) = output_buffers
-                .get_mut(&(*node_id, output_index))
-                .map(|b| b.as_mut_ptr())
-            else {
-                return Err(GraphError::OutputBufferNotFound(*node_id, output_index));
-            };
-            node_outputs.entry(*node_id).or_default().push(ptr);
+            buffers.push(buffer);
         }
+        output_buffers.insert(*node_id, buffers);
 
         Ok(())
     }
@@ -262,7 +247,6 @@ impl Graph {
                 &self.input_id,
                 input_node.as_ref(),
                 &mut self.output_buffers,
-                &mut self.node_outputs,
                 playback_ctx,
             )?;
         }
@@ -284,10 +268,30 @@ impl Graph {
                     node_id,
                     node.as_ref(),
                     &mut self.output_buffers,
-                    &mut self.node_outputs,
                     playback_ctx,
                 )?;
             }
+        }
+
+        // Construct input_sources cache in advance
+        self.node_inputs.clear();
+        let mut indexed_sources: HashMap<NodeID, Vec<(usize, &InputSource)>> =
+            HashMap::with_capacity(self.nodes.len());
+
+        for (to, source) in &self.input_sources {
+            indexed_sources
+                .entry(to.0)
+                .or_default()
+                .push((to.1, source));
+        }
+
+        // Include all nodes in the node_inputs map, even if they have no input sources
+        for to_node in self.nodes.keys() {
+            let mut sources = indexed_sources.remove(to_node).unwrap_or_default();
+            sources.sort_by_key(|(input_index, _)| *input_index);
+            let input_sources: Vec<InputSource> =
+                sources.iter().map(|&(_, source)| source.clone()).collect();
+            self.node_inputs.insert(*to_node, input_sources);
         }
 
         // Calculate the max buffer size possible and create a zero buffer
@@ -302,69 +306,6 @@ impl Graph {
         }
         self.zero_buffer = vec![0u8; max_size];
 
-        // Build node_inputs from edges
-        for (to, input_source) in &self.input_sources {
-            if let &InputSource::Edge(from_node, from_output) = input_source {
-                let Some(ptr) = self
-                    .output_buffers
-                    .get(&(from_node, from_output))
-                    .map(|b| b.as_ptr())
-                else {
-                    return Err(GraphError::OutputBufferNotFound(from_node, from_output));
-                };
-
-                // Insert the pointer to the input buffer of the node
-                self.node_inputs.entry(to.0).or_insert_with(|| {
-                    vec![self.zero_buffer.as_ptr(); self.nodes[&to.0].get_input_len()]
-                })[to.1] = ptr;
-            }
-        }
-
-        // Allocate the buffers for the keyframe inputs
-        self.keyframe_buffers.clear();
-        let zero_ptr = self.zero_buffer.as_ptr();
-        let all_node_ids: Vec<NodeID> = self
-            .sorted_nodes
-            .iter()
-            .chain(std::iter::once(&self.output_id))
-            .copied()
-            .collect();
-        for node_id in all_node_ids {
-            let input_len = self.nodes.get(&node_id).map_or(0, |n| n.get_input_len());
-            let mut input_ptrs = vec![zero_ptr; input_len];
-
-            for (input_index, input_ptr) in input_ptrs.iter_mut().enumerate() {
-                let key = InputKey(node_id, input_index);
-
-                // Get the input source of the input
-                match self.input_sources.get(&key) {
-                    Some(InputSource::Edge(from_node, from_output)) => {
-                        if let Some(buffer) = self.output_buffers.get(&(*from_node, *from_output)) {
-                            *input_ptr = buffer.as_ptr();
-                        }
-                    }
-                    Some(InputSource::Keyframe) => {
-                        let input_type = self.nodes[&node_id]
-                            .get_input_type(input_index)
-                            .ok_or(GraphError::InputTypeUnavailable(node_id, input_index))?;
-
-                        // Allocate the keyframe buffer for the input based on the input type and the buffer size
-                        let buf_size = input_type.actual_size(playback_ctx.buffer_size);
-                        let keyframe_buf = vec![0u8; buf_size];
-
-                        *input_ptr = keyframe_buf.as_ptr();
-                        self.keyframe_buffers.insert(key, keyframe_buf);
-                    }
-                    Some(InputSource::Zero) => {
-                        *input_ptr = zero_ptr;
-                    }
-                    _ => {}
-                }
-            }
-
-            self.node_inputs.insert(node_id, input_ptrs);
-        }
-
         Ok(())
     }
 
@@ -372,39 +313,65 @@ impl Graph {
     /// The host must pass the audio context which is as the same as the one given in the `set_audio_ctx` function.
     pub(crate) fn process(
         &mut self,
-        inputs: &[*const u8],
-        outputs: &[*mut u8],
+        inputs: &[&[u8]],
+        outputs: &mut [&mut [u8]],
         playhead: usize,
         playback_ctx: &PlaybackContext,
     ) {
         // Get the pointer to the output buffer of the input node
-        let Some(output_buffers) = self.get_output_ptr(&self.input_id) else {
+        let Some(mut output_buffers) =
+            Self::get_output_mut(&self.input_id, &mut self.output_buffers, &self.nodes)
+        else {
             return;
         };
         let Some(input_node) = self.nodes.get_mut(&self.input_id) else {
             return;
         };
         // Process the input node
-        input_node.process(inputs, &output_buffers, playhead, playback_ctx);
+        input_node.process(inputs, &mut output_buffers, playhead, playback_ctx);
 
-        for node_id in self.sorted_nodes.clone() {
+        for node_id in &self.sorted_nodes {
+            // Capture the output buffers of the node and temporary remove it from the output_buffers map
+            let Some(mut current_outputs) = self.output_buffers.remove(node_id) else {
+                return;
+            };
+
             // Get the pointer to the input buffer of the node
-            let Some(input_buffers) = self.get_input_ptr(&node_id) else {
+            let Some(input_buffers) = Self::get_input_ref(
+                node_id,
+                &self.output_buffers,
+                &self.node_inputs,
+                &self.zero_buffer,
+                &self.nodes,
+            ) else {
+                // Put the output buffers back to the output_buffers map
+                self.output_buffers.insert(*node_id, current_outputs);
                 return;
             };
+
             // Get the pointer to the output buffer of the node
-            let Some(output_buffers) = self.get_output_ptr(&node_id) else {
-                return;
-            };
+            let mut output_buffers = current_outputs
+                .iter_mut()
+                .map(|buffer| buffer.as_mut_slice())
+                .collect::<Vec<_>>();
 
             // Pass the pointers and process
-            if let Some(node) = self.nodes.get_mut(&node_id) {
-                node.process(&input_buffers, &output_buffers, playhead, playback_ctx);
+            if let Some(node) = self.nodes.get_mut(node_id) {
+                node.process(&input_buffers, &mut output_buffers, playhead, playback_ctx);
             }
+
+            // Put the output buffers back to the output_buffers map
+            self.output_buffers.insert(*node_id, current_outputs);
         }
 
         // Get the pointer to the input buffer of the output node
-        let Some(input_buffers) = self.get_input_ptr(&self.output_id) else {
+        let Some(input_buffers) = Self::get_input_ref(
+            &self.output_id,
+            &self.output_buffers,
+            &self.node_inputs,
+            &self.zero_buffer,
+            &self.nodes,
+        ) else {
             return;
         };
         let Some(output_node) = self.nodes.get_mut(&self.output_id) else {
@@ -415,12 +382,51 @@ impl Graph {
         output_node.process(&input_buffers, outputs, playhead, playback_ctx);
     }
 
-    fn get_output_ptr(&self, from: &NodeID) -> Option<Vec<*mut u8>> {
-        self.node_outputs.get(from).cloned()
+    /// Returns mutable references to each output buffer of the node with the given NodeID.
+    fn get_output_mut<'a>(
+        from: &NodeID,
+        output_buffers: &'a mut HashMap<NodeID, Vec<Vec<u8>>>,
+        nodes: &HashMap<NodeID, Box<dyn Node>>,
+    ) -> Option<Vec<&'a mut [u8]>> {
+        let refs: Vec<&mut [u8]> = output_buffers.get_mut(from).map(|buffers| {
+            buffers
+                .iter_mut()
+                .map(|buffer| buffer.as_mut_slice())
+                .collect()
+        })?;
+        if nodes.get(from).map_or(0, |node| node.get_output_len()) != refs.len() {
+            // Return None if the number of output buffers does not match the number of outputs of the node
+            return None;
+        }
+        Some(refs)
     }
 
-    fn get_input_ptr(&self, to: &NodeID) -> Option<Vec<*const u8>> {
-        self.node_inputs.get(to).cloned()
+    /// Returns references to each input buffer of the node with the given NodeID.
+    fn get_input_ref<'a>(
+        to: &NodeID,
+        output_buffers: &'a HashMap<NodeID, Vec<Vec<u8>>>,
+        node_inputs: &HashMap<NodeID, Vec<InputSource>>,
+        zero_buffer: &'a [u8],
+        nodes: &HashMap<NodeID, Box<dyn Node>>,
+    ) -> Option<Vec<&'a [u8]>> {
+        let input_len = nodes.get(to).map_or(0, |node| node.get_input_len());
+        let refs: Vec<&[u8]> = node_inputs.get(to).and_then(|sources| {
+            sources
+                .iter()
+                .map(|source| match source {
+                    InputSource::Edge(key) => output_buffers
+                        .get(&key.0)
+                        .and_then(|b| b.get(key.1))
+                        .map(|b| b.as_slice()),
+                    InputSource::Zero => Some(zero_buffer),
+                })
+                .collect::<Option<_>>()
+        })?;
+        if input_len != refs.len() {
+            // Return None if the number of input buffers does not match the number of inputs of the node
+            return None;
+        }
+        Some(refs)
     }
 }
 

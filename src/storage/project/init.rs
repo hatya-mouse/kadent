@@ -1,3 +1,4 @@
+use crate::core::audio_engine::graph::OutputKey;
 use crate::core::audio_engine::{
     data_types::PlaybackContext, graph::InputSource, mixer::ProjectData,
 };
@@ -33,9 +34,9 @@ pub(crate) fn init_nodes(
     for track in project.tracks.values_mut() {
         let graph = track.get_graph_mut();
         for (to, input_source) in graph.get_input_sources().clone() {
-            if let InputSource::Edge(from_node, from_output) = input_source {
+            if let InputSource::Edge(OutputKey(from_node, from_output)) = input_source {
                 graph.remove_edge(&to);
-                graph.add_edge((from_node, from_output), to).ok();
+                graph.add_edge(OutputKey(from_node, from_output), to).ok();
             }
         }
     }

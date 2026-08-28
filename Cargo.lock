@@ -2340,6 +2340,7 @@ dependencies = [
 name = "kadent"
 version = "0.1.0"
 dependencies = [
+ "bytemuck",
  "cpal",
  "dirs",
  "eframe",

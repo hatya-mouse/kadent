@@ -115,14 +115,11 @@ impl Track for NoteTrack {
         }
 
         // Get a pointer to the voice buffer
-        let input_ptr = self.event_buffer.as_ptr() as *const u8;
+        let input_slice = bytemuck::cast_slice(&self.event_buffer);
+        let output_slice = bytemuck::cast_slice_mut(&mut self.local_buffer);
         // Process the graph
-        self.graph.process(
-            &[input_ptr],
-            &[self.local_buffer.as_mut_ptr() as *mut u8],
-            playhead,
-            playback_ctx,
-        );
+        self.graph
+            .process(&[input_slice], &mut [output_slice], playhead, playback_ctx);
     }
 
     fn get_local_buffer(&self) -> &[f32] {

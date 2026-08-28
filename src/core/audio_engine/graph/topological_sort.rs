@@ -1,4 +1,6 @@
-use crate::core::audio_engine::graph::{Graph, InputSource, error::GraphError, node_id::NodeID};
+use crate::core::audio_engine::graph::{
+    Graph, InputSource, OutputKey, error::GraphError, node_id::NodeID,
+};
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
@@ -15,7 +17,7 @@ impl Graph {
         // Rebuild adjacency from edges so the sort reflects the current graph structure
         self.adjacency.clear();
         for (to, input_source) in &self.input_sources {
-            if let &InputSource::Edge(from_node, _) = input_source {
+            if let &InputSource::Edge(OutputKey(from_node, _)) = input_source {
                 self.adjacency.entry(from_node).or_default().push(to.0);
             }
         }

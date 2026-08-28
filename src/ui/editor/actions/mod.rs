@@ -13,6 +13,7 @@ mod transport;
 pub(crate) use project::{FileNode, FileNodeKind};
 use uuid::Uuid;
 
+use crate::core::audio_engine::graph::OutputKey;
 use crate::storage::app_state::AppPreferences;
 use crate::{background_thread::BackgroundThreadCommand, core::metadata::TrackType};
 use crate::{
@@ -152,7 +153,7 @@ pub(crate) enum EditorAction {
     RemoveEdge(TrackID, InputKey),
     /// Add an edge to the given track's node graph.
     /// `(track_id, from: (NodeID, usize), to)`
-    AddEdge(TrackID, (NodeID, usize), InputKey),
+    AddEdge(TrackID, OutputKey, InputKey),
     /// Compile a KASL program attached to the given node.
     /// `(track_id, node_id)`
     CompileKasl(TrackID, NodeID),

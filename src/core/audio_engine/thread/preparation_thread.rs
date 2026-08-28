@@ -74,6 +74,7 @@ pub(super) fn spawn_preparation_thread(
 
                 match req {
                     PreparationThreadRequest::PrepareProject(new_project, playback_ctx) => {
+                        // TODO: Use the device playback context instead of export context
                         let (prepared_mixer, errors) =
                             new_project.prepare(&mut audio_pool, playback_ctx);
                         for (track_id, graph_error) in errors {

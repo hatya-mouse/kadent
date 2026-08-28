@@ -2,7 +2,7 @@ use crate::core::audio_engine::MAX_EVENTS;
 
 /// A struct that represents a MIDI event in the audio engine.
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub(crate) struct Event {
     // -1 = not set, 0 = note off, 1 = note on
     pub(crate) event_type: i32,
@@ -34,7 +34,7 @@ impl Event {
 
 /// A set of MIDI events to send multiple events at once.
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, bytemuck::NoUninit)]
 pub(crate) struct EventSlot {
     /// An array of MIDI events.
     pub(crate) events: [Event; MAX_EVENTS],

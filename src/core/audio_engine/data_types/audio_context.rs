@@ -14,3 +14,19 @@ pub(crate) struct PlaybackContext {
     /// Number of samples in the buffer for each channel.
     pub(crate) buffer_size: usize,
 }
+
+impl PlaybackContext {
+    pub(in crate::core::audio_engine) fn from_stream_config(
+        config: &cpal::StreamConfig,
+        fallback_buffer_size: usize,
+    ) -> Self {
+        PlaybackContext {
+            sample_rate: config.sample_rate as u64,
+            channels: config.channels as usize,
+            buffer_size: match config.buffer_size {
+                cpal::BufferSize::Fixed(size) => size as usize,
+                cpal::BufferSize::Default => fallback_buffer_size,
+            },
+        }
+    }
+}

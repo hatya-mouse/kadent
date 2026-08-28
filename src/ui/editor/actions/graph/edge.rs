@@ -1,5 +1,5 @@
-use crate::core::audio_engine::graph::InputKey;
-use crate::core::audio_engine::{graph::node_id::NodeID, mixer::TrackID};
+use crate::core::audio_engine::graph::{InputKey, OutputKey};
+use crate::core::audio_engine::mixer::TrackID;
 use crate::ui::editor::EditorUi;
 
 impl EditorUi {
@@ -11,7 +11,7 @@ impl EditorUi {
         }
     }
 
-    pub(crate) fn add_edge(&mut self, track_id: &TrackID, from: (NodeID, usize), to: InputKey) {
+    pub(crate) fn add_edge(&mut self, track_id: &TrackID, from: OutputKey, to: InputKey) {
         if let Some(track) = self.state.project.data.get_track_mut(track_id) {
             if let Err(err) = track.get_graph_mut().add_edge(from, to) {
                 eprintln!("Failed to add edge: {:#?}", err);

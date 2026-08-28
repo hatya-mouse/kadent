@@ -4,7 +4,6 @@ use crate::core::audio_engine::{
     node::Node,
     timing::TempoMap,
 };
-use std::ptr::copy_nonoverlapping;
 
 /// An empty node that just writes the `process` input to the node output.
 #[derive(Default, Clone)]
@@ -60,20 +59,13 @@ impl Node for AudioOutputNode {
 
     fn process(
         &mut self,
-        inputs: &[*const u8],
-        outputs: &[*mut u8],
+        inputs: &[&[u8]],
+        outputs: &mut [&mut [u8]],
         _playhead: usize,
-        playback_ctx: &PlaybackContext,
+        _playback_ctx: &PlaybackContext,
     ) {
-        for (input, output) in inputs.iter().zip(outputs.iter()) {
-            unsafe {
-                // Write the input data to the output buffer
-                copy_nonoverlapping(
-                    *input,
-                    *output,
-                    self.data_type.actual_size(playback_ctx.buffer_size),
-                );
-            }
+        for (input, output) in inputs.iter().zip(outputs.iter_mut()) {
+            output.copy_from_slice(input);
         }
     }
 

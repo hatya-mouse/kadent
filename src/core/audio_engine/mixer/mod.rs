@@ -25,6 +25,13 @@ impl Mixer {
         }
     }
 
+    // --- PROJECT TAKE ---
+
+    /// Takes out the project from the mixer, consuming the mixer.
+    pub(crate) fn take_project(self) -> ProjectData {
+        self.project
+    }
+
     // --- SEEKING ---
 
     /// Tells every tracks that the it will seek.
