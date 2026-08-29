@@ -1,46 +1,48 @@
-# Kadent
+<div style="text-align: center;">
+    <h1>Kadent</h1>
+</div>
 
 Kadent is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using KASL (Kadent Audio Shading Language).
 
-# Features
+## Features
 
 - Build your own synthesizers and effects using KASL language!
 - Live performance with MIDI controller
 - Project save & load
 
-# Installation
+## Installation
 
-## Download Prebuilt Binary
+### Download Prebuilt Binary
 
-## macOS
+#### macOS
 
 Download the installer from [Releases](https://github.com/hatya-mouse/kadent/releases) and open it to install.
 
-## Windows
+#### Windows
 
 Download the ZIP archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
 
-## Linux
+#### Linux
 
 Download the .tar.gz archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
 
-## Building from Source
+### Building from Source
 
-### Using Taskfile
+#### Using Taskfile
 
-#### Debug Run
+##### Debug Run
 
 ```bash
 task dev
 ```
 
-#### Release
+##### Release
 
 ```bash
 task build
 ```
 
-#### Bundle
+##### Bundle
 
 ```bash
 task bundle-macos
@@ -48,7 +50,7 @@ task bundle-windows
 task bundle-linux
 ```
 
-#### Build Installer or Compressed Archive
+##### Build Installer or Compressed Archive
 
 ```bash
 task installer-macos
@@ -56,21 +58,21 @@ task compressed-windows
 task compressed-linux
 ```
 
-### Without Taskfile
+#### Without Taskfile
 
-#### Debug Run
+##### Debug Run
 
 ```bash
 cargo run
 ```
 
-#### Release
+##### Release
 
 ```bash
 cargo build --release
 ```
 
-# Profiling
+## Profiling
 
 ```bash
 cargo build --profile profiling
