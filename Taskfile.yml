@@ -20,47 +20,164 @@ tasks:
         cmds:
             - cargo build --release
 
-    package:
-        desc: Bundle the application for the target platform
-        vars:
-            # Sets a default fallback if you don't type 'target=...' on the CLI
-            TARGET: '{{.target | default "aarch64-apple-darwin"}}'
-            BINARY_NAME: kadent
-            APP_NAME: Kadent
-        cmds:
-            - task: build-licenses
-            # Recreate the dist directory for the target platform
-            - rm -rf "./dist/{{.TARGET}}"
-            - rm -rf ./resources/std
-            - mkdir -p "./dist/{{.TARGET}}"
-            - mkdir -p ./resources
-            # Clone the latest KASL Standard Library from GitHub
-            - git clone https://github.com/hatya-mouse/kasl-std ./resources
-            # Compile the project for the target platform
-            - cargo build --release --target "{{.TARGET}}"
-            # Create a directory structure and copy the binary and resources to the dist directory
-            - |
-              if [[ "{{.TARGET}}" == *"darwin"* ]]; then
-                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
-                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
-                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
-                cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
-                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
-              elif [[ "{{.TARGET}}" == *"windows"* ]]; then
-                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
-                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe" "./dist/{{.TARGET}}/{{.APP_NAME}}"
-                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
-              else
-                mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
-                cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
-                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
-              fi
-            # Clean up the temporary KASL Standard Library clone
-            - rm -rf ./resources/std
-
     build-licenses:
         desc: Build the licenses.json
         cmds:
             - cargo install --locked --features cli cargo-about
             - cargo about generate --format json > crate_licenses.json
             - python3 license_build.py licenses.json crate_licenses.json assets/fonts/font_licenses.json notices.json license_priority.json
+
+    appicon-macos:
+        desc: Generate macOS app icon from PNG
+        platforms: [darwin]
+        cmds:
+            - rm -rf resources/AppIcon.iconset
+            - rm -rf resources/AppIcon.icns
+            - mkdir -p resources/AppIcon.iconset
+            # Generate the required icon sizes for macOS from the source PNG
+            - sips -z 16 16 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_16x16.png
+            - sips -z 32 32 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_16x16@2x.png
+            - sips -z 32 32 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_32x32.png
+            - sips -z 64 64 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_32x32@2x.png
+            - sips -z 128 128 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_128x128.png
+            - sips -z 256 256 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_128x128@2x.png
+            - sips -z 256 256 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_256x256.png
+            - sips -z 512 512 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_256x256@2x.png
+            - sips -z 512 512 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_512x512.png
+            - sips -z 1024 1024 assets/appicon/appicon.png --out resources/AppIcon.iconset/icon_512x512@2x.png
+            - iconutil -c icns resources/AppIcon.iconset
+            - rm -rf resources/AppIcon.iconset
+
+    bundle-macos:
+        desc: Bundle the application on macOS platform
+        platforms: [darwin]
+        vars:
+            TARGET: '{{ .target | default "aarch64-apple-darwin" }}'
+            BINARY_NAME: kadent
+            APP_NAME: Kadent
+        deps:
+            - task: build-licenses
+            - task: appicon-macos
+        cmds:
+            # Recreate the dist directory for the target platform
+            - rm -rf "./dist/{{.TARGET}}"
+            - rm -rf ./resources/std
+            - mkdir -p "./dist/{{.TARGET}}"
+            - mkdir -p ./resources
+            # Clone the latest KASL Standard Library from GitHub
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+            # Compile the project for the target platform
+            - cargo build --release --target "{{.TARGET}}"
+            # Create a directory structure and copy the binary and resources to the dist directory
+            - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
+            - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+            - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
+            - cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
+            - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+            # Clean up the temporary KASL Standard Library clone
+            - rm -rf ./resources/std
+
+    bundle-linux:
+        desc: Bundle the application on Linux platform
+        platforms: [linux]
+        vars:
+            TARGET: '{{ .target | default "x86_64-unknown-linux-gnu" }}'
+            BINARY_NAME: kadent
+            APP_NAME: Kadent
+        deps:
+            - task: build-licenses
+        cmds:
+            # Recreate the dist directory for the target platform
+            - rm -rf "./dist/{{.TARGET}}"
+            - rm -rf ./resources/std
+            - mkdir -p "./dist/{{.TARGET}}"
+            - mkdir -p ./resources
+            # Clone the latest KASL Standard Library from GitHub
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+            # Compile the project for the target platform
+            - cargo build --release --target "{{.TARGET}}"
+            # Create a directory structure and copy the binary and resources to the dist directory
+            - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+            - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
+            - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+            # Clean up the temporary KASL Standard Library clone
+            - rm -rf ./resources/std
+
+    bundle-windows:
+        desc: Bundle the application on Windows platform
+        platforms: [windows]
+        vars:
+            TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
+            BINARY_NAME: kadent
+            APP_NAME: Kadent
+        deps:
+            - task: build-licenses
+        cmds:
+            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './dist/{{.TARGET}}' -ErrorAction SilentlyContinue"
+            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std' -ErrorAction SilentlyContinue"
+            - powershell -NoProfile -Command "New-Item -ItemType Directory -Force './dist/{{.TARGET}}/{{.APP_NAME}}/resources' | Out-Null"
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+            - cargo build --release --target "{{.TARGET}}"
+            - powershell -NoProfile -Command "Copy-Item 'target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe' './dist/{{.TARGET}}/{{.APP_NAME}}/'"
+            - powershell -NoProfile -Command "Copy-Item './resources/*' './dist/{{.TARGET}}/{{.APP_NAME}}/resources/' -Recurse"
+            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std'"
+
+    installer-macos:
+        desc: Create macOS installer disk image
+        platforms: [darwin]
+        vars:
+            TARGET: '{{ .target | default "aarch64-apple-darwin" }}'
+            APP_NAME: Kadent
+        deps:
+            - task: bundle-macos
+              vars:
+                  target: '{{.TARGET}}'
+        cmds:
+            - rm -rf "./dist/{{.TARGET}}/dmg_src"
+            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
+            - mkdir -p "./dist/{{.TARGET}}/dmg_src"
+            - cp -r "./dist/{{.TARGET}}/{{.APP_NAME}}.app" "./dist/{{.TARGET}}/dmg_src"
+            - ln -s /Applications "./dist/{{.TARGET}}/dmg_src/Applications"
+            - hdiutil create
+              -volname "{{.APP_NAME}}"
+              -srcfolder "./dist/{{.TARGET}}/dmg_src"
+              -ov
+              -format UDZO
+              "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
+            - rm -rf "./dist/{{.TARGET}}/dmg_src"
+
+    # installer-windows:
+    #     desc: Create Windows installer executable
+    #     platforms: [windows]
+    #     vars:
+    #         TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
+
+    installer-linux:
+        desc: Compress the Linux bundle into a tar.gz file
+        platforms: [linux]
+        vars:
+            TARGET: '{{ .target | default "x86_64-unknown-linux-gnu" }}'
+            APP_NAME: Kadent
+        deps:
+            - task: bundle-linux
+              vars:
+                  target: '{{.TARGET}}'
+        cmds:
+            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.tar.gz"
+            - |
+              cd "./dist/{{.TARGET}}" &&
+              tar -zcvf "{{.APP_NAME}}.tar.gz" "{{.APP_NAME}}"
+
+    installer:
+        desc: Create an installer for the target platform
+        vars:
+            TARGET: '{{.target | default "aarch64-apple-darwin"}}'
+        cmds:
+            - |
+              if [[ "{{.TARGET}}" == *"darwin"* ]]; then
+                task installer-macos target="{{.TARGET}}"
+              elif [[ "{{.TARGET}}" == *"windows"* ]]; then
+                task installer-windows target="{{.TARGET}}"
+              else
+                task installer-linux target="{{.TARGET}}"
+              fi

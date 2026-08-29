@@ -8,14 +8,16 @@ mod ui;
 mod utils;
 
 use crate::{app::KadentApp, consts::APP_NAME};
-use eframe::egui::ViewportBuilder;
-use std::path::PathBuf;
+use eframe::egui::{self, ViewportBuilder};
+use std::{path::PathBuf, sync::Arc};
 
 fn main() -> eframe::Result<()> {
     let initial_project = check_project_open();
 
     let options = eframe::NativeOptions {
-        viewport: ViewportBuilder::default().with_inner_size([1000.0, 600.0]),
+        viewport: ViewportBuilder::default()
+            .with_inner_size([1000.0, 600.0])
+            .with_icon(Arc::new(egui::IconData::default())),
         ..Default::default()
     };
 
