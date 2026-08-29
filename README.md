@@ -1,8 +1,18 @@
-<div style="text-align: center;">
-    <h1>Kadent</h1>
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/logo/kadent_logo_white.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/logo/kadent_logo_black.png">
+  <img src="https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/logo/kadent_logo_white_on_black.png" width="320px" alt="Description">
+</picture>
+
+**DAW with a KASL language to create custom synths & effects**
+
+---
+
 </div>
 
-Kadent is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using KASL (Kadent Audio Shading Language).
+Kadent is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using built-in KASL language.
 
 ## Features
 
