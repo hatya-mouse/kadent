@@ -173,7 +173,23 @@ tasks:
               "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
 
-    installer-linux:
+    compressed-windows:
+        desc: Create Windows installer ZIP file
+        platforms: [linux, darwin]
+        vars:
+            TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
+            APP_NAME: Kadent
+        deps:
+            - task: bundle-windows
+              vars:
+                  target: '{{.TARGET}}'
+        cmds:
+            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.zip"
+            - |
+              cd "./dist/{{.TARGET}}" &&
+              zip -r "{{.APP_NAME}}.zip" "{{.APP_NAME}}"
+
+    compressed-linux:
         desc: Compress the Linux bundle into a tar.gz file
         platforms: [linux, darwin]
         vars:
