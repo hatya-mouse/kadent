@@ -1,4 +1,4 @@
-name: Build Kadent
+name: Test Release Build
 
 on:
     workflow_dispatch:
@@ -8,7 +8,7 @@ on:
 
 jobs:
     build-macos-arm:
-        name: Build macOS
+        name: Build macOS ARM64
         runs-on: macos-latest
 
         steps:
@@ -29,30 +29,8 @@ jobs:
             - name: Build DMG
               run: task installer-macos target=aarch64-apple-darwin
 
-    build-macos-x86:
-        name: Build macOS
-        runs-on: macos-latest
-
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Install Rust
-              uses: dtolnay/rust-toolchain@stable
-              with:
-                  targets: x86-64-apple-darwin
-
-            - name: Install Task
-              uses: arduino/setup-task@v2
-
-            - name: Install cargo-about
-              run: cargo install --locked --features cli cargo-about
-
-            - name: Build DMG
-              run: task installer-macos target=x86_64-apple-darwin
-
     build-windows-arm:
-        name: Build Windows
+        name: Build Windows ARM64
         runs-on: ubuntu-latest
 
         steps:
@@ -74,7 +52,7 @@ jobs:
               run: task compress-windows target=aarch64-pc-windows-msvc
 
     build-windows-x86:
-        name: Build Windows
+        name: Build Windows x86_64
         runs-on: ubuntu-latest
 
         steps:
@@ -96,7 +74,7 @@ jobs:
               run: task compress-windows target=x86_64-pc-windows-gnu
 
     build-linux:
-        name: Build Linux
+        name: Build Linux x86_64
         runs-on: ubuntu-latest
 
         steps:

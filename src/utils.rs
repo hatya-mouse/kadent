@@ -1,8 +1,6 @@
 //! Utilities not strictly tied to Kadent.
 
-#[cfg(target_os = "macos")]
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Spawns a background thread to initialize the value.
 /// The value must implement `Default`. The macro returns an `Arc<Mutex<T>>` where `T` is the type of the value being initialized.

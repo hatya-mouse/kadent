@@ -15,10 +15,9 @@ tasks:
             - cargo build --release
 
     build-licenses:
-        desc: Build the licenses.json
+        desc: Build the licenses.json. Requires cargo-about and Python 3 to be installed
         cmds:
             - echo "[build-licenses] Generating licenses.json..."
-            - cargo install --locked --features cli cargo-about
             - cargo about generate --format json > crate_licenses.json
             - python3 license_build.py licenses.json crate_licenses.json assets/fonts/font_licenses.json notices.json license_priority.json
 
