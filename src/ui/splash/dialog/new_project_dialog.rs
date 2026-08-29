@@ -38,7 +38,7 @@ impl SplashDialogState {
         };
 
         let mut should_close = false;
-        let modal = dialog(ui, "Create Project", |ui| {
+        let modal = dialog(ui, "Create Project", 6, |ui| {
             dialog_bold_label(ui, "Project Name");
             text_input(ui, &mut dialog_state.project_name);
 

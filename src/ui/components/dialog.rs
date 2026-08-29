@@ -6,6 +6,7 @@ const DIALOG_SPACING: egui::Vec2 = egui::vec2(8.0, 6.0);
 pub(crate) fn dialog<R>(
     ui: &egui::Ui,
     title: impl Into<String>,
+    margin: impl Into<egui::Margin>,
     content: impl FnOnce(&mut egui::Ui) -> R,
 ) -> ModalResponse<R> {
     egui::Modal::new(ui.id().with("dialog"))
@@ -42,7 +43,10 @@ pub(crate) fn dialog<R>(
 
             // Show the content
             *ui.style_mut() = dialog_style(ui);
-            egui::Frame::new().inner_margin(6).show(ui, content).inner
+            egui::Frame::new()
+                .inner_margin(margin)
+                .show(ui, content)
+                .inner
         })
 }
 

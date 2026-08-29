@@ -44,7 +44,7 @@ impl SplashDialogState {
         };
 
         let mut should_close = false;
-        let modal = dialog(ui, "Install KASL Standard Library", |ui| {
+        let modal = dialog(ui, "Install KASL Standard Library", 6, |ui| {
             if let Some(error_message) = &dialog_state.error_message {
                 dialog_bold_label(ui, "Could not install KASL standard library");
                 ui.colored_label(egui::Color32::RED, error_message);

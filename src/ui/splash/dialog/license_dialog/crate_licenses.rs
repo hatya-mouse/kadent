@@ -1,6 +1,6 @@
-use crate::utils::get_resources_path;
 use serde::Deserialize;
-use std::{fs::File, io::Read};
+
+const LICENSE_STRING: &str = include_str!("../../../../../licenses.json");
 
 #[derive(Debug, Deserialize)]
 pub(super) struct LicenseDocument {
@@ -27,13 +27,6 @@ pub(super) struct DependencyItem {
 }
 
 pub(super) fn load_crate_licenses() -> std::io::Result<LicenseDocument> {
-    let licenses_path = get_resources_path().map(|path| path.join("licenses.json"))?;
-    let mut file = File::open(licenses_path)?;
-
-    // Load the JSON string and parse it
-    let mut json_string = String::new();
-    file.read_to_string(&mut json_string)?;
-
-    serde_json::from_str(&json_string)
+    serde_json::from_str(LICENSE_STRING)
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
 }

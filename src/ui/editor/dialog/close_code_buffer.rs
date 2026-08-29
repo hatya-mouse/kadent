@@ -15,7 +15,7 @@ impl DialogState {
         };
 
         let mut should_close = false;
-        let modal = dialog(ui, "Unsaved Changes", |ui| {
+        let modal = dialog(ui, "Unsaved Changes", 6, |ui| {
             ui.label(
                     "You have unsaved changes in the code buffer. Would you like to save changes before closing?",
                 );

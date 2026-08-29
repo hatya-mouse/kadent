@@ -26,7 +26,7 @@ impl DialogState {
 
         let mut should_close = false;
 
-        let modal = dialog(ui, "Add Track", |ui| {
+        let modal = dialog(ui, "Add Track", 6, |ui| {
             ui.columns(2, |cols| {
                 dialog_bold_label(&mut cols[0], "Track Type");
 

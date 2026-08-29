@@ -33,6 +33,7 @@ tasks:
             - rm -rf "./dist/{{.TARGET}}"
             - rm -rf ./resources/std
             - mkdir -p "./dist/{{.TARGET}}"
+            - mkdir -p ./resources
             # Clone the latest KASL Standard Library from GitHub
             - git clone https://github.com/hatya-mouse/kasl-std ./resources
             # Compile the project for the target platform

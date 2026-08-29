@@ -5,7 +5,7 @@ mod dep_list;
 use crate::{
     consts::{MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH},
     ui::{
-        components::v_splitter::VSplitter,
+        components::{dialog::dialog, v_splitter::VSplitter},
         splash::dialog::{
             SplashDialogState,
             license_dialog::crate_licenses::{LicenseDocument, load_crate_licenses},
@@ -13,6 +13,8 @@ use crate::{
     },
 };
 use eframe::egui;
+
+const LICENSE_MARGIN: egui::Margin = egui::Margin::symmetric(8, 6);
 
 enum SelectedItem {
     Font(usize),
@@ -43,16 +45,28 @@ impl SplashDialogState {
         let SplashDialogState::License(dialog_state) = self else {
             return;
         };
+        let viewport_size = ui.viewport_rect().size();
+        let dialog_size = egui::Vec2::new(viewport_size.x * 0.8, viewport_size.y * 0.8);
 
-        ui.horizontal(|ui| {
-            dialog_state.dep_list(ui);
+        let modal = dialog(ui, "Acknowledgements", 0, |ui| {
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing = egui::Vec2::ZERO;
+                ui.set_max_size(dialog_size);
+                ui.set_min_size(dialog_size);
 
-            VSplitter::new(&mut dialog_state.dep_list_width)
-                .with_min(MIN_SIDEBAR_WIDTH)
-                .with_max(MAX_SIDEBAR_WIDTH)
-                .show(ui);
+                dialog_state.dep_list(ui, dialog_state.dep_list_width);
 
-            dialog_state.dep_detail(ui);
+                VSplitter::new(&mut dialog_state.dep_list_width)
+                    .with_min(MIN_SIDEBAR_WIDTH)
+                    .with_max(MAX_SIDEBAR_WIDTH.min(dialog_size.x * 0.5))
+                    .show(ui);
+
+                dialog_state.dep_detail(ui);
+            });
         });
+
+        if modal.should_close() {
+            *self = SplashDialogState::None;
+        }
     }
 }

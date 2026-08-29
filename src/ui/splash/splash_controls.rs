@@ -1,13 +1,10 @@
 use crate::{
     app::AppTransition,
-    fonts::RichTextExt,
+    fonts::{RichTextExt, font_family_bold},
     storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{
         SplashUi,
-        components::{
-            card_button::{card_button, card_button_enabled},
-            text_button::text_button,
-        },
+        components::card_button::{card_button, card_button_enabled},
         splash::dialog::{
             InstallStdLibDialogState, LicenseDialogState, NewProjectDialogState, SplashDialogState,
         },
@@ -19,7 +16,6 @@ use eframe::egui;
 const BUTTON_WIDTH: f32 = 300.0;
 const BUTTON_HEIGHT: f32 = 44.0;
 const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 3.0;
-const LICENSE_BUTTON_HEIGHT: f32 = 24.0;
 
 impl SplashUi {
     pub(super) fn splash_controls(
@@ -27,10 +23,9 @@ impl SplashUi {
         ui: &mut egui::Ui,
         preferences: &AppPreferences,
     ) -> Option<AppTransition> {
-        ui.vertical_centered(|ui| {
-            let full_width = ui.available_width();
-            let full_height = ui.available_height();
+        let full_height = ui.available_height();
 
+        ui.vertical_centered(|ui| {
             ui.add_space(full_height * 0.5 - CONTENT_HEIGHT * 0.5);
 
             let logo_image = egui::Image::new(if ui.visuals().dark_mode {
@@ -41,10 +36,8 @@ impl SplashUi {
             ui.add(logo_image.max_height(60.0));
             ui.add_space(12.0);
 
-            ui.add_sized(
-                egui::vec2(full_width, 16.0),
-                egui::Label::new(egui::RichText::new(&self.version_string).bold().weak()),
-            );
+            self.version_and_acknowledgement_button(ui);
+
             ui.add_space(24.0);
 
             let button_size = egui::vec2(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -129,14 +122,63 @@ impl SplashUi {
                     SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
             }
 
-            ui.add_space(full_height * 0.5 - CONTENT_HEIGHT * 0.5 - LICENSE_BUTTON_HEIGHT);
-            if text_button(ui, "license_button", "View Licenses").clicked() {
-                self.splash_state.dialog =
-                    SplashDialogState::License(LicenseDialogState::default());
-            }
-
             None
         })
         .inner
+    }
+
+    fn version_and_acknowledgement_button(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            let version_text = egui::RichText::new(&self.version_string)
+                .bold()
+                .weak()
+                .size(theme::normal_font_size());
+            let dot_text = egui::RichText::new("·")
+                .bold()
+                .weak()
+                .size(theme::normal_font_size());
+            let acknowledgements_text = egui::RichText::new("Acknowledgements")
+                .bold()
+                .weak()
+                .size(theme::normal_font_size());
+
+            let version_galley = ui.painter().layout_no_wrap(
+                version_text.text().to_owned(),
+                egui::FontId::new(theme::normal_font_size(), font_family_bold()),
+                ui.visuals().weak_text_color(),
+            );
+            let dot_galley = ui.painter().layout_no_wrap(
+                dot_text.text().to_owned(),
+                egui::FontId::new(theme::normal_font_size(), font_family_bold()),
+                ui.visuals().weak_text_color(),
+            );
+            let acknowledgements_galley = ui.painter().layout_no_wrap(
+                acknowledgements_text.text().to_owned(),
+                egui::FontId::new(theme::normal_font_size(), font_family_bold()),
+                ui.visuals().weak_text_color(),
+            );
+
+            let content_width = version_galley.size().x
+                + 8.0
+                + dot_galley.size().x
+                + 8.0
+                + acknowledgements_galley.size().x;
+
+            ui.add_space(((ui.available_width() - content_width) * 0.5).max(0.0));
+
+            ui.label(version_text);
+
+            ui.add_space(8.0);
+            ui.label(dot_text);
+            ui.add_space(8.0);
+
+            let acknowledgements_button = ui.label(acknowledgements_text);
+            let response = ui.allocate_rect(acknowledgements_button.rect, egui::Sense::click());
+
+            if response.clicked() {
+                self.splash_state.dialog =
+                    SplashDialogState::License(LicenseDialogState::default());
+            }
+        });
     }
 }

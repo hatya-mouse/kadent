@@ -16,7 +16,7 @@ impl DialogState {
         };
 
         let mut should_close = false;
-        let modal = dialog(ui, "Rename Item", |ui| {
+        let modal = dialog(ui, "Rename Item", 6, |ui| {
             dialog_bold_label(ui, format!("Rename {} to:", path.display()));
             text_input(ui, new_name);
 

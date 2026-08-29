@@ -2,7 +2,10 @@ use crate::{
     fonts::RichTextExt,
     ui::{
         components::not_available_text::not_available_text,
-        splash::dialog::{LicenseDialogState, license_dialog::SelectedItem},
+        splash::dialog::{
+            LicenseDialogState,
+            license_dialog::{LICENSE_MARGIN, SelectedItem},
+        },
     },
 };
 use eframe::egui;
@@ -21,57 +24,89 @@ impl LicenseDialogState {
             return;
         };
 
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            ui.vertical(|ui| {
-                ui.label(egui::RichText::new(&dep.name).heading().bold());
-                dep_field_option(ui, "Version", dep.version.as_ref());
-                dep_field_option(
-                    ui,
-                    "Author(s)",
-                    dep.authors
-                        .as_ref()
-                        .map(|authors| authors.join(", "))
-                        .as_ref(),
-                );
-                dep_field_option(ui, "Description", dep.description.as_ref());
+        egui::ScrollArea::vertical()
+            .id_salt("dep_detail")
+            .content_margin(LICENSE_MARGIN)
+            .show(ui, |ui| {
+                ui.vertical(|ui| {
+                    ui.take_available_width();
 
-                let license = document.licenses.get(dep.license_index);
-                if license.is_some() || dep.notice.is_some() {
-                    ui.separator();
-                }
+                    ui.label(egui::RichText::new(&dep.name).heading().bold());
+                    dep_field_option(ui, "Version", dep.version.as_ref());
+                    dep_field_option(
+                        ui,
+                        "Author(s)",
+                        dep.authors
+                            .as_ref()
+                            .map(|authors| authors.join(", "))
+                            .as_ref(),
+                    );
+                    dep_field_option(ui, "Description", dep.description.as_ref());
 
-                // Show the license
-                if let Some(license) = license {
-                    dep_field(ui, "License", &format!("{} / {}", license.id, license.name));
-                    ui.add_space(4.0);
-                    ui.label(egui::RichText::new(&license.text).monospace());
-                }
+                    let license = document.licenses.get(dep.license_index);
+                    let should_show_separator = (dep.version.is_some()
+                        || dep
+                            .authors
+                            .as_ref()
+                            .is_some_and(|authors| !authors.is_empty())
+                        || dep.description.is_some())
+                        && (license.is_some() || dep.notice.is_some());
+                    if should_show_separator {
+                        ui.separator();
+                    }
 
-                // Show notice if it has any
-                if let Some(notice) = dep.notice.as_ref() {
-                    ui.label(egui::RichText::new("Notice").bold());
-                    ui.add_space(4.0);
-                    ui.label(egui::RichText::new(notice).monospace());
-                }
+                    // Show the license
+                    if let Some(license) = license {
+                        dep_field(ui, "License", &format!("{} / {}", license.id, license.name));
+                        ui.add_space(4.0);
+                        ui.add(
+                            egui::Label::new(egui::RichText::new(&license.text).monospace())
+                                .wrap()
+                                .selectable(true),
+                        );
+                    }
+
+                    // Show notice if it has any
+                    if let Some(notice) = dep.notice.as_ref() {
+                        ui.label(egui::RichText::new("Notice").bold());
+                        ui.add_space(4.0);
+                        ui.add(
+                            egui::Label::new(egui::RichText::new(notice).monospace())
+                                .wrap()
+                                .selectable(true),
+                        );
+                    }
+                });
             });
-        });
     }
 }
 
 fn dep_field_option(ui: &mut egui::Ui, label: &str, value: Option<&String>) {
-    if let Some(value) = value {
+    if let Some(value) = value
+        && !value.is_empty()
+    {
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new(label).bold());
             ui.add_space(8.0);
-            ui.label(egui::RichText::new(value).monospace());
+            ui.add(
+                egui::Label::new(egui::RichText::new(value).monospace())
+                    .wrap()
+                    .selectable(true),
+            );
         });
     }
 }
 
 fn dep_field(ui: &mut egui::Ui, label: &str, value: &str) {
-    ui.horizontal(|ui| {
-        ui.label(egui::RichText::new(label).bold());
-        ui.add_space(8.0);
-        ui.label(egui::RichText::new(value).monospace());
-    });
+    if !value.is_empty() {
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new(label).bold());
+            ui.add_space(8.0);
+            ui.add(
+                egui::Label::new(egui::RichText::new(value).monospace())
+                    .wrap()
+                    .selectable(true),
+            );
+        });
+    }
 }
