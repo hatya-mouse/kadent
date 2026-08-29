@@ -12,6 +12,7 @@ pub(crate) fn default_kasl_lib_directory() -> Option<PathBuf> {
 /// Installs the KASL standard library to the specified directory.
 pub(crate) fn install_kasl_stdlib(install_dir: &Path) -> std::io::Result<()> {
     let source = bundled_kasl_stdlib()?;
+    println!("{}", source.display());
     copy_dir_recursive(&source, &install_dir.join("std"))
 }
 

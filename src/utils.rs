@@ -31,7 +31,13 @@ pub(crate) fn version_string() -> String {
 /// Returns a path to the resources directory in the package for the current operating system.
 /// In debug builds, this function will return an error.
 pub(crate) fn get_resources_path() -> std::io::Result<PathBuf> {
-    let exe_dir = std::env::current_exe()?;
+    let exe_path = std::env::current_exe()?;
+    let exe_dir = exe_path.parent().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Could not determine parent directory of executable",
+        )
+    })?;
     if cfg!(debug_assertions) {
         exe_dir.join("resources").canonicalize()
     } else {
@@ -43,7 +49,6 @@ pub(crate) fn get_resources_path() -> std::io::Result<PathBuf> {
 fn get_resources_path_from(exe_dir: &Path) -> std::io::Result<PathBuf> {
     exe_dir
         .parent()
-        .and_then(|parent| parent.parent())
         .ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
