@@ -17,6 +17,7 @@ tasks:
     build-licenses:
         desc: Build the licenses.json
         cmds:
+            - echo "[build-licenses] Generating licenses.json..."
             - cargo install --locked --features cli cargo-about
             - cargo about generate --format json > crate_licenses.json
             - python3 license_build.py licenses.json crate_licenses.json assets/fonts/font_licenses.json notices.json license_priority.json
@@ -25,6 +26,7 @@ tasks:
         desc: Generate macOS app icon from PNG
         platforms: [darwin]
         cmds:
+            - echo "[appicon-macos] Generating macOS app icon from PNG..."
             - rm -rf resources/AppIcon.iconset
             - rm -rf resources/AppIcon.icns
             - mkdir -p resources/AppIcon.iconset
@@ -53,6 +55,7 @@ tasks:
             - task: build-licenses
             - task: appicon-macos
         cmds:
+            - echo "[bundle-macos] Bundling the application for {{.TARGET}}..."
             # Recreate the dist directory for the target platform
             - rm -rf "./dist/{{.TARGET}}"
             - rm -rf ./resources/std
@@ -106,6 +109,7 @@ tasks:
         deps:
             - task: build-licenses
         cmds:
+            - echo "[bundle-windows] Bundling the application for {{.TARGET}}..."
             # Recreate the dist directory for the target platform
             - rm -rf "./dist/{{.TARGET}}"
             - rm -rf ./resources/std
@@ -117,8 +121,7 @@ tasks:
             - cargo build --release --target "{{.TARGET}}"
             # Create a directory structure and copy the binary and resources to the dist directory
             - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
-            - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
-            - mv "./dist/{{.TARGET}}/{{.APP_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.exe"
+            - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe" "./dist/{{.TARGET}}/{{.APP_NAME}}"
             - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
             # Clean up the temporary KASL Standard Library clone
             - rm -rf ./resources/std
@@ -133,6 +136,7 @@ tasks:
         deps:
             - task: build-licenses
         cmds:
+            - echo "[bundle-linux] Bundling the application for {{.TARGET}}..."
             # Recreate the dist directory for the target platform
             - rm -rf "./dist/{{.TARGET}}"
             - rm -rf ./resources/std
@@ -160,6 +164,7 @@ tasks:
               vars:
                   target: '{{.TARGET}}'
         cmds:
+            - echo "[installer-macos] Building macOS installer disk image..."
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
             - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
             - mkdir -p "./dist/{{.TARGET}}/dmg_src"
@@ -173,8 +178,8 @@ tasks:
               "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
 
-    compressed-windows:
-        desc: Create Windows installer ZIP file
+    compress-windows:
+        desc: Create Windows binary ZIP file
         platforms: [linux, darwin]
         vars:
             TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
@@ -184,12 +189,13 @@ tasks:
               vars:
                   target: '{{.TARGET}}'
         cmds:
+            - echo "[compress-windows] Compressing Windows bundle into zip..."
             - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.zip"
             - |
               cd "./dist/{{.TARGET}}" &&
               zip -r "{{.APP_NAME}}.zip" "{{.APP_NAME}}"
 
-    compressed-linux:
+    compress-linux:
         desc: Compress the Linux bundle into a tar.gz file
         platforms: [linux, darwin]
         vars:
@@ -200,6 +206,7 @@ tasks:
               vars:
                   target: '{{.TARGET}}'
         cmds:
+            - echo "[compress-linux] Compressing Linux bundle into tar.gz..."
             - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.tar.gz"
             - |
               cd "./dist/{{.TARGET}}" &&
