@@ -167,7 +167,7 @@ tasks:
         cmds:
             - echo "[installer-macos] Building macOS installer disk image..."
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
-            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
+            - rm -f "./dist/{{.TARGET}}/{{.TARGET}}.dmg"
             - mkdir -p "./dist/{{.TARGET}}/dmg_src"
             - cp -r "./dist/{{.TARGET}}/{{.APP_NAME}}.app" "./dist/{{.TARGET}}/dmg_src"
             - ln -s /Applications "./dist/{{.TARGET}}/dmg_src/Applications"
@@ -176,7 +176,7 @@ tasks:
               -srcfolder "./dist/{{.TARGET}}/dmg_src"
               -ov
               -format UDZO
-              "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
+              "./dist/{{.TARGET}}/{{.TARGET}}.dmg"
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
 
     compress-windows:
@@ -191,10 +191,10 @@ tasks:
                   target: '{{.TARGET}}'
         cmds:
             - echo "[compress-windows] Compressing Windows bundle into zip..."
-            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.zip"
+            - rm -f "./dist/{{.TARGET}}/{{.TARGET}}.zip"
             - |
               cd "./dist/{{.TARGET}}" &&
-              zip -r "{{.APP_NAME}}.zip" "{{.APP_NAME}}"
+              zip -r "{{.TARGET}}.zip" "{{.APP_NAME}}"
 
     compress-linux:
         desc: Compress the Linux bundle into a tar.gz file
@@ -208,7 +208,7 @@ tasks:
                   target: '{{.TARGET}}'
         cmds:
             - echo "[compress-linux] Compressing Linux bundle into tar.gz..."
-            - rm -f "./dist/{{.TARGET}}/{{.APP_NAME}}.tar.gz"
+            - rm -f "./dist/{{.TARGET}}/{{.TARGET}}.tar.gz"
             - |
               cd "./dist/{{.TARGET}}" &&
-              tar -zcvf "{{.APP_NAME}}.tar.gz" "{{.APP_NAME}}"
+              tar -zcvf "{{.TARGET}}.tar.gz" "{{.APP_NAME}}"
