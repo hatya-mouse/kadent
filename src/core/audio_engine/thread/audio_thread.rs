@@ -253,14 +253,7 @@ fn resolve_output_config(device: &cpal::Device, fallback: &PlaybackContext) -> c
             sample_rate: config.sample_rate(),
             buffer_size: match *config.buffer_size() {
                 SupportedBufferSize::Range { min, max } => {
-                    if (fallback.buffer_size as u32) >= min && (fallback.buffer_size as u32) <= max
-                    {
-                        cpal::BufferSize::Fixed(fallback.buffer_size as u32)
-                    } else if (fallback.buffer_size as u32) < min {
-                        cpal::BufferSize::Fixed(min)
-                    } else {
-                        cpal::BufferSize::Fixed(max)
-                    }
+                    cpal::BufferSize::Fixed((fallback.buffer_size as u32).clamp(min, max))
                 }
                 SupportedBufferSize::Unknown => {
                     cpal::BufferSize::Fixed(fallback.buffer_size as u32)
