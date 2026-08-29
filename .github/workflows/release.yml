@@ -35,34 +35,6 @@ jobs:
                   name: Kadent-macOS-arm64
                   path: dist/aarch64-apple-darwin/Kadent.dmg
 
-    build-windows-arm:
-        name: Build Windows ARM64
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Install Rust
-              uses: dtolnay/rust-toolchain@stable
-              with:
-                  targets: aarch64-pc-windows-msvc
-
-            - name: Install MinGW
-              run: sudo apt-get update && sudo apt-get install -y mingw-w64
-
-            - name: Install Task
-              uses: arduino/setup-task@v2
-
-            - name: Build ZIP
-              run: task compress-windows target=aarch64-pc-windows-msvc
-
-            - name: Upload Windows artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: Kadent-Windows-arm64
-                  path: dist/aarch64-pc-windows-msvc/Kadent.zip
-
     build-windows-x86:
         name: Build Windows x86_64
         runs-on: ubuntu-latest
@@ -98,6 +70,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: Install Linux dependencies
+              run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
             - name: Install Rust
               uses: dtolnay/rust-toolchain@stable
