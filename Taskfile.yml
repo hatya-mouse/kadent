@@ -71,6 +71,8 @@ tasks:
             # Copy the resources to the dist directory
             - cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
             - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+            # Codesign the application
+            - codesign --force --deep --sign - "./dist/{{.TARGET}}/{{.APP_NAME}}.app"
             # Clean up the temporary KASL Standard Library clone
             - rm -rf ./resources/std
 
