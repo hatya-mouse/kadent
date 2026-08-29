@@ -28,12 +28,13 @@ tasks:
             BINARY_NAME: kadent
             APP_NAME: Kadent
         cmds:
+            - task: build-licenses
             # Recreate the dist directory for the target platform
             - rm -rf "./dist/{{.TARGET}}"
-            - rm -rf ./tmp
+            - rm -rf ./resources/std
             - mkdir -p "./dist/{{.TARGET}}"
             # Clone the latest KASL Standard Library from GitHub
-            - git clone https://github.com/hatya-mouse/kasl-std ./tmp
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources
             # Compile the project for the target platform
             - cargo build --release --target "{{.TARGET}}"
             # Create a directory structure and copy the binary and resources to the dist directory
@@ -43,21 +44,22 @@ tasks:
                 mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
                 cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
                 cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
-                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
+                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
               elif [[ "{{.TARGET}}" == *"windows"* ]]; then
                 mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
                 cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe" "./dist/{{.TARGET}}/{{.APP_NAME}}"
-                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
               else
                 mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
                 cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
-                cp -r ./tmp/std "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+                cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
               fi
             # Clean up the temporary KASL Standard Library clone
-            - rm -rf ./tmp
+            - rm -rf ./resources/std
 
     build-licenses:
         desc: Build the licenses.json
         cmds:
             - cargo install --locked --features cli cargo-about
-            - cargo about generate --format json > licenses.json
+            - cargo about generate --format json > crate_licenses.json
+            - python3 license_build.py licenses.json crate_licenses.json assets/fonts/font_licenses.json notices.json license_priority.json

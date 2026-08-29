@@ -33,13 +33,10 @@ pub(crate) fn version_string() -> String {
 /// Returns a path to the resources directory in the package for the current operating system.
 /// In debug builds, this function will return an error.
 pub(crate) fn get_resources_path() -> std::io::Result<PathBuf> {
+    let exe_dir = std::env::current_exe()?;
     if cfg!(debug_assertions) {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
-            "Resources directory is not bundled in debug builds",
-        ))
+        exe_dir.join("resources").canonicalize()
     } else {
-        let exe_dir = std::env::current_exe()?;
         get_resources_path_from(&exe_dir)
     }
 }

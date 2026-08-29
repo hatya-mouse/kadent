@@ -5,7 +5,7 @@ use crate::{
         app_state::{AppPreferences, load_preferences},
         project::open_project_to_ctx,
     },
-    ui::{EditorUi, LicenseUi, SplashUi, theme},
+    ui::{EditorUi, SplashUi, theme},
 };
 use eframe::{self, egui};
 use std::path::PathBuf;
@@ -17,13 +17,16 @@ pub(crate) struct KadentApp {
 
 pub(crate) enum AppState {
     Splash(Box<SplashUi>),
-    License(Box<LicenseUi>),
     Editor(Box<EditorUi>),
 }
 
 enum GetDroppedFileResult {
     ProjectData(Box<ProjectContext>),
     AudioFile(PathBuf),
+}
+
+pub(crate) enum AppTransition {
+    ToEditor(Box<ProjectContext>),
 }
 
 impl KadentApp {
@@ -97,7 +100,7 @@ impl eframe::App for KadentApp {
         // Toggle to the editor UI if the splash screen returns an editor context
         match &mut self.state {
             AppState::Splash(splash) => {
-                if let Some(editor_ctx) = egui::CentralPanel::default()
+                if let Some(transition) = egui::CentralPanel::default()
                     .frame(
                         egui::Frame::new()
                             .fill(theme::primary_bg(ui.visuals().dark_mode))
@@ -105,9 +108,9 @@ impl eframe::App for KadentApp {
                     )
                     .show(ui, |ui| splash.ui(ui, &mut self.preferences))
                     .inner
+                    && let AppTransition::ToEditor(editor_ctx) = transition
                 {
-                    // If the splash screen returned an editor context, switch to the editor UI
-                    self.state = AppState::Editor(Box::new(EditorUi::new(editor_ctx)));
+                    self.state = AppState::Editor(Box::new(EditorUi::new(*editor_ctx)));
                 }
 
                 if let Some(GetDroppedFileResult::ProjectData(ctx)) = dropped_file {
@@ -123,9 +126,6 @@ impl eframe::App for KadentApp {
                 } else if let Some(hovered_path) = hovered_file {
                     editor.audio_hovered(hovered_path);
                 }
-            }
-            AppState::License(license) => {
-                license.ui(ui);
             }
         }
     }

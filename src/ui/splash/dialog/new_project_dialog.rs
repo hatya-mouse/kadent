@@ -9,13 +9,13 @@ use crate::{
             text_button::{text_button, text_button_enabled},
             text_input::text_input,
         },
-        splash::state::SplashDialogState,
+        splash::dialog::SplashDialogState,
     },
 };
 use eframe::egui;
 use std::path::PathBuf;
 
-pub(super) struct NewProjectDialogState {
+pub(crate) struct NewProjectDialogState {
     /// The name of the new project.
     pub(super) project_name: String,
     /// The directory where the new project will be created.

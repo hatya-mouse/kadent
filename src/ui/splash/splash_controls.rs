@@ -1,13 +1,15 @@
 use crate::{
-    core::project_ctx::ProjectContext,
+    app::AppTransition,
     fonts::RichTextExt,
     storage::{app_state::AppPreferences, project::open_project_to_ctx},
     ui::{
         SplashUi,
-        components::card_button::{card_button, card_button_enabled},
-        splash::{
-            install_std_dialog::InstallStdLibDialogState,
-            new_project_dialog::NewProjectDialogState, state::SplashDialogState,
+        components::{
+            card_button::{card_button, card_button_enabled},
+            text_button::text_button,
+        },
+        splash::dialog::{
+            InstallStdLibDialogState, LicenseDialogState, NewProjectDialogState, SplashDialogState,
         },
         theme,
     },
@@ -17,13 +19,14 @@ use eframe::egui;
 const BUTTON_WIDTH: f32 = 300.0;
 const BUTTON_HEIGHT: f32 = 44.0;
 const CONTENT_HEIGHT: f32 = 60.0 + 12.0 + 16.0 + 24.0 + 12.0 + BUTTON_HEIGHT * 3.0;
+const LICENSE_BUTTON_HEIGHT: f32 = 24.0;
 
 impl SplashUi {
     pub(super) fn splash_controls(
         &mut self,
         ui: &mut egui::Ui,
         preferences: &AppPreferences,
-    ) -> Option<ProjectContext> {
+    ) -> Option<AppTransition> {
         ui.vertical_centered(|ui| {
             let full_width = ui.available_width();
             let full_height = ui.available_height();
@@ -84,7 +87,9 @@ impl SplashUi {
             if open_project_res.clicked()
                 && let Some(project_dir) = rfd::FileDialog::new().pick_file()
             {
-                return open_project_to_ctx(project_dir, preferences);
+                return open_project_to_ctx(project_dir, preferences)
+                    .map(Box::new)
+                    .map(AppTransition::ToEditor);
             }
 
             ui.add_space(12.0);
@@ -122,6 +127,12 @@ impl SplashUi {
             if install_std_res.clicked() {
                 self.splash_state.dialog =
                     SplashDialogState::InstallStdLib(InstallStdLibDialogState::default());
+            }
+
+            ui.add_space(full_height * 0.5 - CONTENT_HEIGHT * 0.5 - LICENSE_BUTTON_HEIGHT);
+            if text_button(ui, "license_button", "View Licenses").clicked() {
+                self.splash_state.dialog =
+                    SplashDialogState::License(LicenseDialogState::default());
             }
 
             None

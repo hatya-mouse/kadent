@@ -1,28 +1,36 @@
 use crate::{
     fonts::RichTextExt,
     ui::{
-        LicenseUi,
-        license::{DependencyItem, SelectedItem},
+        components::not_available_text::not_available_text,
+        splash::dialog::{
+            LicenseDialogState,
+            license_dialog::{SelectedItem, crate_licenses::DependencyItem},
+        },
         theme,
     },
 };
 use eframe::egui;
 
-impl LicenseUi {
+impl LicenseDialogState {
     pub(super) fn dep_list(&mut self, ui: &mut egui::Ui) {
+        let Ok(document) = &self.document else {
+            not_available_text(ui, "Failed to load licenses.");
+            return;
+        };
+
         *ui.style_mut() = theme::menu_style(ui);
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.vertical(|ui| {
                 // --- FONTS ---
                 ui.label(egui::RichText::new("Fonts").bold().size(18.0));
-                for (index, font_item) in self.fonts.iter().enumerate() {
+                for (index, font_item) in document.fonts.iter().enumerate() {
                     dep_list_item(ui, &mut self.selected_dep, font_item, index, true);
                 }
 
                 // --- CRATES ---
                 ui.label(egui::RichText::new("Crates").bold().size(18.0));
-                for (index, crate_item) in self.crates.iter().enumerate() {
+                for (index, crate_item) in document.crates.iter().enumerate() {
                     dep_list_item(ui, &mut self.selected_dep, crate_item, index, false);
                 }
             });

@@ -1,12 +1,10 @@
 mod dialog;
-mod install_std_dialog;
-mod new_project_dialog;
 mod project_list;
 mod splash_controls;
 pub(crate) mod state;
 
 use crate::{
-    core::project_ctx::ProjectContext,
+    app::AppTransition,
     storage::app_state::AppPreferences,
     ui::{splash::state::SplashUiState, theme},
     utils::version_string,
@@ -37,8 +35,8 @@ impl SplashUi {
         &mut self,
         ui: &mut egui::Ui,
         preferences: &mut AppPreferences,
-    ) -> Option<ProjectContext> {
-        let mut ctx = None;
+    ) -> Option<AppTransition> {
+        let mut transition = None;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             let full_width = ui.available_width();
@@ -60,7 +58,7 @@ impl SplashUi {
                 egui::Layout::top_down(egui::Align::LEFT),
                 |ui| {
                     if let Some(t) = self.splash_controls(ui, preferences) {
-                        ctx = Some(t);
+                        transition = Some(t);
                     }
                 },
             );
@@ -74,7 +72,7 @@ impl SplashUi {
                     egui::Layout::top_down(egui::Align::LEFT),
                     |ui| {
                         if let Some(t) = self.project_list(ui, preferences) {
-                            ctx = Some(t);
+                            transition = Some(AppTransition::ToEditor(Box::new(t)));
                         }
                     },
                 );
@@ -91,9 +89,9 @@ impl SplashUi {
         });
 
         if let Some(t) = self.splash_state.dialog.show_dialog(ui, preferences) {
-            ctx = Some(t);
+            transition = Some(AppTransition::ToEditor(Box::new(t)));
         }
 
-        ctx
+        transition
     }
 }

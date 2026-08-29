@@ -1,0 +1,31 @@
+{
+    "fonts": [
+        {
+            "name": "Inter",
+            "authors": null,
+            "license": {
+                "name": "SIL Open Font License 1.1",
+                "id": "OFL-1.1",
+                "path": "assets/fonts/LICENSE_OFL_Inter.txt"
+            }
+        },
+        {
+            "name": "Noto Sans JP",
+            "authors": null,
+            "license": {
+                "name": "SIL Open Font License 1.1",
+                "id": "OFL-1.1",
+                "path": "assets/fonts/LICENSE_OFL_NotoSansJP.txt"
+            }
+        },
+        {
+            "name": "Roboto Mono",
+            "authors": null,
+            "license": {
+                "name": "SIL Open Font License 1.1",
+                "id": "OFL-1.1",
+                "path": "assets/fonts/LICENSE_OFL_RobotoMono.txt"
+            }
+        }
+    ]
+}

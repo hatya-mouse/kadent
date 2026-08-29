@@ -7,13 +7,13 @@ use crate::{
             dialog::{dialog, dialog_bold_label},
             text_button::{text_button, text_button_enabled},
         },
-        splash::state::SplashDialogState,
+        splash::dialog::SplashDialogState,
     },
 };
 use eframe::egui;
 use std::path::PathBuf;
 
-pub(super) struct InstallStdLibDialogState {
+pub(crate) struct InstallStdLibDialogState {
     /// The error message to display if the installation fails.
     error_message: Option<String>,
     /// The directory where the KASL standard library will be installed.
