@@ -1,7 +1,6 @@
 name: Test Release Build
 
 on:
-    workflow_dispatch:
     push:
         tags:
             - "test-*"
@@ -29,6 +28,12 @@ jobs:
             - name: Build DMG
               run: task installer-macos target=aarch64-apple-darwin
 
+            - name: Upload macOS artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Kadent-macOS-arm64
+                  path: dist/aarch64-apple-darwin/Kadent.dmg
+
     build-windows-x86:
         name: Build Windows x86_64
         runs-on: ubuntu-latest
@@ -54,6 +59,12 @@ jobs:
             - name: Build ZIP
               run: task compress-windows target=x86_64-pc-windows-gnu
 
+            - name: Upload Windows artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Kadent-Windows-x86_64
+                  path: dist/x86_64-pc-windows-gnu/Kadent.zip
+
     build-linux:
         name: Build Linux x86_64
         runs-on: ubuntu-latest
@@ -78,3 +89,9 @@ jobs:
 
             - name: Build tar.gz
               run: task compress-linux target=x86_64-unknown-linux-gnu
+
+            - name: Upload Linux artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Kadent-Linux-x86_64
+                  path: dist/x86_64-unknown-linux-gnu/Kadent.tar.gz
