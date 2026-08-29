@@ -4,12 +4,6 @@ vars:
     GREETING: Hello, world!
 
 tasks:
-    default:
-        desc: Print a greeting message
-        cmds:
-            - echo "{{.GREETING}}"
-        silent: true
-
     dev:
         desc: Compile and run the project in dev profile
         cmds:
@@ -64,22 +58,74 @@ tasks:
             - rm -rf ./resources/std
             - mkdir -p "./dist/{{.TARGET}}"
             - mkdir -p ./resources
-            # Clone the latest KASL Standard Library from GitHub
-            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
             # Compile the project for the target platform
             - cargo build --release --target "{{.TARGET}}"
-            # Create a directory structure and copy the binary and resources to the dist directory
+            # Create a directory structure, copy the binary and sign the binary
             - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
             - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
             - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/MacOS"
+            # Clone the latest KASL Standard Library from GitHub
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+            # Copy the resources to the dist directory
             - cp ./info.plist "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents"
             - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}.app/Contents/Resources"
             # Clean up the temporary KASL Standard Library clone
             - rm -rf ./resources/std
 
+    # bundle-windows:
+    #     desc: Bundle the application on Windows platform
+    #     platforms: [windows]
+    #     vars:
+    #         TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
+    #         BINARY_NAME: kadent
+    #         APP_NAME: Kadent
+    #     deps:
+    #         - task: build-licenses
+    #     cmds:
+    #         # Recreate the dist directory for the target platform
+    #         - powershell -NoProfile -Command "Remove-Item -Recurse -Force './dist/{{.TARGET}}' -ErrorAction SilentlyContinue"
+    #         - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std' -ErrorAction SilentlyContinue"
+    #         - powershell -NoProfile -Command "New-Item -ItemType Directory -Force './dist/{{.TARGET}}/{{.APP_NAME}}/resources' | Out-Null"
+    #         # Compile the project for the target platform
+    #         - cargo build --release --target "{{.TARGET}}"
+    #         - powershell -NoProfile -Command "Copy-Item 'target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe' './dist/{{.TARGET}}/{{.APP_NAME}}/'"
+    #         # Clone the latest KASL Standard Library from GitHub
+    #         - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+    #         # Copy the resources to the dist directory
+    #         - powershell -NoProfile -Command "Copy-Item './resources/*' './dist/{{.TARGET}}/{{.APP_NAME}}/resources/' -Recurse"
+    #         # Clean up the temporary KASL Standard Library clone
+    #         - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std'"
+
+    bundle-windows:
+        desc: Bundle the application for Windows platform on Linux
+        platforms: [linux, darwin]
+        vars:
+            TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
+            BINARY_NAME: kadent
+            APP_NAME: Kadent
+        deps:
+            - task: build-licenses
+        cmds:
+            # Recreate the dist directory for the target platform
+            - rm -rf "./dist/{{.TARGET}}"
+            - rm -rf ./resources/std
+            - mkdir -p "./dist/{{.TARGET}}"
+            - mkdir -p ./resources
+            # Clone the latest KASL Standard Library from GitHub
+            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
+            # Compile the project for the target platform
+            - cargo build --release --target "{{.TARGET}}"
+            # Create a directory structure and copy the binary and resources to the dist directory
+            - mkdir -p "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+            - cp "target/{{.TARGET}}/release/{{.BINARY_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}"
+            - mv "./dist/{{.TARGET}}/{{.APP_NAME}}" "./dist/{{.TARGET}}/{{.APP_NAME}}.exe"
+            - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
+            # Clean up the temporary KASL Standard Library clone
+            - rm -rf ./resources/std
+
     bundle-linux:
         desc: Bundle the application on Linux platform
-        platforms: [linux]
+        platforms: [linux, darwin]
         vars:
             TARGET: '{{ .target | default "x86_64-unknown-linux-gnu" }}'
             BINARY_NAME: kadent
@@ -102,25 +148,6 @@ tasks:
             - cp -r ./resources/. "./dist/{{.TARGET}}/{{.APP_NAME}}/resources"
             # Clean up the temporary KASL Standard Library clone
             - rm -rf ./resources/std
-
-    bundle-windows:
-        desc: Bundle the application on Windows platform
-        platforms: [windows]
-        vars:
-            TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
-            BINARY_NAME: kadent
-            APP_NAME: Kadent
-        deps:
-            - task: build-licenses
-        cmds:
-            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './dist/{{.TARGET}}' -ErrorAction SilentlyContinue"
-            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std' -ErrorAction SilentlyContinue"
-            - powershell -NoProfile -Command "New-Item -ItemType Directory -Force './dist/{{.TARGET}}/{{.APP_NAME}}/resources' | Out-Null"
-            - git clone https://github.com/hatya-mouse/kasl-std ./resources/std
-            - cargo build --release --target "{{.TARGET}}"
-            - powershell -NoProfile -Command "Copy-Item 'target/{{.TARGET}}/release/{{.BINARY_NAME}}.exe' './dist/{{.TARGET}}/{{.APP_NAME}}/'"
-            - powershell -NoProfile -Command "Copy-Item './resources/*' './dist/{{.TARGET}}/{{.APP_NAME}}/resources/' -Recurse"
-            - powershell -NoProfile -Command "Remove-Item -Recurse -Force './resources/std'"
 
     installer-macos:
         desc: Create macOS installer disk image
@@ -146,15 +173,9 @@ tasks:
               "./dist/{{.TARGET}}/{{.APP_NAME}}.dmg"
             - rm -rf "./dist/{{.TARGET}}/dmg_src"
 
-    # installer-windows:
-    #     desc: Create Windows installer executable
-    #     platforms: [windows]
-    #     vars:
-    #         TARGET: '{{ .target | default "x86_64-pc-windows-gnu" }}'
-
     installer-linux:
         desc: Compress the Linux bundle into a tar.gz file
-        platforms: [linux]
+        platforms: [linux, darwin]
         vars:
             TARGET: '{{ .target | default "x86_64-unknown-linux-gnu" }}'
             APP_NAME: Kadent
@@ -167,17 +188,3 @@ tasks:
             - |
               cd "./dist/{{.TARGET}}" &&
               tar -zcvf "{{.APP_NAME}}.tar.gz" "{{.APP_NAME}}"
-
-    installer:
-        desc: Create an installer for the target platform
-        vars:
-            TARGET: '{{.target | default "aarch64-apple-darwin"}}'
-        cmds:
-            - |
-              if [[ "{{.TARGET}}" == *"darwin"* ]]; then
-                task installer-macos target="{{.TARGET}}"
-              elif [[ "{{.TARGET}}" == *"windows"* ]]; then
-                task installer-windows target="{{.TARGET}}"
-              else
-                task installer-linux target="{{.TARGET}}"
-              fi
