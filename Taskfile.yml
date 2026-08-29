@@ -55,3 +55,9 @@ tasks:
               fi
             # Clean up the temporary KASL Standard Library clone
             - rm -rf ./tmp
+
+    build-licenses:
+        desc: Build the licenses.json
+        cmds:
+            - cargo install --locked --features cli cargo-about
+            - cargo about generate --format json > licenses.json

@@ -4,3 +4,6 @@
 # Build directories
 /dist
 /tmp
+
+# License JSON
+licenses.json

@@ -5,7 +5,7 @@ use crate::{
         app_state::{AppPreferences, load_preferences},
         project::open_project_to_ctx,
     },
-    ui::{SplashUi, editor::EditorUi, theme},
+    ui::{EditorUi, LicenseUi, SplashUi, theme},
 };
 use eframe::{self, egui};
 use std::path::PathBuf;
@@ -17,6 +17,7 @@ pub(crate) struct KadentApp {
 
 pub(crate) enum AppState {
     Splash(Box<SplashUi>),
+    License(Box<LicenseUi>),
     Editor(Box<EditorUi>),
 }
 
@@ -122,6 +123,9 @@ impl eframe::App for KadentApp {
                 } else if let Some(hovered_path) = hovered_file {
                     editor.audio_hovered(hovered_path);
                 }
+            }
+            AppState::License(license) => {
+                license.ui(ui);
             }
         }
     }

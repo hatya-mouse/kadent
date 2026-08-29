@@ -1,4 +1,7 @@
-use crate::consts::{KADENT_DATA_DIR_NAME, KASL_LIB_PATH};
+use crate::{
+    consts::{KADENT_DATA_DIR_NAME, KASL_LIB_PATH},
+    utils::get_resources_path,
+};
 use std::path::{Path, PathBuf};
 
 /// Returns the default path for KASL libraries.
@@ -13,36 +16,8 @@ pub(crate) fn install_kasl_stdlib(install_dir: &Path) -> std::io::Result<()> {
 }
 
 /// Returns a path to the bundled KASL standard library for the current operating system.
-/// In debug builds, this function will return an error.
 fn bundled_kasl_stdlib() -> std::io::Result<PathBuf> {
-    if cfg!(debug_assertions) {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
-            "KASL standard library is not bundled in debug builds",
-        ))
-    } else {
-        let exe_dir = std::env::current_exe()?;
-        get_bundled_stdlib_path_from_exe_dir(&exe_dir)
-    }
-}
-
-#[cfg(target_os = "macos")]
-fn get_bundled_stdlib_path_from_exe_dir(exe_dir: &Path) -> std::io::Result<PathBuf> {
-    exe_dir
-        .parent()
-        .and_then(|parent| parent.parent())
-        .ok_or_else(|| {
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Could not determine parent directory of executable",
-            )
-        })
-        .map(|parent| parent.join("Resources").join("std"))
-}
-
-#[cfg(not(target_os = "macos"))]
-fn get_bundled_stdlib_path_from_exe_dir(exe_dir: &Path) -> std::io::Result<PathBuf> {
-    Ok(exe_dir.join("resources").join("std"))
+    get_resources_path().map(|path| path.join("std"))
 }
 
 /// Recursively copies the contents of the source directory to the destination directory.
