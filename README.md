@@ -40,19 +40,7 @@ Download the .tar.gz archive of the prebuilt binary from [Releases](https://gith
 
 #### Using Taskfile
 
-##### Debug Run
-
-```bash
-task dev
-```
-
-##### Release
-
-```bash
-task build
-```
-
-##### Bundle
+##### Build Bundle
 
 ```bash
 task bundle-macos
@@ -62,6 +50,8 @@ task bundle-linux
 
 ##### Build Installer or Compressed Archive
 
+You don't need to build bundle before building an installer or creating an archive.
+
 ```bash
 task installer-macos
 task compressed-windows
@@ -69,14 +59,6 @@ task compressed-linux
 ```
 
 #### Without Taskfile
-
-##### Debug Run
-
-```bash
-cargo run
-```
-
-##### Release
 
 ```bash
 cargo build --release
