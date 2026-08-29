@@ -8,7 +8,10 @@ use crate::core::audio_engine::{
         preparation_thread::{PrepareState, spawn_preparation_thread},
     },
 };
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::{
+    SupportedBufferSize,
+    traits::{DeviceTrait, HostTrait, StreamTrait},
+};
 use ringbuf::traits::{Consumer, Producer, Split};
 use std::sync::{
     Arc, Mutex,
@@ -245,7 +248,25 @@ fn reprepare_mixer(
 fn resolve_output_config(device: &cpal::Device, fallback: &PlaybackContext) -> cpal::StreamConfig {
     device
         .default_output_config()
-        .map(|config| config.config())
+        .map(|config| cpal::StreamConfig {
+            channels: config.channels(),
+            sample_rate: config.sample_rate(),
+            buffer_size: match *config.buffer_size() {
+                SupportedBufferSize::Range { min, max } => {
+                    if (fallback.buffer_size as u32) >= min && (fallback.buffer_size as u32) <= max
+                    {
+                        cpal::BufferSize::Fixed(fallback.buffer_size as u32)
+                    } else if (fallback.buffer_size as u32) < min {
+                        cpal::BufferSize::Fixed(min)
+                    } else {
+                        cpal::BufferSize::Fixed(max)
+                    }
+                }
+                SupportedBufferSize::Unknown => {
+                    cpal::BufferSize::Fixed(fallback.buffer_size as u32)
+                }
+            },
+        })
         .unwrap_or_else(|_| cpal::StreamConfig {
             channels: fallback.channels as u16,
             sample_rate: fallback.sample_rate as u32,

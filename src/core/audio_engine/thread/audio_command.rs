@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use crate::core::audio_engine::{
     data_types::PlaybackContext,
     mixer::{ProjectData, TrackID},
@@ -7,6 +5,7 @@ use crate::core::audio_engine::{
     track::error::TrackError,
 };
 use cpal::Device;
+use std::fmt::Debug;
 
 #[derive(Clone)]
 pub(crate) enum AudioCommand {
