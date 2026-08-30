@@ -1,0 +1,2759 @@
+ライセンス情報
+
+本作品では、以下のOSSおよびフォントを使用しています。
+各OSSおよびフォントはそれぞれのライセンスに基づき利用しています。
+各ライセンスの全文および著作権表示は、Kadentアプリケーション内のAcknowledgementsから確認できます。
+
+フォント
+
+- Inter
+  ライセンス: SIL Open Font License 1.1
+
+- Noto Sans JP
+  ライセンス: SIL Open Font License 1.1
+
+- Roboto Mono
+  ライセンス: SIL Open Font License 1.1
+
+クレート
+
+- hound
+  バージョン: 3.5.1
+  作者: Ruud van Asseldonk <dev@veniogames.com>
+  ライセンス: Apache License 2.0
+
+- kasl-core
+  バージョン: 0.1.33
+  ライセンス: Apache License 2.0
+
+- kasl-ir
+  バージョン: 0.3.5
+  ライセンス: Apache License 2.0
+
+- kasl
+  バージョン: 0.2.41
+  ライセンス: Apache License 2.0
+
+- cranelift-bforest
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-codegen-meta
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-codegen-shared
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-codegen
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-control
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-entity
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-frontend
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-jit
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-module
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-native
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- regalloc2
+  バージョン: 0.15.2
+  作者: Chris Fallin <chris@cfallin.org>, Mozilla SpiderMonkey Developers
+  ライセンス: Apache License 2.0
+
+- target-lexicon
+  バージョン: 0.13.5
+  作者: Dan Gohman <sunfish@mozilla.com>
+  ライセンス: Apache License 2.0
+
+- ring
+  バージョン: 0.17.14
+  ライセンス: Apache License 2.0
+
+- moxcms
+  バージョン: 0.8.1
+  作者: Radzivon Bartoshyk
+  ライセンス: Apache License 2.0
+
+- pxfm
+  バージョン: 0.1.30
+  作者: Radzivon Bartoshyk
+  ライセンス: Apache License 2.0
+
+- codespan-reporting
+  バージョン: 0.13.1
+  作者: Brendan Zabarauskas <bjzaba@yahoo.com.au>
+  ライセンス: Apache License 2.0
+
+- cpal
+  バージョン: 0.18.2
+  ライセンス: Apache License 2.0
+
+- self_cell
+  バージョン: 1.3.0
+  作者: Lukas Bergdoll <lukas.bergdoll@gmail.com>
+  ライセンス: Apache License 2.0
+
+- unicode-general-category
+  バージョン: 1.1.0
+  作者: YesLogic Pty. Ltd. <info@yeslogic.com>
+  ライセンス: Apache License 2.0
+
+- gethostname
+  バージョン: 1.1.0
+  作者: Sebastian Wiesner <sebastian@swsnr.de>
+  ライセンス: Apache License 2.0
+
+- glutin_wgl_sys
+  バージョン: 0.6.1
+  作者: Kirill Chibisov <contact@kchibisov.com>
+  ライセンス: Apache License 2.0
+
+- dpi
+  バージョン: 0.1.2
+  ライセンス: MIT License
+
+- winit
+  バージョン: 0.30.13
+  作者: The winit contributors, Pierre Krieger <pierre.krieger1708@gmail.com>
+  ライセンス: Apache License 2.0
+
+- ab_glyph
+  バージョン: 0.2.32
+  作者: Alex Butler <alexheretic@gmail.com>
+  ライセンス: Apache License 2.0
+
+- ab_glyph_rasterizer
+  バージョン: 0.1.10
+  作者: Alex Butler <alexheretic@gmail.com>
+  ライセンス: Apache License 2.0
+
+- accesskit_winit
+  バージョン: 0.32.2
+  作者: The AccessKit contributors
+  ライセンス: Apache License 2.0
+
+- cranelift-assembler-x64-meta
+  バージョン: 0.131.3
+  ライセンス: Apache License 2.0
+
+- cranelift-assembler-x64
+  バージョン: 0.131.3
+  ライセンス: Apache License 2.0
+
+- cranelift-bitset
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-isle
+  バージョン: 0.131.3
+  作者: The Cranelift Project Developers
+  ライセンス: Apache License 2.0
+
+- cranelift-srcgen
+  バージョン: 0.131.3
+  作者: The Wasmtime Project Developers
+  ライセンス: Apache License 2.0
+
+- gl_generator
+  バージョン: 0.14.0
+  作者: Brendan Zabarauskas <bjzaba@yahoo.com.au>, Corey Richardson, Arseny Kapoulkine
+  ライセンス: Apache License 2.0
+
+- kasl-cranelift-backend
+  バージョン: 0.1.8
+  ライセンス: Apache License 2.0
+
+- khronos_api
+  バージョン: 3.1.0
+  作者: Brendan Zabarauskas <bjzaba@yahoo.com.au>, Corey Richardson, Arseny Kapoulkine, Pierre Krieger <pierre.krieger1708@gmail.com>
+  ライセンス: Apache License 2.0
+
+- owned_ttf_parser
+  バージョン: 0.25.1
+  作者: Alex Butler <alexheretic@gmail.com>
+  ライセンス: Apache License 2.0
+
+- spirv
+  バージョン: 0.4.0+sdk-1.4.341.0
+  作者: Lei Zhang <antiagainst@gmail.com>
+  ライセンス: Apache License 2.0
+
+- wasmtime-internal-core
+  バージョン: 44.0.3
+  作者: The Wasmtime Project Developers
+  ライセンス: Apache License 2.0
+
+- wasmtime-internal-jit-icache-coherence
+  バージョン: 44.0.3
+  作者: The Wasmtime Project Developers
+  ライセンス: Apache License 2.0
+
+- arrayref
+  バージョン: 0.3.9
+  作者: David Roundy <roundyd@physics.oregonstate.edu>
+  ライセンス: BSD 2-Clause "Simplified" License
+
+- tiny-skia-path
+  バージョン: 0.11.4
+  作者: Yevhenii Reizner <razrfalcon@gmail.com>
+  ライセンス: BSD 3-Clause "New" or "Revised" License
+
+- tiny-skia
+  バージョン: 0.11.4
+  作者: Yevhenii Reizner <razrfalcon@gmail.com>
+  ライセンス: BSD 3-Clause "New" or "Revised" License
+
+- subtle
+  バージョン: 2.6.1
+  作者: Isis Lovecruft <isis@patternsinthevoid.net>, Henry de Valence <hdevalence@hdevalence.ca>
+  ライセンス: BSD 3-Clause "New" or "Revised" License
+
+- error-code
+  バージョン: 3.4.0
+  作者: Douman <douman@gmx.se>
+  ライセンス: Boost Software License 1.0
+
+- clipboard-win
+  バージョン: 5.4.1
+  作者: Douman <douman@gmx.se>
+  ライセンス: Boost Software License 1.0
+
+- webpki-roots
+  バージョン: 1.0.9
+  ライセンス: Community Data License Agreement Permissive 2.0
+
+- untrusted
+  バージョン: 0.9.0
+  作者: Brian Smith <brian@briansmith.org>
+  ライセンス: ISC License
+
+- libloading
+  バージョン: 0.7.4
+  作者: Simonas Kazlauskas <libloading@kazlauskas.me>
+  ライセンス: ISC License
+
+- libloading
+  バージョン: 0.8.9
+  作者: Simonas Kazlauskas <libloading@kazlauskas.me>
+  ライセンス: ISC License
+
+- rustls-webpki
+  バージョン: 0.103.15
+  ライセンス: ISC License
+
+- uds_windows
+  バージョン: 1.2.1
+  作者: Azure IoT Edge Devs, Harald Hoyer <harald@redhat.com>
+  ライセンス: MIT License
+
+- cfg_aliases
+  バージョン: 0.2.2
+  作者: Zicklag <zicklag@katharostech.com>
+  ライセンス: MIT License
+
+- onig_sys
+  バージョン: 69.9.3
+  作者: Will Speak <will@willspeak.me>, Ivan Ivashchenko <defuz@me.com>
+  ライセンス: MIT License
+
+- onig
+  バージョン: 6.5.3
+  作者: Will Speak <will@willspeak.me>, Ivan Ivashchenko <defuz@me.com>
+  ライセンス: MIT License
+
+- atomic-waker
+  バージョン: 1.1.2
+  作者: Stjepan Glavina <stjepang@gmail.com>, Contributors to futures-rs
+  ライセンス: MIT License
+
+- futures-lite
+  バージョン: 2.6.1
+  作者: Stjepan Glavina <stjepang@gmail.com>, Contributors to futures-rs
+  ライセンス: MIT License
+
+- peg-macros
+  バージョン: 0.8.6
+  作者: Kevin Mehall <km@kevinmehall.net>
+  ライセンス: MIT License
+
+- peg-runtime
+  バージョン: 0.8.6
+  作者: Kevin Mehall <km@kevinmehall.net>
+  ライセンス: MIT License
+
+- peg
+  バージョン: 0.8.6
+  作者: Kevin Mehall <km@kevinmehall.net>
+  ライセンス: MIT License
+
+- rayon-core
+  バージョン: 1.13.0
+  ライセンス: MIT License
+
+- rayon
+  バージョン: 1.12.0
+  ライセンス: MIT License
+
+- core-foundation-sys
+  バージョン: 0.8.7
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- core-foundation
+  バージョン: 0.10.1
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- core-foundation
+  バージョン: 0.9.4
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- core-graphics-types
+  バージョン: 0.1.3
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- core-graphics
+  バージョン: 0.23.2
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- euclid
+  バージョン: 0.22.14
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- hex
+  バージョン: 0.4.3
+  作者: KokaKiwi <kokakiwi@kokakiwi.net>
+  ライセンス: MIT License
+
+- form_urlencoded
+  バージョン: 1.2.2
+  作者: The rust-url developers
+  ライセンス: MIT License
+
+- data-url
+  バージョン: 0.3.2
+  作者: Simon Sapin <simon.sapin@exyr.org>
+  ライセンス: MIT License
+
+- idna
+  バージョン: 1.1.0
+  作者: The rust-url developers
+  ライセンス: MIT License
+
+- percent-encoding
+  バージョン: 2.3.2
+  作者: The rust-url developers
+  ライセンス: MIT License
+
+- url
+  バージョン: 2.5.8
+  作者: The rust-url developers
+  ライセンス: MIT License
+
+- cc
+  バージョン: 1.4.4
+  ライセンス: MIT License
+
+- cfg-if
+  バージョン: 1.0.4
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- find-msvc-tools
+  バージョン: 0.1.11
+  ライセンス: MIT License
+
+- jobserver
+  バージョン: 0.1.35
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- js-sys
+  バージョン: 0.3.104
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- pkg-config
+  バージョン: 0.3.34
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- scoped-tls
+  バージョン: 1.0.1
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- wasm-bindgen-futures
+  バージョン: 0.4.77
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- wasm-bindgen-macro-support
+  バージョン: 0.2.127
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- wasm-bindgen-macro
+  バージョン: 0.2.127
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- wasm-bindgen-shared
+  バージョン: 0.2.127
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- wasm-bindgen
+  バージョン: 0.2.127
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- web-sys
+  バージョン: 0.3.104
+  作者: The wasm-bindgen Developers
+  ライセンス: MIT License
+
+- errno
+  バージョン: 0.3.14
+  作者: Chris Wong <lambda.fairy@gmail.com>, Dan Gohman <dev@sunfishcode.online>
+  ライセンス: MIT License
+
+- mime
+  バージョン: 0.3.17
+  作者: Sean McArthur <sean@seanmonstar.com>
+  ライセンス: MIT License
+
+- bitflags
+  バージョン: 1.3.2
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- bitflags
+  バージョン: 2.13.1
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- glob
+  バージョン: 0.3.4
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- log
+  バージョン: 0.4.34
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- num-derive
+  バージョン: 0.4.2
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- num-traits
+  バージョン: 0.2.19
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- regex-automata
+  バージョン: 0.4.18
+  作者: The Rust Project Developers, Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- regex-syntax
+  バージョン: 0.8.11
+  作者: The Rust Project Developers, Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- uuid
+  バージョン: 1.26.0
+  作者: Ashley Mannix<ashleymannix@live.com.au>, Dylan DPC<dylan.dpc@gmail.com>, Hunar Roop Kahlon<hunar.roop@gmail.com>
+  ライセンス: MIT License
+
+- float-cmp
+  バージョン: 0.9.0
+  作者: Mike Dilger <mike@mikedilger.com>
+  ライセンス: MIT License
+
+- flate2
+  バージョン: 1.1.10
+  作者: Alex Crichton <alex@alexcrichton.com>, Josh Triplett <josh@joshtriplett.org>
+  ライセンス: MIT License
+
+- unicase
+  バージョン: 2.9.0
+  作者: Sean McArthur <sean@seanmonstar.com>
+  ライセンス: MIT License
+
+- coreaudio-rs
+  バージョン: 0.14.2
+  作者: mitchmindtree <mitchell.nordine@gmail.com>, yupferris <jake@fusetools.com>
+  ライセンス: MIT License
+
+- either
+  バージョン: 1.18.0
+  ライセンス: MIT License
+
+- itertools
+  バージョン: 0.15.0
+  作者: bluss
+  ライセンス: MIT License
+
+- plist
+  バージョン: 1.10.0
+  作者: Ed Barnard <eabarnard@gmail.com>
+  ライセンス: MIT License
+
+- wayland-backend
+  バージョン: 0.3.17
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-client
+  バージョン: 0.31.15
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-cursor
+  バージョン: 0.31.14
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-protocols-experimental
+  バージョン: 20250721.0.1
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-protocols-misc
+  バージョン: 0.3.12
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-protocols-plasma
+  バージョン: 0.3.12
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-protocols-wlr
+  バージョン: 0.3.12
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-protocols
+  バージョン: 0.32.13
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-scanner
+  バージョン: 0.31.11
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- wayland-sys
+  バージョン: 0.31.11
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- ordered-float
+  バージョン: 5.5.0
+  作者: Jonathan Reem <jonathan.reem@gmail.com>, Matt Brubeck <mbrubeck@limpet.net>
+  ライセンス: MIT License
+
+- tempfile
+  バージョン: 3.27.0
+  作者: Steven Allen <steven@stebalien.com>, The Rust Project Developers, Ashley Mannix <ashleymannix@live.com.au>, Jason White <me@jasonwhite.io>
+  ライセンス: MIT License
+
+- gimli
+  バージョン: 0.33.0
+  ライセンス: MIT License
+
+- heck
+  バージョン: 0.5.0
+  ライセンス: MIT License
+
+- linked-hash-map
+  バージョン: 0.5.6
+  作者: Stepan Koltsov <stepan.koltsov@gmail.com>, Andrew Paseltiner <apaseltiner@gmail.com>
+  ライセンス: MIT License
+
+- unicode-segmentation
+  バージョン: 1.13.3
+  作者: kwantam <kwantam@gmail.com>, Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: MIT License
+
+- unicode-width
+  バージョン: 0.2.2
+  作者: kwantam <kwantam@gmail.com>, Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: MIT License
+
+- quick-error
+  バージョン: 2.0.1
+  作者: Paul Colomiets <paul@colomiets.name>, Colin Kiegel <kiegel@gmx.de>
+  ライセンス: MIT License
+
+- jni-sys
+  バージョン: 0.3.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- jni-sys
+  バージョン: 0.4.1
+  作者: Steven Fackler <sfackler@gmail.com>, Robert Bragg <robert@sixbynine.org>
+  ライセンス: MIT License
+
+- dlib
+  バージョン: 0.5.3
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- png
+  バージョン: 0.17.16
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- png
+  バージョン: 0.18.1
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- winapi
+  バージョン: 0.3.9
+  作者: Peter Atashian <retep998@gmail.com>
+  ライセンス: MIT License
+
+- httparse
+  バージョン: 1.10.1
+  作者: Sean McArthur <sean@seanmonstar.com>
+  ライセンス: MIT License
+
+- ash
+  バージョン: 0.38.0+1.3.281
+  作者: Maik Klein <maikklein@googlemail.com>, Benjamin Saunders <ben.e.saunders@gmail.com>, Marijn Suijten <marijn@traverseresearch.nl>
+  ライセンス: MIT License
+
+- futures-core
+  バージョン: 0.3.34
+  ライセンス: MIT License
+
+- futures-io
+  バージョン: 0.3.34
+  ライセンス: MIT License
+
+- futures-macro
+  バージョン: 0.3.34
+  ライセンス: MIT License
+
+- futures-task
+  バージョン: 0.3.34
+  ライセンス: MIT License
+
+- futures-util
+  バージョン: 0.3.34
+  ライセンス: MIT License
+
+- hashbrown
+  バージョン: 0.16.1
+  作者: Amanieu d'Antras <amanieu@gmail.com>
+  ライセンス: MIT License
+
+- hashbrown
+  バージョン: 0.17.1
+  ライセンス: MIT License
+
+- region
+  バージョン: 3.0.2
+  作者: Elliott Linder <elliott.darfink@gmail.com>
+  ライセンス: MIT License
+
+- rustls
+  バージョン: 0.23.43
+  ライセンス: MIT License
+
+- lock_api
+  バージョン: 0.4.14
+  作者: Amanieu d'Antras <amanieu@gmail.com>
+  ライセンス: MIT License
+
+- parking_lot
+  バージョン: 0.12.5
+  作者: Amanieu d'Antras <amanieu@gmail.com>
+  ライセンス: MIT License
+
+- parking_lot_core
+  バージョン: 0.9.12
+  作者: Amanieu d'Antras <amanieu@gmail.com>
+  ライセンス: MIT License
+
+- rustc_version
+  バージョン: 0.4.1
+  ライセンス: MIT License
+
+- process_path
+  バージョン: 0.1.4
+  作者: Wesley Wiser <wwiser@gmail.com>, Moritz Moeller <virtualritz@gmail.com>
+  ライセンス: MIT License
+
+- indexmap
+  バージョン: 2.14.1
+  ライセンス: MIT License
+
+- equivalent
+  バージョン: 1.0.2
+  ライセンス: MIT License
+
+- scopeguard
+  バージョン: 1.2.0
+  作者: bluss
+  ライセンス: MIT License
+
+- sha2
+  バージョン: 0.11.0
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- fnv
+  バージョン: 1.0.7
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- memoffset
+  バージョン: 0.9.1
+  作者: Gilad Naaman <gilad.naaman@gmail.com>
+  ライセンス: MIT License
+
+- enumflags2_derive
+  バージョン: 0.7.12
+  作者: maik klein <maikklein@googlemail.com>, Maja Kądziołka <maya@compilercrim.es>
+  ライセンス: MIT License
+
+- plain
+  バージョン: 0.2.3
+  作者: jzr
+  ライセンス: MIT License
+
+- redox_syscall
+  バージョン: 0.4.1
+  作者: Jeremy Soller <jackpot51@gmail.com>
+  ライセンス: MIT License
+
+- redox_syscall
+  バージョン: 0.5.18
+  作者: Jeremy Soller <jackpot51@gmail.com>
+  ライセンス: MIT License
+
+- redox_syscall
+  バージョン: 0.9.3
+  作者: Jeremy Soller <jackpot51@gmail.com>
+  ライセンス: MIT License
+
+- stable_deref_trait
+  バージョン: 1.2.1
+  作者: Robert Grosse <n210241048576@gmail.com>
+  ライセンス: MIT License
+
+- foreign-types-macros
+  バージョン: 0.2.4
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- foreign-types-shared
+  バージョン: 0.3.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- foreign-types
+  バージョン: 0.5.0
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- http
+  バージョン: 1.5.0
+  作者: Alex Crichton <alex@alexcrichton.com>, Carl Lerche <me@carllerche.com>, Sean McArthur <sean@seanmonstar.com>
+  ライセンス: MIT License
+
+- signal-hook-registry
+  バージョン: 1.4.8
+  作者: Michal 'vorner' Vaner <vorner@vorner.cz>, Masaki Hara <ackie.h.gmai@gmail.com>
+  ライセンス: MIT License
+
+- enumflags2
+  バージョン: 0.7.12
+  作者: maik klein <maikklein@googlemail.com>, Maja Kądziołka <maya@compilercrim.es>
+  ライセンス: MIT License
+
+- digest
+  バージョン: 0.11.3
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- bytes
+  バージョン: 1.12.1
+  作者: Carl Lerche <me@carllerche.com>, Sean McArthur <sean@seanmonstar.com>
+  ライセンス: MIT License
+
+- autocfg
+  バージョン: 1.5.1
+  作者: Josh Stone <cuviper@gmail.com>
+  ライセンス: MIT License
+
+- smithay-clipboard
+  バージョン: 0.7.3
+  作者: Kirill Chibisov <contact@kchibisov.com>, Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- fearless_simd
+  バージョン: 0.4.1
+  作者: Raph Levien <raph.levien@gmail.com>
+  ライセンス: MIT License
+
+- kurbo
+  バージョン: 0.11.3
+  作者: Raph Levien <raph.levien@gmail.com>
+  ライセンス: MIT License
+
+- kurbo
+  バージョン: 0.13.1
+  ライセンス: MIT License
+
+- peniko
+  バージョン: 0.6.1
+  ライセンス: MIT License
+
+- polycool
+  バージョン: 0.4.0
+  ライセンス: MIT License
+
+- smallvec
+  バージョン: 1.15.2
+  作者: The Servo Project Developers
+  ライセンス: MIT License
+
+- ahash
+  バージョン: 0.8.12
+  作者: Tom Kaitchuck <Tom.Kaitchuck@gmail.com>
+  ライセンス: MIT License
+
+- smithay-client-toolkit
+  バージョン: 0.19.2
+  作者: Elinor Berger <elinor@safaradeg.net>, i509VCB <mail@i509.me>, Ashley Wulber <ashley@system76.com>
+  ライセンス: MIT License
+
+- smithay-client-toolkit
+  バージョン: 0.20.0
+  作者: Elinor Berger <elinor@safaradeg.net>, i509VCB <mail@i509.me>, Ashley Wulber <ashley@system76.com>
+  ライセンス: MIT License
+
+- calloop
+  バージョン: 0.13.0
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- calloop
+  バージョン: 0.14.4
+  作者: Elinor Berger <elinor@safaradeg.net>
+  ライセンス: MIT License
+
+- svgtypes
+  バージョン: 0.15.3
+  ライセンス: MIT License
+
+- ttf-parser
+  バージョン: 0.25.1
+  作者: Caleb Maclennan <caleb@alerque.com>, Laurenz Stampfl <laurenz.stampfl@gmail.com>, Yevhenii Reizner <razrfalcon@gmail.com>, خالد حسني (Khaled Hosny) <khaled@aliftype.com>
+  ライセンス: MIT License
+
+- dirs-sys
+  バージョン: 0.5.0
+  作者: Simon Ochsenreither <simon@ochsenreither.de>
+  ライセンス: MIT License
+
+- dirs
+  バージョン: 6.0.0
+  作者: Simon Ochsenreither <simon@ochsenreither.de>
+  ライセンス: MIT License
+
+- getrandom
+  バージョン: 0.2.17
+  作者: The Rand Project Developers
+  ライセンス: MIT License
+
+- block-buffer
+  バージョン: 0.12.1
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- getrandom
+  バージョン: 0.3.4
+  作者: The Rand Project Developers
+  ライセンス: MIT License
+
+- rand_core
+  バージョン: 0.10.1
+  作者: The Rand Project Developers
+  ライセンス: MIT License
+
+- zeroize
+  バージョン: 1.9.0
+  作者: The RustCrypto Project Developers
+  ライセンス: MIT License
+
+- getrandom
+  バージョン: 0.4.3
+  作者: The Rand Project Developers
+  ライセンス: MIT License
+
+- ringbuf
+  バージョン: 0.5.1
+  作者: Alexey Gerasev <alexey.gerasev@gmail.com>
+  ライセンス: MIT License
+
+- slab
+  バージョン: 0.4.12
+  作者: Carl Lerche <me@carllerche.com>
+  ライセンス: MIT License
+
+- presser
+  バージョン: 0.3.1
+  作者: Embark <opensource@embark-studios.com>, Gray Olson <gray@grayolson.com
+  ライセンス: MIT License
+
+- font-types
+  バージョン: 0.12.4
+  ライセンス: MIT License
+
+- read-fonts
+  バージョン: 0.41.0
+  ライセンス: MIT License
+
+- skrifa
+  バージョン: 0.44.0
+  ライセンス: MIT License
+
+- bumpalo
+  バージョン: 3.20.3
+  作者: Nick Fitzgerald <fitzgen@gmail.com>
+  ライセンス: MIT License
+
+- mach2
+  バージョン: 0.4.3
+  ライセンス: MIT License
+
+- mach2
+  バージョン: 0.6.0
+  ライセンス: MIT License
+
+- tracing-attributes
+  バージョン: 0.1.31
+  作者: Tokio Contributors <team@tokio.rs>, Eliza Weisman <eliza@buoyant.io>, David Barsky <dbarsky@amazon.com>
+  ライセンス: MIT License
+
+- tracing-core
+  バージョン: 0.1.36
+  作者: Tokio Contributors <team@tokio.rs>
+  ライセンス: MIT License
+
+- tracing
+  バージョン: 0.1.44
+  作者: Eliza Weisman <eliza@buoyant.io>, Tokio Contributors <team@tokio.rs>
+  ライセンス: MIT License
+
+- pico-args
+  バージョン: 0.5.0
+  作者: Yevhenii Reizner <razrfalcon@gmail.com>
+  ライセンス: MIT License
+
+- chacha20
+  バージョン: 0.10.2
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- iana-time-zone-haiku
+  バージョン: 0.1.2
+  作者: René Kijewski <crates.io@k6i.de>
+  ライセンス: MIT License
+
+- iana-time-zone
+  バージョン: 0.1.65
+  作者: Andrew Straw <strawman@astraw.com>, René Kijewski <rene.kijewski@fu-berlin.de>, Ryan Lopopolo <rjl@hyperbo.la>
+  ライセンス: MIT License
+
+- downcast-rs
+  バージョン: 1.2.1
+  作者: Ashish Myles <marcianx@gmail.com>, Runji Wang <wangrunji0408@163.com>
+  ライセンス: MIT License
+
+- document-features
+  バージョン: 0.2.12
+  作者: Slint Developers <info@slint.dev>
+  ライセンス: MIT License
+
+- litrs
+  バージョン: 1.0.0
+  作者: Lukas Kalbertodt <lukas.kalbertodt@gmail.com>
+  ライセンス: MIT License
+
+- memmap2
+  バージョン: 0.9.11
+  作者: Dan Burkert <dan@danburkert.com>, Yevhenii Reizner <razrfalcon@gmail.com>, The Contributors
+  ライセンス: MIT License
+
+- pollster
+  バージョン: 0.4.0
+  作者: Joshua Barretto <joshua.s.barretto@gmail.com>
+  ライセンス: MIT License
+
+- pollster
+  バージョン: 1.0.1
+  作者: Joshua Barretto <joshua@jsbarretto.com>
+  ライセンス: MIT License
+
+- const-oid
+  バージョン: 0.10.2
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- cpufeatures
+  バージョン: 0.3.1
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- gpu-allocator
+  バージョン: 0.28.0
+  作者: Traverse Research <opensource@traverseresearch.nl>
+  ライセンス: MIT License
+
+- crypto-common
+  バージョン: 0.2.2
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- renderdoc-sys
+  バージョン: 1.1.0
+  作者: Eyal Kalderon <ebkalderon@gmail.com>
+  ライセンス: MIT License
+
+- atspi-common
+  バージョン: 0.13.0
+  ライセンス: MIT License
+
+- atspi-proxies
+  バージョン: 0.13.0
+  ライセンス: MIT License
+
+- atspi
+  バージョン: 0.29.0
+  作者: Alberto Tirla <albertotirla@gmail.com>, DataTriny <datatriny@gmail.com>, Luuk van der Duim <luukvanderduim@gmail.com>, Michael Connor Buchan <mikey@blindcomputing.org>, Tait Hoyem <tait@tait.tech>
+  ライセンス: MIT License
+
+- strict-num
+  バージョン: 0.1.1
+  作者: Yevhenii Reizner <razrfalcon@gmail.com>
+  ライセンス: MIT License
+
+- xkeysym
+  バージョン: 0.2.1
+  作者: John Nunley <jtnunley01@gmail.com>
+  ライセンス: MIT License
+
+- hybrid-array
+  バージョン: 0.4.14
+  作者: RustCrypto Developers
+  ライセンス: MIT License
+
+- rustls-pki-types
+  バージョン: 1.15.1
+  ライセンス: MIT License
+
+- powerfmt
+  バージョン: 0.2.0
+  作者: Jacob Pratt <jacob@jhpratt.dev>
+  ライセンス: MIT License
+
+- calloop-wayland-source
+  バージョン: 0.3.0
+  作者: Kirill Chibisov <contact@kchibisov.com>
+  ライセンス: MIT License
+
+- calloop-wayland-source
+  バージョン: 0.4.1
+  作者: Kirill Chibisov <contact@kchibisov.com>
+  ライセンス: MIT License
+
+- cursor-icon
+  バージョン: 1.2.0
+  作者: Kirill Chibisov <contact@kchibisov.com>
+  ライセンス: MIT License
+
+- wayland-csd-frame
+  バージョン: 0.3.0
+  作者: Kirill Chibisov <contact@kchibisov.com>
+  ライセンス: MIT License
+
+- bit-set
+  バージョン: 0.8.0
+  作者: Alexis Beingessner <a.beingessner@gmail.com>
+  ライセンス: MIT License
+
+- bit-vec
+  バージョン: 0.8.0
+  作者: Alexis Beingessner <a.beingessner@gmail.com>
+  ライセンス: MIT License
+
+- bit-vec
+  バージョン: 0.9.1
+  作者: Alexis Beingessner <a.beingessner@gmail.com>
+  ライセンス: MIT License
+
+- deranged
+  バージョン: 0.5.8
+  作者: Jacob Pratt <jacob@jhpratt.dev>
+  ライセンス: MIT License
+
+- zbus
+  バージョン: 5.19.0
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- zbus_macros
+  バージョン: 5.19.0
+  作者: Marc-André Lureau <marcandre.lureau@redhat.com>, Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- zbus_names
+  バージョン: 4.3.4
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- zbus_xml
+  バージョン: 5.2.1
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- zvariant
+  バージョン: 5.15.0
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- zvariant_derive
+  バージョン: 5.15.0
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- bit-set
+  バージョン: 0.10.0
+  作者: Alexis Beingessner <a.beingessner@gmail.com>
+  ライセンス: MIT License
+
+- zcheapstr
+  バージョン: 1.1.0
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- serde_spanned
+  バージョン: 1.1.1
+  ライセンス: MIT License
+
+- toml
+  バージョン: 1.1.4+spec-1.1.0
+  ライセンス: MIT License
+
+- toml_datetime
+  バージョン: 1.1.1+spec-1.1.0
+  ライセンス: MIT License
+
+- toml_edit
+  バージョン: 0.25.13+spec-1.1.0
+  ライセンス: MIT License
+
+- toml_parser
+  バージョン: 1.1.3+spec-1.1.0
+  ライセンス: MIT License
+
+- toml_writer
+  バージョン: 1.1.2+spec-1.1.0
+  ライセンス: MIT License
+
+- num-conv
+  バージョン: 0.2.2
+  作者: Jacob Pratt <jacob@jhpratt.dev>
+  ライセンス: MIT License
+
+- time-core
+  バージョン: 0.1.9
+  作者: Jacob Pratt <open-source@jhpratt.dev>, Time contributors
+  ライセンス: MIT License
+
+- time
+  バージョン: 0.3.55
+  作者: Jacob Pratt <open-source@jhpratt.dev>, Time contributors
+  ライセンス: MIT License
+
+- libc
+  バージョン: 0.2.189
+  ライセンス: MIT License
+
+- idna_adapter
+  バージョン: 1.2.2
+  作者: The rust-url developers
+  ライセンス: MIT License
+
+- arrayvec
+  バージョン: 0.7.8
+  作者: bluss
+  ライセンス: MIT License
+
+- synstructure
+  バージョン: 0.13.2
+  作者: Nika Layzell <nika@thelayzells.com>
+  ライセンス: MIT License
+
+- resvg
+  バージョン: 0.45.1
+  ライセンス: MIT License
+
+- usvg
+  バージョン: 0.45.1
+  ライセンス: MIT License
+
+- rand
+  バージョン: 0.10.2
+  作者: The Rand Project Developers, The Rust Project Developers
+  ライセンス: MIT License
+
+- nohash-hasher
+  バージョン: 0.2.0
+  作者: Parity Technologies <admin@parity.io>
+  ライセンス: MIT License
+
+- trash
+  バージョン: 5.2.6
+  作者: Artur Kovacs <kovacs.artur.barnabas@gmail.com>
+  ライセンス: MIT License
+
+- as-raw-xcb-connection
+  バージョン: 1.0.1
+  ライセンス: MIT License
+
+- x11rb-protocol
+  バージョン: 0.13.2
+  作者: Uli Schlachter <psychon@znc.in>, Eduardo Sánchez Muñoz <eduardosm-dev@e64.io>, notgull <jtnunley01@gmail.com>
+  ライセンス: MIT License
+
+- x11rb
+  バージョン: 0.13.2
+  作者: Uli Schlachter <psychon@znc.in>, Eduardo Sánchez Muñoz <eduardosm-dev@e64.io>, notgull <jtnunley01@gmail.com>
+  ライセンス: MIT License
+
+- vello_common
+  バージョン: 0.1.0
+  ライセンス: MIT License
+
+- vello_cpu
+  バージョン: 0.1.0
+  ライセンス: MIT License
+
+- ureq-proto
+  バージョン: 0.6.1
+  作者: Martin Algesten <martin@algesten.se>
+  ライセンス: MIT License
+
+- zerocopy-derive
+  バージョン: 0.8.56
+  ライセンス: MIT License
+
+- zerocopy
+  バージョン: 0.8.56
+  ライセンス: MIT License
+
+- utf8_iter
+  バージョン: 1.0.4
+  作者: Henri Sivonen <hsivonen@hsivonen.fi>
+  ライセンス: MIT License
+
+- fax
+  バージョン: 0.2.7
+  作者: Sebastian K <s3bk@protonmail.com>
+  ライセンス: MIT License
+
+- epaint_default_fonts
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- alsa
+  バージョン: 0.11.0
+  作者: David Henningsson <coding@diwic.se>
+  ライセンス: MIT License
+
+- static_assertions
+  バージョン: 1.1.0
+  作者: Nikolai Vazquez
+  ライセンス: MIT License
+
+- syntect
+  バージョン: 5.3.0
+  作者: Tristan Hume <tristan@thume.ca>
+  ライセンス: MIT License
+
+- tiff
+  バージョン: 0.11.3
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- crc32fast
+  バージョン: 1.5.1
+  作者: Sam Rijs <srijs@airpost.net>, Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- alsa-sys
+  バージョン: 0.4.0
+  作者: Pierre Krieger <pierre.krieger1708@gmail.com>, David Henningsson <coding@diwic.se>
+  ライセンス: MIT License
+
+- bytemuck
+  バージョン: 1.25.2
+  作者: Lokathor <zefria@gmail.com>
+  ライセンス: MIT License
+
+- bytemuck_derive
+  バージョン: 1.12.0
+  作者: Lokathor <zefria@gmail.com>
+  ライセンス: MIT License
+
+- rgb
+  バージョン: 0.8.53
+  作者: Kornel Lesiński <kornel@geekhood.net>, James Forster <james.forsterer@gmail.com>
+  ライセンス: MIT License
+
+- arbitrary
+  バージョン: 1.4.2
+  作者: The Rust-Fuzz Project Developers, Nick Fitzgerald <fitzgen@gmail.com>, Manish Goregaokar <manishsmail@gmail.com>, Simonas Kazlauskas <arbitrary@kazlauskas.me>, Brian L. Troutwine <brian@troutwine.us>, Corey Farwell <coreyf@rwell.org>
+  ライセンス: MIT License
+
+- ureq
+  バージョン: 3.4.0
+  作者: Martin Algesten <martin@algesten.se>, Jacob Hoffman-Andrews <ureq@hoffman-andrews.com>
+  ライセンス: MIT License
+
+- raw-window-handle
+  バージョン: 0.6.2
+  作者: Osspial <osspial@gmail.com>
+  ライセンス: MIT License
+
+- strum
+  バージョン: 0.28.0
+  作者: Peter Glotfelty <peter.glotfelty@microsoft.com>
+  ライセンス: MIT License
+
+- strum_macros
+  バージョン: 0.28.0
+  作者: Peter Glotfelty <peter.glotfelty@microsoft.com>
+  ライセンス: MIT License
+
+- rfd
+  バージョン: 0.17.2
+  作者: Poly <marynczak.bartlomiej@gmail.com>
+  ライセンス: MIT License
+
+- android-properties
+  バージョン: 0.2.2
+  作者: Mikhail Lappo <mikhail.lappo@esrlabs.com>
+  ライセンス: MIT License
+
+- xcursor
+  バージョン: 0.3.11
+  作者: Samuele Esposito
+  ライセンス: MIT License
+
+- sctk-adwaita
+  バージョン: 0.10.1
+  作者: Poly <marynczak.bartlomiej@gmail.com>
+  ライセンス: MIT License
+
+- arboard
+  バージョン: 3.6.1
+  ライセンス: MIT License
+
+- libredox
+  バージョン: 0.1.21
+  作者: 4lDO2 <4lDO2@protonmail.com>
+  ライセンス: MIT License
+
+- range-alloc
+  バージョン: 0.1.5
+  作者: the gfx-rs Developers
+  ライセンス: MIT License
+
+- web-time
+  バージョン: 1.1.0
+  ライセンス: MIT License
+
+- naga-types
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- naga
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-core-deps-apple
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-core-deps-emscripten
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-core-deps-wasm
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-core-deps-windows-linux-android
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-core
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-hal
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-naga-bridge
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu-types
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- wgpu
+  バージョン: 30.0.1
+  作者: gfx-rs developers
+  ライセンス: MIT License
+
+- kadent
+  バージョン: 0.1.2
+  ライセンス: MIT License
+
+- sode
+  バージョン: 0.1.4
+  ライセンス: MIT License
+
+- accesskit
+  バージョン: 0.24.1
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_atspi_common
+  バージョン: 0.18.1
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_consumer
+  バージョン: 0.35.0
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_consumer
+  バージョン: 0.36.0
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_consumer
+  バージョン: 0.38.0
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_macos
+  バージョン: 0.26.3
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_unix
+  バージョン: 0.21.1
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- accesskit_windows
+  バージョン: 0.32.1
+  作者: The AccessKit contributors
+  ライセンス: MIT License
+
+- block2
+  バージョン: 0.5.1
+  作者: Steven Sheldon, Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- block2
+  バージョン: 0.6.2
+  作者: Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- cesu8
+  バージョン: 1.1.0
+  作者: Eric Kidd <git@randomhacks.net>
+  ライセンス: MIT License
+
+- chrono
+  バージョン: 0.4.45
+  ライセンス: MIT License
+
+- dasp_sample
+  バージョン: 0.11.0
+  作者: mitchmindtree <mitchell.nordine@gmail.com>
+  ライセンス: MIT License
+
+- dispatch2
+  バージョン: 0.3.1
+  作者: Mads Marquart <mads@marquart.dk>, Mary <mary@mary.zone>
+  ライセンス: MIT License
+
+- dispatch
+  バージョン: 0.2.0
+  作者: Steven Sheldon
+  ライセンス: MIT License
+
+- dlopen2
+  バージョン: 0.9.0
+  作者: Szymon Wieloch <szymon.wieloch@gmail.com>, Ahmed Masud <ahmed.masud@saf.ai>, OpenByte <development.openbyte@gmail.com>
+  ライセンス: MIT License
+
+- ecolor
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>, Andreas Reich <reichandreas@gmx.de>
+  ライセンス: MIT License
+
+- eframe
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- egui-wgpu
+  バージョン: 0.36.1
+  作者: Nils Hasenbanck <nils@hasenbanck.de>, embotech <opensource@embotech.com>, Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- egui-winit
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- egui
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- egui_extras
+  バージョン: 0.36.1
+  作者: Dominik Rössler <dominik@freshx.de>, Emil Ernerfeldt <emil.ernerfeldt@gmail.com>, René Rössler <rene@freshx.de>
+  ライセンス: MIT License
+
+- ehttp
+  バージョン: 0.7.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- emath
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- epaint
+  バージョン: 0.36.1
+  作者: Emil Ernerfeldt <emil.ernerfeldt@gmail.com>
+  ライセンス: MIT License
+
+- java-locator
+  バージョン: 0.1.9
+  作者: aston <astonbitecode@gmail.com>
+  ライセンス: MIT License
+
+- jni-macros
+  バージョン: 0.22.4
+  ライセンス: MIT License
+
+- jni-min-helper
+  バージョン: 0.3.4
+  作者: wuwbobo2021 <wuwbobo@outlook.com>, Thomas Epperson <thomas.epperson@gmail.com>
+  ライセンス: MIT License
+
+- jni-sys-macros
+  バージョン: 0.4.1
+  作者: Robert Bragg <robert@sixbynine.org>
+  ライセンス: MIT License
+
+- jni
+  バージョン: 0.22.4
+  作者: jni team
+  ライセンス: MIT License
+
+- libm
+  バージョン: 0.2.16
+  作者: Alex Crichton <alex@alexcrichton.com>, Amanieu d'Antras <amanieu@gmail.com>, Jorge Aparicio <japaricious@gmail.com>, Trevor Gross <tg@trevorgross.com>
+  ライセンス: MIT License
+
+- ndk-context
+  バージョン: 0.1.1
+  作者: The Rust Windowing contributors
+  ライセンス: MIT License
+
+- ndk-sys
+  バージョン: 0.6.0+11769913
+  作者: The Rust Windowing contributors
+  ライセンス: MIT License
+
+- ndk
+  バージョン: 0.9.0
+  作者: The Rust Mobile contributors
+  ライセンス: MIT License
+
+- objc-sys
+  バージョン: 0.3.5
+  作者: Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- objc2-app-kit
+  バージョン: 0.2.2
+  ライセンス: MIT License
+
+- objc2-app-kit
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-audio-toolbox
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-avf-audio
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-core-audio-types
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-core-audio
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-core-foundation
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-core-graphics
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-encode
+  バージョン: 4.1.0
+  作者: Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- objc2-foundation
+  バージョン: 0.2.2
+  ライセンス: MIT License
+
+- objc2-foundation
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-metal
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-quartz-core
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2-ui-kit
+  バージョン: 0.2.2
+  ライセンス: MIT License
+
+- objc2-ui-kit
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- objc2
+  バージョン: 0.5.2
+  作者: Steven Sheldon, Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- objc2
+  バージョン: 0.6.4
+  作者: Mads Marquart <mads@marquart.dk>
+  ライセンス: MIT License
+
+- profiling
+  バージョン: 1.0.18
+  作者: Philip Degarmo <aclysma@gmail.com>
+  ライセンス: MIT License
+
+- r-efi
+  バージョン: 5.3.0
+  ライセンス: MIT License
+
+- r-efi
+  バージョン: 6.0.0
+  ライセンス: MIT License
+
+- siphasher
+  バージョン: 1.0.3
+  作者: Frank Denis <github@pureftpd.org>
+  ライセンス: MIT License
+
+- type-map
+  バージョン: 0.5.1
+  作者: Jacob Brown <kardeiz@gmail.com>
+  ライセンス: MIT License
+
+- winapi-i686-pc-windows-gnu
+  バージョン: 0.4.0
+  作者: Peter Atashian <retep998@gmail.com>
+  ライセンス: MIT License
+
+- winapi-x86_64-pc-windows-gnu
+  バージョン: 0.4.0
+  作者: Peter Atashian <retep998@gmail.com>
+  ライセンス: MIT License
+
+- windows-collections
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- windows-core
+  バージョン: 0.56.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-core
+  バージョン: 0.62.2
+  ライセンス: MIT License
+
+- windows-future
+  バージョン: 0.3.2
+  ライセンス: MIT License
+
+- windows-implement
+  バージョン: 0.56.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-implement
+  バージョン: 0.60.2
+  ライセンス: MIT License
+
+- windows-interface
+  バージョン: 0.56.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-interface
+  バージョン: 0.59.3
+  ライセンス: MIT License
+
+- windows-link
+  バージョン: 0.2.1
+  ライセンス: MIT License
+
+- windows-numerics
+  バージョン: 0.3.1
+  ライセンス: MIT License
+
+- windows-result
+  バージョン: 0.1.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-result
+  バージョン: 0.4.1
+  ライセンス: MIT License
+
+- windows-strings
+  バージョン: 0.5.1
+  ライセンス: MIT License
+
+- windows-sys
+  バージョン: 0.45.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-sys
+  バージョン: 0.52.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-sys
+  バージョン: 0.59.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-sys
+  バージョン: 0.60.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-sys
+  バージョン: 0.61.2
+  ライセンス: MIT License
+
+- windows-targets
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-targets
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows-targets
+  バージョン: 0.53.5
+  ライセンス: MIT License
+
+- windows-threading
+  バージョン: 0.2.1
+  ライセンス: MIT License
+
+- windows
+  バージョン: 0.56.0
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows
+  バージョン: 0.62.2
+  ライセンス: MIT License
+
+- windows_aarch64_gnullvm
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_aarch64_gnullvm
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_aarch64_gnullvm
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_aarch64_msvc
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_aarch64_msvc
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_aarch64_msvc
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_i686_gnu
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_i686_gnu
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_i686_gnu
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_i686_gnullvm
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_i686_gnullvm
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_i686_msvc
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_i686_msvc
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_i686_msvc
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_x86_64_gnu
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_gnu
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_gnu
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_x86_64_gnullvm
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_gnullvm
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_gnullvm
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- windows_x86_64_msvc
+  バージョン: 0.42.2
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_msvc
+  バージョン: 0.52.6
+  作者: Microsoft
+  ライセンス: MIT License
+
+- windows_x86_64_msvc
+  バージョン: 0.53.1
+  ライセンス: MIT License
+
+- enum-map-derive
+  バージョン: 0.17.0
+  作者: Kamila Borowska <kamila@borowska.pw>
+  ライセンス: MIT License
+
+- enum-map
+  バージョン: 2.7.3
+  作者: Kamila Borowska <kamila@borowska.pw>
+  ライセンス: MIT License
+
+- simd-adler32
+  バージョン: 0.3.10
+  作者: Marvin Countryman <me@maar.vin>
+  ライセンス: MIT License
+
+- zune-core
+  バージョン: 0.5.3
+  ライセンス: MIT License
+
+- zune-jpeg
+  バージョン: 0.5.15
+  作者: caleb <etemesicaleb@gmail.com>
+  ライセンス: MIT License
+
+- miniz_oxide
+  バージョン: 0.8.9
+  作者: Frommi <daniil.liferenko@gmail.com>, oyvindln <oyvindln@users.noreply.github.com>, Rich Geldreich richgel99@gmail.com
+  ライセンス: MIT License
+
+- miniz_oxide
+  バージョン: 0.9.1
+  作者: Frommi <daniil.liferenko@gmail.com>, oyvindln <oyvindln@users.noreply.github.com>, Rich Geldreich richgel99@gmail.com
+  ライセンス: MIT License
+
+- fdeflate
+  バージョン: 0.3.7
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- image-webp
+  バージョン: 0.2.4
+  ライセンス: MIT License
+
+- image
+  バージョン: 0.25.10
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- simdutf8
+  バージョン: 0.1.5
+  作者: Hans Kratz <hans@appfour.com>
+  ライセンス: MIT License
+
+- android-activity
+  バージョン: 0.6.1
+  ライセンス: MIT License
+
+- color
+  バージョン: 0.3.3
+  ライセンス: MIT License
+
+- half
+  バージョン: 2.7.1
+  作者: Kathryn Long <squeeself@gmail.com>
+  ライセンス: MIT License
+
+- linebender_resource_handle
+  バージョン: 0.1.1
+  ライセンス: MIT License
+
+- imagesize
+  バージョン: 0.13.0
+  作者: Maid Dog <maiddogsrl@gmail.com>
+  ライセンス: MIT License
+
+- async-recursion
+  バージョン: 1.1.1
+  作者: Robert Usher <266585+dcchut@users.noreply.github.com>
+  ライセンス: MIT License
+
+- rustc-hash
+  バージョン: 2.1.3
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- adler2
+  バージョン: 2.0.1
+  作者: Jonas Schievink <jonasschievink@gmail.com>, oyvindln <oyvindln@users.noreply.github.com>
+  ライセンス: MIT License
+
+- anyhow
+  バージョン: 1.0.104
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- async-channel
+  バージョン: 2.5.0
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- async-executor
+  バージョン: 1.14.0
+  作者: Stjepan Glavina <stjepang@gmail.com>, John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- async-io
+  バージョン: 2.6.0
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- async-lock
+  バージョン: 3.4.2
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- async-process
+  バージョン: 2.5.0
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- async-signal
+  バージョン: 0.2.14
+  作者: John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- async-task
+  バージョン: 4.7.1
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- async-trait
+  バージョン: 0.1.92
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- blocking
+  バージョン: 1.7.0
+  ライセンス: MIT License
+
+- concurrent-queue
+  バージョン: 2.5.0
+  作者: Stjepan Glavina <stjepang@gmail.com>, Taiki Endo <te316e89@gmail.com>, John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- displaydoc
+  バージョン: 0.2.7
+  作者: Jane Lusby <jlusby@yaah.dev>
+  ライセンス: MIT License
+
+- endi
+  バージョン: 1.1.1
+  作者: Zeeshan Ali Khan <zeenix@gmail.com>
+  ライセンス: MIT License
+
+- event-listener-strategy
+  バージョン: 0.5.4
+  作者: John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- event-listener
+  バージョン: 5.4.2
+  作者: Stjepan Glavina <stjepang@gmail.com>, John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- fastrand
+  バージョン: 2.5.0
+  作者: Stjepan Glavina <stjepang@gmail.com>
+  ライセンス: MIT License
+
+- hermit-abi
+  バージョン: 0.5.2
+  作者: Stefan Lankes
+  ライセンス: MIT License
+
+- itoa
+  バージョン: 1.0.18
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- khronos-egl
+  バージョン: 6.0.0
+  作者: Timothée Haudebourg <author@haudebourg.net>, Sean Kerr <sean@metatomic.io>
+  ライセンス: MIT License
+
+- linux-raw-sys
+  バージョン: 0.12.1
+  作者: Dan Gohman <dev@sunfishcode.online>
+  ライセンス: MIT License
+
+- linux-raw-sys
+  バージョン: 0.4.15
+  作者: Dan Gohman <dev@sunfishcode.online>
+  ライセンス: MIT License
+
+- num_enum
+  バージョン: 0.7.6
+  作者: Daniel Wagner-Hall <dawagner@gmail.com>, Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>, Vincent Esche <regexident@gmail.com>
+  ライセンス: MIT License
+
+- num_enum_derive
+  バージョン: 0.7.6
+  作者: Daniel Wagner-Hall <dawagner@gmail.com>, Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>, Vincent Esche <regexident@gmail.com>
+  ライセンス: MIT License
+
+- once_cell
+  バージョン: 1.21.4
+  作者: Aleksey Kladov <aleksey.kladov@gmail.com>
+  ライセンス: MIT License
+
+- ordered-stream
+  バージョン: 0.2.0
+  作者: Daniel De Graaf <code@danieldg.net>, Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- parking
+  バージョン: 2.2.1
+  作者: Stjepan Glavina <stjepang@gmail.com>, The Rust Project Developers
+  ライセンス: MIT License
+
+- pin-project-internal
+  バージョン: 1.1.13
+  ライセンス: MIT License
+
+- pin-project-lite
+  バージョン: 0.2.17
+  ライセンス: MIT License
+
+- pin-project
+  バージョン: 1.1.13
+  ライセンス: MIT License
+
+- piper
+  バージョン: 0.2.5
+  作者: Stjepan Glavina <stjepang@gmail.com>, John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- polling
+  バージョン: 3.11.0
+  作者: Stjepan Glavina <stjepang@gmail.com>, John Nunley <dev@notgull.net>
+  ライセンス: MIT License
+
+- portable-atomic-util
+  バージョン: 0.2.7
+  ライセンス: MIT License
+
+- portable-atomic
+  バージョン: 1.15.0
+  ライセンス: MIT License
+
+- proc-macro-crate
+  バージョン: 3.5.0
+  作者: Bastian Köcher <git@kchr.de>
+  ライセンス: MIT License
+
+- proc-macro2
+  バージョン: 1.0.107
+  作者: David Tolnay <dtolnay@gmail.com>, Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- quote
+  バージョン: 1.0.47
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- rustc-hash
+  バージョン: 1.1.0
+  作者: The Rust Project Developers
+  ライセンス: MIT License
+
+- rustix
+  バージョン: 0.38.44
+  作者: Dan Gohman <dev@sunfishcode.online>, Jakub Konka <kubkon@jakubkonka.com>
+  ライセンス: MIT License
+
+- rustix
+  バージョン: 1.1.4
+  作者: Dan Gohman <dev@sunfishcode.online>, Jakub Konka <kubkon@jakubkonka.com>
+  ライセンス: MIT License
+
+- rustversion
+  バージョン: 1.0.23
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- semver
+  バージョン: 1.0.28
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- serde
+  バージョン: 1.0.229
+  作者: Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- serde_core
+  バージョン: 1.0.229
+  作者: Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- serde_derive
+  バージョン: 1.0.229
+  作者: Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- serde_json
+  バージョン: 1.0.151
+  作者: Erick Tryzelaar <erick.tryzelaar@gmail.com>, David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- serde_repr
+  バージョン: 0.1.21
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- simd_cesu8
+  バージョン: 1.2.0
+  作者: Sean C. Roach <me@seancroach.dev>
+  ライセンス: MIT License
+
+- smol_str
+  バージョン: 0.2.2
+  作者: Aleksey Kladov <aleksey.kladov@gmail.com>
+  ライセンス: MIT License
+
+- syn
+  バージョン: 2.0.119
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- syn
+  バージョン: 3.0.4
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- thiserror-impl
+  バージョン: 1.0.69
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- thiserror-impl
+  バージョン: 2.0.20
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- thiserror
+  バージョン: 1.0.69
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- thiserror
+  バージョン: 2.0.20
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- unicode-ident
+  バージョン: 1.0.24
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- utf8-zero
+  バージョン: 0.8.1
+  作者: Simon Sapin <simon.sapin@exyr.org>, Martin Algesten <martin@algesten.se>
+  ライセンス: MIT License
+
+- wasi
+  バージョン: 0.11.1+wasi-snapshot-preview1
+  作者: The Cranelift Project Developers
+  ライセンス: MIT License
+
+- wasip2
+  バージョン: 1.0.4+wasi-0.2.12
+  ライセンス: MIT License
+
+- wit-bindgen
+  バージョン: 0.57.1
+  作者: Alex Crichton <alex@alexcrichton.com>
+  ライセンス: MIT License
+
+- x11-dl
+  バージョン: 2.21.0
+  作者: daggerbot <daggerbot@gmail.com>, Erle Pereira <erle@erlepereira.com>, AltF02 <contact@altf2.dev>
+  ライセンス: MIT License
+
+- zbus-lockstep-macros
+  バージョン: 0.5.2
+  作者: Luuk van der Duim <luukvanderduim@gmail.com>
+  ライセンス: MIT License
+
+- zbus-lockstep
+  バージョン: 0.5.2
+  作者: Luuk van der Duim <luukvanderduim@gmail.com>, Tait Hoyem<tait@tait.tech>
+  ライセンス: MIT License
+
+- zmij
+  バージョン: 1.0.23
+  作者: David Tolnay <dtolnay@gmail.com>
+  ライセンス: MIT License
+
+- zvariant_utils
+  バージョン: 4.2.0
+  作者: Zeeshan Ali Khan <zeeshanak@gnome.org>, turbocooler <turbocooler@cocaine.ninja>
+  ライセンス: MIT License
+
+- glow
+  バージョン: 0.17.0
+  作者: Joshua Groves <josh@joshgroves.com>, Dzmitry Malyshau <kvarkus@gmail.com>
+  ライセンス: MIT License
+
+- allocator-api2
+  バージョン: 0.2.21
+  作者: Zakarum <zaq.dev@icloud.com>
+  ライセンス: MIT License
+
+- winnow
+  バージョン: 1.0.4
+  ライセンス: MIT License
+
+- raw-window-metal
+  バージョン: 1.1.0
+  ライセンス: MIT License
+
+- fancy-regex
+  バージョン: 0.16.2
+  作者: Raph Levien <raph@google.com>, Robin Stocker <robin@nibor.org>, Keith Hall <keith.hall@available.systems>
+  ライセンス: MIT License
+
+- android_system_properties
+  バージョン: 0.1.6
+  作者: Nicolas Silva <nical@fastmail.com>
+  ライセンス: MIT License
+
+- typenum
+  バージョン: 1.20.1
+  ライセンス: MIT License
+
+- xml-rs
+  バージョン: 0.8.29
+  作者: Vladimir Matveev <vmatveev@citrine.cc>
+  ライセンス: MIT License
+
+- phf
+  バージョン: 0.11.3
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- phf
+  バージョン: 0.13.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- phf_generator
+  バージョン: 0.13.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- phf_macros
+  バージョン: 0.13.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- phf_shared
+  バージョン: 0.11.3
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- phf_shared
+  バージョン: 0.13.1
+  作者: Steven Fackler <sfackler@gmail.com>
+  ライセンス: MIT License
+
+- base64
+  バージョン: 0.22.1
+  作者: Marshall Pierce <marshall@mpierce.org>
+  ライセンス: MIT License
+
+- aho-corasick
+  バージョン: 1.1.5
+  作者: Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- byteorder-lite
+  バージョン: 0.1.0
+  ライセンス: MIT License
+
+- memchr
+  バージョン: 2.8.3
+  作者: Andrew Gallant <jamslam@gmail.com>, bluss
+  ライセンス: MIT License
+
+- walkdir
+  バージョン: 2.5.0
+  作者: Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- mime_guess2
+  バージョン: 2.3.1
+  作者: Austin Bonander <austin.bonander@gmail.com>
+  ライセンス: MIT License
+
+- yaml-rust
+  バージョン: 0.4.5
+  作者: Yuheng Chen <yuhengchen@sensetime.com>
+  ライセンス: MIT License
+
+- coremidi-sys
+  バージョン: 3.2.1
+  作者: Jonas Klesy, Patrick Reisert, Renaud Denis <mail@renauddenis.com>
+  ライセンス: MIT License
+
+- combine
+  バージョン: 4.6.8
+  作者: Markus Westerlind <marwes91@gmail.com>
+  ライセンス: MIT License
+
+- shlex
+  バージョン: 2.0.1
+  作者: comex <comexk@gmail.com>, Fenhl <fenhl@fenhl.net>, Adrian Taylor <adetaylor@chromium.org>, Alex Touchet <alextouchet@outlook.com>, Daniel Parks <dp+git@oxidized.org>, Garrett Berg <googberg@gmail.com>
+  ライセンス: MIT License
+
+- gif
+  バージョン: 0.14.2
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- orbclient
+  バージョン: 0.3.55
+  作者: Jeremy Soller <jackpot51@gmail.com>
+  ライセンス: MIT License
+
+- webbrowser
+  バージョン: 1.2.4
+  作者: Amod Malviya @amodm
+  ライセンス: MIT License
+
+- coremidi
+  バージョン: 0.9.2
+  作者: Christian Perez-Llamas
+  ライセンス: MIT License
+
+- color_quant
+  バージョン: 1.1.0
+  作者: nwin <nwin@users.noreply.github.com>
+  ライセンス: MIT License
+
+- jni
+  バージョン: 0.21.1
+  作者: Josh Chase <josh@prevoty.com>
+  ライセンス: MIT License
+
+- same-file
+  バージョン: 1.0.6
+  作者: Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- winapi-util
+  バージョン: 0.1.11
+  作者: Andrew Gallant <jamslam@gmail.com>
+  ライセンス: MIT License
+
+- redox_users
+  バージョン: 0.5.2
+  作者: Jose Narvaez <goyox86@gmail.com>, Wesley Hershberger <mggmugginsmc@gmail.com>
+  ライセンス: MIT License
+
+- simplecss
+  バージョン: 0.2.2
+  ライセンス: MIT License
+
+- roxmltree
+  バージョン: 0.20.0
+  作者: Yevhenii Reizner <razrfalcon@gmail.com>
+  ライセンス: MIT License
+
+- rust-embed-impl
+  バージョン: 8.12.0
+  作者: pyrossh
+  ライセンス: MIT License
+
+- rust-embed-utils
+  バージョン: 8.12.0
+  作者: pyrossh
+  ライセンス: MIT License
+
+- rust-embed
+  バージョン: 8.12.0
+  作者: pyrossh
+  ライセンス: MIT License
+
+- guillotiere
+  バージョン: 0.7.0
+  作者: Nicolas Silva <nical@fastmail.com>
+  ライセンス: MIT License
+
+- xmlwriter
+  バージョン: 0.1.0
+  作者: Evgeniy Reizner <razrfalcon@gmail.com>
+  ライセンス: MIT License
+
+- crossbeam-deque
+  バージョン: 0.8.7
+  ライセンス: MIT License
+
+- crossbeam-epoch
+  バージョン: 0.9.20
+  ライセンス: MIT License
+
+- crossbeam-utils
+  バージョン: 0.8.22
+  ライセンス: MIT License
+
+- async-broadcast
+  バージョン: 0.7.2
+  作者: Stjepan Glavina <stjepang@gmail.com>, Yoshua Wuyts <yoshuawuyts@gmail.com>, Zeeshan Ali Khan <zeeshanak@gnome.org>
+  ライセンス: MIT License
+
+- xkbcommon-dl
+  バージョン: 0.4.2
+  作者: Francesca Frangipane <francesca@comfysoft.net>
+  ライセンス: MIT License
+
+- android-build
+  バージョン: 0.1.4
+  作者: Kevin Boos <kevinaboos@gmail.com>, Robius Project Maintainers
+  ライセンス: MIT License
+
+- base64
+  バージョン: 0.23.1
+  作者: Marshall Pierce <marshall@mpierce.org>
+  ライセンス: MIT License
+
+- harfrust
+  バージョン: 0.12.0
+  ライセンス: MIT License
+
+- weezl
+  バージョン: 0.1.12
+  作者: The image-rs Developers
+  ライセンス: MIT License
+
+- crunchy
+  バージョン: 0.2.4
+  作者: Eira Fransham <jackefransham@gmail.com>
+  ライセンス: MIT License
+
+- version_check
+  バージョン: 0.9.5
+  作者: Sergio Benitez <sb@sergio.bz>
+  ライセンス: MIT License
+
+- bincode
+  バージョン: 1.3.3
+  作者: Ty Overby <ty@pre-alpha.com>, Francesco Mazzoli <f@mazzo.li>, David Tolnay <dtolnay@gmail.com>, Zoey Riordan <zoey@dos.cafe>
+  ライセンス: MIT License
+
+- mime_guess
+  バージョン: 2.0.5
+  作者: Austin Bonander <austin.bonander@gmail.com>
+  ライセンス: MIT License
+
+- midir
+  バージョン: 0.11.0
+  作者: Patrick Reisert
+  ライセンス: MIT License
+
+- quick-xml
+  バージョン: 0.41.0
+  ライセンス: MIT License
+
+- urlencoding
+  バージョン: 2.1.3
+  作者: Kornel <kornel@geekhood.net>, Bertram Truong <b@bertramtruong.com>
+  ライセンス: MIT License
+
+- option-ext
+  バージョン: 0.2.0
+  作者: Simon Ochsenreither <simon@ochsenreither.de>
+  ライセンス: Mozilla Public License 2.0
+
+- icu_collections
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_locale_core
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_normalizer
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_normalizer_data
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_properties
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_properties_data
+  バージョン: 2.3.0
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- icu_provider
+  バージョン: 2.3.1
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- litemap
+  バージョン: 0.8.3
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- potential_utf
+  バージョン: 0.1.6
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- tinystr
+  バージョン: 0.8.4
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- writeable
+  バージョン: 0.6.4
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- yoke-derive
+  バージョン: 0.8.2
+  作者: Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: Unicode License v3
+
+- yoke
+  バージョン: 0.8.3
+  作者: Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: Unicode License v3
+
+- zerofrom-derive
+  バージョン: 0.1.7
+  作者: Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: Unicode License v3
+
+- zerofrom
+  バージョン: 0.1.8
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- zerotrie
+  バージョン: 0.2.5
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- zerovec-derive
+  バージョン: 0.11.6
+  作者: Manish Goregaokar <manishsmail@gmail.com>
+  ライセンス: Unicode License v3
+
+- zerovec
+  バージョン: 0.11.8
+  作者: The ICU4X Project Developers
+  ライセンス: Unicode License v3
+
+- slotmap
+  バージョン: 1.1.1
+  作者: Orson Peters <orsonpeters@gmail.com>
+  ライセンス: zlib License
+
+- foldhash
+  バージョン: 0.2.0
+  作者: Orson Peters <orsonpeters@gmail.com>
+  ライセンス: zlib License
