@@ -35,7 +35,7 @@ pub(crate) fn init_nodes(
         let graph = track.get_graph_mut();
         for (to, input_source) in graph.get_input_sources().clone() {
             if let InputSource::Edge(OutputKey(from_node, from_output)) = input_source {
-                graph.remove_edge(&to);
+                graph.remove_edge(to);
                 graph.add_edge(OutputKey(from_node, from_output), to).ok();
             }
         }

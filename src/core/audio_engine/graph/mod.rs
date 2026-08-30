@@ -16,9 +16,10 @@ pub(crate) struct InputKey(pub(crate) NodeID, pub(crate) usize);
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub(crate) struct OutputKey(pub(crate) NodeID, pub(crate) usize);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub(crate) enum InputSource {
     Edge(OutputKey),
+    #[default]
     Zero,
 }
 
@@ -171,8 +172,8 @@ impl Graph {
     }
 
     /// Removes the edge from the graph.
-    pub(crate) fn remove_edge(&mut self, to: &InputKey) {
-        self.input_sources.remove(to);
+    pub(crate) fn remove_edge(&mut self, to: InputKey) {
+        self.input_sources.insert(to, InputSource::Zero);
     }
 
     /// Get all edges in the graph.
@@ -270,6 +271,15 @@ impl Graph {
                     &mut self.output_buffers,
                     playback_ctx,
                 )?;
+            }
+        }
+
+        // Fill the missing input sources with Zero
+        for node in self.nodes.keys() {
+            let input_len = self.nodes.get(node).map_or(0, |node| node.get_input_len());
+            for input_index in 0..input_len {
+                let key = InputKey(*node, input_index);
+                self.input_sources.entry(key).or_default();
             }
         }
 

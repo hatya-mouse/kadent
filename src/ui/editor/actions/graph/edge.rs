@@ -5,7 +5,7 @@ use crate::ui::editor::EditorUi;
 impl EditorUi {
     pub(crate) fn remove_edge(&mut self, track_id: &TrackID, to: &InputKey) {
         if let Some(track) = self.state.project.data.get_track_mut(track_id) {
-            track.get_graph_mut().remove_edge(to);
+            track.get_graph_mut().remove_edge(*to);
             // Update the project on the audio thread
             self.state.actions.modified_project();
         }
