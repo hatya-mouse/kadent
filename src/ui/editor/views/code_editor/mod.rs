@@ -185,7 +185,12 @@ impl CodeEditorView {
                 buffer.errors.is_linting = true;
 
                 // Send a lint request to the background thread
-                if let Some(file_path) = buffer.path.clone() {
+                if let Some(file_path) = buffer
+                    .path
+                    .as_ref()
+                    .and_then(|path| path.canonicalize().ok())
+                {
+                    println!("File Path: {:?}", file_path);
                     state
                         .actions
                         .push_background_job(BackgroundThreadCommand::LintKasl {

@@ -15,7 +15,7 @@ use kasl::{
     cranelift_backend::CraneliftBackend,
     ir::Optimizer,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Default)]
 pub(crate) struct KaslNode {
@@ -102,9 +102,8 @@ impl KaslNode {
             .iter()
             .map(PathBuf::from)
             .collect::<Vec<_>>();
-        if let Some(local_path) = PathBuf::from(file_path)
-            .parent()
-            .and_then(|path| path.canonicalize().ok())
+        if let Some(local_path) = get_absolute_path(project_dir, file_path)
+            .and_then(|path| path.parent().map(|p| p.to_path_buf()))
         {
             search_paths.push(local_path.to_path_buf());
         }
@@ -344,3 +343,8 @@ impl Clone for KaslNode {
 }
 
 unsafe impl Send for KaslNode {}
+
+/// Returns the absolute path of the KASL source file within the project directory.
+fn get_absolute_path(project_dir: &Path, file_path: &str) -> Option<PathBuf> {
+    project_dir.join(file_path).canonicalize().ok()
+}
