@@ -38,7 +38,7 @@ pub(crate) fn create_new_project(
 
     let project = ProjectData::new(
         audio_ctx.clone(),
-        120.0,
+        60.0,
         TimeBounds::Musical {
             start: Ticks::ZERO,
             duration: Ticks(3840),

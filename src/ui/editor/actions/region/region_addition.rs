@@ -33,7 +33,7 @@ impl EditorUi {
         // Cast the track to AudioTrack
         if let Some(audio_track) = track.as_any_mut().downcast_mut::<AudioTrack>() {
             // Create a region and add it to the audio track
-            let base_bpm = 120.0;
+            let base_bpm = 60.0;
             let audio_region = AudioRegion::zeros(bounds.clone(), base_bpm);
             let region_id = audio_track.add_region(audio_region);
 
