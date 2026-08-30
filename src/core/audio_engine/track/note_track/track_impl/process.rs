@@ -20,7 +20,7 @@ impl NoteTrack {
             let (region_start, region_end) = region.bounds.tick_range(tempo_map);
             let region_duration = (region_end - region_start).max(Ticks::ZERO);
 
-            for (_, note) in region.notes.iter() {
+            for note in region.notes.values() {
                 // If the start of the note is after the end of the region
                 // ...or if the end of the note is before the start of the region, skip it
                 let note_end = note.start + note.duration;

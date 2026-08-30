@@ -54,10 +54,8 @@ fn track_error_message(error: &TrackError) -> String {
 
 fn graph_error_message(error: &GraphError) -> String {
     match error {
+        GraphError::NodeNotFound(id) => format!("Node not found: {id:?}"),
         GraphError::NodeError(e) => format!("Node error: {e}"),
-        GraphError::OutputBufferNotFound(id, idx) => {
-            format!("Output buffer not found: port {idx} on {id:?}")
-        }
         GraphError::NodeCycle(id) => format!("Cycle detected at node {id:?}"),
         GraphError::OutputTypeUnavailable(id, idx) => {
             format!("Output type unavailable: port {idx} on {id:?}")

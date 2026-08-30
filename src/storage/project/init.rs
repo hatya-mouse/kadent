@@ -39,5 +39,10 @@ pub(crate) fn init_nodes(
                 graph.add_edge(OutputKey(from_node, from_output), to).ok();
             }
         }
+
+        // Then validate the number of edges
+        for node in graph.get_node_map().keys().cloned().collect::<Vec<_>>() {
+            graph.validate_node_inputs(&node).ok();
+        }
     }
 }

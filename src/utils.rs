@@ -41,7 +41,7 @@ pub(crate) fn get_resources_path() -> std::io::Result<PathBuf> {
     if cfg!(debug_assertions) {
         exe_dir.join("resources").canonicalize()
     } else {
-        get_resources_path_from(&exe_dir)
+        get_resources_path_from(exe_dir)
     }
 }
 

@@ -146,6 +146,32 @@ impl Graph {
         self.nodes.remove(id);
     }
 
+    /// Validates the node inputs by checking its length and type, ensuring inputs exist by removing or adding inputs when the length is invalid.
+    pub(crate) fn validate_node_inputs(&mut self, node_id: &NodeID) -> Result<(), GraphError> {
+        let node = self
+            .nodes
+            .get(node_id)
+            .ok_or(GraphError::NodeNotFound(*node_id))?;
+        let input_len = node.get_input_len();
+
+        // Remove invalid inputs
+        self.input_sources.retain(|InputKey(to_node, to_input), _| {
+            if *to_node == *node_id {
+                *to_input < input_len
+            } else {
+                true
+            }
+        });
+
+        // Add missing inputs with Zero source
+        for input_index in 0..input_len {
+            let key = InputKey(*node_id, input_index);
+            self.input_sources.entry(key).or_default();
+        }
+
+        Ok(())
+    }
+
     // --- EDGE MANIPULATION ---
 
     /// Connects the node's output to another node's input, and returns an error if the type of the output and input are not the same, or if the node is not found.
@@ -235,7 +261,7 @@ impl Graph {
         tempo_map: &TempoMap,
         playback_ctx: &PlaybackContext,
     ) -> Result<(), GraphError> {
-        // First sort the graph
+        // First sort the graph and create adjencency list for the nodes
         self.sort_graph()?;
 
         // Prepare the input node and allocate its output buffer
@@ -274,13 +300,9 @@ impl Graph {
             }
         }
 
-        // Fill the missing input sources with Zero
-        for node in self.nodes.keys() {
-            let input_len = self.nodes.get(node).map_or(0, |node| node.get_input_len());
-            for input_index in 0..input_len {
-                let key = InputKey(*node, input_index);
-                self.input_sources.entry(key).or_default();
-            }
+        // Fill the missing input sources with Zero and remove the unneeded ones
+        for node in self.nodes.keys().cloned().collect::<Vec<_>>() {
+            self.validate_node_inputs(&node)?;
         }
 
         // Construct input_sources cache in advance
