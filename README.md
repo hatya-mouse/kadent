@@ -36,11 +36,9 @@ Download the ZIP archive of the prebuilt binary from [Releases](https://github.c
 
 Download the .tar.gz archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
 
-### Building from Source
+### Building from Source (macOS / Linux)
 
-#### Using Taskfile
-
-##### Build Bundle
+#### Build Bundle
 
 ```bash
 task bundle-macos
@@ -48,7 +46,7 @@ task bundle-windows
 task bundle-linux
 ```
 
-##### Build Installer or Compressed Archive
+#### Build Installer or Compressed Archive
 
 You don't need to build bundle before building an installer or creating an archive.
 
@@ -58,7 +56,7 @@ task compressed-windows
 task compressed-linux
 ```
 
-#### Without Taskfile
+### Without Taskfile
 
 ```bash
 cargo build --release
