@@ -29,11 +29,7 @@ impl CurveType {
     }
 
     pub(crate) fn all() -> &'static [CurveType] {
-        &[
-            CurveType::Linear,
-            CurveType::Step,
-            CurveType::Smooth { tension: 1.0 },
-        ]
+        &[CurveType::Linear, CurveType::Step]
     }
 
     pub(crate) fn is_same_type(&self, other: &CurveType) -> bool {
