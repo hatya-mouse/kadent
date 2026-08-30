@@ -9,6 +9,8 @@ jobs:
     build-macos-arm:
         name: Build macOS ARM64
         runs-on: macos-latest
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout
@@ -37,6 +39,8 @@ jobs:
     build-windows-x86:
         name: Build Windows x86_64
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout
@@ -68,6 +72,8 @@ jobs:
     build-linux:
         name: Build Linux x86_64
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout
