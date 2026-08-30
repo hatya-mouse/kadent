@@ -24,14 +24,17 @@ pub(crate) use views::{
 
 use crate::{
     background_thread::spawn_background_thread,
+    consts::DEBUG_MODE,
     core::{
         kasl_node::kasl_syntax_set,
         midi_thread::{MidiCommand, spawn_midi_thread},
         project_ctx::ProjectContext,
     },
-    ui::editor::actions::EditorAction,
     ui::{
-        editor::state::{ActionDispatcher, AudioDeviceManager, MidiDeviceManager, TransportState},
+        editor::{
+            actions::EditorAction,
+            state::{ActionDispatcher, AudioDeviceManager, MidiDeviceManager, TransportState},
+        },
         theme,
     },
 };
@@ -115,7 +118,7 @@ impl EditorUi {
                 selection: Selection::default(),
                 actions: ActionDispatcher::new(background_handle),
                 ui_commands: UiCommandDispatcher::default(),
-                debug_mode: false,
+                debug_mode: DEBUG_MODE,
             },
             layout: PanelNode::default(),
             views: ViewStates::default(),

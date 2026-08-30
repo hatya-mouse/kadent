@@ -2,6 +2,8 @@
 
 use eframe::egui;
 
+pub(crate) const DEBUG_MODE: bool = cfg!(debug_assertions) || false;
+
 // --- APP INFO & DATA PATH ---
 
 /// The name of the Kadent data directory.

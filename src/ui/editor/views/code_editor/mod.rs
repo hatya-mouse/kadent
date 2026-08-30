@@ -190,7 +190,6 @@ impl CodeEditorView {
                     .as_ref()
                     .and_then(|path| path.canonicalize().ok())
                 {
-                    println!("File Path: {:?}", file_path);
                     state
                         .actions
                         .push_background_job(BackgroundThreadCommand::LintKasl {
