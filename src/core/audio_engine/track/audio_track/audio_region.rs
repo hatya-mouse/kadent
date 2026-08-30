@@ -9,7 +9,7 @@ use crate::core::audio_engine::{
 use std::sync::Arc;
 
 /// Stores the raw audio source data.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct AudioRegion {
     pub(crate) data_source: AudioSource,
     /// The bounds for the region.

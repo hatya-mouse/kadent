@@ -6,7 +6,7 @@ use std::{
 
 use crate::core::audio_engine::audio_data::{AudioData, AudioDataInfo};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) enum AudioSource {
     /// The audio data is loaded from the original audio file.
     Original(PathBuf),

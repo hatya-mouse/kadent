@@ -15,7 +15,7 @@ use crate::core::audio_engine::{
     timing::TempoMap,
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct AutomationNode {
     /// The automation track that stores keyframes.
     pub(crate) track: AutomationTrack,

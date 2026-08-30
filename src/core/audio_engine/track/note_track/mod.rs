@@ -21,7 +21,7 @@ use std::{
 };
 use voice_event::VoiceEvent;
 
-#[derive(Default, Clone)]
+#[derive(Default, Debug, Clone)]
 pub(crate) struct NoteTrack {
     // --- GRAPH ---
     graph: Graph,

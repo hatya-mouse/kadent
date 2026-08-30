@@ -12,9 +12,9 @@ use crate::core::audio_engine::{
     timing::{TempoMap, TimeBounds},
     track::error::TrackError,
 };
-use std::any::Any;
+use std::{any::Any, fmt::Debug};
 
-pub(crate) trait Track: Send + Any {
+pub(crate) trait Track: Send + Any + Debug {
     /// Clones the track.
     fn clone_box(&self) -> Box<dyn Track>;
 

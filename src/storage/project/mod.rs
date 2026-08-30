@@ -110,6 +110,15 @@ fn load_project(path: &Path) -> Result<DecodableProject, LoadError> {
     let decodable_project: DecodableProject =
         sode::decode(&payload, file_ver).map_err(LoadError::DecodeError)?;
 
+    println!(
+        "Loaded Project: {:#?} (created with Kadent version {}.{}.{} and file version {})",
+        decodable_project,
+        u32::from_le_bytes(major_bytes),
+        u32::from_le_bytes(minor_bytes),
+        u32::from_le_bytes(patch_bytes),
+        file_ver
+    );
+
     Ok(decodable_project)
 }
 

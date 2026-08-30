@@ -1,10 +1,11 @@
 use crate::core::audio_engine::track::note_track::Note;
+use std::fmt::Debug;
 use uuid::Uuid;
 
 #[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 pub(crate) struct NoteModifierID(Uuid);
 
-pub(crate) trait NoteModifier: Send {
+pub(crate) trait NoteModifier: Send + Debug {
     /// Clones the modifier.
     fn clone_box(&self) -> Box<dyn NoteModifier>;
 

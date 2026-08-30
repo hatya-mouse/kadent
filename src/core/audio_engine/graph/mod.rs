@@ -23,7 +23,7 @@ pub(crate) enum InputSource {
     Zero,
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub(crate) struct Graph {
     // --- GRAPH STRUCTURE ---
     nodes: HashMap<NodeID, Box<dyn Node>>,

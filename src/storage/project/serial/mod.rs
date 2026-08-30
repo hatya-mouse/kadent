@@ -5,11 +5,13 @@ mod data;
 mod meta;
 mod misc;
 
+#[derive(Debug)]
 pub(super) struct EncodableProject<'a> {
     pub(super) data: &'a ProjectData,
     pub(super) meta: &'a ProjectMeta,
 }
 
+#[derive(Debug)]
 pub(super) struct DecodableProject {
     pub(super) data: ProjectData,
     pub(super) meta: ProjectMeta,

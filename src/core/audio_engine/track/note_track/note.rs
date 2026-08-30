@@ -16,7 +16,7 @@ impl From<u64> for NoteID {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct Note {
     /// Relative start position in the region in ticks.
     pub(crate) start: Ticks,

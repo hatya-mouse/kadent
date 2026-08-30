@@ -6,7 +6,7 @@ use crate::core::audio_engine::{
 };
 
 /// An empty node that just writes the `process` input to the node output.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub(crate) struct NoteInputNode {
     data_type: TypeInfo,
 }

@@ -5,9 +5,9 @@ use crate::core::audio_engine::{
     graph::error::NodeError,
     timing::TempoMap,
 };
-use std::any::Any;
+use std::{any::Any, fmt::Debug};
 
-pub(crate) trait Node: Send + Any {
+pub(crate) trait Node: Send + Any + Debug {
     /// Clones the node.
     fn clone_box(&self) -> Box<dyn Node>;
 

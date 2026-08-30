@@ -12,7 +12,7 @@ use crate::core::audio_engine::{
         audio_track::track_impl::{ExportWaitState, RenderWorker, TrackSyncState},
     },
 };
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, fmt::Debug, sync::Arc};
 
 #[derive(Default)]
 pub(crate) struct AudioTrack {
@@ -41,6 +41,17 @@ pub(crate) struct AudioTrack {
 
     // --- MISC ---
     next_region_id: u64,
+}
+
+impl Debug for AudioTrack {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AudioTrack")
+            .field("graph", &self.graph)
+            .field("regions", &self.regions)
+            .field("graph_input_buffer", &self.graph_input_buffer)
+            .field("next_region_id", &self.next_region_id)
+            .finish()
+    }
 }
 
 impl AudioTrack {

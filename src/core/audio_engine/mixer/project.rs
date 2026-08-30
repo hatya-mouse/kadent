@@ -7,7 +7,7 @@ use crate::core::audio_engine::{
 };
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct ProjectData {
     // --- TRACKS ---
     /// Tracks in the project.

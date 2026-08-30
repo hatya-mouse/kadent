@@ -5,7 +5,7 @@ use crate::core::audio_engine::{
 };
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct NoteRegion {
     pub(crate) bounds: TimeBounds,
     pub(crate) notes: HashMap<NoteID, Note>,

@@ -2,7 +2,7 @@
 
 use eframe::egui;
 
-pub(crate) const DEBUG_MODE: bool = cfg!(debug_assertions) || false;
+pub(crate) const DEBUG_MODE: bool = cfg!(debug_assertions) || true;
 
 // --- APP INFO & DATA PATH ---
 

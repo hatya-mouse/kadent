@@ -15,7 +15,10 @@ use kasl::{
     cranelift_backend::CraneliftBackend,
     ir::Optimizer,
 };
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Debug,
+    path::{Path, PathBuf},
+};
 
 #[derive(Default)]
 pub(crate) struct KaslNode {
@@ -37,6 +40,19 @@ pub(crate) struct KaslNode {
     last_source: Option<String>,
     /// Playback context of the last successful compile.
     last_playback_key: Option<(usize, u64, usize)>,
+}
+
+impl Debug for KaslNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("KaslNode")
+            .field("file_path", &self.file_path)
+            .field("search_paths", &self.search_paths)
+            .field("project_dir", &self.project_dir)
+            .field("input_types", &self.input_types)
+            .field("output_types", &self.output_types)
+            .field("states", &self.states.len())
+            .finish()
+    }
 }
 
 impl KaslNode {
