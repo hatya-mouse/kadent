@@ -13,6 +13,7 @@ class LicenseItem(TypedDict):
     name: str
     id: str
     text: str
+
 class DependencyItem(TypedDict):
     name: str
     version: str | NoneType
