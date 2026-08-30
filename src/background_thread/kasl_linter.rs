@@ -8,7 +8,7 @@ pub(super) fn lint_kasl(
     file_path: &Path,
 ) -> Vec<ErrorRecord> {
     // Add the path to the parent directory of the file being linted to the search paths
-    if let Some(local_path) = file_path.parent() {
+    if let Some(local_path) = file_path.parent().and_then(|path| path.canonicalize().ok()) {
         search_paths.push(local_path.to_path_buf());
     }
 

@@ -102,7 +102,10 @@ impl KaslNode {
             .iter()
             .map(PathBuf::from)
             .collect::<Vec<_>>();
-        if let Some(local_path) = PathBuf::from(file_path).parent() {
+        if let Some(local_path) = PathBuf::from(file_path)
+            .parent()
+            .and_then(|path| path.canonicalize().ok())
+        {
             search_paths.push(local_path.to_path_buf());
         }
 
