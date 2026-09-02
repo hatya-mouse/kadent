@@ -161,6 +161,17 @@ func saw(freq f = 440.0, time t: Float) -> Float {
 }
 ```
 
+## Screenshots
+
+![Screenshot 1](https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/screenshots/screenshot_1.png)
+*Code editor with some errors shown*
+
+![Screenshot 2](https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/screenshots/screenshot_1.png)
+*During playback*
+
+![midi_demo_1](https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/screenshots/screenshot_1.png)
+*Connect a MIDI controller to Kadent and play the synthesizer.*
+
 ## Installation
 
 ### Download Prebuilt Binary
