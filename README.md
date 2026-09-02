@@ -24,7 +24,7 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 
 - [Features](#features)
 - [KASL Language](#kasl-language)
-- [KASL Sample Program](#kasl-sample-program)
+- [KASL Sample Programs](#kasl-sample-programs)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Profiling](#profiling)
@@ -106,8 +106,10 @@ func infix /(lhs: Int, rhs: Int) -> Int {
 }
 ```
 
-## KASL Sample Program
+## KASL Sample Programs
+
 > `audio` module is built-in module provided by Kadent. Note that these programs below will not work outside the DAW.
+
 ### Gain Node
 ```kasl
 import audio
