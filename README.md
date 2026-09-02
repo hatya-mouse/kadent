@@ -20,6 +20,15 @@
 
 Kadent is a DAW (Digital Audio Workstation) software. It supports building synthesizers and effects using built-in KASL language.
 
+## Table of Contents
+
+- [Features](#features)
+- [KASL Language](#kasl-language)
+- [KASL Sample Program](#kasl-sample-program)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Profiling](#profiling)
+
 ## Features
 
 - Build your own synthesizers and effects using KASL language!
