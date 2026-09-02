@@ -8,6 +8,12 @@
 
 **DAW with a KASL language to create custom synths & effects**
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/hatya-mouse/kadent/release.yml?style=for-the-badge)
+![GitHub Release](https://img.shields.io/github/v/release/hatya-mouse/kadent?style=for-the-badge)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/hatya-mouse/kadent/total?style=for-the-badge)
+![GitHub License](https://img.shields.io/github/license/hatya-mouse/kadent?style=for-the-badge)
+![Deps.rs Repository Dependencies](https://img.shields.io/deps-rs/repo/github/hatya-mouse/kadent?style=for-the-badge)
+
 ---
 
 </div>
