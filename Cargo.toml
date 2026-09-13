@@ -9,7 +9,7 @@ inherits = "release"
 debug = true
 
 [dependencies]
-dirs = "6.0.0"
+dirs = "7.0.0"
 eframe = "0.36.1"
 egui_extras = { version = "0.36.1", features = ["all_loaders", "syntect"] }
 hound = "3.5.1"
