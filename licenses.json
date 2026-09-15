@@ -1948,7 +1948,7 @@
         },
         {
             "name": "cc",
-            "version": "1.4.4",
+            "version": "1.4.5",
             "authors": [],
             "description": "A build-time dependency for Cargo build scripts to assist in invoking the native\nC compiler to compile native C code into a static archive to be linked into Rust\ncode.\n",
             "license_id": "MIT",
@@ -1968,7 +1968,7 @@
         },
         {
             "name": "find-msvc-tools",
-            "version": "0.1.11",
+            "version": "0.1.12",
             "authors": [],
             "description": "Find windows-specific tools, read MSVC versions from the registry and from COM interfaces",
             "license_id": "MIT",
@@ -1988,7 +1988,7 @@
         },
         {
             "name": "js-sys",
-            "version": "0.3.104",
+            "version": "0.3.105",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2021,7 +2021,7 @@
         },
         {
             "name": "wasm-bindgen-futures",
-            "version": "0.4.77",
+            "version": "0.4.78",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2032,7 +2032,7 @@
         },
         {
             "name": "wasm-bindgen-macro-support",
-            "version": "0.2.127",
+            "version": "0.2.128",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2043,7 +2043,7 @@
         },
         {
             "name": "wasm-bindgen-macro",
-            "version": "0.2.127",
+            "version": "0.2.128",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2054,7 +2054,7 @@
         },
         {
             "name": "wasm-bindgen-shared",
-            "version": "0.2.127",
+            "version": "0.2.128",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2065,7 +2065,7 @@
         },
         {
             "name": "wasm-bindgen",
-            "version": "0.2.127",
+            "version": "0.2.128",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2076,7 +2076,7 @@
         },
         {
             "name": "web-sys",
-            "version": "0.3.104",
+            "version": "0.3.105",
             "authors": [
                 "The wasm-bindgen Developers"
             ],
@@ -2722,7 +2722,7 @@
         },
         {
             "name": "indexmap",
-            "version": "2.14.1",
+            "version": "2.14.2",
             "authors": [],
             "description": "A hash table with consistent order and fast iteration.",
             "license_id": "MIT",
@@ -2829,7 +2829,7 @@
         },
         {
             "name": "redox_syscall",
-            "version": "0.9.3",
+            "version": "0.9.4",
             "authors": [
                 "Jeremy Soller <jackpot51@gmail.com>"
             ],
@@ -3016,7 +3016,7 @@
         },
         {
             "name": "smallvec",
-            "version": "1.15.2",
+            "version": "1.16.0",
             "authors": [
                 "The Servo Project Developers"
             ],
@@ -3765,7 +3765,7 @@
         },
         {
             "name": "toml",
-            "version": "1.1.4+spec-1.1.0",
+            "version": "1.1.5+spec-1.1.0",
             "authors": [],
             "description": "A native Rust encoder and decoder of TOML-formatted files and streams. Provides\nimplementations of the standard Serialize/Deserialize traits for TOML data to\nfacilitate deserializing and serializing Rust structures.\n",
             "license_id": "MIT",
@@ -3928,7 +3928,7 @@
         },
         {
             "name": "trash",
-            "version": "5.2.6",
+            "version": "5.2.7",
             "authors": [
                 "Artur Kovacs <kovacs.artur.barnabas@gmail.com>"
             ],
@@ -4270,7 +4270,7 @@
         },
         {
             "name": "libredox",
-            "version": "0.1.21",
+            "version": "0.1.23",
             "authors": [
                 "4lDO2 <4lDO2@protonmail.com>"
             ],
@@ -5924,10 +5924,8 @@
         },
         {
             "name": "hermit-abi",
-            "version": "0.5.2",
-            "authors": [
-                "Stefan Lankes"
-            ],
+            "version": "0.5.3",
+            "authors": [],
             "description": "Hermit system calls definitions.",
             "license_id": "MIT",
             "license_index": 171,
@@ -6092,7 +6090,7 @@
         },
         {
             "name": "portable-atomic-util",
-            "version": "0.2.7",
+            "version": "0.2.8",
             "authors": [],
             "description": "Synchronization primitives built with portable-atomic.\n",
             "license_id": "MIT",
@@ -6293,7 +6291,7 @@
         },
         {
             "name": "syn",
-            "version": "3.0.4",
+            "version": "3.0.5",
             "authors": [
                 "David Tolnay <dtolnay@gmail.com>"
             ],
@@ -6903,7 +6901,7 @@
         },
         {
             "name": "crossbeam-deque",
-            "version": "0.8.7",
+            "version": "0.8.8",
             "authors": [],
             "description": "Concurrent work-stealing deque",
             "license_id": "MIT",
@@ -6912,7 +6910,7 @@
         },
         {
             "name": "crossbeam-epoch",
-            "version": "0.9.20",
+            "version": "0.9.21",
             "authors": [],
             "description": "Epoch-based garbage collection",
             "license_id": "MIT",
@@ -6921,7 +6919,7 @@
         },
         {
             "name": "crossbeam-utils",
-            "version": "0.8.22",
+            "version": "0.8.23",
             "authors": [],
             "description": "Utilities for concurrent programming",
             "license_id": "MIT",

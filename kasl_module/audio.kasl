@@ -80,8 +80,10 @@ struct Voice {{
     var pitch = 0.0
     // A MIDI velocity value.
     var velocity = 0.0
-    // The age of the voice in seconds.
+    // Represents the duration of time the voice has been active.
     var age = 0.0
+    // Represents the duration of time the voice after the note off event has been received.
+    var release_age = 0.0
 
     static func new(pitch: Float, velocity: Float) -> Voice {{
         var voice = Voice()
@@ -89,6 +91,7 @@ struct Voice {{
         voice.pitch = pitch
         voice.velocity = velocity
         voice.age = 0.0
+        voice.release_age = 0.0
         return voice
     }}
 }}
@@ -112,6 +115,8 @@ struct Allocator {{
         loop max_voices {{
             if self.voices[i].is_active {{
                 self.voices[i].age = self.voices[i].age + seconds_per_sample
+            }} else {{
+                self.voices[i].release_age = self.voices[i].release_age + seconds_per_sample
             }}
             i = i + 1
         }}
