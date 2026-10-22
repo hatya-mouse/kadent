@@ -10,8 +10,8 @@ Panels can be resized by dragging the borders using `LMB`.
 
 <img src="./resize.png" width="50%">
 
-To close the panel, drag the borders using `LMB` to make the panel small enough.
-The panel to be closed will be displayed red.
+To close the panel, hold down the left mouse button `LMB` and drag its borders until the panel turns red.
+Release the mouse button to close the panel.
 
 <img src="./close.png" width="50%">
 
