@@ -23,10 +23,11 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 ## Table of Contents
 
 - [Features](#features)
+- [Documentation](#documentation)
+- [Installation](#installation)
 - [KASL Language](#kasl-language)
 - [KASL Sample Programs](#kasl-sample-programs)
 - [Screenshots](#screenshots)
-- [Installation](#installation)
 - [Acknowledgements](#acknowledgements)
 
 ## Features
@@ -39,6 +40,48 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 ## Documentation
 
 A detailed documentation is available [here](./docs/index.md).
+
+## Installation
+
+### Download Prebuilt Binary
+
+#### macOS
+
+Download the installer from [Releases](https://github.com/hatya-mouse/kadent/releases) and open it to install.
+
+#### Windows
+
+Download the ZIP archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
+
+#### Linux
+
+Download the .tar.gz archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
+
+### Building from Source (macOS / Linux)
+
+#### Build Bundle
+
+```bash
+task bundle-macos
+task bundle-windows
+task bundle-linux
+```
+
+#### Build Installer or Compressed Archive
+
+You don't need to build bundle before building an installer or creating an archive.
+
+```bash
+task installer-macos
+task compressed-windows
+task compressed-linux
+```
+
+### Without Taskfile
+
+```bash
+cargo build --release
+```
 
 ## KASL Language
 
@@ -192,48 +235,6 @@ func saw(freq f = 440.0, time t: Float) -> Float {
 
 ![MIDI Demo](https://raw.githubusercontent.com/hatya-mouse/kadent/main/assets/readme/midi_demo_1.png)
 *Connect a MIDI controller to Kadent and play the synthesizer*
-
-## Installation
-
-### Download Prebuilt Binary
-
-#### macOS
-
-Download the installer from [Releases](https://github.com/hatya-mouse/kadent/releases) and open it to install.
-
-#### Windows
-
-Download the ZIP archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
-
-#### Linux
-
-Download the .tar.gz archive of the prebuilt binary from [Releases](https://github.com/hatya-mouse/kadent/releases), extract the archive, and move it to your desired location.
-
-### Building from Source (macOS / Linux)
-
-#### Build Bundle
-
-```bash
-task bundle-macos
-task bundle-windows
-task bundle-linux
-```
-
-#### Build Installer or Compressed Archive
-
-You don't need to build bundle before building an installer or creating an archive.
-
-```bash
-task installer-macos
-task compressed-windows
-task compressed-linux
-```
-
-### Without Taskfile
-
-```bash
-cargo build --release
-```
 
 ## Acknowledgements
 
