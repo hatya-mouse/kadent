@@ -24,6 +24,6 @@ Then click the "Create Track" button to create a track.
 
 ## Regions
 
-In the regions area, click using `LMB` twice to create a new region to the track.
+In the regions area, double-click using `LMB` to create a new region to the track.
 
 A empty note track is created when you click on a note track, and a zero-filled audio region is created when you click on a audio track.
