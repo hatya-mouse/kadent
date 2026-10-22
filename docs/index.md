@@ -10,3 +10,4 @@ Welcome to the documentation of Kadent!
 
 - [Timeline](./timeline/timeline.md)
 - [Inspector](./inspector/inspector.md)
+- [Automation](./automation/automation.md)
