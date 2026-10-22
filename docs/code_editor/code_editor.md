@@ -40,6 +40,8 @@ You can also save only the currently opened file using the save button at the to
 
 Click the errors button at the top-right of the panel to open or close the errors list.
 
+<img src="error_view.png" width="50%">
+
 To select the range where the error is happening, click the error in the errors list.
 
 The errors are updated as you type.
