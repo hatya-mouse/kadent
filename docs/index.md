@@ -13,3 +13,4 @@ Welcome to the documentation of Kadent!
 - [Automation](./automation/automation.md)
 - [Node Graph](./node_graph/node_graph.md)
 - [Piano Roll](./piano_roll/piano_roll.md)
+- [Code Editor](./code_editor/code_editor.md)
