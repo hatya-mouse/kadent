@@ -12,3 +12,4 @@ Welcome to the documentation of Kadent!
 - [Inspector](./inspector/inspector.md)
 - [Automation](./automation/automation.md)
 - [Node Graph](./node_graph/node_graph.md)
+- [Piano Roll](./piano_roll/piano_roll.md)
