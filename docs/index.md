@@ -11,3 +11,4 @@ Welcome to the documentation of Kadent!
 - [Timeline](./timeline/timeline.md)
 - [Inspector](./inspector/inspector.md)
 - [Automation](./automation/automation.md)
+- [Node Graph](./node_graph/node_graph.md)
