@@ -36,6 +36,10 @@ Kadent is a DAW (Digital Audio Workstation) software. It supports building synth
 - Project save & load
 - Node graph attached to every track
 
+## Documentation
+
+A documentation is available [here](./docs/index.md).
+
 ## KASL Language
 
 KASL is a domain-specific language designed for audio processing. It uses Cranelift as a backend for faster JIT (Just-in-time) compilation.
