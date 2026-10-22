@@ -6,7 +6,7 @@ In Kadent, you can open multiple panels at the same time.
 
 Panels can be resized by dragging the borders using `LMB`.
 
-Dragging the borders so that the panel is small enough closes the panel.
+To close the panel, drag the borders to make the panel small enough.
 The panel to be closed will be displayed red.
 
 ## Splitting
