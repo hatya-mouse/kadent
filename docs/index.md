@@ -9,3 +9,4 @@ Welcome to the documentation of Kadent!
 ## Panels
 
 - [Timeline](./timeline/timeline.md)
+- [Inspector](./inspector/inspector.md)
