@@ -15,6 +15,10 @@ pub(crate) struct ActionDispatcher {
     // --- EXPORT ---
     /// The path to export the project to last time the export button was clicked.
     pub(crate) pending_export_path: Option<PathBuf>,
+
+    // --- HISTORY ---
+    /// The history of performed actions.
+    pub(crate) action_history: Vec<EditorAction>,
 }
 
 impl ActionDispatcher {
@@ -24,12 +28,14 @@ impl ActionDispatcher {
             pending: VecDeque::new(),
             last_edit_time: None,
             pending_export_path: None,
+            action_history: Vec::new(),
         }
     }
 
     /// Pushes a editor action to the pending queue to be executed at the end of the frame.
     pub(crate) fn push_action(&mut self, action: EditorAction) {
-        self.pending.push_back(action);
+        self.pending.push_back(action.clone());
+        self.action_history.push(action);
     }
 
     /// Marks the project as modified and updates the last edit time. Should be called whenever the project is modified.

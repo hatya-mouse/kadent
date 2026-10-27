@@ -70,6 +70,7 @@ pub(crate) enum KeyframeValue {
     Bool(bool),
 }
 
+#[derive(Clone)]
 pub(crate) enum EditorAction {
     // --- PROJECT ---
     /// Save the current project and the currently opened programs in the code editor.
