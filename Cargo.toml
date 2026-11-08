@@ -16,7 +16,7 @@ hound = "3.5.1"
 kasl = { version = "0.2.41", features = ["cranelift"] }
 midir = "0.11.0"
 rfd = "0.17.2"
-ringbuf = "0.5.1"
+ringbuf = "0.6.0"
 serde_json = "1.0.151"
 cpal = "0.18.2"
 syntect = "5.3.0"
